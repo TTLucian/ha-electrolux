@@ -287,7 +287,7 @@ class TestElectroluxText:
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC",
-            {"userSelections": {"programUID": "TEST", "testAttr": "new value"}},
+            {"testAttr": "new value"},
         )
         entity.coordinator.async_request_refresh.assert_called_once()
 

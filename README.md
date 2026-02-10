@@ -25,12 +25,6 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 
 **Maintained by [TTLucian](https://github.com/TTLucian)**
 
-## 🧪 Testing Scripts
-
-This repository includes comprehensive testing scripts to help you verify appliance compatibility and test API functionality before installing the integration. These scripts allow direct interaction with the Electrolux API to inspect your appliances and test commands.
-
-📖 **[Testing Scripts Documentation](scripts/TESTING_SCRIPTS_README.md)** - Complete guide for using the testing tools
-
 | Contributors | Support Link |
 |-------------|-------------|
 | [TTLucian](https://github.com/TTLucian) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/TTLucian) |
@@ -186,6 +180,12 @@ logger:
   logs:
     custom_components.electrolux: debug
 ```
+
+## 🧪 Testing Scripts
+
+This repository includes comprehensive testing scripts to help you verify appliance compatibility and test API functionality before installing the integration. These scripts allow direct interaction with the Electrolux API to inspect your appliances and test commands.
+
+📖 **[Testing Scripts Documentation](scripts/TESTING_SCRIPTS_README.md)** - Complete guide for using the testing tools
 
 ## Contributing
 
