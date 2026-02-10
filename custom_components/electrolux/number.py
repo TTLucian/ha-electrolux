@@ -361,6 +361,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
 
         # Convert UI minutes back to seconds for time entities
+        command_value: int | float  # Add explicit type annotation
         if self.unit == UnitOfTime.SECONDS:
             # If user sets '1' (minute), send '60' (seconds) to the API
             command_value = time_minutes_to_seconds(value) or 0

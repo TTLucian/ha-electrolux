@@ -197,13 +197,12 @@ class TestElectroluxSwitch:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
-            # Verify command structure for userSelections
+            # Verify command structure for Legacy appliance with userSelections source
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            assert "userSelections" in command
-            assert command["userSelections"]["programUID"] == "TEST_PROGRAM"
-            assert command["userSelections"]["testAttr"] == "ON"
+            # Legacy appliances send simple commands, not wrapped in userSelections
+            assert command == {"testAttr": "ON"}
 
     @pytest.mark.asyncio
     async def test_switch_with_appliance_source(
@@ -238,12 +237,12 @@ class TestElectroluxSwitch:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
-            # Verify command structure for appliance source
+            # Verify command structure for Legacy appliance with appliance source
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            assert "oven" in command
-            assert command["oven"]["testAttr"] == "ON"
+            # Legacy appliances send simple commands, not wrapped in appliance type
+            assert command == {"testAttr": "ON"}
 
     @pytest.mark.asyncio
     async def test_switch_with_root_source(self, switch_entity):

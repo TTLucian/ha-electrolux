@@ -199,13 +199,12 @@ class TestElectroluxSelect:
             mock_format.return_value = "OPTION1"
             await entity.async_select_option("Option 1")
 
-            # Verify command structure for userSelections
+            # Verify command structure for Legacy appliance with userSelections source
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            assert "userSelections" in command
-            assert command["userSelections"]["programUID"] == "TEST_PROGRAM"
-            assert command["userSelections"]["testAttr"] == "OPTION1"
+            # Legacy appliances send simple commands, not wrapped in userSelections
+            assert command == {"testAttr": "OPTION1"}
 
     @pytest.mark.asyncio
     async def test_select_with_appliance_source(
@@ -240,12 +239,12 @@ class TestElectroluxSelect:
             mock_format.return_value = "OPTION1"
             await entity.async_select_option("Option 1")
 
-            # Verify command structure for appliance source
+            # Verify command structure for Legacy appliance with appliance source
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            assert "oven" in command
-            assert command["oven"]["testAttr"] == "OPTION1"
+            # Legacy appliances send simple commands, not wrapped in appliance type
+            assert command == {"testAttr": "OPTION1"}
 
     def test_available_property_remote_control_disabled(self, select_entity):
         """Test availability when remote control is disabled."""
