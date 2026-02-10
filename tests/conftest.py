@@ -9,6 +9,7 @@ We prefer minimal, targeted fixes over blanket suppression. The
 `inspect.iscoroutinefunction`; replace the symbol at runtime so
 third-party libraries continue to work without warnings.
 """
+
 from __future__ import annotations
 
 import asyncio

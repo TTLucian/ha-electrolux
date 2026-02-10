@@ -275,8 +275,8 @@ This is the easiest and most reliable way to run the scripts, as they are design
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/TTLucian/homeassistant_electrolux_status.git
-   cd homeassistant_electrolux_status
+   git clone https://github.com/TTLucian/ha-electrolux.git
+   cd ha-electrolux
    ```
 
 2. **Create a Virtual Environment (Recommended):**
@@ -471,5 +471,4 @@ For users who want to run the scripts without cloning the entire repository, you
 - **Import Errors**: Ensure `electrolux_api_client.py` is in the same directory as the scripts
 - **SDK Issues**: Verify the SDK is installed: `pip list | grep electrolux`
 - **Permission Errors**: Make sure scripts have execute permissions: `chmod +x script_*.py`
-- **Path Issues**: If you move files, update any relative imports accordingly</content>
-<parameter name="filePath">d:\Lucian\Documents\Github\homeassistant_electrolux_status\TESTING_SCRIPTS_README.md
+- **Path Issues**: If you move files, update any relative imports accordingly
