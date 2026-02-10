@@ -1,5 +1,11 @@
 # Home Assistant Electrolux Integration
-
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" />
+  <img src="https://img.shields.io/github/license/TTLucian/ha-electrolux?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge" />
+  <img src="https://img.shields.io/github/actions/workflow/status/TTLucian/ha-electrolux/ci.yml?style=for-the-badge" />
+  <a href="https://buymeacoffee.com/ttlucian"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+</p>
 ## Description
 
 A comprehensive Home Assistant integration for Electrolux appliances using the official Electrolux Group Developer API. This integration provides real-time monitoring and control of Electrolux and Electrolux-owned brand appliances including AEG, Frigidaire, and +home.
