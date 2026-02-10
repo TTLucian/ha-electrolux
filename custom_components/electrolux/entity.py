@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from .const import CONF_API_KEY, DOMAIN
+from .coordinator import ElectroluxCoordinator
 from .model import ElectroluxDevice
 from .models import Appliance, Appliances, ApplianceState
 from .util import ElectroluxApiClient
@@ -129,7 +130,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
     def __init__(
         self,
-        coordinator: Any,
+        coordinator: ElectroluxCoordinator,
         name: str,
         config_entry,
         pnc_id: str,

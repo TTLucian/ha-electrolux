@@ -11,6 +11,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, NUMBER
+from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .util import (
     AuthenticationError,
@@ -492,7 +493,8 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             self._cached_value = old_cached_value
             self.async_write_ha_state()
             # Handle authentication errors by triggering reauthentication
-            await self.coordinator.handle_authentication_error(auth_ex)
+            coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
+            await coordinator.handle_authentication_error(auth_ex)
             return
         except Exception as ex:
             _LOGGER.error(

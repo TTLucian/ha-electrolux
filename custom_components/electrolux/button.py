@@ -12,6 +12,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import BUTTON, CONF_API_KEY, DOMAIN, icon_mapping
+from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .model import ElectroluxDevice
 from .util import (
@@ -216,7 +217,8 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             result = await client.execute_appliance_command(self.pnc_id, command)
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
-            await self.coordinator.handle_authentication_error(auth_ex)
+            coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
+            await coordinator.handle_authentication_error(auth_ex)
         except Exception as ex:
             # Use shared error mapping for all errors
             raise map_command_error_to_home_assistant_error(
