@@ -77,6 +77,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.api = client
         self.platforms: list[str] = []
         self.renew_task: Optional[asyncio.Task] = None
+        self.listen_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
         self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (

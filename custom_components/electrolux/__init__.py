@@ -69,9 +69,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Initialize entities
     _LOGGER.debug("async_setup_entry setup_entities")
     await coordinator.setup_entities()
-    _LOGGER.debug("async_setup_entry listen_websocket")
-    # Start websocket listening as background task to avoid blocking setup
-    coordinator.hass.async_create_task(coordinator.listen_websocket())
 
     _LOGGER.debug("async_setup_entry async_config_entry_first_refresh")
     try:
@@ -99,23 +96,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.debug("async_setup_entry scheduling websocket renewal task")
 
-    # Schedule websocket renewal as background task after HA startup completes to avoid blocking
+    # Schedule websocket tasks as background tasks after HA startup completes to avoid blocking
     # Use proper HA pattern: per-entry task with automatic cleanup via async_on_unload
-    async def start_renewal_task(event=None):
+    async def start_background_tasks(event=None):
+        # Start websocket listening
+        coordinator.listen_task = hass.async_create_task(
+            coordinator.listen_websocket(), name=f"Electrolux listen - {entry.title}"
+        )
+        # Start websocket renewal
         coordinator.renew_task = hass.async_create_task(
             coordinator.renew_websocket(), name=f"Electrolux renewal - {entry.title}"
         )
 
-        # Bind task cleanup to entry lifecycle - ensures task is cancelled when entry is unloaded/reloaded
-        def cleanup_task():
+        # Bind task cleanup to entry lifecycle - ensures tasks are cancelled when entry is unloaded/reloaded
+        def cleanup_tasks():
+            if coordinator.listen_task:
+                coordinator.listen_task.cancel()
             if coordinator.renew_task:
                 coordinator.renew_task.cancel()
 
-        entry.async_on_unload(cleanup_task)
+        entry.async_on_unload(cleanup_tasks)
 
-    # Start renewal task after HA has fully started to prevent blocking startup
+    # Start background tasks after HA has fully started to prevent blocking startup
     entry.async_on_unload(
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_renewal_task)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
     )
 
     async def _close_coordinator(event):
