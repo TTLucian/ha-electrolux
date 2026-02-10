@@ -156,10 +156,43 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
                 "Remote control is disabled for this appliance. Please check the appliance settings."
             )
 
+        # Validate command based on appliance state for executeCommand
+        if self.entity_attr == "executeCommand":
+            current_state = None
+            if self.appliance_status:
+                current_state = (
+                    self.appliance_status.get("properties", {})
+                    .get("reported", {})
+                    .get("applianceState")
+                )
+            if self.val_to_send == "STOPRESET":
+                if current_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:
+                    _LOGGER.warning(
+                        "Cannot send STOPRESET command to appliance %s in state %s",
+                        self.pnc_id,
+                        current_state,
+                    )
+                    raise HomeAssistantError(
+                        f"Cannot stop appliance in current state ({current_state}). Appliance must be running, paused, or have a delayed start."
+                    )
+            elif self.val_to_send == "START":
+                if current_state not in ["READY_TO_START", "END_OF_CYCLE"]:
+                    _LOGGER.warning(
+                        "Cannot send START command to appliance %s in state %s",
+                        self.pnc_id,
+                        current_state,
+                    )
+                    raise HomeAssistantError(
+                        f"Cannot start appliance in current state ({current_state}). Appliance must be ready to start or at end of cycle."
+                    )
+
         client: ElectroluxApiClient = self.api
         value = self.val_to_send
         command: dict[str, Any]
-        if self.entity_source:
+        if not self.is_dam_appliance:
+            # Legacy appliances: always send as simple top-level property
+            command = {self.entity_attr: value}
+        elif self.entity_source:
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing
                 reported = (

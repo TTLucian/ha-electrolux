@@ -14,7 +14,7 @@ from homeassistant.components.button import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import Platform
+from homeassistant.const import Platform, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .catalog_core import CATALOG_BASE, CATALOG_MODEL
@@ -322,6 +322,10 @@ class Appliance:
             unit = catalog_item.unit
             entity_category = catalog_item.entity_category
             entity_icon = catalog_item.entity_icon
+
+        # Ensure time entities have correct unit for conversion
+        if not unit and entity_attr in ["startTime", "targetDuration"]:
+            unit = UnitOfTime.SECONDS
 
         # override the api determined type by the catalog entity_type
         if isinstance(device_class, BinarySensorDeviceClass):

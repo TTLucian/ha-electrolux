@@ -65,7 +65,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def mode(self) -> NumberMode:
         """Return the mode for the number entity."""
-        # Use box input for time-based entities (start time and target duration)
+        # Use box input for time-based entities to allow free minute input
         if self.entity_attr in ["startTime", "targetDuration"]:
             return NumberMode.BOX
         # Use slider for other controls with step constraints
@@ -149,10 +149,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if isinstance(self.unit, UnitOfTemperature):
             value = round(value, 2)
 
+        original_value = value  # Store for logging
+
         # Convert to native units (minutes for time entities)
         if self.unit == UnitOfTime.SECONDS:
             # Convert seconds from API to minutes for UI
             value = time_seconds_to_minutes(value) or 0
+            _LOGGER.debug(
+                "Electrolux time entity %s: converted API value %s seconds to %s minutes for UI",
+                self.entity_attr,
+                original_value,
+                value,
+            )
 
         # Clamp value to current program-specific min/max range
         min_val = self.native_min_value
@@ -168,73 +176,80 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def native_max_value(self) -> float:
         """Return max value: Catalog (Seconds) -> Program -> Appliance API, converted to minutes for UI."""
-        # 1. Catalog is the Source of Truth (already in correct units - seconds)
-        if (
-            self._catalog_entry
-            and (cat_max := self._catalog_entry.capability_info.get("max")) is not None
-        ):
-            # Convert seconds to minutes for UI display
-            if self.unit == UnitOfTime.SECONDS:
-                return float(time_seconds_to_minutes(cat_max) or 0)
-            return float(cat_max)
-
-        # 2. Fallback to API/Program logic
-        max_val = self._get_program_constraint("max") or self.capability.get("max")
-
-        # 3. Convert only if coming from API (seconds) and entity is time-based
-        if self.unit == UnitOfTime.SECONDS and max_val is not None:
-            return float(
-                time_seconds_to_minutes(max_val) or 0
-            )  # Convert seconds to minutes for UI
-        return float(max_val or 100.0)
+        return self._get_converted_constraint("max")
 
     @property
     def native_min_value(self) -> float:
         """Return min value: Catalog (Seconds) -> Program -> Appliance API, converted to minutes for UI."""
-        if (
-            self._catalog_entry
-            and (cat_min := self._catalog_entry.capability_info.get("min")) is not None
-        ):
-            # Convert seconds to minutes for UI display
-            if self.unit == UnitOfTime.SECONDS:
-                return float(time_seconds_to_minutes(cat_min) or 0)
-            return float(cat_min)
-
-        min_val = self._get_program_constraint("min") or self.capability.get("min")
-
-        if self.unit == UnitOfTime.SECONDS and min_val is not None:
-            return float(
-                time_seconds_to_minutes(min_val) or 0
-            )  # Convert seconds to minutes for UI
-        return float(min_val or 0.0)
+        return self._get_converted_constraint("min")
 
     @property
     def native_step(self) -> float:
         """Return step value: Catalog (Seconds) -> Program -> Safe Default, converted to minutes for UI."""
-        if (
-            self._catalog_entry
-            and (cat_step := self._catalog_entry.capability_info.get("step"))
-            is not None
-        ):
-            # Convert seconds to minutes for UI display
-            if self.unit == UnitOfTime.SECONDS:
-                return float(time_seconds_to_minutes(cat_step) or 1)
-            return float(cat_step)
-
-        step_val = self._get_program_constraint("step") or self.capability.get("step")
-
-        if self.unit == UnitOfTime.SECONDS and step_val is not None:
-            return float(
-                time_seconds_to_minutes(step_val) or 1
-            )  # Convert seconds to minutes for UI
-        return float(step_val or 1.0)
+        return self._get_converted_constraint("step")
 
     @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement, converting seconds to minutes for time entities."""
         if self.unit == UnitOfTime.SECONDS:
+            _LOGGER.debug(
+                "Electrolux time entity %s: converting unit from %s to minutes",
+                self.entity_attr,
+                self.unit,
+            )
             return UnitOfTime.MINUTES  # Show 'min' instead of 's' for time entities
         return self.unit
+
+    def _get_converted_constraint(self, key: str) -> float:
+        """Get a constraint value (min/max/step) with proper time conversion."""
+        # Special handling for temperature controls that should always be available
+        if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]:
+            if not self._is_supported_by_program():
+                return 0.0
+
+        # 1. Catalog is the Source of Truth (already in correct units - seconds)
+        if (
+            self._catalog_entry
+            and (cat_val := self._catalog_entry.capability_info.get(key)) is not None
+        ):
+            # Convert seconds to minutes for UI display
+            if self.unit == UnitOfTime.SECONDS:
+                converted_val = time_seconds_to_minutes(cat_val) or 0
+                if key == "step":
+                    _LOGGER.debug(
+                        "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
+                        self.entity_attr,
+                        key,
+                        cat_val,
+                        converted_val,
+                    )
+                return float(converted_val)
+            return float(cat_val)
+
+        # 2. Fallback to API/Program logic
+        val = self._get_program_constraint(key) or self.capability.get(key)
+
+        # 3. Convert only if coming from API (seconds) and entity is time-based
+        if self.unit == UnitOfTime.SECONDS and val is not None:
+            converted_val = time_seconds_to_minutes(val) or 0
+            if key == "step":
+                _LOGGER.debug(
+                    "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
+                    self.entity_attr,
+                    key,
+                    val,
+                    converted_val,
+                )
+            return float(converted_val)
+
+        # Defaults
+        if key == "max":
+            return float(val or 100.0)
+        elif key == "min":
+            return float(val or 0.0)
+        elif key == "step":
+            return float(val or 1.0)
+        return float(val or 1.0)
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
@@ -253,31 +268,27 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     "Food probe must be inserted to set target temperature."
                 )
 
-            # Check if not supported by current program
+            # Check if not supported by current program - clamp to 0 instead of error
             if not self._is_supported_by_program():
-                _LOGGER.warning(
-                    "Control %s not supported by current program for appliance %s",
+                _LOGGER.debug(
+                    "Control %s not supported by current program for appliance %s, clamping to 0",
                     self.entity_attr,
                     self.pnc_id,
                 )
-                # Show user-friendly message
-                raise HomeAssistantError(
-                    "Target food probe temperature is not supported by the current program."
-                )
+                # Silently ignore - value stays at 0
+                return
 
         # Special handling for targetTemperatureC
         if self.entity_attr == "targetTemperatureC":
-            # Check if not supported by current program
+            # Check if not supported by current program - clamp to 0 instead of error
             if not self._is_supported_by_program():
-                _LOGGER.warning(
-                    "Control %s not supported by current program for appliance %s",
+                _LOGGER.debug(
+                    "Control %s not supported by current program for appliance %s, clamping to 0",
                     self.entity_attr,
                     self.pnc_id,
                 )
-                # Show user-friendly message
-                raise HomeAssistantError(
-                    "Temperature control is not supported by current program for appliance."
-                )
+                # Silently ignore - value stays at 0
+                return
 
         # Prevent setting values for other unsupported programs
         if not self._is_supported_by_program():
@@ -354,7 +365,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             # If user sets '1' (minute), send '60' (seconds) to the API
             command_value = time_minutes_to_seconds(value) or 0
             _LOGGER.debug(
-                "Electrolux converting time entity %s: %s minutes → %s seconds",
+                "Electrolux time entity %s: converting UI value %s minutes to %s seconds for API",
                 self.entity_attr,
                 value,
                 command_value,
@@ -388,10 +399,17 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # Save old value for rollback
         old_cached_value = self._cached_value
 
-        # Build the command. Global/root capabilities must be sent as
-        # top-level properties (not wrapped in userSelections).
-        if self.entity_attr in ["targetDuration", "startTime"]:
+        # Build the command. For legacy appliances, send simple top-level properties.
+        # For DAM appliances, use appropriate wrapping.
+        if not self.is_dam_appliance:
+            # Legacy appliances: always send as simple top-level property
             command = {self.entity_attr: formatted_value}
+        elif self.entity_attr in ["targetDuration", "startTime"]:
+            # DAM appliances: time settings wrapped in appliance type
+            appliance_type = getattr(
+                self.get_appliance, "appliance_type", "oven"
+            ).lower()
+            command = {appliance_type: {self.entity_attr: formatted_value}}
         elif self.entity_source == "latamUserSelections":
             _LOGGER.debug(
                 "Electrolux: Detected latamUserSelections, building full command."
@@ -447,6 +465,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         else:
             command = {self.entity_attr: formatted_value}
 
+        # Wrap DAM commands in the required format
+        if self.is_dam_appliance:
+            command = {"commands": [command]}
+
         _LOGGER.debug("Electrolux set value %s", command)
         _LOGGER.debug(
             "Electrolux sending command to appliance %s: %s", self.pnc_id, command
@@ -491,7 +513,15 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def available(self) -> bool:
         """Check if the entity is supported and not fixed (step 0)."""
-        if not super().available or not self._is_supported_by_program():
+        if not super().available:
+            return False
+
+        # Special case: oven temperature controls should always be available
+        # but clamped to 0 if not supported by program
+        if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]:
+            return True
+
+        if not self._is_supported_by_program():
             return False
 
         # If the appliance says step is 0, the control is fixed/unavailable
