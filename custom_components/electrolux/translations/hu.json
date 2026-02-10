@@ -1,0 +1,57 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Electrolux beállítás",
+                "description": "Csatlakoztassa Electrolux készülékeit az Electrolux fejlesztői portálon található API hitelesítő adatok segítségével.\n\n**Az API hitelesítő adatok beszerzése:**\n1. Látogassa meg a {url} webhelyet.\n2. Regisztráljon és hozzon létre egy alkalmazást\n3. Szerezze be az API-kulcsot, a hozzáférési tokent és a frissítési tokent\n\nHa segítségre van szüksége, keresse fel az integrációs dokumentációt.",
+                "data": {
+                    "api_key": "API kulcs",
+                    "access_token": "Hozzáférési token",
+                    "refresh_token": "Token frissítése",
+                    "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
+                    "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
+                }
+            },
+            "reauth_validate": {
+                "title": "Hitelesítse újra az Electroluxot",
+                "description": "Electrolux API-tokenjei lejártak vagy érvénytelenek. Kérjük, frissítse őket friss tokenekkel az Electrolux fejlesztői portáljáról.\n\nLátogassa meg a {url} webhelyet új tokenek létrehozásához.",
+                "data": {
+                    "api_key": "API kulcs",
+                    "access_token": "Hozzáférési token",
+                    "refresh_token": "Token frissítése"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze API kulcsát, hozzáférési tokent és frissítési tokent az Electrolux fejlesztői portálján.",
+            "incomplete_credentials": "Az összes API hitelesítési adatot (API-kulcs, hozzáférési token, frissítési token) együtt kell megadni."
+        },
+        "abort": {
+            "single_instance_allowed": "Csak egyetlen Electrolux konfiguráció megengedett.",
+            "already_configured": "Ez az eszköz már konfigurálva van.",
+            "already_configured_account": "Ez az API-kulcs már konfigurálva van.",
+            "reconfigure_successful": "Az újrakonfigurálás sikeres volt."
+        }
+    },
+    "options": {
+        "step": {
+            "user": {
+                "title": "Electrolux opciók",
+                "description": "Konfigurálja az Electrolux integrációs beállításait. Itt frissítheti az API hitelesítő adatait vagy értesítési beállításait.\n\n**Megjegyzés:** Az API hitelesítő adatainak módosításához újra kell indítani.",
+                "data": {
+                    "api_key": "API-kulcs (újraindítás szükséges)",
+                    "access_token": "Hozzáférési token (újraindítás szükséges)",
+                    "refresh_token": "Token frissítése (újraindítás szükséges)",
+                    "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
+                    "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
+                }
+            }
+        },
+        "error": {
+            "incomplete_credentials": "Az összes API hitelesítő adatot (API-kulcs, hozzáférési token, frissítési token) együtt kell megadni.",
+            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze API-kulcsát, hozzáférési tokent és frissítési tokent."
+        }
+    }
+}

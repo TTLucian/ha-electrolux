@@ -1,0 +1,51 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Electrolux Opsætning",
+        "description": "Tilslut dine Electrolux apparater ved hjælp af API legitimationsoplysninger fra Electrolux Developer Portal.\n\nHvis du har brug for hjælp til at få API legitimationsoplysninger, besøg: https://github.com/TTLucian/ha-electrolux",
+        "data": {
+          "api_key": "API-nøgle",
+          "access_token": "Adgangstoken",
+          "refresh_token": "Opdateringstoken",
+          "language": "Sprog",
+          "notifications": "Aktivér notifikationer for ALERT niveau meddelelser",
+          "notifications_warning": "Aktivér notifikationer for WARNING niveau meddelelser",
+          "notifications_diagnostic": "Aktivér notifikationer for DIAGNOSTIC niveau meddelelser"
+        }
+      },
+      "reauth_validate": {
+        "title": "Gen-autentificer Electrolux",
+        "description": "Dine Electrolux API-tokens er udløbet eller ugyldige. Opdater dem med nye tokens fra Electrolux Developer Portal.",
+        "data": {
+          "api_key": "API-nøgle",
+          "access_token": "Adgangstoken",
+          "refresh_token": "Opdateringstoken"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ugyldige API legitimationsoplysninger. Tjek din API-nøgle, adgangstoken og opdateringstoken."
+    },
+    "abort": {
+      "single_instance_allowed": "Kun en enkelt konfiguration er tilladt.",
+      "already_configured": "Denne enhed er allerede konfigureret.",
+      "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
+      "reconfigure_successful": "Genkonfiguration lykkedes."
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Electrolux Indstillinger",
+        "description": "Konfigurer Electrolux integrationsindstillinger.",
+        "data": {
+          "language": "Visningssprog",
+          "notifications": "Aktivér notifikationer for ALERT niveau meddelelser",
+          "notifications_warning": "Aktivér notifikationer for WARNING niveau meddelelser",
+          "notifications_diagnostic": "Aktivér notifikationer for DIAGNOSTIC niveau meddelelser"
+        }
+      }
+    }
+  }
+}

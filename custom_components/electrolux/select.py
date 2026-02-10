@@ -1,0 +1,282 @@
+"""Select platform for Electrolux."""
+
+import contextlib
+import logging
+from typing import Any
+
+from homeassistant.components.select import SelectEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory, Platform, UnitOfTemperature
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .const import DOMAIN, SELECT
+from .entity import ElectroluxEntity
+from .model import ElectroluxDevice
+from .util import (
+    AuthenticationError,
+    ElectroluxApiClient,
+    format_command_for_appliance,
+    map_command_error_to_home_assistant_error,
+)
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Configure select platform."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    if appliances := coordinator.data.get("appliances", None):
+        for appliance_id, appliance in appliances.appliances.items():
+            entities = [
+                entity for entity in appliance.entities if entity.entity_type == SELECT
+            ]
+            _LOGGER.debug(
+                "Electrolux add %d SELECT entities to registry for appliance %s",
+                len(entities),
+                appliance_id,
+            )
+            async_add_entities(entities)
+
+
+class ElectroluxSelect(ElectroluxEntity, SelectEntity):
+    """Electrolux Select class."""
+
+    def __init__(
+        self,
+        coordinator: Any,
+        name: str,
+        config_entry,
+        pnc_id: str,
+        entity_type: Platform,
+        entity_name,
+        entity_attr,
+        entity_source,
+        capability: dict[str, Any],
+        unit,
+        device_class: str,
+        entity_category: EntityCategory,
+        icon: str,
+        catalog_entry: ElectroluxDevice | None = None,
+    ) -> None:
+        """Initialize the Select entity."""
+        super().__init__(
+            coordinator=coordinator,
+            capability=capability,
+            name=name,
+            config_entry=config_entry,
+            pnc_id=pnc_id,
+            entity_type=entity_type,
+            entity_name=entity_name,
+            entity_attr=entity_attr,
+            entity_source=entity_source,
+            unit=unit,
+            device_class=device_class,
+            entity_category=entity_category,
+            icon=icon,
+            catalog_entry=catalog_entry,
+        )
+        values_dict: dict[str, Any] | None = self.capability.get("values", None)
+        self.options_list: dict[str, str] = {}
+        if values_dict:
+            for value in values_dict:
+                entry: dict[str, Any] | None = values_dict.get(value)
+                if entry and "disabled" in entry:
+                    continue
+
+                label = entry.get("label") if entry else self.format_label(value)
+                if label is None:
+                    label = self.format_label(value)
+                if label is not None:
+                    self.options_list[label] = value
+
+    @property
+    def entity_domain(self):
+        """Entity domain for the entry. Used for consistent entity_id."""
+        return SELECT
+
+    def format_label(self, value: str | None) -> str | None:
+        """Convert input to label string value."""
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = value.replace("_", " ").title()
+        if self.unit == UnitOfTemperature.CELSIUS:
+            value = f"{value} °C"
+        elif self.unit == UnitOfTemperature.FAHRENHEIT:
+            value = f"{value} °F"
+        return str(value)
+
+    # TODO: Implement dynamic icon based on current state
+    # When implemented, this should:
+    # - Show different icons for different program states
+    # - Indicate if appliance is available/unavailable
+    # Example icons: mdi:stove for oven programs, mdi:snowflake for cooling
+    # @property
+    # def icon(self) -> str:
+    #     """Return a representative icon."""
+    #     if not self.available:
+    #         return "mdi:alert-circle"
+    #     return "mdi:state-machine"
+
+    @property
+    def current_option(self) -> str:
+        """Return the current option."""
+        value = self.extract_value()
+
+        if value is None:
+            return self._cached_value
+
+        if self.catalog_entry and self.catalog_entry.value_mapping:
+            mapping = self.catalog_entry.value_mapping
+            _LOGGER.debug("Mapping %s: %s to %s", self.json_path, value, mapping)
+            if value in mapping:
+                value = mapping.get(value, value)
+
+        label = None
+        try:
+            if value is not None:
+                label = list(self.options_list.keys())[
+                    list(self.options_list.values()).index(value)
+                ]
+        except (ValueError, IndexError) as ex:
+            _LOGGER.info(
+                "Electrolux error value %s does not exist in the list %s. %s",
+                value,
+                self.options_list.values(),
+                ex,
+            )
+        # When value not in the catalog -> add the value to the list then
+        if label is None:
+            label = self.format_label(value)
+            if label is not None and value is not None:
+                self.options_list[label] = str(value)
+        if label is not None:
+            self._cached_value = label
+        else:
+            label = self._cached_value
+        return str(label or self._cached_value or "")
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        # Check if remote control is enabled
+        remote_control = (
+            self.appliance_status.get("properties", {})
+            .get("reported", {})
+            .get("remoteControl")
+            if self.appliance_status
+            else None
+        )
+        # Check for disabled states
+        if remote_control is not None and (
+            "ENABLED" not in str(remote_control) or "DISABLED" in str(remote_control)
+        ):
+            _LOGGER.warning(
+                "Cannot select option %s for appliance %s: remote control is %s",
+                option,
+                self.pnc_id,
+                remote_control,
+            )
+            raise HomeAssistantError(
+                f"Remote control disabled (status: {remote_control})"
+            )
+
+        value: Any = self.options_list.get(option, None)
+        if value is None:
+            raise HomeAssistantError("Invalid option")
+
+        # Rate limit commands
+        await self._rate_limit_command()
+
+        if (
+            isinstance(self.unit, UnitOfTemperature)
+            or self.entity_attr.startswith("targetTemperature")
+            or self.entity_name.startswith("targetTemperature")
+        ):
+            # Attempt to convert the option to a float
+            with contextlib.suppress(ValueError):
+                value = float(value)
+
+        # Format the value according to appliance capabilities
+        formatted_value = format_command_for_appliance(
+            self.capability, self.entity_attr, value
+        )
+
+        _LOGGER.debug(
+            "Electrolux select option before reported status %s",
+            (
+                self.appliance_status.get("properties", {}).get("reported", {})
+                if self.appliance_status
+                else {}
+            ),
+        )
+
+        client: ElectroluxApiClient = self.api
+        command: dict[str, Any] = {}
+        if self.entity_source:
+            if self.entity_source == "userSelections":
+                # Safer access to avoid KeyError if userSelections is missing
+                reported = (
+                    self.appliance_status.get("properties", {}).get("reported", {})
+                    if self.appliance_status
+                    else {}
+                )
+                program_uid = reported.get("userSelections", {}).get("programUID")
+
+                # Validate programUID
+                if not program_uid:
+                    _LOGGER.error(
+                        "Cannot send command: programUID missing for appliance %s",
+                        self.pnc_id,
+                    )
+                    raise HomeAssistantError(
+                        "Cannot change setting: appliance state is incomplete. "
+                        "Please wait for the appliance to initialize."
+                    )
+
+                command = {
+                    self.entity_source: {
+                        "programUID": program_uid,
+                        self.entity_attr: formatted_value,
+                    },
+                }
+            else:
+                command = {self.entity_source: {self.entity_attr: formatted_value}}
+        else:
+            command = {self.entity_attr: formatted_value}
+
+        _LOGGER.debug("Electrolux select option %s", command)
+        try:
+            result = await client.execute_appliance_command(self.pnc_id, command)
+        except AuthenticationError as auth_ex:
+            # Handle authentication errors by triggering reauthentication
+            await self.coordinator.handle_authentication_error(auth_ex)
+            return  # Explicit return (unreachable but clear)
+        except Exception as ex:
+            # Use shared error mapping for all errors
+            raise map_command_error_to_home_assistant_error(
+                ex, self.entity_attr, _LOGGER, self.capability
+            ) from ex
+        _LOGGER.debug("Electrolux select option result %s", result)
+        # State will be updated via websocket streaming
+
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        if self.coordinator.data is None:
+            return
+        appliances = self.coordinator.data.get("appliances", None)
+        if appliances is None:
+            return
+        self.appliance_status = appliances.get_appliance(self.pnc_id).state
+        # For select entities, don't use caching to avoid stale data issues
+        self.async_write_ha_state()
+
+    @property
+    def options(self) -> list[str]:
+        """Return a set of selectable options."""
+        return list(self.options_list.keys())

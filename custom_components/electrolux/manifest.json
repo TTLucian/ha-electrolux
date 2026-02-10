@@ -1,0 +1,20 @@
+{
+  "domain": "electrolux",
+  "name": "Electrolux",
+  "codeowners": ["@TTLucian"],
+  "config_flow": true,
+  "documentation": "https://github.com/TTLucian/ha-electrolux",
+  "homekit": {},
+  "integration_type": "hub",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/TTLucian/ha-electrolux/issues",
+  "loggers": ["electrolux_group_developer_sdk"],
+  "requirements": [
+    "aiohttp>=3.12.2,<4.0.0",
+    "electrolux-group-developer-sdk>=0.2.0",
+    "pydantic>=2.11.5,<3.0.0"
+  ],
+  "ssdp": [],
+  "version": "3.1.00",
+  "zeroconf": []
+}
