@@ -39,10 +39,6 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 
 **Refactored by [TTLucian](https://github.com/TTLucian)**
 
-**Original Creators:**
-- **[albaintor](https://github.com/albaintor)** - Original integration development
-- **[kingy444](https://github.com/kingy444)** - Major contributions and maintenance
-
 **Complete Refactoring (2026):**
 This integration has been completely refactored to use the official Electrolux Group Developer API instead of the legacy authentication methods. The refactoring includes:
 - **Removed dependency on deprecated pyelectroluxocp** ([https://github.com/Woyken/py-electrolux-ocp](https://github.com/Woyken/py-electrolux-ocp)) - now uses official Electrolux SDK
@@ -61,9 +57,6 @@ This repository includes comprehensive testing scripts to help you verify applia
 | Contributors | Support Link |
 |-------------|-------------|
 | [TTLucian](https://github.com/TTLucian) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/TTLucian) |
-
-| [albaintor](https://github.com/albaintor) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/albaintor) |
-| [kingy444](https://github.com/kingy444) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/kingy444) |
 
 ## Prerequisites
 
