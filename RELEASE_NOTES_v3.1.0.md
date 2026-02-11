@@ -1,4 +1,4 @@
-# Release Notes - v3.1.00
+# Release Notes - v3.1.0
 
 ## 🎯 **MAJOR ENHANCEMENT: Intelligent Command Formatting & User Experience**
 

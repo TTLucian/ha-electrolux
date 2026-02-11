@@ -1,4 +1,4 @@
-# Release Notes - v3.2.00
+# Release Notes - v3.2.0
 
 ## ❄️ **MAJOR ENHANCEMENT: Air Conditioner, Refrigerator & Washing Machine Control Suites**
 
