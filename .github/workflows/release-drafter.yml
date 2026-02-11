@@ -12,6 +12,9 @@ on:
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,15 +46,14 @@ jobs:
 
       - name: Create Release with Release Notes
         if: steps.release_notes.outputs.found == 'true'
+        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          # Create draft release using GitHub CLI
-          gh release create "v${{ steps.get_version.outputs.version }}" \
-            --title "${{ steps.release_notes.outputs.title }}" \
-            --notes-file "RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md" \
-            --draft \
-            --latest=false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.release_notes.outputs.title }}
+          body_path: RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md
+          draft: true
 
       - name: Skip Release Creation
         if: steps.release_notes.outputs.found == 'false'
