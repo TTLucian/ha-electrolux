@@ -734,7 +734,11 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "readwrite",
             "type": "string",
-            "values": {"DISPLAY_LIGHT_0": {}, "DISPLAY_LIGHT_1": {}, "DISPLAY_LIGHT_2": {}},
+            "values": {
+                "DISPLAY_LIGHT_0": {},
+                "DISPLAY_LIGHT_1": {},
+                "DISPLAY_LIGHT_2": {},
+            },
         },
         device_class=None,
         unit=None,

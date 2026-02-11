@@ -21,7 +21,7 @@ REDACT_CONFIG: set[str] = {CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN}
 REDACT_KEYS: set[str] = {
     "email",
     "phone",
-    "address", 
+    "address",
     "location",
     "name",
     "firstName",
