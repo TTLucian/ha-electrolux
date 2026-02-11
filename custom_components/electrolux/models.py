@@ -487,7 +487,7 @@ class Appliance:
             if not (attr_in_reported or attr_at_top_level):
                 continue
             if catalog_item := self.catalog.get(static_attribute, None):
-                if (entity := self.get_entity(static_attribute)) is None:
+                if not (entity := self.get_entity(static_attribute)):
                     # catalog definition and automatic checks fail to determine type
                     _LOGGER.debug(
                         "Electrolux static_attribute undefined %s", static_attribute
