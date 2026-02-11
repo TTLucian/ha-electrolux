@@ -34,6 +34,7 @@ DEFAULT_WEBSOCKET_RENEWAL_DELAY = (
 # defining them here and in the catalog will allow these devices to be added dynamically
 STATIC_ATTRIBUTES = [
     "connectionState",
+    "connectivityState",  # Add this for oven connectivity status
     "networkInterface/linkQualityIndicator",
     "applianceMode",
 ]

@@ -411,51 +411,54 @@ class ElectroluxEntity(CoordinatorEntity):
         """Return the appliance attributes of the entity."""
         # For constant access, return value from capability metadata
         if self.capability.get("access") == "constant":
-            # Return default value or 0 for constants
-            result = self.capability.get("default", 0)
-            _LOGGER.debug(
-                "Extracted constant value for %s: %s", self.entity_attr, result
-            )
-            return result
+            result = self.capability.get("default")
+            if result is not None:
+                _LOGGER.debug(
+                    "Extracted constant value for %s: %s", self.entity_attr, result
+                )
+                return result
+            return None
 
-        root_attribute: list[str] | None = self.root_attribute
-        attribute = self.entity_attr
-        if self.appliance_status:
-            root = cast(Any, self.appliance_status)
-            # Format returned by push is slightly different from format returned by API : fields are at root level
-            # Let's check if we can find the fields at root first
-            if (
-                self.entity_source and root.get(self.entity_source, None) is not None
-            ) or root.get(attribute, None):
-                root_attribute = None
-            if root_attribute:
-                for item in root_attribute:
-                    if root:
-                        root = root.get(item, None)
-            if root:
-                if self.entity_source:
-                    category: dict[str, Any] | None = root.get(self.entity_source, None)
-                    if category:
-                        result = category.get(attribute)
-                        _LOGGER.debug(
-                            "Extracted value for %s/%s: %s",
-                            self.entity_source,
-                            attribute,
-                            result,
-                        )
-                        return result
+        # For other access types, get from data
+        result = None
+        if self.entity_source == "applianceInfo":
+            if self.appliance_status:
+                result = self.appliance_status.get("applianceInfo", {}).get(
+                    self.entity_attr
+                )
+        else:
+            # Check reported state first
+            result = self.reported_state.get(self.entity_attr)
+            if result is None and self.entity_source:
+                # Handle nested entity_source in reported
+                if "/" in self.entity_source:
+                    parts = self.entity_source.split("/")
+                    category = self.reported_state
+                    for part in parts:
+                        category = category.get(part, None)
+                        if category is None:
+                            break
+                    if category and isinstance(category, dict):
+                        result = category.get(self.entity_attr)
                 else:
-                    result = root.get(attribute, None)
-                    _LOGGER.debug("Extracted value for %s: %s", attribute, result)
-                    return result
-        _LOGGER.debug(
-            "No value found for entity %s (attr: %s, source: %s, appliance_status keys: %s)",
-            self.name,
-            self.entity_attr,
-            self.entity_source,
-            list(self.appliance_status.keys()) if self.appliance_status else None,
-        )
-        return None
+                    category = self.reported_state.get(self.entity_source, None)
+                    if category and isinstance(category, dict):
+                        result = category.get(self.entity_attr)
+            if result is None:
+                # Check appliance_status
+                if self.appliance_status:
+                    result = self.appliance_status.get(self.entity_attr)
+
+        if result is not None:
+            _LOGGER.debug("Extracted value for %s: %s", self.entity_attr, result)
+        else:
+            _LOGGER.debug(
+                "No value found for entity %s (attr: %s, source: %s)",
+                self.name,
+                self.entity_attr,
+                self.entity_source,
+            )
+        return result
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update the appliance status."""

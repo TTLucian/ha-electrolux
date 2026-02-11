@@ -390,6 +390,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             self.capability, self.entity_attr, command_value
         )
 
+        # Save old value for rollback BEFORE optimistic update
+        old_cached_value = self._cached_value
+
         # Optimistically update the UI immediately
         if self.unit == UnitOfTime.SECONDS:
             # API receives seconds, but UI shows minutes
@@ -397,9 +400,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         else:
             self._cached_value = formatted_value
         self.async_write_ha_state()
-
-        # Save old value for rollback
-        old_cached_value = self._cached_value
 
         # Build the command. For legacy appliances, send simple top-level properties.
         # For DAM appliances, use appropriate wrapping.

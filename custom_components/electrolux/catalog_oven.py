@@ -61,7 +61,10 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
     ),
     "connectivityState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
+        capability_info={
+            "access": "read",
+            "type": "string",
+        },
         device_class=None,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -187,6 +190,7 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "constant",
             "type": "enum",
+            "default": "SUPPORTED",
             "values": {"NOT_SUPPORTED": {}, "SUPPORTED": {}},
         },
         device_class=None,
