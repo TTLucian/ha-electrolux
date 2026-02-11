@@ -96,13 +96,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 if live_value is not None:
                     # If value is STEAM_TANK_FULL, tank is not empty (Off)
                     value = live_value != "STEAM_TANK_FULL"
-            elif self.entity_key == "foodProbeSupported":
-                # Get from capabilities as it's a capability flag, not state
-                # If the capability exists, the feature is supported
-                capability_exists = (
-                    self.capability.get("foodProbeSupported") is not None
-                )
-                value = "SUPPORTED" if capability_exists else "NOT_SUPPORTED"
+            elif self.entity_key == "foodprobesupported":
+                # For constant enum capabilities, check if API provided a default value
+                if "default" in self.capability:
+                    value = self.capability["default"]
+                else:
+                    value = "NOT_SUPPORTED"
             elif self.entity_key == "display_food_probe_temperature_c":
                 # Point to targetFoodProbeTemperatureC from reported properties
                 live_value = self.reported_state.get("targetFoodProbeTemperatureC")
