@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from manifest.json
+        id: get_version
+        run: |
+          VERSION=$(grep '"version"' custom_components/electrolux/manifest.json | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version found: $VERSION"
+
+      - name: Read release notes
+        id: release_notes
+        run: |
+          RELEASE_FILE="RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md"
+          if [ -f "$RELEASE_FILE" ]; then
+            # Extract title (first line after # Release Notes)
+            TITLE=$(head -n 2 "$RELEASE_FILE" | tail -n 1 | sed 's/^# //' | sed 's/ - v.*//')
+            echo "title=$TITLE" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "Release notes found for version ${{ steps.get_version.outputs.version }}"
+          else
+            echo "No release notes file found: $RELEASE_FILE"
+            echo "title=v${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release with Release Notes
+        if: steps.release_notes.outputs.found == 'true'
+        run: |
+          # Create draft release using GitHub CLI
+          gh release create "v${{ steps.get_version.outputs.version }}" \
+            --title "${{ steps.release_notes.outputs.title }}" \
+            --notes-file "RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md" \
+            --draft \
+            --latest=false
+
+      - name: Skip Release Creation
+        if: steps.release_notes.outputs.found == 'false'
+        run: |
+          echo "No release notes file found for version ${{ steps.get_version.outputs.version }}. Skipping release creation."

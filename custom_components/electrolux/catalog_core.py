@@ -7,6 +7,7 @@ from .catalog_oven import CATALOG_OVEN
 from .catalog_purifier import A9
 from .catalog_refrigerator import CATALOG_REFRIGERATOR, EHE6899SA
 from .catalog_washer import CATALOG_WASHER
+from .catalog_washer_dryer import CATALOG_WASHER_DRYER
 from .model import ElectroluxDevice
 
 # definitions of model explicit overrides. These will be used to
@@ -21,6 +22,7 @@ CATALOG_BY_TYPE: dict[str, dict[str, ElectroluxDevice]] = {
     "OV": CATALOG_OVEN,  # Oven
     "CR": CATALOG_REFRIGERATOR,  # Refrigerator
     "WM": CATALOG_WASHER,  # Washing Machine
+    "WD": CATALOG_WASHER_DRYER,  # Washer-Dryer
     "AC": CATALOG_AIR_CONDITIONER,  # Air Conditioner
 }
 

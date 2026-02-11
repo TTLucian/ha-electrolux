@@ -134,6 +134,34 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Network interface monitoring (WiFi quality, OTA updates, software version)
 - Appliance working time and cycle counters
 
+**Washer-Dryers**
+- Electrolux UltimateCare and PerfectCare series
+- AEG AbsoluteCare series
+- Full integrated washing and drying control
+- Dry mode toggle with dedicated drying controls
+- Drying time selection (0-300 minutes)
+- Dryness level selection (CUPBOARD, EXTRA, IRON)
+- Wet mode control for specialized washing
+- Dual load weight monitoring (washing and drying cycles)
+- Integrated wash+dry program cycles
+- All washing machine features plus dryer-specific controls
+- Fluff drawer maintenance alerts
+- Separate drying cycle counters and statistics
+
+**Air Conditioners**
+- Electrolux air conditioning units
+- Full climate control integration with Home Assistant
+- Temperature control (16-30°C / 60-86°F) with dual scale support
+- Operating modes: AUTO, COOL, HEAT, DRY, FAN
+- Fan speed control: AUTO, LOW, MEDIUM, HIGH, QUIET, TURBO
+- Swing control: OFF, VERTICAL, HORIZONTAL, BOTH
+- Humidity control and monitoring (30-70% range)
+- Ambient temperature and humidity sensors
+- Power state management with safety validation
+- Start/stop/reset command support
+- Real-time status monitoring and diagnostics
+- Network interface monitoring and OTA updates
+
 **Dryers**
 - Electrolux UltimateCare and PerfectCare series
 - AEG AbsoluteCare series
@@ -155,12 +183,17 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 
 ### Sensors
 - Appliance state and status
-- Temperature readings (current, target, food probe)
+- Temperature readings (current, target, food probe, ambient)
 - Program and phase information
 - Connection quality and diagnostics
 - Door and safety lock status
 - Water levels and tank status
 - Filter life and maintenance alerts
+- Load weight monitoring (washing machines, washer-dryers)
+- Humidity sensors (refrigerators, air conditioners)
+- Air quality sensors (air purifiers)
+- Cycle counters and working time statistics
+- Drying cycle monitoring (washer-dryers)
 
 ### Controls
 - Power on/off (with safety validation)
@@ -169,6 +202,16 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Timer controls
 - Light controls (ovens)
 - Start/stop/reset commands
+- Climate control (air conditioners):
+  - Operating mode selection (AUTO, COOL, HEAT, DRY, FAN)
+  - Fan speed control (AUTO, LOW, MEDIUM, HIGH, QUIET, TURBO)
+  - Swing direction control (OFF, VERTICAL, HORIZONTAL, BOTH)
+  - Target temperature and humidity settings
+- Drying controls (washer-dryers):
+  - Dry mode toggle
+  - Drying time selection
+  - Dryness level selection (CUPBOARD, EXTRA, IRON)
+  - Wet mode control
 
 ### Binary Sensors
 - Door status

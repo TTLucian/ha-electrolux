@@ -115,6 +115,8 @@ class Appliance:
         OV: Oven
         CR: Refrigerator
         WM: Washing Machine
+        WD: Washer-Dryer
+        AC: Air Conditioner
         """
         from typing import cast
 
