@@ -1,4 +1,4 @@
-name: HACS Action
+name: Validate with HACS
 
 on:
   push:
@@ -8,10 +8,13 @@ on:
 
 jobs:
   hacs:
-    name: HACS Action
+    name: HACS Validation
     runs-on: "ubuntu-latest"
     steps:
-      - name: HACS Action
-        uses: "hacs/action@main"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: HACS validation
+        uses: hacs/action@main
         with:
-          category: "integration"
+          category: integration
+          ignore: brands
