@@ -44,7 +44,7 @@ jobs:
       - name: Create Release with Release Notes
         if: steps.release_notes.outputs.found == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           # Create draft release using GitHub CLI
           gh release create "v${{ steps.get_version.outputs.version }}" \
