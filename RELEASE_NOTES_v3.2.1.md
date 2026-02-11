@@ -1,4 +1,4 @@
-# Release Notes - v3.2.1
+# Release Notes - v$RESOLVED_VERSION
 
 ## 🌀 **MAJOR ENHANCEMENT: Washer-Dryer Appliance Support**
 
@@ -60,12 +60,7 @@ CATALOG_BY_TYPE = {
 
 ### 📈 **User Experience Improvements**
 
-#### **Before v3.2.1**
-- Washer-dryer appliances showed only: `sensor.pracka_se_susickou_connection_state`
-- No control capabilities available
-- Limited to basic connectivity monitoring
-
-#### **After v3.2.1**
+#### **After v$RESOLVED_VERSION**
 - **60+ entities** available including:
   - Program selection and control
   - Drying time and dryness level settings
