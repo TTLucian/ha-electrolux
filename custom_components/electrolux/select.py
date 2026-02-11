@@ -113,18 +113,6 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             value = f"{value} °F"
         return str(value)
 
-    # TODO: Implement dynamic icon based on current state
-    # When implemented, this should:
-    # - Show different icons for different program states
-    # - Indicate if appliance is available/unavailable
-    # Example icons: mdi:stove for oven programs, mdi:snowflake for cooling
-    # @property
-    # def icon(self) -> str:
-    #     """Return a representative icon."""
-    #     if not self.available:
-    #         return "mdi:alert-circle"
-    #     return "mdi:state-machine"
-
     @property
     def current_option(self) -> str:
         """Return the current option."""
@@ -253,6 +241,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 command = {self.entity_source: {self.entity_attr: formatted_value}}
         else:
             command = {self.entity_attr: formatted_value}
+
+        # Wrap DAM commands in the required format
+        if self.is_dam_appliance:
+            command = {"commands": [command]}
 
         _LOGGER.debug("Electrolux select option %s", command)
         try:

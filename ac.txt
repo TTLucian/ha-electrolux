@@ -1,0 +1,407 @@
+{
+  "alerts": {
+    "access": "read",
+    "type": "alert",
+    "values": {
+      "BUS_HIGH_VOLTAGE": {},
+      "COMMUNICATION_FAULT": {},
+      "DRAIN_PAN_FULL": {},
+      "INDOOR_DEFROST_THERMISTOR_FAULT": {}
+    }
+  },
+  "ambientTemperatureC": {
+    "access": "read",
+    "type": "temperature"
+  },
+  "ambientTemperatureF": {
+    "access": "read",
+    "type": "temperature"
+  },
+  "applianceCategory": {
+    "access": "constant",
+    "default": 2,
+    "type": "enum",
+    "values": {
+      "2": {}
+    }
+  },
+  "applianceState": {
+    "access": "read",
+    "type": "string",
+    "values": {
+      "OFF": {},
+      "RUNNING": {}
+    }
+  },
+  "applianceUiSwVersion": {
+    "access": "read",
+    "type": "string"
+  },
+  "batchSchedulerMode": {
+    "access": "readwrite",
+    "type": "boolean",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  },
+  "cleanAirMode": {
+    "access": "readwrite",
+    "type": "string",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  },
+  "executeCommand": {
+    "access": "write",
+    "schedulable": true,
+    "type": "string",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  },
+  "fanSpeedSetting": {
+    "access": "readwrite",
+    "schedulable": true,
+    "type": "string",
+    "values": {
+      "AUTO": {},
+      "HIGH": {},
+      "LOW": {},
+      "MIDDLE": {}
+    }
+  },
+  "fanSpeedState": {
+    "access": "read",
+    "type": "string",
+    "values": {
+      "HIGH": {},
+      "LOW": {},
+      "MIDDLE": {}
+    }
+  },
+  "filterState": {
+    "access": "read",
+    "type": "string",
+    "values": {
+      "BUY": {},
+      "CHANGE": {},
+      "CLEAN": {},
+      "GOOD": {}
+    }
+  },
+  "hMEPN_ACAirFilterClean": {
+    "access": "constant",
+    "default": 1,
+    "type": "int"
+  },
+  "hMEPN_ACAlerts": {
+    "access": "constant",
+    "default": 1,
+    "type": "int"
+  },
+  "mode": {
+    "access": "readwrite",
+    "schedulable": true,
+    "triggers": [
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "access": "readwrite",
+            "values": {
+              "HIGH": {},
+              "LOW": {},
+              "MIDDLE": {}
+            }
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "FANONLY",
+          "operator": "eq"
+        }
+      },
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "access": "readwrite",
+            "values": {
+              "AUTO": {},
+              "HIGH": {},
+              "LOW": {},
+              "MIDDLE": {}
+            }
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "FANONLY",
+          "operator": "ne"
+        }
+      },
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "access": "read"
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "DRY",
+          "operator": "eq"
+        }
+      },
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "access": "readwrite"
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "DRY",
+          "operator": "ne"
+        }
+      },
+      {
+        "action": {
+          "targetTemperatureC": {
+            "disabled": true,
+            "type": "temperature"
+          },
+          "targetTemperatureF": {
+            "disabled": true,
+            "type": "temperature"
+          }
+        },
+        "condition": {
+          "operand_1": {
+            "operand_1": "value",
+            "operand_2": "FANONLY",
+            "operator": "eq"
+          },
+          "operand_2": {
+            "operand_1": "value",
+            "operand_2": "DRY",
+            "operator": "eq"
+          },
+          "operator": "or"
+        }
+      },
+      {
+        "action": {
+          "targetTemperatureC": {
+            "disabled": false,
+            "type": "temperature"
+          },
+          "targetTemperatureF": {
+            "disabled": false,
+            "type": "temperature"
+          }
+        },
+        "condition": {
+          "operand_1": {
+            "operand_1": "value",
+            "operand_2": "FANONLY",
+            "operator": "ne"
+          },
+          "operand_2": {
+            "operand_1": "value",
+            "operand_2": "DRY",
+            "operator": "ne"
+          },
+          "operator": "and"
+        }
+      },
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "disabled": true
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "AUTO",
+          "operator": "eq"
+        }
+      },
+      {
+        "action": {
+          "fanSpeedSetting": {
+            "disabled": false
+          }
+        },
+        "condition": {
+          "operand_1": "value",
+          "operand_2": "AUTO",
+          "operator": "ne"
+        }
+      },
+      {
+        "action": {
+          "sleepMode": {
+            "access": "read"
+          }
+        },
+        "condition": {
+          "operand_1": {
+            "operand_1": "value",
+            "operand_2": "FANONLY",
+            "operator": "eq"
+          },
+          "operand_2": {
+            "operand_1": "value",
+            "operand_2": "DRY",
+            "operator": "eq"
+          },
+          "operator": "or"
+        }
+      },
+      {
+        "action": {
+          "sleepMode": {
+            "access": "readwrite"
+          }
+        },
+        "condition": {
+          "operand_1": {
+            "operand_1": "value",
+            "operand_2": "FANONLY",
+            "operator": "ne"
+          },
+          "operand_2": {
+            "operand_1": "value",
+            "operand_2": "DRY",
+            "operator": "ne"
+          },
+          "operator": "and"
+        }
+      }
+    ],
+    "type": "string",
+    "values": {
+      "AUTO": {},
+      "COOL": {},
+      "DRY": {},
+      "FANONLY": {},
+      "OFF": {
+        "disabled": true
+      }
+    }
+  },
+  "networkInterface": {
+    "command": {
+      "access": "write",
+      "type": "string",
+      "values": {
+        "APPLIANCE_AUTHORIZE": {},
+        "START": {},
+        "USER_AUTHORIZE": {},
+        "USER_NOT_AUTHORIZE": {}
+      }
+    },
+    "linkQualityIndicator": {
+      "access": "read",
+      "type": "string",
+      "values": {
+        "EXCELLENT": {},
+        "GOOD": {},
+        "POOR": {},
+        "UNDEFINED": {},
+        "VERY_GOOD": {},
+        "VERY_POOR": {}
+      }
+    },
+    "niuSwUpdateCurrentDescription": {
+      "access": "read",
+      "type": "string"
+    },
+    "otaState": {
+      "access": "read",
+      "type": "string",
+      "values": {
+        "DESCRIPTION_AVAILABLE": {},
+        "DESCRIPTION_DOWNLOADING": {},
+        "DESCRIPTION_READY": {},
+        "FW_DOWNLOADING": {},
+        "FW_DOWNLOAD_START": {},
+        "FW_SIGNATURE_CHECK": {},
+        "FW_UPDATE_IN_PROGRESS": {},
+        "IDLE": {},
+        "READY_TO_UPDATE": {},
+        "UPDATE_ABORT": {},
+        "UPDATE_CHECK": {},
+        "UPDATE_ERROR": {},
+        "UPDATE_OK": {},
+        "WAITINGFORAUTHORIZATION": {}
+      }
+    },
+    "startUpCommand": {
+      "access": "write",
+      "type": "string",
+      "values": {
+        "UNINSTALL": {}
+      }
+    },
+    "swAncAndRevision": {
+      "access": "read",
+      "type": "string"
+    },
+    "swVersion": {
+      "access": "read",
+      "type": "string"
+    }
+  },
+  "sleepMode": {
+    "access": "readwrite",
+    "type": "string",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  },
+  "targetTemperatureC": {
+    "access": "readwrite",
+    "default": 15.56,
+    "max": 32.22,
+    "min": 15.56,
+    "schedulable": true,
+    "step": 1,
+    "type": "temperature"
+  },
+  "targetTemperatureF": {
+    "access": "readwrite",
+    "default": 60,
+    "max": 90,
+    "min": 60,
+    "schedulable": true,
+    "step": 1,
+    "type": "temperature"
+  },
+  "temperatureRepresentation": {
+    "access": "readwrite",
+    "type": "string",
+    "values": {
+      "CELSIUS": {},
+      "FAHRENHEIT": {}
+    }
+  },
+  "uiLockMode": {
+    "access": "readwrite",
+    "type": "boolean",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  },
+  "verticalSwing": {
+    "access": "readwrite",
+    "type": "string",
+    "values": {
+      "OFF": {},
+      "ON": {}
+    }
+  }
+}

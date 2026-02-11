@@ -310,7 +310,28 @@ class ElectroluxEntity(CoordinatorEntity):
 
     @property
     def icon(self) -> str | None:
-        """Return the icon of the entity."""
+        """Return the icon based on current selection."""
+        # Check catalog entry first for static icon
+        if self._catalog_entry and hasattr(self._catalog_entry, "entity_icon"):
+            return self._catalog_entry.entity_icon
+
+        # Check entity_icons_value_map from catalog for value-specific icons
+        current_value = self.extract_value()
+        if (
+            self._catalog_entry
+            and hasattr(self._catalog_entry, "entity_icons_value_map")
+            and self._catalog_entry.entity_icons_value_map
+            and current_value in self._catalog_entry.entity_icons_value_map
+        ):
+            return self._catalog_entry.entity_icons_value_map[current_value]
+
+        # Check for value-specific icons in capability values
+        if current_value is not None and self.capability.get("values"):
+            value_data = self.capability["values"].get(str(current_value), {})
+            if isinstance(value_data, dict) and "icon" in value_data:
+                return value_data["icon"]
+
+        # Default icon fallback
         return self._icon
 
     @property

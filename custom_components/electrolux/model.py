@@ -54,7 +54,7 @@ class ElectroluxDevice:
     # some entities return a string dict in capabilities but
     # an int in the api values. A defined dictionary can convert
     # those values from integer back to dictionary
-    value_mapping: dict[float, str] = field(default_factory=dict)
+    value_mapping: dict[float | str, str] = field(default_factory=dict)
 
     # some on/off entiites derive their state from different api values
     # for instance, the state of the iceMaker is derived from

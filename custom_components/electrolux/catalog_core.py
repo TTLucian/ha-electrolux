@@ -1,9 +1,8 @@
 """Defined catalog of entities for basic entities (common across all appliance types)."""
 
-from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
+from .catalog_air_conditioner import CATALOG_AIR_CONDITIONER
 from .catalog_oven import CATALOG_OVEN
 from .catalog_purifier import A9
 from .catalog_refrigerator import CATALOG_REFRIGERATOR, EHE6899SA
@@ -22,7 +21,7 @@ CATALOG_BY_TYPE: dict[str, dict[str, ElectroluxDevice]] = {
     "OV": CATALOG_OVEN,  # Oven
     "CR": CATALOG_REFRIGERATOR,  # Refrigerator
     "WM": CATALOG_WASHER,  # Washing Machine
-    # Add more appliance types as needed
+    "AC": CATALOG_AIR_CONDITIONER,  # Air Conditioner
 }
 
 CATALOG_BASE: dict[str, ElectroluxDevice] = {
@@ -33,18 +32,6 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:alert",
     ),
-    "applianceMode": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {"DEMO": {}, "NORMAL": {}, "SERVICE": {}},
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:auto-mode",
-        entity_registry_enabled_default=False,
-    ),
     "applianceState": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},
         device_class=None,
@@ -52,13 +39,6 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:state-machine",
         entity_registry_enabled_default=False,
-    ),
-    "applianceTotalWorkingTime": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
     ),
     "connectionState": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},

@@ -114,6 +114,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 command = {self.entity_source: {self.entity_attr: command_value}}
         else:
             command = {self.entity_attr: command_value}
+
+        # Wrap DAM commands in the required format
+        if self.is_dam_appliance:
+            command = {"commands": [command]}
+
         _LOGGER.debug("Electrolux set value")
         try:
             await client.execute_appliance_command(self.pnc_id, command)

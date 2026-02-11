@@ -102,13 +102,37 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 
 **Refrigerators**
 - Electrolux UltimateTaste series
-- Temperature monitoring
-- Door status sensors
+- Temperature monitoring and control for fridge, freezer, and extra cavity
+- Fast mode control for rapid cooling/freezing
+- Appliance mode selection (Normal/Demo/Service)
+- Vacation mode and child lock controls (internal/external)
+- Ice maker control and monitoring with defrost temperature
+- Extra cavity with temperature cloning and fan control
+- Filter status monitoring and reset (water and air filters)
+- Humidity sensor and reminder time settings
+- Cooling valve and defrost routine monitoring
+- Door status monitoring for all compartments
 
 **Washing Machines**
 - Electrolux UltimateCare and PerfectCare series
 - AEG ÖKOKombi and AbsoluteCare series
-- Cycle monitoring and control
+- Comprehensive cycle monitoring and control
+- Appliance state tracking (IDLE, RUNNING, PAUSED, END_OF_CYCLE, etc.)
+- Cycle phase and sub-phase monitoring
+- Door status and lock control
+- Start time scheduling and delayed start
+- Time-to-end countdown
+- Auto-dosing system with tank configurations and fine-tuning
+- Steam level control (OFF, MIN, MED, MAX)
+- Spin speed selection (400-1600 RPM)
+- Temperature settings (COLD, 20°C-90°C)
+- Program selection with per-program configurations
+- Extra rinse and end-of-cycle sound options
+- Load weight monitoring and optisense results
+- Maintenance alerts and diagnostics
+- Remote control enablement
+- Network interface monitoring (WiFi quality, OTA updates, software version)
+- Appliance working time and cycle counters
 
 **Dryers**
 - Electrolux UltimateCare and PerfectCare series
@@ -121,6 +145,11 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 **Air Purifiers**
 - Electrolux Pure A9 series
 - Air quality monitoring and control
+- Fan speed control (1-9 levels)
+- Work mode selection (Manual/Auto/Power Off)
+- UI light control
+- Safety lock
+- Ionizer control
 
 ## Features
 
@@ -180,6 +209,32 @@ logger:
   logs:
     custom_components.electrolux: debug
 ```
+
+### JSON Diagnostics for Device Issues
+For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
+
+**How to get diagnostics:**
+1. Go to **Settings → Devices & Services → Electrolux**
+2. Click on your integration entry
+3. Scroll down and click **"Download diagnostics"**
+
+**What it contains:**
+- Complete device capabilities schema (what your appliance supports)
+- Current appliance state data (real-time values)
+- API communication details and errors
+- Model and firmware information
+
+**🔒 Privacy & Security:** All sensitive information (API keys, tokens, personal data, emails, addresses, device identifiers, and other PII) is automatically redacted from diagnostics files. They are safe to share when reporting issues.
+
+**When to provide diagnostics:**
+- **Missing or incorrect sensors/controls**: If your appliance is missing expected sensors or controls, or if existing ones show wrong values or don't work properly
+- Appliance not showing expected controls or sensors
+- Commands not working or responding
+- New appliance models with unknown features
+- Integration setup issues
+- Feature requests for specific appliance capabilities
+
+Include this file when reporting issues - it helps identify device-specific problems quickly!
 
 ## 🧪 Testing Scripts
 

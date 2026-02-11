@@ -17,6 +17,26 @@ from .coordinator import ElectroluxCoordinator
 
 REDACT_CONFIG: set[str] = {CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN}
 
+# Additional fields that might contain sensitive information
+REDACT_KEYS: set[str] = {
+    "email",
+    "phone",
+    "address", 
+    "location",
+    "name",
+    "firstName",
+    "lastName",
+    "userName",
+    "userId",
+    "macAddress",
+    "ipAddress",
+    "serialNumber",
+    "deviceId",
+}
+
+# Combine all fields that should be redacted
+REDACT_ALL: set[str] = REDACT_CONFIG | REDACT_KEYS
+
 
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
@@ -44,7 +64,7 @@ async def async_get_config_entry_diagnostics(
             )
         ],
     )
-    return async_redact_data(data, REDACT_CONFIG)
+    return async_redact_data(data, REDACT_ALL)
 
 
 async def async_get_device_diagnostics(
@@ -65,7 +85,7 @@ async def async_get_device_diagnostics(
     }
 
     data.update(device_info=_async_device_as_dict(hass, device))
-    return async_redact_data(data, REDACT_CONFIG)
+    return async_redact_data(data, REDACT_ALL)
 
 
 @callback
@@ -97,7 +117,7 @@ async def _async_get_diagnostics(
     except Exception as ex:
         errors_list.append(f"Failed to get appliances list: {ex}")
         # Can't continue without appliances list
-        return async_redact_data(data, REDACT_CONFIG)
+        return async_redact_data(data, REDACT_ALL)
 
     if data["appliances_list"]:
         try:
@@ -128,7 +148,7 @@ async def _async_get_diagnostics(
             if appliance_detail:
                 appliances_detail[appliance_id] = appliance_detail
 
-    return async_redact_data(data, REDACT_CONFIG)
+    return async_redact_data(data, REDACT_ALL)
 
 
 @callback
@@ -138,7 +158,7 @@ def _async_device_as_dict(hass: HomeAssistant, device: DeviceEntry) -> dict[str,
     # Gather information how this device is represented in Home Assistant
     entity_registry = er.async_get(hass)
 
-    data = async_redact_data(attr.asdict(device), REDACT_CONFIG)  # type: ignore[arg-type]
+    data = async_redact_data(attr.asdict(device), REDACT_ALL)  # type: ignore[arg-type]
     data["entities"] = []
     entities: list[dict[str, Any]] = data["entities"]
 
@@ -159,4 +179,4 @@ def _async_device_as_dict(hass: HomeAssistant, device: DeviceEntry) -> dict[str,
         entity["state"] = state_dict
         entities.append(entity)
 
-    return async_redact_data(data, REDACT_CONFIG)
+    return async_redact_data(data, REDACT_ALL)

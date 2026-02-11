@@ -212,6 +212,11 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
                 command = {self.entity_source: {self.entity_attr: value}}
         else:
             command = {self.entity_attr: value}
+
+        # Wrap DAM commands in the required format
+        if self.is_dam_appliance:
+            command = {"commands": [command]}
+
         _LOGGER.debug("Electrolux send command %s", command)
         try:
             result = await client.execute_appliance_command(self.pnc_id, command)

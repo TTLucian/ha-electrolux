@@ -21,6 +21,7 @@ from .catalog_core import CATALOG_BASE, CATALOG_MODEL
 from .const import (
     BINARY_SENSOR,
     BUTTON,
+    CLIMATE,
     NUMBER,
     PLATFORMS,
     SELECT,
@@ -303,7 +304,9 @@ class Appliance:
                 if entity_type is None and capability_info:
                     cap_type = capability_info.get("type")
                     access = capability_info.get("access", "read")
-                    if cap_type in ("number", "int") and access in (
+                    if cap_type == "climate":
+                        entity_type = CLIMATE
+                    elif cap_type in ("number", "int") and access in (
                         "readwrite",
                         "write",
                     ):
@@ -371,6 +374,7 @@ class Appliance:
         ):
             from .binary_sensor import ElectroluxBinarySensor
             from .button import ElectroluxButton
+            from .climate import ElectroluxClimate
             from .number import ElectroluxNumber
             from .select import ElectroluxSelect
             from .sensor import ElectroluxSensor
@@ -379,6 +383,7 @@ class Appliance:
             entity_classes = {
                 BINARY_SENSOR: ElectroluxBinarySensor,
                 BUTTON: ElectroluxButton,
+                CLIMATE: ElectroluxClimate,
                 NUMBER: ElectroluxNumber,
                 SELECT: ElectroluxSelect,
                 SENSOR: ElectroluxSensor,

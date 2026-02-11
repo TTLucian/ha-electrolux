@@ -16,14 +16,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:alert",
     ),
-    "applianceMode": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon=None,
-        entity_registry_enabled_default=False,
-    ),
     "applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -43,14 +35,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:state-machine",
-        entity_registry_enabled_default=False,
-    ),
-    "applianceTotalWorkingTime": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
         entity_registry_enabled_default=False,
     ),
     "applianceType": ElectroluxDevice(
@@ -210,6 +194,7 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:thermometer-probe",
         entity_registry_enabled_default=False,
+        value_mapping={"SUPPORTED": "Yes", "NOT_SUPPORTED": "No"},  # type: ignore[arg-type]
     ),
     "processPhase": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},

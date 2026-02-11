@@ -148,6 +148,10 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
         else:
             command = {self.entity_attr: value}
 
+        # Wrap DAM commands in the required format
+        if self.is_dam_appliance:
+            command = {"commands": [command]}
+
         _LOGGER.debug("Electrolux set text value %s", command)
         try:
             result = await client.execute_appliance_command(self.pnc_id, command)

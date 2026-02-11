@@ -242,7 +242,7 @@ class TestElectroluxButton:
         await entity.async_press()
 
         entity.api.execute_appliance_command.assert_called_once_with(
-            "1:TEST_PNC", {"airConditioner": {"testAttr": "PRESS"}}
+            "1:TEST_PNC", {"commands": [{"airConditioner": {"testAttr": "PRESS"}}]}
         )
         entity.coordinator.async_request_refresh.assert_called_once()
 

@@ -345,7 +345,7 @@ class TestElectroluxText:
         await entity.async_set_value("new value")
 
         entity.api.execute_appliance_command.assert_called_once_with(
-            "1:TEST_PNC", {"airConditioner": {"testAttr": "new value"}}
+            "1:TEST_PNC", {"commands": [{"airConditioner": {"testAttr": "new value"}}]}
         )
         entity.coordinator.async_request_refresh.assert_called_once()
 

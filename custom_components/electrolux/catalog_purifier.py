@@ -2,6 +2,7 @@
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import (
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     CONCENTRATION_PARTS_PER_BILLION,
@@ -100,5 +101,71 @@ A9 = {
         entity_category=None,
         entity_icon="mdi:air-filter",
         friendly_name="Filter Life",
+    ),
+    # Air purifier controls
+    "Fanspeed": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 1,
+            "max": 9,
+            "step": 1,
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan",
+        friendly_name="Fan Speed",
+    ),
+    "Workmode": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "Manual": {"icon": "mdi:hand-back-right"},
+                "Auto": {"icon": "mdi:refresh-auto"},
+                "PowerOff": {"icon": "mdi:power-off"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:cog",
+        friendly_name="Work Mode",
+    ),
+    "UILight": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "boolean",
+            "default": True,
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:lightbulb",
+        friendly_name="UI Light",
+    ),
+    "SafetyLock": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "boolean",
+            "default": False,
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:lock",
+        friendly_name="Safety Lock",
+    ),
+    "Ionizer": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "boolean",
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:atom",
+        friendly_name="Ionizer",
     ),
 }
