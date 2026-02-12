@@ -126,7 +126,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
     _attr_has_entity_name = True
 
-    appliance_status: dict[str, Any] | None
+    appliance_status: ApplianceState | dict[str, Any] | None
 
     def __init__(
         self,
@@ -253,12 +253,6 @@ class ElectroluxEntity(CoordinatorEntity):
                 self._cached_value = None
         self.async_write_ha_state()
 
-    def get_connection_state(self) -> str | None:
-        """Return connection state."""
-        if self.appliance_status:
-            return self.appliance_status.get("connectionState", None)
-        return None
-
     def get_state_attr(self, path: str) -> str | None:
         """Return value of other appliance attributes.
 
@@ -274,7 +268,7 @@ class ElectroluxEntity(CoordinatorEntity):
     @property
     def reported_state(self) -> dict[str, Any]:
         """Return reported state of the appliance."""
-        if self.appliance_status is None:
+        if self.appliance_status is None or not isinstance(self.appliance_status, dict):
             return {}
 
         return self.appliance_status.get("properties", {}).get("reported", {})
@@ -282,13 +276,24 @@ class ElectroluxEntity(CoordinatorEntity):
     @reported_state.setter
     def reported_state(self, value: dict[str, Any] | None) -> None:
         """Set reported state for testing purposes."""
+        if not hasattr(self, "appliance_status") or not self.appliance_status:
+            self.appliance_status = {"properties": {"reported": {}}}
+
+        # Ensure properties structure exists
+        if not isinstance(self.appliance_status, dict):
+            self.appliance_status = {"properties": {"reported": {}}}
+        elif "properties" not in self.appliance_status or not isinstance(
+            self.appliance_status["properties"], dict
+        ):
+            self.appliance_status["properties"] = {"reported": {}}
+        elif "reported" not in self.appliance_status["properties"] or not isinstance(
+            self.appliance_status["properties"]["reported"], dict
+        ):
+            self.appliance_status["properties"]["reported"] = {}
+
         if value is None:
-            if not hasattr(self, "appliance_status") or not self.appliance_status:
-                self.appliance_status = {"properties": {"reported": {}}}
             self.appliance_status["properties"]["reported"] = {}
         else:
-            if not hasattr(self, "appliance_status") or not self.appliance_status:
-                self.appliance_status = {"properties": {"reported": {}}}
             self.appliance_status["properties"]["reported"] = value
 
     @property
@@ -411,7 +416,7 @@ class ElectroluxEntity(CoordinatorEntity):
         """Return the appliance attributes of the entity."""
         # For constant access, return value from capability metadata
         if self.capability.get("access") == "constant":
-            result = self.capability.get("default")
+            result: Any = self.capability.get("default")
             if result is not None:
                 _LOGGER.debug(
                     "Extracted constant value for %s: %s", self.entity_attr, result
@@ -420,16 +425,16 @@ class ElectroluxEntity(CoordinatorEntity):
             return None
 
         # For other access types, get from data
-        result = None
+        value: dict[str, Any] | None = None
         if self.entity_source == "applianceInfo":
-            if self.appliance_status:
-                result = self.appliance_status.get("applianceInfo", {}).get(
-                    self.entity_attr
-                )
+            if self.appliance_status and isinstance(self.appliance_status, dict):
+                appliance_info = self.appliance_status.get("applianceInfo", {})
+                if isinstance(appliance_info, dict):
+                    value = appliance_info.get(self.entity_attr)
         else:
             # Check reported state first
-            result = self.reported_state.get(self.entity_attr)
-            if result is None and self.entity_source:
+            value = self.reported_state.get(self.entity_attr)
+            if value is None and self.entity_source:
                 # Handle nested entity_source in reported
                 if "/" in self.entity_source:
                     parts = self.entity_source.split("/")
@@ -439,18 +444,18 @@ class ElectroluxEntity(CoordinatorEntity):
                         if category is None:
                             break
                     if category and isinstance(category, dict):
-                        result = category.get(self.entity_attr)
+                        value = cast(Any, category.get(self.entity_attr))  # type: ignore[assignment]
                 else:
                     category = self.reported_state.get(self.entity_source, None)
                     if category and isinstance(category, dict):
-                        result = category.get(self.entity_attr)
-            if result is None:
+                        value = category.get(self.entity_attr)
+            if value is None:
                 # Check appliance_status
-                if self.appliance_status:
-                    result = self.appliance_status.get(self.entity_attr)
+                if self.appliance_status and isinstance(self.appliance_status, dict):
+                    value = cast(Any, self.appliance_status.get(self.entity_attr))  # type: ignore[assignment]
 
-        if result is not None:
-            _LOGGER.debug("Extracted value for %s: %s", self.entity_attr, result)
+        if value is not None:
+            _LOGGER.debug("Extracted value for %s: %s", self.entity_attr, value)
         else:
             _LOGGER.debug(
                 "No value found for entity %s (attr: %s, source: %s)",
@@ -458,13 +463,12 @@ class ElectroluxEntity(CoordinatorEntity):
                 self.entity_attr,
                 self.entity_source,
             )
-        return result
+        return value
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update the appliance status."""
-        # Cast needed because ApplianceState TypedDict is not directly assignable to dict[str, Any] in mypy,
-        # despite being a subtype, due to TypedDict's structural typing constraints.
-        self.appliance_status = cast(dict[str, Any], appliance_status)
+        # ApplianceState is a TypedDict that can be assigned to dict[str, Any]
+        self.appliance_status = appliance_status
         # if self.hass:
         #     self.async_write_ha_state()
 

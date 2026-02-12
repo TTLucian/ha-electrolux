@@ -64,6 +64,12 @@ class AuthenticationError(CommandError):
     pass
 
 
+class NetworkError(CommandError):
+    """Network connectivity error."""
+
+    pass
+
+
 def get_electrolux_session(
     api_key, access_token, refresh_token, client_session, hass=None
 ) -> "ElectroluxApiClient":
@@ -148,6 +154,222 @@ def time_minutes_to_seconds(minutes: float | None) -> int | None:
     return int(minutes) * 60
 
 
+async def retry_with_backoff(
+    coro,
+    max_retries: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 30.0,
+    backoff_factor: float = 2.0,
+    logger: logging.Logger | None = None,
+) -> Any:
+    """Execute a coroutine with exponential backoff retry logic.
+
+    Args:
+        coro: The coroutine to execute
+        max_retries: Maximum number of retry attempts
+        base_delay: Initial delay between retries in seconds
+        max_delay: Maximum delay between retries in seconds
+        backoff_factor: Factor to multiply delay by on each retry
+        logger: Logger instance for debug messages
+
+    Returns:
+        The result of the coroutine
+
+    Raises:
+        The last exception encountered if all retries fail
+    """
+    if logger is None:
+        logger = _LOGGER
+
+    last_exception = None
+    delay = base_delay
+
+    for attempt in range(max_retries + 1):
+        try:
+            return await coro
+        except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
+            last_exception = ex
+            if attempt < max_retries:
+                logger.warning(
+                    "Network error on attempt %d/%d: %s. Retrying in %.1f seconds...",
+                    attempt + 1,
+                    max_retries + 1,
+                    ex,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+                delay = min(delay * backoff_factor, max_delay)
+            else:
+                logger.error(
+                    "Network error failed after %d attempts: %s",
+                    max_retries + 1,
+                    ex,
+                )
+        except Exception as ex:
+            # For non-network errors, don't retry
+            logger.debug("Non-retryable error: %s", ex)
+            raise
+
+    # If we get here, all retries failed with network errors
+    if last_exception:
+        raise last_exception
+    else:
+        raise RuntimeError("All retry attempts failed with unknown errors")
+
+
+def validate_api_response(
+    response: Any, expected_keys: list[str] | None = None
+) -> bool:
+    """Validate API response structure.
+
+    Args:
+        response: The API response to validate
+        expected_keys: List of keys that should be present in the response
+
+    Returns:
+        True if response is valid, False otherwise
+    """
+    if response is None:
+        _LOGGER.warning("API response is None")
+        return False
+
+    if expected_keys:
+        if not isinstance(response, dict):
+            _LOGGER.warning("API response is not a dict: %s", type(response))
+            return False
+
+        missing_keys = [key for key in expected_keys if key not in response]
+        if missing_keys:
+            _LOGGER.warning("API response missing expected keys: %s", missing_keys)
+            return False
+
+    return True
+
+
+async def safe_api_call(
+    coro,
+    operation_name: str,
+    logger: logging.Logger | None = None,
+    retry_network_errors: bool = True,
+) -> Any:
+    """Execute an API call with comprehensive error handling.
+
+    Args:
+        coro: The coroutine to execute
+        operation_name: Name of the operation for logging
+        logger: Logger instance
+        retry_network_errors: Whether to retry on network errors
+
+    Returns:
+        The result of the coroutine
+
+    Raises:
+        HomeAssistantError: With user-friendly message
+        ConfigEntryAuthFailed: For authentication errors
+    """
+    if logger is None:
+        logger = _LOGGER
+
+    try:
+        if retry_network_errors:
+            return await retry_with_backoff(
+                coro,
+                max_retries=2,
+                base_delay=1.0,
+                logger=logger,
+            )
+        else:
+            return await coro
+
+    except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
+        logger.error("Network error during %s: %s", operation_name, ex)
+        raise HomeAssistantError(
+            f"Network connection failed during {operation_name}. Please check your internet connection."
+        ) from ex
+
+    except Exception as ex:
+        error_str = str(ex).lower()
+
+        # Check for authentication errors
+        if any(
+            keyword in error_str
+            for keyword in [
+                "401",
+                "unauthorized",
+                "invalid grant",
+                "token",
+                "forbidden",
+                "auth",
+            ]
+        ):
+            logger.warning("Authentication error during %s: %s", operation_name, ex)
+            raise ConfigEntryAuthFailed(
+                "Authentication failed - please reauthenticate"
+            ) from ex
+
+        # Check for rate limiting
+        if any(
+            keyword in error_str
+            for keyword in ["429", "rate limit", "too many requests", "throttled"]
+        ):
+            logger.warning("Rate limit exceeded during %s: %s", operation_name, ex)
+            raise HomeAssistantError(
+                "Too many requests sent. Please wait a moment and try again."
+            ) from ex
+
+        # Generic error
+        logger.error("Unexpected error during %s: %s", operation_name, ex)
+        raise HomeAssistantError(
+            f"Operation failed: {operation_name}. Check logs for details."
+        ) from ex
+
+
+async def execute_command_with_error_handling(
+    client: "ElectroluxApiClient",
+    pnc_id: str,
+    command: dict[str, Any],
+    entity_attr: str,
+    logger: logging.Logger,
+    capability: dict[str, Any] | None = None,
+) -> Any:
+    """Execute command with standardized error handling.
+
+    Args:
+        client: API client instance
+        pnc_id: Appliance ID
+        command: Command dictionary to send
+        entity_attr: Entity attribute name (for logging)
+        logger: Logger instance
+        capability: Capability definition for enhanced error messages
+
+    Returns:
+        Command result
+
+    Raises:
+        HomeAssistantError: With user-friendly message
+    """
+    logger.debug("Executing command for %s: %s", entity_attr, command)
+
+    async def _execute_command():
+        return await client.execute_appliance_command(pnc_id, command)
+
+    try:
+        result = await safe_api_call(
+            _execute_command(),
+            f"command execution for {entity_attr}",
+            logger=logger,
+            retry_network_errors=False,  # Commands shouldn't be retried automatically
+        )
+        logger.debug("Command succeeded for %s: %s", entity_attr, result)
+        return result
+
+    except Exception as ex:
+        # Use shared error mapping function
+        raise map_command_error_to_home_assistant_error(
+            ex, entity_attr, logger, capability
+        ) from ex
+
+
 def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
     """Convert a string input to boolean."""
     if value is None:
@@ -224,43 +446,6 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
     if fallback:
         return value
     return False
-
-
-async def execute_command_with_error_handling(
-    client: "ElectroluxApiClient",
-    pnc_id: str,
-    command: dict[str, Any],
-    entity_attr: str,
-    logger: logging.Logger,
-    capability: dict[str, Any] | None = None,
-) -> Any:
-    """Execute command with standardized error handling.
-
-    Args:
-        client: API client instance
-        pnc_id: Appliance ID
-        command: Command dictionary to send
-        entity_attr: Entity attribute name (for logging)
-        logger: Logger instance
-
-    Returns:
-        Command result
-
-    Raises:
-        HomeAssistantError: With user-friendly message
-    """
-    logger.debug("Executing command for %s: %s", entity_attr, command)
-
-    try:
-        result = await client.execute_appliance_command(pnc_id, command)
-        logger.debug("Command succeeded for %s: %s", entity_attr, result)
-        return result
-
-    except Exception as ex:
-        # Use shared error mapping function
-        raise map_command_error_to_home_assistant_error(
-            ex, entity_attr, logger, capability
-        ) from ex
 
 
 def map_command_error_to_home_assistant_error(
@@ -907,27 +1092,61 @@ class ElectroluxApiClient:
 
     async def get_appliance_state(self, appliance_id) -> dict[str, Any]:
         """Get appliance state."""
-        state = await self._handle_api_call(
-            self._client.get_appliance_state(appliance_id)
+
+        async def _get_state():
+            state = await self._handle_api_call(
+                self._client.get_appliance_state(appliance_id)
+            )
+            return state
+
+        result = await safe_api_call(
+            _get_state(),
+            f"get appliance state for {appliance_id}",
+            logger=_LOGGER,
         )
+
+        # Validate response structure
+        if isinstance(result, dict):
+            reported = result.get("properties", {}).get("reported", {})
+        elif hasattr(result, "properties") and isinstance(result.properties, dict):
+            reported = result.properties.get("reported", {})
+        else:
+            _LOGGER.warning(
+                "API response is not a dict or object with properties: %s", type(result)
+            )
+            raise HomeAssistantError(
+                f"Invalid appliance state response for {appliance_id}"
+            )
+
         # Convert to expected format
         return {
             "applianceId": appliance_id,
             "connectionState": "connected",
             "status": "enabled",
-            "properties": {
-                "reported": (
-                    state.properties.get("reported", {}) if state.properties else {}
-                )
-            },
+            "properties": {"reported": reported},
         }
 
     async def get_appliance_capabilities(self, appliance_id):
         """Get appliance capabilities."""
-        details = await self._handle_api_call(
-            self._client.get_appliance_details(appliance_id)
+
+        async def _get_capabilities():
+            details = await self._handle_api_call(
+                self._client.get_appliance_details(appliance_id)
+            )
+            return details
+
+        result = await safe_api_call(
+            _get_capabilities(),
+            f"get appliance capabilities for {appliance_id}",
+            logger=_LOGGER,
         )
-        return details.capabilities
+
+        # Validate response has capabilities
+        if not hasattr(result, "capabilities") or not result.capabilities:
+            _LOGGER.warning("No capabilities found for appliance %s", appliance_id)
+            return {}
+
+        return result.capabilities
 
     async def watch_for_appliance_state_updates(self, appliance_ids, callback):
         """Safely start SSE event stream."""

@@ -9,13 +9,6 @@ from homeassistant.helpers.entity import EntityCategory
 from .model import ElectroluxDevice
 
 CATALOG_OVEN: dict[str, ElectroluxDevice] = {
-    "alerts": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:alert",
-    ),
     "applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -321,37 +314,24 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:tray",
     ),
-    "linkQualityIndicator": ElectroluxDevice(
+    "networkInterface/linkQualityIndicator": ElectroluxDevice(
         capability_info={
             "access": "read",
             "type": "string",
-            "entity_source": "networkInterface",
         },
         device_class=None,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:wifi-strength-3",
     ),
-    "otaState": ElectroluxDevice(
+    "networkInterface/otaState": ElectroluxDevice(
         capability_info={
             "access": "read",
             "type": "string",
-            "entity_source": "networkInterface",
         },
         device_class=None,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:update",
-    ),
-    "swVersion": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "entity_source": "networkInterface",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:information-outline",
     ),
 }

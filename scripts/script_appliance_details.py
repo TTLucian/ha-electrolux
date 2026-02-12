@@ -235,6 +235,8 @@ async def main():
 
             # Atomic rename to final filename
             print(f"Debug: Renaming {temp_filename} to {filename}...")
+            if os.path.exists(filename):
+                os.remove(filename)  # Remove existing file to allow overwrite
             os.rename(temp_filename, filename)
             print(f"✅ Details saved to {filename}")
 

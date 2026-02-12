@@ -161,10 +161,12 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         if self.entity_attr == "executeCommand":
             current_state = None
             if self.appliance_status:
-                current_state = (
-                    self.appliance_status.get("properties", {})
-                    .get("reported", {})
-                    .get("applianceState")
+                reported = self.appliance_status.get("properties", {}).get(
+                    "reported", {}
+                )
+                # Check for applianceState first, then executionState for dishwashers
+                current_state = reported.get("applianceState") or reported.get(
+                    "executionState"
                 )
             if self.val_to_send == "STOPRESET":
                 if current_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:

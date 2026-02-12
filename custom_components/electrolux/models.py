@@ -50,6 +50,7 @@ class ApplianceState(TypedDict, total=False):
     """TypedDict for appliance state structure."""
 
     properties: dict[str, Any]
+    connectionState: str
 
 
 class ApplianceData:

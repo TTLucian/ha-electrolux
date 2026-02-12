@@ -1,6 +1,5 @@
 """Defined catalog of entities for washer-dryer type devices."""
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.button import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
@@ -8,6 +7,13 @@ from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfMass, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
+from .const import (
+    AUTODOSE_DETERGENT_DUAL_OFF,
+    AUTODOSE_DETERGENT_DUAL_ON,
+    AUTODOSE_LINK_OFF,
+    AUTODOSE_LINK_ON,
+    AUTODOSE_OFF,
+)
 from .model import ElectroluxDevice
 
 CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
@@ -56,127 +62,6 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:airplane",
     ),
-    # Alert system - individual binary sensors for each alert type
-    "alerts/CHECK_DOOR": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:alert-circle",
-        friendly_name="Check Door",
-    ),
-    "alerts/CHECK_DRAIN_FILTER": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:filter",
-        friendly_name="Check Drain Filter",
-    ),
-    "alerts/CHECK_INLET_TAP": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:water-pump",
-        friendly_name="Check Inlet Tap",
-    ),
-    "alerts/CLEAN_FLUFF_DRAWER": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:delete-variant",
-        friendly_name="Clean Fluff Drawer",
-    ),
-    "alerts/DETERGENT_OVERDOSING": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:cup-water",
-        friendly_name="Detergent Overdosing",
-    ),
-    "alerts/DOOR": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.DOOR,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:door-open",
-        friendly_name="Door Alert",
-    ),
-    "alerts/EMPTY_WATER_CONTAINER": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:water-off",
-        friendly_name="Empty Water Container",
-    ),
-    "alerts/MACHINE_RESTART": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:restart",
-        friendly_name="Machine Restart",
-    ),
-    "alerts/POWER_FAILURE": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:power-plug-off",
-        friendly_name="Power Failure",
-    ),
-    "alerts/STEAM_TANK_FULL": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:weather-cloudy",
-        friendly_name="Steam Tank Full",
-    ),
-    "alerts/TOP_UP_SALT": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:shaker",
-        friendly_name="Top Up Salt",
-    ),
-    "alerts/UNBALANCED_LAUNDRY": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:scale-unbalanced",
-        friendly_name="Unbalanced Laundry",
-    ),
-    "alerts/UNSTABLE_SUPPLY_VOLTAGE": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:flash",
-        friendly_name="Unstable Supply Voltage",
-    ),
-    "alerts/WATER_CONTAINER": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:water",
-        friendly_name="Water Container",
-    ),
-    "alerts/WATER_LEAK": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=BinarySensorDeviceClass.PROBLEM,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:water-alert",
-        friendly_name="Water Leak",
-    ),
     # Basic controls
     "defaultExtraRinse": ElectroluxDevice(
         capability_info={
@@ -188,17 +73,6 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:washing-machine",
-    ),
-    "endOfCycleSound": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-            "type": "string",
-            "values": {"NO_SOUND": {}, "SHORT_SOUND": {}},
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:volume-high",
     ),
     "executeCommand": ElectroluxDevice(
         capability_info={
@@ -285,14 +159,6 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
         friendly_name="Washing Load Weight",
     ),
     # User selections
-    "userSelections/programUID": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "string"},
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:tune",
-        friendly_name="Program",
-    ),
     "userSelections/EWX1493A_dryMode": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
@@ -477,11 +343,11 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
             "access": "readwrite",
             "type": "string",
             "values": {
-                "AUTODOSE_DETERGENT_DUAL_OFF": {},
-                "AUTODOSE_DETERGENT_DUAL_ON": {},
-                "AUTODOSE_LINK_OFF": {},
-                "AUTODOSE_LINK_ON": {},
-                "AUTODOSE_OFF": {},
+                AUTODOSE_DETERGENT_DUAL_OFF: {},
+                AUTODOSE_DETERGENT_DUAL_ON: {},
+                AUTODOSE_LINK_OFF: {},
+                AUTODOSE_LINK_ON: {},
+                AUTODOSE_OFF: {},
             },
         },
         device_class=None,
@@ -495,11 +361,11 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
             "access": "readwrite",
             "type": "string",
             "values": {
-                "AUTODOSE_DETERGENT_DUAL_OFF": {},
-                "AUTODOSE_DETERGENT_DUAL_ON": {},
-                "AUTODOSE_LINK_OFF": {},
-                "AUTODOSE_LINK_ON": {},
-                "AUTODOSE_OFF": {},
+                AUTODOSE_DETERGENT_DUAL_OFF: {},
+                AUTODOSE_DETERGENT_DUAL_ON: {},
+                AUTODOSE_LINK_OFF: {},
+                AUTODOSE_LINK_ON: {},
+                AUTODOSE_OFF: {},
             },
         },
         device_class=None,

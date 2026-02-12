@@ -9,13 +9,6 @@ from homeassistant.helpers.entity import EntityCategory
 from .model import ElectroluxDevice
 
 CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
-    "alerts": ElectroluxDevice(
-        capability_info={"access": "read", "type": "alert"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:alert",
-    ),
     "applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",

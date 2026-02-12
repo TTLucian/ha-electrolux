@@ -6,7 +6,7 @@ ID: 944188772_00:31862190-443E07363DAB
 Type: OV
 Model: 944188772
 Connection: connected
-Retrieved at: 2026-02-11T22:13:07.035687
+Retrieved at: 2026-02-12T14:36:47.654232
 
 RAW STATE DATA:
 {
@@ -22,9 +22,9 @@ RAW STATE DATA:
       "doorState": "CLOSED",
       "remoteControl": "NOT_SAFETY_RELEVANT_ENABLED",
       "cpv": "00",
-      "targetFoodProbeTemperatureC": 53.0,
+      "targetFoodProbeTemperatureC": 41.0,
       "targetTemperatureF": 302.0,
-      "targetFoodProbeTemperatureF": 127.4,
+      "targetFoodProbeTemperatureF": 105.8,
       "targetTemperatureC": 150.0,
       "program": "TRUE_FAN",
       "runningTime": 0,
@@ -34,7 +34,7 @@ RAW STATE DATA:
       "networkInterface": {
         "swVersion": "v3.0.0S_argo",
         "otaState": "IDLE",
-        "linkQualityIndicator": "GOOD",
+        "linkQualityIndicator": "VERY_GOOD",
         "niuSwUpdateCurrentDescription": "A23642201A-S00007645A",
         "swAncAndRevision": "S00007645A"
       },
@@ -45,12 +45,12 @@ RAW STATE DATA:
       "targetDuration": 0,
       "startTime": -1,
       "processPhase": "NONE",
-      "connectivityState": "disconnected",
+      "connectivityState": "connected",
       "displayTemperatureC": 30.0,
       "timeToEnd": -1,
-      "displayFoodProbeTemperatureC": 17.0,
+      "displayFoodProbeTemperatureC": 20.0,
       "displayTemperatureF": 86.0,
-      "displayFoodProbeTemperatureF": 62.6
+      "displayFoodProbeTemperatureF": 68.0
     }
   }
 }

@@ -177,7 +177,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
-        _LOGGER.debug("Electrolux appliance state updated")
         # Update reported data
         appliances: Any = self.data.get("appliances", None)
         if not appliances:
@@ -187,6 +186,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Handle incremental updates: {"applianceId": "...", "property": "...", "value": "..."}
         if data and "applianceId" in data and "property" in data and "value" in data:
             appliance_id = data["applianceId"]
+            _LOGGER.debug(
+                "Electrolux appliance state updated for %s (incremental: %s = %s)",
+                appliance_id,
+                data["property"],
+                data["value"],
+            )
             appliance = appliances.get_appliance(appliance_id)
             if appliance is None:
                 _LOGGER.warning(
@@ -274,6 +279,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 for k, v in data.items()
                 if k not in ["applianceId", "appliance_id", "userId", "timestamp"]
             }
+
+        _LOGGER.debug(
+            "Electrolux appliance state updated for %s (bulk: %s)",
+            appliance_id,
+            list(appliance_data.keys()),
+        )
 
         try:
             appliance.update_reported_data(appliance_data)
