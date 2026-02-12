@@ -53,16 +53,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:lock",
         entity_registry_enabled_default=False,
     ),
-    "connectivityState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:lan-connect",
-    ),
     "cpv": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},
         device_class=None,

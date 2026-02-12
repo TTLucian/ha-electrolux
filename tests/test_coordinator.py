@@ -119,8 +119,12 @@ async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
     mock_appliances = MagicMock(spec=Appliances)
     mock_appliances.get_appliances.return_value = {"test_appliance_1": mock_appliance}
 
-    # Set up coordinator data
+    # Set up coordinator data and required attributes
     mock_coordinator.data = {"appliances": mock_appliances}
+    mock_coordinator.hass = MagicMock()  # Mock hass for issue creation
+    mock_coordinator.config_entry = MagicMock()  # Mock config entry
+    mock_coordinator.config_entry.entry_id = "test_entry_id"
+    mock_coordinator.config_entry.title = "Test Entry"
 
     # Call the update method and expect it to raise ConfigEntryAuthFailed
     from homeassistant.exceptions import ConfigEntryAuthFailed

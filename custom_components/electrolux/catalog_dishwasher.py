@@ -437,19 +437,4 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         friendly_name="Maintenance Threshold",
         entity_registry_enabled_default=False,
     ),
-    # Connectivity state (diagnostic)
-    "connectivityState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "connected": {},
-                "disconnected": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:lan-connect",
-    ),
 }

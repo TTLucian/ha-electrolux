@@ -481,7 +481,7 @@ class Appliance:
         for static_attribute in STATIC_ATTRIBUTES:
             _LOGGER.debug("Electrolux static_attribute %s", static_attribute)
             # attr not found in state, next attr
-            attr_in_reported = self.get_state(static_attribute) is not None
+            attr_in_reported = static_attribute in self.reported_state
             attr_at_top_level = (
                 self.state.get(static_attribute) is not None if self.state else False
             )

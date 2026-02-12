@@ -61,6 +61,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Authenticate
     if not await coordinator.async_login():
+        # Create an issue to trigger reauth flow
+        from homeassistant.helpers import issue_registry
+
+        issue_registry.async_create_issue(
+            hass,
+            DOMAIN,
+            f"invalid_refresh_token_{entry.entry_id}",
+            is_fixable=True,
+            issue_domain=DOMAIN,
+            severity=issue_registry.IssueSeverity.ERROR,
+            translation_key="invalid_refresh_token",
+            translation_placeholders={
+                "entry_title": entry.title,
+            },
+        )
         raise ConfigEntryAuthFailed("Electrolux wrong credentials")
 
     # Store coordinator

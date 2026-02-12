@@ -643,6 +643,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     for keyword in ["401", "unauthorized", "auth", "token"]
                 ):
                     _LOGGER.warning("Authentication failed during data update: %s", ex)
+                    # Create an issue to trigger reauth flow
+                    from homeassistant.helpers import issue_registry
+
+                    issue_registry.async_create_issue(
+                        self.hass,
+                        DOMAIN,
+                        f"invalid_refresh_token_{self.config_entry.entry_id}",
+                        is_fixable=True,
+                        issue_domain=DOMAIN,
+                        severity=issue_registry.IssueSeverity.ERROR,
+                        translation_key="invalid_refresh_token",
+                        translation_placeholders={
+                            "entry_title": self.config_entry.title,
+                        },
+                    )
                     raise ConfigEntryAuthFailed("Token expired or invalid") from ex
                 # For other errors, just log and return failure
                 _LOGGER.debug("Failed to update %s during refresh: %s", app_id, ex)

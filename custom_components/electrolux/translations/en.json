@@ -53,5 +53,11 @@
       "incomplete_credentials": "All API credentials (API Key, Access Token, Refresh Token) must be provided together.",
       "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token."
     }
+  },
+  "issues": {
+    "invalid_refresh_token": {
+      "title": "Electrolux authentication expired",
+      "description": "Your Electrolux API tokens have expired. Please re-authenticate with fresh tokens from the Electrolux Developer Portal."
+    }
   }
 }

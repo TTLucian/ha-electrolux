@@ -168,4 +168,19 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:play-circle",
         friendly_name="Program UID",
     ),
+    "connectivityState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "connected": {},
+                "disconnected": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:lan-connect",
+        friendly_name="Connectivity State",
+    ),
 }

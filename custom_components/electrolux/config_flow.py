@@ -1,7 +1,6 @@
 """Adds config flow for Electrolux."""
 
 import logging
-from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
@@ -81,13 +80,15 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
 
         return await self._show_config_form(user_input)
 
-    async def async_step_reauth(
-        self, entry_data: Mapping[str, Any]
-    ) -> ConfigFlowResult:
+    async def async_step_reauth(self, entry: ConfigEntry) -> ConfigFlowResult:
         """Handle configuration by re-auth."""
-        # Store the entry data for later use
-        self._reauth_entry_data = entry_data
+        # Store the entry for later use
+        self._reauth_entry = entry
         return await self.async_step_reauth_validate()
+
+    def _get_reauth_entry(self) -> ConfigEntry | None:
+        """Get the reauth entry."""
+        return getattr(self, "_reauth_entry", None)
 
     async def _validate_reauth_input(
         self, user_input: UserInput | dict[str, Any]
@@ -103,6 +104,11 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             from homeassistant.helpers import issue_registry
 
             entry = self._get_reauth_entry()
+            if entry is None:
+                _LOGGER.error("No reauth entry found during reauthentication")
+                self._errors["base"] = "reauth_failed"
+                return None
+
             issue_id = f"invalid_refresh_token_{entry.entry_id}"
             issue_registry.async_delete_issue(self.hass, DOMAIN, issue_id)
             # Update the existing entry with new tokens
