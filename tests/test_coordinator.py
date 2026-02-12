@@ -56,7 +56,10 @@ async def test_async_update_data_success(mock_coordinator, mock_api_client):
     }
 
     # Mock the API to return the appliance state
-    mock_api_client.get_appliance_state = AsyncMock(return_value=mock_appliance_state)
+    async def mock_get_appliance_state(app_id):
+        return mock_appliance_state
+
+    mock_api_client.get_appliance_state = mock_get_appliance_state
 
     # Create a mock appliance in the coordinator data
     mock_appliance = MagicMock(spec=Appliance)
@@ -146,9 +149,17 @@ async def test_async_update_data_multiple_appliances(mock_coordinator, mock_api_
     }
 
     # Mock the API to return different states for different appliances
-    mock_api_client.get_appliance_state = AsyncMock(
-        side_effect=[mock_state_1, mock_state_2]
-    )
+    call_count = 0
+
+    async def mock_get_appliance_state(app_id):
+        nonlocal call_count
+        if call_count == 0:
+            call_count += 1
+            return mock_state_1
+        else:
+            return mock_state_2
+
+    mock_api_client.get_appliance_state = mock_get_appliance_state
 
     # Create mock appliances
     mock_appliance_1 = MagicMock(spec=Appliance)
