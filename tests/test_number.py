@@ -331,6 +331,7 @@ class TestElectroluxNumber:
             "custom_components.electrolux.number.format_command_for_appliance"
         ) as mock_format, patch.object(entity, "coordinator") as mock_coord:
             mock_coord.async_request_refresh = AsyncMock()
+            mock_coord._last_update_times = {}
             mock_format.return_value = 42
             await entity.async_set_native_value(42.0)
 

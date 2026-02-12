@@ -56,10 +56,7 @@ async def test_async_update_data_success(mock_coordinator, mock_api_client):
     }
 
     # Mock the API to return the appliance state
-    async def mock_get_appliance_state(app_id):
-        return mock_appliance_state
-
-    mock_api_client.get_appliance_state = mock_get_appliance_state
+    mock_api_client.get_appliance_state = AsyncMock(return_value=mock_appliance_state)
 
     # Create a mock appliance in the coordinator data
     mock_appliance = MagicMock(spec=Appliance)

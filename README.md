@@ -167,11 +167,25 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - AEG AbsoluteCare series
 
 **Dishwashers**
-- Electrolux GlassCare and MaxiFlex series
-- AEG GlassCare series
+
+- Comprehensive dishwashing cycle monitoring and control
+- Appliance state tracking (IDLE, RUNNING, PAUSED, END_OF_CYCLE, etc.)
+- Cycle phase and sub-phase monitoring
+- Door status and lock control
+- Start time scheduling and delayed start
+- Time-to-end countdown
+- Program selection with per-program configurations (ECO, INTENSIVE, QUICK, GLASS, etc.)
+- Temperature settings for optimal cleaning performance
+- Extra options (hygiene rinse, extra dry, intensive zones)
+- Salt level monitoring and alerts
+- Rinse aid level monitoring and alerts
+- Filter cleaning maintenance alerts
+- Remote control enablement
+- Network interface monitoring (WiFi quality, OTA updates, software version)
+- Appliance working time and cycle counters
+- Error detection and reporting with specific dishwasher error messages
 
 **Air Purifiers**
-- Electrolux Pure A9 series
 - Air quality monitoring and control
 - Fan speed control (1-9 levels)
 - Work mode selection (Manual/Auto/Power Off)
@@ -194,6 +208,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Air quality sensors (air purifiers)
 - Cycle counters and working time statistics
 - Drying cycle monitoring (washer-dryers)
+- Dishwasher monitoring (salt levels, rinse aid levels, filter status)
 
 ### Controls
 - Power on/off (with safety validation)
@@ -212,11 +227,17 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
   - Drying time selection
   - Dryness level selection (CUPBOARD, EXTRA, IRON)
   - Wet mode control
+- Dishwasher controls:
+  - Program selection (ECO, INTENSIVE, QUICK, GLASS, etc.)
+  - Temperature settings for optimal cleaning
+  - Delay start scheduling
+  - Extra options (hygiene rinse, extra dry, intensive zones)
 
 ### Binary Sensors
 - Door status
 - Connection state
 - Alert conditions
+- Dishwasher alerts (salt level, rinse aid level, filter cleaning)
 
 ### Diagnostics
 - Network interface information
