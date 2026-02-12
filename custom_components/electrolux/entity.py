@@ -425,7 +425,7 @@ class ElectroluxEntity(CoordinatorEntity):
             return None
 
         # For other access types, get from data
-        value: dict[str, Any] | None = None
+        value: Any | None = None
         if self.entity_source == "applianceInfo":
             if self.appliance_status and isinstance(self.appliance_status, dict):
                 appliance_info = self.appliance_status.get("applianceInfo", {})
