@@ -646,16 +646,23 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     # Create an issue to trigger reauth flow
                     from homeassistant.helpers import issue_registry
 
+                    if self.config_entry is not None:
+                        entry_id = self.config_entry.entry_id
+                        entry_title = self.config_entry.title
+                    else:
+                        entry_id = "<unknown>"
+                        entry_title = "<unknown>"
+
                     issue_registry.async_create_issue(
                         self.hass,
                         DOMAIN,
-                        f"invalid_refresh_token_{self.config_entry.entry_id}",
+                        f"invalid_refresh_token_{entry_id}",
                         is_fixable=True,
                         issue_domain=DOMAIN,
                         severity=issue_registry.IssueSeverity.ERROR,
                         translation_key="invalid_refresh_token",
                         translation_placeholders={
-                            "entry_title": self.config_entry.title,
+                            "entry_title": entry_title,
                         },
                     )
                     raise ConfigEntryAuthFailed("Token expired or invalid") from ex

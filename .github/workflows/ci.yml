@@ -33,6 +33,8 @@ jobs:
           pip install "aiohttp>=3.12.2,<4.0.0" "pyjwt>=2.10.1,<3.0.0"
           pip install "electrolux-group-developer-sdk>=0.2.0"
           pip install --upgrade homeassistant==2024.10.0
+          # Ensure compatible versions are used after HA installation
+          pip install --upgrade "aiohttp>=3.12.2,<4.0.0" "pyjwt>=2.10.1,<3.0.0"
           pip install pytest>=7.0.0 pytest-asyncio>=0.21.0 pytest-cov>=4.0.0
           pip install mypy ruff black
 
