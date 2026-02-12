@@ -19,6 +19,7 @@ class TestElectroluxSelect:
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
         coordinator.config_entry = MagicMock()
+        coordinator._last_update_times = {}
         return coordinator
 
     @pytest.fixture
