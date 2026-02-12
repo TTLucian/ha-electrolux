@@ -63,7 +63,7 @@ async def test_async_update_data_success(mock_coordinator, mock_api_client):
     mock_appliance.pnc_id = "test_appliance_1"
     mock_appliance.update = MagicMock()
 
-    mock_appliances = MagicMock(spec=Appliances)
+    mock_appliances = MagicMock()
     mock_appliances.get_appliances.return_value = {"test_appliance_1": mock_appliance}
 
     # Set up coordinator data
