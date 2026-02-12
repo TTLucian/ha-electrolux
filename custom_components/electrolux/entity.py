@@ -311,7 +311,43 @@ class ElectroluxEntity(CoordinatorEntity):
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.is_remote_control_enabled()
+        return self.is_remote_control_enabled() and self.is_connected()
+
+    def is_connected(self) -> bool:
+        """Check if the appliance is connected.
+
+        Returns True if connectivityState is 'connected' or not reported (assume connected).
+        Returns False if connectivityState is 'disconnected' or other offline states,
+        or if no updates received recently (fallback detection).
+        """
+        import time
+
+        from .coordinator import APPLIANCE_OFFLINE_TIMEOUT
+
+        # First check explicit connectivity state
+        connectivity_state = self.reported_state.get("connectivityState")
+        if connectivity_state is not None:
+            connectivity_str = str(connectivity_state).lower()
+            if connectivity_str != "connected":
+                return False
+
+        # Fallback: check if we've received updates recently
+        # This catches cases where SSE connection is lost but connectivityState hasn't been updated
+        last_update = getattr(self.coordinator, "_last_update_times", {}).get(
+            self.pnc_id
+        )
+        if last_update is not None:
+            time_since_update = time.time() - last_update
+            if time_since_update > APPLIANCE_OFFLINE_TIMEOUT:
+                _LOGGER.debug(
+                    "Appliance %s marked offline due to stale updates (%d seconds old)",
+                    self.pnc_id,
+                    int(time_since_update),
+                )
+                return False
+
+        # If connectivity state is reported as connected, or no state reported (backwards compatibility)
+        return True
 
     @property
     def icon(self) -> str | None:

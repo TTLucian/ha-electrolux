@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import time
 from datetime import timedelta
 from typing import Any, Optional
 
@@ -54,6 +55,7 @@ TASK_CANCEL_TIMEOUT = 2.0  # seconds for task cancellation timeouts
 WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
+APPLIANCE_OFFLINE_TIMEOUT = 900  # 15 minutes - mark appliance offline if no updates
 
 # Time entity thresholds
 TIME_ENTITY_THRESHOLD_LOW = 0
@@ -85,6 +87,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         )  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
+        self._last_update_times: dict[str, float] = (
+            {}
+        )  # Track last update time per appliance
 
         super().__init__(
             hass,
@@ -301,6 +306,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 appliance_id,
             )
             return
+
+        # Update last seen time for this appliance
+        self._last_update_times[appliance_id] = time.time()
 
         self.async_set_updated_data(self.data)
 
@@ -632,6 +640,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT
                 )
                 app_obj.update(status)
+                # Update last seen time for successful updates
+                self._last_update_times[app_id] = time.time()
                 return True  # Success
             except asyncio.CancelledError:
                 raise

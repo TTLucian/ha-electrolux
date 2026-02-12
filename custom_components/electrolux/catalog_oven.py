@@ -169,20 +169,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
     ),
-    "foodProbeSupported": ElectroluxDevice(
-        capability_info={
-            "access": "constant",
-            "type": "enum",
-            "default": "SUPPORTED",
-            "values": {"NOT_SUPPORTED": {}, "SUPPORTED": {}},
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:thermometer-probe",
-        entity_registry_enabled_default=False,
-        value_mapping={"SUPPORTED": "Yes", "NOT_SUPPORTED": "No"},  # type: ignore[arg-type]
-    ),
     "processPhase": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},
         device_class=None,

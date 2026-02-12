@@ -448,6 +448,99 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
     return False
 
 
+def _parse_error_detail_for_user_message(
+    detail_lower: str, capability: dict[str, Any] | None = None
+) -> str | None:
+    """Parse error detail to extract user-friendly error message.
+
+    Returns a specific error message if the detail matches known patterns,
+    otherwise returns None to use the generic message.
+    """
+    if "invalid step" in detail_lower:
+        # Get step value from capability for dynamic error message
+        step_value = "valid"
+        if capability:
+            step = capability.get("step")
+            if step is not None:
+                step_value = str(step)
+        return f"Invalid Value: This appliance requires increments of {step_value}."
+
+    if "type mismatch" in detail_lower:
+        return "Integration Error: Formatting mismatch (Expected Boolean/String)."
+
+    if "remote control disabled" in detail_lower:
+        return "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
+
+    if "temporary_locked" in detail_lower or "temporary lock" in detail_lower:
+        return "Remote control is temporarily locked. Please open and close the appliance door, then press the physical 'Remote Start' button on the appliance."
+
+    if any(
+        phrase in detail_lower
+        for phrase in [
+            "not supported by program",
+            "program does not allow",
+            "not allowed in current program",
+            "program restriction",
+            "not available for this program",
+            "program not supported",
+        ]
+    ):
+        return "Setting not available for the selected program. Please change the program or check program settings."
+
+    if any(
+        phrase in detail_lower
+        for phrase in [
+            "food probe not inserted",
+            "probe not inserted",
+            "food probe not detected",
+            "probe not detected",
+            "food probe required",
+            "probe required",
+        ]
+    ):
+        return "Food probe must be inserted to set probe temperature. Please insert the food probe into the appliance."
+
+    if any(
+        phrase in detail_lower
+        for phrase in [
+            "door open",
+            "door is open",
+            "close door",
+            "door must be closed",
+            "door not closed",
+        ]
+    ):
+        return "Appliance door must be closed to perform this operation. Please close the appliance door."
+
+    if any(
+        phrase in detail_lower
+        for phrase in [
+            "appliance busy",
+            "appliance running",
+            "cycle in progress",
+            "operation in progress",
+            "appliance active",
+            "cannot change while running",
+        ]
+    ):
+        return "Cannot change settings while appliance is running. Please wait for the current operation to complete."
+
+    if any(
+        phrase in detail_lower
+        for phrase in [
+            "child lock active",
+            "child lock enabled",
+            "safety lock active",
+            "safety lock enabled",
+            "control locked",
+            "controls locked",
+        ]
+    ):
+        return "Controls are locked. Please disable the child lock or safety lock on the appliance."
+
+    return None
+
+
 def map_command_error_to_home_assistant_error(
     ex: Exception,
     entity_attr: str,
@@ -544,6 +637,31 @@ def map_command_error_to_home_assistant_error(
 
         if error_code and str(error_code).upper() in ERROR_CODE_MAPPING:
             user_message = ERROR_CODE_MAPPING[str(error_code).upper()]
+
+            # Enhanced error code handling with detail parsing
+            detail_message = None
+            try:
+                # Try to extract detail from error response
+                if error_data and isinstance(error_data, dict):
+                    detail = error_data.get("detail") or error_data.get("message")
+                    logger.debug(
+                        "Error code detail parsing: error_data=%s, detail=%s",
+                        error_data,
+                        detail,
+                    )
+                    if detail:
+                        detail_lower = str(detail).lower()
+                        detail_message = _parse_error_detail_for_user_message(
+                            detail_lower, capability
+                        )
+
+            except Exception:
+                # If detail parsing fails, continue with generic message
+                pass
+
+            if detail_message:
+                user_message = detail_message
+
             logger.warning(
                 "Command failed for %s: %s - %s",
                 entity_attr,
@@ -601,30 +719,11 @@ def map_command_error_to_home_assistant_error(
                         )
                         if detail:
                             detail_lower = str(detail).lower()
-
-                            if "invalid step" in detail_lower:
-                                # Get step value from capability for dynamic error message
-                                step_value = "valid"
-                                if capability:
-                                    step = capability.get("step")
-                                    if step is not None:
-                                        step_value = str(step)
-                                detail_message = f"Invalid Value: This appliance requires increments of {step_value}."
-
-                            elif "type mismatch" in detail_lower:
-                                detail_message = "Integration Error: Formatting mismatch (Expected Boolean/String)."
-
-                            elif "remote control disabled" in detail_lower:
-                                detail_message = "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
-
-                            elif (
-                                "temporary_locked" in detail_lower
-                                or "temporary lock" in detail_lower
-                            ):
-                                detail_message = "Remote control is temporarily locked. Please open and close the appliance door, then press the physical 'Remote Start' button on the appliance."
-
+                            detail_message = _parse_error_detail_for_user_message(
+                                detail_lower, capability
+                            )
+                # If detail parsing fails, continue with generic message
                 except Exception:
-                    # If detail parsing fails, continue with generic message
                     pass
 
                 if detail_message:

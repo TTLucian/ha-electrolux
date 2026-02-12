@@ -146,6 +146,20 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
     async def send_command(self) -> bool:
         """Send a command to the device."""
+        # Check if appliance is connected before sending command
+        if not self.is_connected():
+            connectivity_state = self.reported_state.get("connectivityState", "unknown")
+            _LOGGER.warning(
+                "Appliance %s is not connected (state: %s), cannot execute command for %s",
+                self.pnc_id,
+                connectivity_state,
+                self.entity_attr,
+            )
+            raise HomeAssistantError(
+                f"Appliance is not connected (current state: {connectivity_state}). "
+                "Please check that the appliance is plugged in and has network connectivity."
+            )
+
         # Check if remote control is enabled before sending command
         if not self.is_remote_control_enabled():
             _LOGGER.warning(

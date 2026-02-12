@@ -15,7 +15,6 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 FRIENDLY_NAMES = {
     "ovwater_tank_empty": "Water Tank Status",
-    "foodProbeSupported": "Food Probe Support",
     "foodProbeInsertionState": "Food Probe",
     "ovcleaning_ended": "Cleaning Status",
     "ovfood_probe_end_of_cooking": "Probe End of Cooking",

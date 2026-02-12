@@ -115,18 +115,19 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # Special handling for targetFoodProbeTemperatureC
         if self.entity_attr == "targetFoodProbeTemperatureC":
-            # Return 0 if food probe is not inserted
-            food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
-                return 0.0
-            # Return 0 if not supported by current program
-            if not self._is_supported_by_program():
+            # Only return 0 if no valid value is reported and food probe is not inserted
+            if not value or value == 0:
+                food_probe_state = self.reported_state.get("foodProbeInsertionState")
+                if food_probe_state == "NOT_INSERTED":
+                    return 0.0
+            # Return 0 if not supported by current program and no valid value reported
+            if not value and not self._is_supported_by_program():
                 return 0.0
 
         # Special handling for targetTemperatureC
         if self.entity_attr == "targetTemperatureC":
-            # Return 0 if not supported by current program
-            if not self._is_supported_by_program():
+            # Return 0 if not supported by current program and no valid value reported
+            if not value and not self._is_supported_by_program():
                 return 0.0
 
         # For non-global entities, return None if not supported by current program
@@ -140,11 +141,24 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             return None
 
         if not value:
-            value = self.capability.get("default", None)
-            if value == "INVALID_OR_NOT_SET_TIME":
-                value = self.capability.get("min", None)
-            if not value and self.entity_attr == "targetDuration":
-                value = 0
+            # First try program-specific default for temperature controls
+            if self.entity_attr in [
+                "targetTemperatureC",
+                "targetFoodProbeTemperatureC",
+            ]:
+                program_default = self._get_program_constraint("default")
+                if program_default is not None:
+                    value = program_default
+                    _LOGGER.debug(
+                        "Using program default for %s: %s", self.entity_attr, value
+                    )
+            # Fall back to base capability default
+            if value is None:
+                value = self.capability.get("default", None)
+                if value == "INVALID_OR_NOT_SET_TIME":
+                    value = self.capability.get("min", None)
+                if not value and self.entity_attr == "targetDuration":
+                    value = 0
         if not value:
             return self._cached_value
         if isinstance(self.unit, UnitOfTemperature):
@@ -333,6 +347,20 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # Rate limit commands
         await self._rate_limit_command()
+
+        # Check if appliance is connected before sending command
+        if not self.is_connected():
+            connectivity_state = self.reported_state.get("connectivityState", "unknown")
+            _LOGGER.warning(
+                "Appliance %s is not connected (state: %s), cannot set %s",
+                self.pnc_id,
+                connectivity_state,
+                self.entity_attr,
+            )
+            raise HomeAssistantError(
+                f"Appliance is not connected (current state: {connectivity_state}). "
+                "Please check that the appliance is plugged in and has network connectivity."
+            )
 
         # Check if remote control is enabled
         remote_control = (

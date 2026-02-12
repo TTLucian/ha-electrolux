@@ -3,4 +3,4 @@
 import josepy
 
 # Add ComparableX509 as an alias for ComparableKey to fix acme compatibility
-josepy.ComparableX509 = josepy.ComparableKey
+josepy.ComparableX509 = josepy.ComparableKey  # type: ignore

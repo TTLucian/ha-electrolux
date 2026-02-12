@@ -8,6 +8,7 @@ from homeassistant.components.text import TextEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, TEXT
@@ -122,6 +123,31 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
 
     async def async_set_value(self, value: str) -> None:
         """Set the text value."""
+        # Check if appliance is connected before sending command
+        if not self.is_connected():
+            connectivity_state = self.reported_state.get("connectivityState", "unknown")
+            _LOGGER.warning(
+                "Appliance %s is not connected (state: %s), cannot set %s",
+                self.pnc_id,
+                connectivity_state,
+                self.entity_attr,
+            )
+            raise HomeAssistantError(
+                f"Appliance is not connected (current state: {connectivity_state}). "
+                "Please check that the appliance is plugged in and has network connectivity."
+            )
+
+        # Check if remote control is enabled before sending command
+        if not self.is_remote_control_enabled():
+            _LOGGER.warning(
+                "Remote control is disabled for appliance %s, cannot set %s",
+                self.pnc_id,
+                self.entity_attr,
+            )
+            raise HomeAssistantError(
+                "Remote control is disabled for this appliance. Please check the appliance settings."
+            )
+
         client: ElectroluxApiClient = self.api
 
         command: dict[str, Any]

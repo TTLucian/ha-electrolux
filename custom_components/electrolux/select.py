@@ -153,6 +153,20 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
+        # Check if appliance is connected before sending command
+        if not self.is_connected():
+            connectivity_state = self.reported_state.get("connectivityState", "unknown")
+            _LOGGER.warning(
+                "Appliance %s is not connected (state: %s), cannot select option %s",
+                self.pnc_id,
+                connectivity_state,
+                option,
+            )
+            raise HomeAssistantError(
+                f"Appliance is not connected (current state: {connectivity_state}). "
+                "Please check that the appliance is plugged in and has network connectivity."
+            )
+
         # Check if remote control is enabled
         remote_control = (
             self.appliance_status.get("properties", {})
