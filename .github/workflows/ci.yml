@@ -30,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip cache purge
           # Install SDK first to get newer aiohttp, then HA with upgrade to resolve conflicts
-          pip install "aiohttp>=3.12.2,<4.0.0" "pyjwt>=2.10.1,<3.0.0"
+          pip install "aiohttp>=3.12.2,<4.0.0" "pyjwt>=2.10.1,<3.0.0" "josepy>=1.13.0"
           pip install "electrolux-group-developer-sdk>=0.2.0"
           pip install --upgrade homeassistant==2024.10.0
           # Ensure compatible versions are used after HA installation
