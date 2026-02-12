@@ -86,9 +86,12 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self._reauth_entry = entry
         return await self.async_step_reauth_validate()
 
-    def _get_reauth_entry(self) -> ConfigEntry | None:
+    def _get_reauth_entry(self) -> ConfigEntry:
         """Get the reauth entry."""
-        return getattr(self, "_reauth_entry", None)
+        entry = getattr(self, "_reauth_entry", None)
+        if entry is None:
+            raise RuntimeError("No reauth entry available")
+        return entry
 
     async def _validate_reauth_input(
         self, user_input: UserInput | dict[str, Any]

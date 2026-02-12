@@ -438,10 +438,12 @@ class ElectroluxEntity(CoordinatorEntity):
                 # Handle nested entity_source in reported
                 if "/" in self.entity_source:
                     parts = self.entity_source.split("/")
-                    category = self.reported_state
+                    category: dict[str, Any] | None = self.reported_state
                     for part in parts:
-                        category = category.get(part, None)
-                        if category is None:
+                        if isinstance(category, dict):
+                            category = category.get(part, None)
+                        else:
+                            category = None
                             break
                     if category and isinstance(category, dict):
                         value = cast(Any, category.get(self.entity_attr))  # type: ignore[assignment]
