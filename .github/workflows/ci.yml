@@ -31,7 +31,7 @@ jobs:
           pip cache purge
           # Install SDK first to get newer aiohttp, then HA with upgrade to resolve conflicts
           pip install "electrolux-group-developer-sdk>=0.2.0"
-          pip install --upgrade homeassistant==2026.1.0
+          pip install --upgrade homeassistant==2024.10.0
           pip install pytest>=7.0.0 pytest-asyncio>=0.21.0 pytest-cov>=4.0.0
           pip install mypy ruff black
 
