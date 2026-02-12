@@ -29,12 +29,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip cache purge
-          pip install homeassistant==2025.1.4
-          pip install pytest>=7.0.0 pytest-asyncio>=0.21.0 pytest-cov>=4.0.0
+          # Install SDK first to get newer aiohttp, then HA with upgrade to resolve conflicts
           pip install "electrolux-group-developer-sdk>=0.2.0"
+          pip install --upgrade homeassistant==2026.1.0
+          pip install pytest>=7.0.0 pytest-asyncio>=0.21.0 pytest-cov>=4.0.0
           pip install mypy ruff black
-          # Force reinstall correct versions to resolve conflicts with HA 2025.1.4
-          pip install --force-reinstall aiohttp==3.11.11 attrs==24.2.0 propcache==0.2.1
 
       # 4️⃣ Lint & auto-fix with Ruff
       - name: Lint with Ruff
