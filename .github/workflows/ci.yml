@@ -29,12 +29,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip cache purge
-          # Install SDK first to establish aiohttp/pyjwt requirements
+          # Install SDK first to establish aiohttp/pyjwt requirements, then HA
           pip install "electrolux-group-developer-sdk>=0.2.0"
-          # Install Home Assistant without its dependencies to avoid aiohttp version conflict
-          pip install homeassistant==2024.10.0 --no-deps
-          # Install Home Assistant's required dependencies that were skipped
-          pip install async_interrupt slugify voluptuous voluptuous-serialize PyYAML requests
+          pip install homeassistant==2024.10.0
           pip install pytest>=7.0.0 pytest-asyncio>=0.21.0 pytest-cov>=4.0.0
           pip install mypy ruff black
 
