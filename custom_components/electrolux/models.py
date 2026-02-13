@@ -330,16 +330,6 @@ class Appliance:
             entity_category = catalog_item.entity_category
             entity_icon = catalog_item.entity_icon
 
-        # Skip creating entities for catalog-only read access capabilities from base catalog
-        # These are not supported by the appliance API
-        if (
-            capability in CATALOG_BASE
-            and capability_info
-            and capability_info.get("access") == "read"
-            and not self.data.get_capability(capability)
-        ):
-            return []
-
         # Ensure time entities have correct unit for conversion
         if not unit and entity_attr in ["startTime", "targetDuration"]:
             unit = UnitOfTime.SECONDS

@@ -148,23 +148,6 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:volume-high",
         friendly_name="End of Cycle Sound",
     ),
-    "applianceMode": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "default": "NORMAL",
-            "values": {
-                "NORMAL": {},
-                "DEMO": {},
-                "SERVICE": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:cog",
-        friendly_name="Appliance Mode",
-    ),
     "userSelections/programUID": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "string"},
         device_class=None,
