@@ -121,6 +121,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if not hasattr(self, "config_entry") or self.config_entry is None:
             return
 
+        # Capture config_entry in local variable to satisfy mypy
+        config_entry = self.config_entry
+
         def on_token_update(
             access_token: str, refresh_token: str, api_key: str, expires_at: int
         ) -> None:
@@ -129,13 +132,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 "Tokens refreshed, updating config entry (expires at %d)",
                 expires_at,
             )
-            new_data = dict(self.config_entry.data)
+            new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
             new_data["token_expires_at"] = expires_at
-            self.hass.config_entries.async_update_entry(
-                self.config_entry, data=new_data
-            )
+            self.hass.config_entries.async_update_entry(config_entry, data=new_data)
 
         self.api.set_token_update_callback_with_expiry(on_token_update)
 
