@@ -358,9 +358,15 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
                 step_id="user",
                 data_schema=await self._get_options_schema(),
                 errors={"base": "invalid_auth"},
+                description_placeholders={
+                    "url": "https://developer.electrolux.one/dashboard"
+                },
             )
 
         return self.async_show_form(
             step_id="user",
             data_schema=await self._get_options_schema(),
+            description_placeholders={
+                "url": "https://developer.electrolux.one/dashboard"
+            },
         )

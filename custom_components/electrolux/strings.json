@@ -37,7 +37,7 @@
     "step": {
       "user": {
         "title": "Electrolux Options",
-        "description": "Update your Electrolux API credentials if they have expired.\n\n**To generate new credentials:**\n1. Visit [Electrolux Developer Portal](https://developer.electrolux.one/dashboard)\n2. Generate new API Key, Access Token, and Refresh Token\n3. Update the fields below\n\n**Security Note:** Access Token and Refresh Token fields are intentionally left empty. Always generate fresh tokens from the portal - never reuse or share existing tokens.",
+        "description": "Update your Electrolux API credentials if they have expired.\n\n**To generate new credentials:**\n1. Visit {url}\n2. Generate new API Key, Access Token, and Refresh Token\n3. Update the fields below\n\n**Security Note:** Access Token and Refresh Token fields are intentionally left empty. Always generate fresh tokens from the portal - never reuse or share existing tokens.",
         "data": {
           "api_key": "API Key",
           "access_token": "Access Token",
