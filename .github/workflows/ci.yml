@@ -31,6 +31,8 @@ jobs:
           pip cache purge
           # Install SDK first to establish aiohttp/pyjwt requirements, then HA
           pip install "electrolux-group-developer-sdk>=0.2.0"
+          # Install josepy explicitly for compatibility fix
+          pip install josepy
           # Fix josepy compatibility before HA installation
           python -c "import josepy; josepy.ComparableX509 = josepy.ComparableKey"
           pip install homeassistant==2024.10.0
