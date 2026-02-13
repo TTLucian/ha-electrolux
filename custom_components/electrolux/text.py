@@ -18,7 +18,7 @@ from .model import ElectroluxDevice
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
-    map_command_error_to_home_assistant_error,
+    execute_command_with_error_handling,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -180,16 +180,17 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
 
         _LOGGER.debug("Electrolux set text value %s", command)
         try:
-            result = await client.execute_appliance_command(self.pnc_id, command)
+            result = await execute_command_with_error_handling(
+                client, self.pnc_id, command, self.entity_attr, _LOGGER, self.capability
+            )
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
-        except Exception as ex:
-            # Use shared error mapping for all errors
-            raise map_command_error_to_home_assistant_error(
-                ex, self.entity_attr, _LOGGER
-            ) from ex
+            raise
+        except Exception:
+            # Re-raise any errors from execute_command_with_error_handling
+            raise
         _LOGGER.debug("Electrolux set text value result %s", result)
-        # await asyncio.sleep(2)
-        await self.coordinator.async_request_refresh()
+        # Coordinator refresh is now handled automatically in execute_command_with_error_handling
+        # await self.coordinator.async_request_refresh()

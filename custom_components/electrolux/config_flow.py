@@ -34,6 +34,54 @@ from .util import get_electrolux_session
 _LOGGER = logging.getLogger(__name__)
 
 
+def _validate_credentials(
+    api_key: str | None, access_token: str | None, refresh_token: str | None
+) -> list[str]:
+    """Validate credential inputs for security and format requirements."""
+    errors = []
+
+    if not api_key or not isinstance(api_key, str) or len(api_key.strip()) < 10:
+        errors.append("API key must be at least 10 characters long")
+
+    if (
+        not access_token
+        or not isinstance(access_token, str)
+        or len(access_token.strip()) < 20
+    ):
+        errors.append("Access token must be at least 20 characters long")
+
+    if (
+        not refresh_token
+        or not isinstance(refresh_token, str)
+        or len(refresh_token.strip()) < 20
+    ):
+        errors.append("Refresh token must be at least 20 characters long")
+
+    # Check for potentially dangerous characters that might indicate injection attempts
+    dangerous_chars = ["<", ">", '"', "'", ";", "\\", "\n", "\r"]
+    for token_name, token in [
+        ("API key", api_key),
+        ("Access token", access_token),
+        ("Refresh token", refresh_token),
+    ]:
+        if token:
+            for char in dangerous_chars:
+                if char in token:
+                    errors.append(
+                        f"{token_name} contains invalid character: {repr(char)}"
+                    )
+                    break
+
+    return errors
+
+
+def _mask_token(token: str | None) -> str:
+    """Mask sensitive token for logging purposes."""
+    if not token or len(token) < 8:
+        return "***"
+    return f"{token[:4]}***{token[-4:]}"
+
+
 class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]  # HA metaclass requires domain kwarg
     """Config flow for Electrolux."""
 
@@ -47,6 +95,19 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self, user_input: dict[str, Any]
     ) -> ConfigFlowResult | None:
         """Validate user input for config flow."""
+        # Validate credential format and security
+        validation_errors = _validate_credentials(
+            user_input.get("api_key"),
+            user_input.get("access_token"),
+            user_input.get("refresh_token"),
+        )
+        if validation_errors:
+            self._errors["base"] = "invalid_format"
+            _LOGGER.warning(
+                "Credential validation failed: %s", "; ".join(validation_errors)
+            )
+            return None
+
         # check if the specified account is configured already
         # to prevent them from being added twice
         api_key = user_input.get("api_key")
@@ -198,6 +259,12 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self, api_key: str | None, access_token: str | None, refresh_token: str | None
     ) -> bool:
         """Return true if credentials is valid."""
+        _LOGGER.debug(
+            "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
+            _mask_token(api_key),
+            _mask_token(access_token),
+            _mask_token(refresh_token),
+        )
         try:
             client = get_electrolux_session(
                 api_key,
@@ -208,10 +275,13 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             )
             await client.get_appliances_list()
         except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
-            _LOGGER.error("Authentication to Electrolux failed: %s", e)
+            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
             return False
         except Exception as e:  # Fallback for unexpected errors
-            _LOGGER.error("Unexpected error during Electrolux authentication: %s", e)
+            _LOGGER.error(
+                "Unexpected error during Electrolux authentication: %s",
+                type(e).__name__,
+            )
             return False
         return True
 
@@ -283,6 +353,12 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         self, api_key: str | None, access_token: str | None, refresh_token: str | None
     ) -> bool:
         """Return true if credentials is valid."""
+        _LOGGER.debug(
+            "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
+            _mask_token(api_key),
+            _mask_token(access_token),
+            _mask_token(refresh_token),
+        )
         try:
             client = get_electrolux_session(
                 api_key,
@@ -293,10 +369,13 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
             )
             await client.get_appliances_list()
         except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
-            _LOGGER.error("Authentication to Electrolux failed: %s", e)
+            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
             return False
         except Exception as e:  # Fallback for unexpected errors
-            _LOGGER.error("Unexpected error during Electrolux authentication: %s", e)
+            _LOGGER.error(
+                "Unexpected error during Electrolux authentication: %s",
+                type(e).__name__,
+            )
             return False
         return True
 

@@ -3,7 +3,6 @@
 import asyncio
 import json
 import logging
-import time
 from datetime import timedelta
 from typing import Any, Optional
 
@@ -17,7 +16,11 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import ElectroluxLibraryEntity
 from .const import DOMAIN, TIME_ENTITIES_TO_UPDATE
 from .models import Appliance, Appliances, ApplianceState
-from .util import ElectroluxApiClient
+from .util import (
+    AuthenticationError,
+    ElectroluxApiClient,
+    NetworkError,
+)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -56,6 +59,29 @@ WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
 APPLIANCE_OFFLINE_TIMEOUT = 900  # 15 minutes - mark appliance offline if no updates
+
+# String constants for data keys
+APPLIANCE_ID_KEY = "applianceId"
+APPLIANCE_ID_ALT_KEY = "appliance_id"
+PROPERTY_KEY = "property"
+VALUE_KEY = "value"
+CONNECTIVITY_STATE_KEY = "connectivityState"
+USER_ID_KEY = "userId"
+TIMESTAMP_KEY = "timestamp"
+
+# Connectivity states
+STATE_CONNECTED = "connected"
+STATE_DISCONNECTED = "disconnected"
+
+# Authentication error keywords
+AUTH_ERROR_KEYWORDS = [
+    "401",
+    "unauthorized",
+    "auth",
+    "token",
+    "invalid grant",
+    "forbidden",
+]
 
 # Time entity thresholds
 TIME_ENTITY_THRESHOLD_LOW = 0
@@ -107,13 +133,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await self.api.get_appliances_list()
             _LOGGER.info("Electrolux logged in successfully")
             return True
+        except AuthenticationError as ex:
+            _LOGGER.error(f"Electrolux authentication failed: {ex}")
+            raise ConfigEntryAuthFailed("Invalid credentials") from ex
+        except NetworkError as ex:
+            _LOGGER.error(f"Network error during login: {ex}")
+            raise ConfigEntryNotReady from ex
         except Exception as ex:
-            error_msg = str(ex).lower()
-            if "invalid grant" in error_msg:
-                _LOGGER.error("Electrolux authentication failed: invalid grant")
-                raise ConfigEntryAuthFailed("Invalid credentials") from ex
-            # For transient network/other errors, allow HA to retry setup
-            _LOGGER.error("Could not log in to ElectroluxStatus, %s", ex)
+            # Catch-all for unexpected errors
+            _LOGGER.exception(f"Unexpected error during login: {ex}")
             raise ConfigEntryNotReady from ex
 
     def setup_token_refresh_callback(self) -> None:
@@ -129,8 +157,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         ) -> None:
             """Callback to update config entry with refreshed tokens and expiration."""
             _LOGGER.info(
-                "Tokens refreshed, updating config entry (expires at %d)",
-                expires_at,
+                f"Tokens refreshed, updating config entry (expires at {expires_at})"
             )
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
@@ -147,18 +174,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         during command execution or other API calls outside the normal update cycle.
         """
         error_msg = str(exception).lower()
-        if any(
-            keyword in error_msg
-            for keyword in [
-                "401",
-                "unauthorized",
-                "auth",
-                "token",
-                "invalid grant",
-                "forbidden",
-            ]
-        ):
-            _LOGGER.warning("Authentication failed during operation: %s", exception)
+        if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
+            _LOGGER.warning(f"Authentication failed during operation: {exception}")
             raise ConfigEntryAuthFailed(
                 "Token expired or invalid - please reauthenticate"
             ) from exception
@@ -166,13 +183,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     async def deferred_update(self, appliance_id: str, delay: int) -> None:
         """Deferred update due to Electrolux not sending updated data at the end of the appliance program/cycle."""
         _LOGGER.debug(
-            "Electrolux scheduling deferred update for appliance %s", appliance_id
+            f"Electrolux scheduling deferred update for appliance {appliance_id}"
         )
         await asyncio.sleep(delay)
         _LOGGER.debug(
-            "Electrolux scheduled deferred update for appliance %s running",
-            appliance_id,
+            f"Electrolux scheduled deferred update for appliance {appliance_id} running"
         )
+        if self.data is None:
+            _LOGGER.warning("No coordinator data available for deferred update")
+            return
         appliances: Any = self.data.get("appliances", None)
         if not appliances:
             return
@@ -181,130 +200,171 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if appliance:
                 appliance_status = await self.api.get_appliance_state(appliance_id)
                 appliance.update(appliance_status)
-                self.async_set_updated_data(self.data)
+                new_data = dict(self.data)
+                self.async_set_updated_data(new_data)
         except asyncio.CancelledError:
             # Always re-raise cancellation
             raise
         except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
             # Network errors - log and raise UpdateFailed
             _LOGGER.error(
-                "Network error during deferred update for %s: %s", appliance_id, ex
+                f"Network error during deferred update for {appliance_id}: {ex}"
             )
             raise UpdateFailed(f"Network error: {ex}") from ex
         except (KeyError, ValueError, TypeError) as ex:
             # Data validation errors - log and raise UpdateFailed
-            _LOGGER.error(
-                "Data error during deferred update for %s: %s", appliance_id, ex
-            )
+            _LOGGER.error(f"Data error during deferred update for {appliance_id}: {ex}")
             raise UpdateFailed(f"Invalid data: {ex}") from ex
         except Exception as ex:
             # Catch-all for unexpected errors
             _LOGGER.exception(
-                "Unexpected error during deferred update for %s", appliance_id
+                f"Unexpected error during deferred update for {appliance_id}"
             )
             raise UpdateFailed(f"Unexpected error: {ex}") from ex
 
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
         # Update reported data
+        if self.data is None:
+            _LOGGER.warning("No coordinator data available for incoming data update")
+            return
         appliances: Any = self.data.get("appliances", None)
         if not appliances:
             _LOGGER.warning("No appliances data available for incoming data update")
             return
 
         # Handle incremental updates: {"applianceId": "...", "property": "...", "value": "..."}
-        if data and "applianceId" in data and "property" in data and "value" in data:
-            appliance_id = data["applianceId"]
-            _LOGGER.debug(
-                "Electrolux appliance state updated for %s (incremental: %s = %s)",
-                appliance_id,
-                data["property"],
-                data["value"],
-            )
-            # Log info message when appliance becomes offline
-            if (
-                data["property"] == "connectivityState"
-                and str(data["value"]).lower() == "disconnected"
-            ):
-                _LOGGER.info("Device %s is now offline", appliance_id)
-            appliance = appliances.get_appliance(appliance_id)
-            if appliance is None:
-                _LOGGER.warning(
-                    "Received incremental data for unknown appliance %s, ignoring",
-                    appliance_id,
-                )
-                return
-
-            try:
-                appliance.update_reported_data({data["property"]: data["value"]})
-            except (KeyError, ValueError, TypeError) as ex:
-                _LOGGER.error(
-                    "Data validation error updating incremental data for appliance %s: %s",
-                    appliance_id,
-                    ex,
-                )
-                return
-            except Exception:
-                _LOGGER.exception(
-                    "Unexpected error updating incremental data for appliance %s",
-                    appliance_id,
-                )
-                return
-
-            # Update last seen time for this appliance (for timeout fallback)
-            self._last_update_times[appliance_id] = time.time()
-
-            self.async_set_updated_data(self.data)
-
-            # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
-            appliance_data = {data["property"]: data["value"]}
-            do_deferred = False
-            for key, value in appliance_data.items():
-                if key in TIME_ENTITIES_TO_UPDATE:
-                    if (
-                        value is not None
-                        and TIME_ENTITY_THRESHOLD_LOW
-                        < value
-                        <= TIME_ENTITY_THRESHOLD_HIGH
-                    ):
-                        do_deferred = True
-                        break
-            if do_deferred:
-                # Cancel existing deferred task for this appliance if any
-                if appliance_id in self._deferred_tasks_by_appliance:
-                    old_task = self._deferred_tasks_by_appliance[appliance_id]
-                    if not old_task.done():
-                        _LOGGER.debug(
-                            "Cancelling existing deferred update for %s", appliance_id
-                        )
-                        old_task.cancel()
-
-                # Create new deferred task
-                task = self.hass.async_create_task(
-                    self.deferred_update(appliance_id, DEFERRED_UPDATE_DELAY)
-                )
-                self._deferred_tasks_by_appliance[appliance_id] = task
-
-                # Cleanup callback
-                def cleanup_deferred(t: asyncio.Task) -> None:
-                    """Remove task from tracking when done."""
-                    if self._deferred_tasks_by_appliance.get(appliance_id) == t:
-                        del self._deferred_tasks_by_appliance[appliance_id]
-
-                task.add_done_callback(cleanup_deferred)
+        if self._is_incremental_update(data):
+            self._process_incremental_update(data, appliances)
             return
 
         # Handle bulk updates: {"appliance_id1": {...}, "appliance_id2": {...}}
+        self._process_bulk_update(data, appliances)
+
+    def _is_incremental_update(self, data: dict[str, Any]) -> bool:
+        """Return True if data contains incremental update fields."""
+        return (
+            bool(data)
+            and APPLIANCE_ID_KEY in data
+            and PROPERTY_KEY in data
+            and VALUE_KEY in data
+        )
+
+    def _process_incremental_update(
+        self, data: dict[str, Any], appliances: Any
+    ) -> None:
+        """Process an incremental property update."""
+        appliance_id = data[APPLIANCE_ID_KEY]
+        _LOGGER.debug(
+            f"Electrolux appliance state updated for {appliance_id} "
+            f"(incremental: {data[PROPERTY_KEY]} = {data[VALUE_KEY]})"
+        )
+
+        # Log info message when appliance becomes offline
+        if (
+            data[PROPERTY_KEY] == CONNECTIVITY_STATE_KEY
+            and str(data[VALUE_KEY]).lower() == STATE_DISCONNECTED
+        ):
+            _LOGGER.info(f"Device {appliance_id} is now offline")
+
+        appliance = appliances.get_appliance(appliance_id)
+        if appliance is None:
+            _LOGGER.warning(
+                f"Received incremental data for unknown appliance {appliance_id}, ignoring"
+            )
+            return
+
+        try:
+            appliance.update_reported_data({data[PROPERTY_KEY]: data[VALUE_KEY]})
+        except (KeyError, ValueError, TypeError) as ex:
+            _LOGGER.error(
+                f"Data validation error updating incremental data for appliance {appliance_id}: {ex}"
+            )
+            return
+        except Exception:
+            _LOGGER.exception(
+                f"Unexpected error updating incremental data for appliance {appliance_id}"
+            )
+            return
+
+        # Notify entities of the update
+        new_data = dict(self.data)
+        self.async_set_updated_data(new_data)
+
+        # Mark appliance as connected since we're receiving data (unless explicitly set to disconnected)
+        if (
+            data[PROPERTY_KEY] != CONNECTIVITY_STATE_KEY
+            or str(data[VALUE_KEY]).lower() != STATE_DISCONNECTED
+        ):
+            if appliance.state.get("connectivityState") == "disconnected":
+                _LOGGER.info(f"Device {appliance_id} is back online")
+            appliance.state["connectivityState"] = "connected"
+
+        # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
+        self._check_deferred_update(data, appliance_id)
+
+    def _check_deferred_update(self, data: dict[str, Any], appliance_id: str) -> None:
+        """Schedule deferred update if time entity reaches threshold."""
+        appliance_data = {data[PROPERTY_KEY]: data[VALUE_KEY]}
+        if self._should_defer_update(appliance_data):
+            self._schedule_deferred_update(appliance_id)
+
+    def _should_defer_update(self, appliance_data: dict[str, Any]) -> bool:
+        """Return True if any time entity value is at threshold."""
+        for key, value in appliance_data.items():
+            if key in TIME_ENTITIES_TO_UPDATE:
+                if (
+                    value is not None
+                    and TIME_ENTITY_THRESHOLD_LOW < value <= TIME_ENTITY_THRESHOLD_HIGH
+                ):
+                    return True
+        return False
+
+    def _schedule_deferred_update(self, appliance_id: str) -> None:
+        """Schedule a deferred update for an appliance."""
+        # Cancel existing deferred task for this appliance if any
+        if appliance_id in self._deferred_tasks_by_appliance:
+            old_task = self._deferred_tasks_by_appliance[appliance_id]
+            if not old_task.done():
+                _LOGGER.debug(f"Cancelling existing deferred update for {appliance_id}")
+                old_task.cancel()
+
+        # Check if we can add more deferred tasks
+        if len(self._deferred_tasks) >= DEFERRED_TASK_LIMIT:
+            _LOGGER.debug(
+                f"Skipping deferred update for {appliance_id}, too many active tasks"
+            )
+            return
+
+        # Create new deferred task
+        task = self.hass.async_create_task(
+            self.deferred_update(appliance_id, DEFERRED_UPDATE_DELAY)
+        )
+        self._deferred_tasks.add(task)
+        self._deferred_tasks_by_appliance[appliance_id] = task
+
+        # Cleanup callback
+        def cleanup_deferred(t: asyncio.Task, app_id: str = appliance_id) -> None:
+            """Remove task from tracking when done."""
+            # app_id is captured by VALUE at definition time
+            if self._deferred_tasks_by_appliance.get(app_id) == t:
+                # Use pop for safety as established in previous fixes
+                self._deferred_tasks_by_appliance.pop(app_id, None)
+
+        task.add_done_callback(cleanup_deferred)
+
+    def _process_bulk_update(self, data: dict[str, Any], appliances: Any) -> None:
+        """Process a bulk appliance state update."""
         # Extract appliance ID from the SSE payload
-        appliance_id = data.get("applianceId") or data.get("appliance_id")
+        appliance_id = data.get(APPLIANCE_ID_KEY) or data.get(APPLIANCE_ID_ALT_KEY)
         if not appliance_id:
-            _LOGGER.warning("No applianceId found in SSE data: %s", data)
+            _LOGGER.warning(f"No applianceId found in SSE data: {data}")
             return
 
         appliance = appliances.get_appliance(appliance_id)
         if appliance is None:
             _LOGGER.warning(
-                "Received data for unknown appliance %s, ignoring", appliance_id
+                f"Received data for unknown appliance {appliance_id}, ignoring"
             )
             return
 
@@ -315,47 +375,51 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             appliance_data = {
                 k: v
                 for k, v in data.items()
-                if k not in ["applianceId", "appliance_id", "userId", "timestamp"]
+                if k
+                not in [
+                    APPLIANCE_ID_KEY,
+                    APPLIANCE_ID_ALT_KEY,
+                    USER_ID_KEY,
+                    TIMESTAMP_KEY,
+                ]
             }
 
         _LOGGER.debug(
-            "Electrolux appliance state updated for %s (bulk: %s)",
-            appliance_id,
-            list(appliance_data.keys()),
+            f"Electrolux appliance state updated for {appliance_id} "
+            f"(bulk: {list(appliance_data.keys())})"
         )
 
         try:
             appliance.update_reported_data(appliance_data)
         except (KeyError, ValueError, TypeError) as ex:
             _LOGGER.error(
-                "Data validation error updating reported data for appliance %s: %s",
-                appliance_id,
-                ex,
+                f"Data validation error updating reported data for appliance {appliance_id}: {ex}"
             )
             return
         except Exception:
             _LOGGER.exception(
-                "Unexpected error updating reported data for appliance %s",
-                appliance_id,
+                f"Unexpected error updating reported data for appliance {appliance_id}"
             )
             return
 
-        # Update last seen time for this appliance
-        self._last_update_times[appliance_id] = time.time()
+        # Mark appliance as connected since we're receiving data (unless explicitly set to disconnected)
+        connectivity_in_data = appliance_data.get(CONNECTIVITY_STATE_KEY)
+        if (
+            connectivity_in_data is None
+            or str(connectivity_in_data).lower() != STATE_DISCONNECTED
+        ):
+            if appliance.state.get("connectivityState") == "disconnected":
+                _LOGGER.info(f"Device {appliance_id} is back online")
+            appliance.state["connectivityState"] = "connected"
 
-        self.async_set_updated_data(self.data)
+        # Update last seen time for this appliance
+        self._last_update_times[appliance_id] = self.hass.loop.time()
+
+        new_data = dict(self.data)
+        self.async_set_updated_data(new_data)
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
-        do_deferred = False
-        for key, value in appliance_data.items():
-            if key in TIME_ENTITIES_TO_UPDATE:
-                if (
-                    value is not None
-                    and TIME_ENTITY_THRESHOLD_LOW < value <= TIME_ENTITY_THRESHOLD_HIGH
-                ):
-                    do_deferred = True
-                    break
-        if do_deferred:
+        if self._should_defer_update(appliance_data):
             # Limit deferred tasks to prevent pile-up (max 5 concurrent)
             if len(self._deferred_tasks) < DEFERRED_TASK_LIMIT:
                 task = self.hass.async_create_task(
@@ -363,33 +427,34 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 self._deferred_tasks.add(task)
                 task.add_done_callback(self._deferred_tasks.discard)
-            else:
-                _LOGGER.debug(
-                    "Skipping deferred update for %s, too many active tasks",
-                    appliance_id,
-                )
 
     async def listen_websocket(self) -> None:
         """Listen for state changes."""
+        if self.data is None:
+            _LOGGER.warning("No coordinator data available, skipping SSE setup")
+            return
         appliances: Any = self.data.get("appliances", None)
         if not appliances:
             _LOGGER.warning("No appliance data available, skipping SSE setup")
             return
 
         ids = appliances.get_appliance_ids()
-        _LOGGER.debug("Electrolux listen_websocket for appliances %s", ",".join(ids))
+        _LOGGER.debug(f"Electrolux listen_websocket for appliances {','.join(ids)}")
         if ids is None or len(ids) == 0:
             _LOGGER.debug("No appliances to listen for, skipping SSE setup")
             return
 
         # watch_for_appliance_state_updates in util.py handles kill-before-restart safely
         try:
-            await self.api.watch_for_appliance_state_updates(ids, self.incoming_data)
+            await asyncio.wait_for(
+                self.api.watch_for_appliance_state_updates(ids, self.incoming_data),
+                timeout=3600,  # 1 hour max for SSE setup
+            )
             _LOGGER.debug(
-                "Successfully started SSE listening for %d appliances", len(ids)
+                f"Successfully started SSE listening for {len(ids)} appliances"
             )
         except Exception as ex:
-            _LOGGER.error("Failed to start SSE listening: %s", ex)
+            _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
 
     async def renew_websocket(self):
@@ -420,7 +485,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     _LOGGER.warning("Timeout during websocket renewal")
                     consecutive_failures += 1
                 except Exception as ex:
-                    _LOGGER.error("Error during websocket renewal: %s", ex)
+                    _LOGGER.error(f"Error during websocket renewal: {ex}")
                     consecutive_failures += 1
 
                 # If too many consecutive failures, back off
@@ -435,7 +500,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug("Websocket renewal cancelled")
                 raise
             except Exception as ex:
-                _LOGGER.error("Electrolux renew SSE failed %s", ex)
+                _LOGGER.error(f"Electrolux renew SSE failed {ex}")
                 consecutive_failures += 1
 
     async def close_websocket(self):
@@ -479,7 +544,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if isinstance(ex, asyncio.TimeoutError):
                 _LOGGER.debug("Electrolux API close timeout")
             else:
-                _LOGGER.error("Electrolux close SSE failed %s", ex)
+                _LOGGER.error(f"Electrolux close SSE failed {ex}")
 
     async def setup_entities(self):
         """Configure entities."""
@@ -496,9 +561,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     "Electrolux unable to retrieve appliances list. Cancelling setup"
                 )
             _LOGGER.debug(
-                "Electrolux get_appliances_list %s %s",
-                self.api,
-                json.dumps(appliances_list),
+                f"Electrolux get_appliances_list {self.api} {json.dumps(appliances_list)}"
             )
 
             # Process appliances concurrently to reduce setup time
@@ -531,7 +594,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("Electrolux setup_entities cancelled")
             raise
         except Exception as exception:
-            _LOGGER.debug("setup_entities: %s", exception)
+            _LOGGER.debug(f"setup_entities: {exception}")
             raise UpdateFailed from exception
         return self.data
 
@@ -571,21 +634,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
             except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
                 _LOGGER.warning(
-                    "Network error getting required data for appliance %s: %s",
-                    appliance_id,
-                    ex,
+                    f"Network error getting required data for appliance {appliance_id}: {ex}"
                 )
-                # Cancel the capabilities task if it hasn't completed
-                if not capabilities_task.done():
-                    capabilities_task.cancel()
+                # Cleanup ALL pending tasks for this appliance
+                for task in [info_task, state_task, capabilities_task]:
+                    if not task.done():
+                        task.cancel()
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            pass
+                        except Exception:
+                            pass  # Suppress secondary errors during cleanup
                 return
             except Exception as ex:
                 _LOGGER.warning(
-                    "Failed to get required data for appliance %s: %s", appliance_id, ex
+                    f"Failed to get required data for appliance {appliance_id}: {ex}"
                 )
-                # Cancel the capabilities task if it hasn't completed
-                if not capabilities_task.done():
-                    capabilities_task.cancel()
+                # Cleanup ALL pending tasks for this appliance
+                for task in [info_task, state_task, capabilities_task]:
+                    if not task.done():
+                        task.cancel()
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            pass
+                        except Exception:
+                            pass  # Suppress secondary errors during cleanup
                 return
 
             # Try to get capabilities (optional)
@@ -594,7 +669,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 appliance_capabilities = await capabilities_task
             except Exception as ex:
                 _LOGGER.debug(
-                    "Could not get capabilities for appliance %s: %s", appliance_id, ex
+                    f"Could not get capabilities for appliance {appliance_id}: {ex}"
                 )
 
             # Process appliance data
@@ -638,28 +713,26 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
             )
 
-            _LOGGER.debug("Successfully set up appliance %s", appliance_id)
+            _LOGGER.debug(f"Successfully set up appliance {appliance_id}")
 
         except (KeyError, ValueError, TypeError, AttributeError) as ex:
             _LOGGER.error(
-                "Data validation error setting up appliance %s: %s",
-                appliance_json.get("applianceId"),
-                ex,
+                f"Data validation error setting up appliance {appliance_json.get('applianceId')}: {ex}"
             )
         except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
             _LOGGER.error(
-                "Network error setting up appliance %s: %s",
-                appliance_json.get("applianceId"),
-                ex,
+                f"Network error setting up appliance {appliance_json.get('applianceId')}: {ex}"
             )
         except Exception:
             _LOGGER.exception(
-                "Unexpected error setting up appliance %s",
-                appliance_json.get("applianceId"),
+                f"Unexpected error setting up appliance {appliance_json.get('applianceId')}"
             )
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data for all appliances concurrently."""
+        if self.data is None:
+            _LOGGER.warning("Coordinator data not initialized, skipping update")
+            return {"appliances": Appliances({})}
         appliances: Appliances = self.data.get("appliances")  # type: ignore[assignment,union-attr]
         app_dict = appliances.get_appliances()
 
@@ -673,21 +746,20 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT
                 )
                 app_obj.update(status)
+                # Mark as connected since we successfully got state from API
+                if app_obj.state.get("connectivityState") == "disconnected":
+                    _LOGGER.info(f"Device {app_id} is back online (API update)")
+                app_obj.state["connectivityState"] = "connected"
                 # Update last seen time for successful updates
-                from datetime import datetime
-
-                self._last_update_times[app_id] = datetime.now().timestamp()
+                self._last_update_times[app_id] = self.hass.loop.time()
                 return True  # Success
             except asyncio.CancelledError:
                 raise
             except Exception as ex:
                 error_msg = str(ex).lower()
                 # Check if this is an authentication error - these should still fail the update
-                if any(
-                    keyword in error_msg
-                    for keyword in ["401", "unauthorized", "auth", "token"]
-                ):
-                    _LOGGER.warning("Authentication failed during data update: %s", ex)
+                if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
+                    _LOGGER.warning(f"Authentication failed during data update: {ex}")
                     # Create an issue to trigger reauth flow
                     from homeassistant.helpers import issue_registry
 
@@ -706,13 +778,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         issue_domain=DOMAIN,
                         severity=issue_registry.IssueSeverity.ERROR,
                         translation_key="invalid_refresh_token",
-                        translation_placeholders={
-                            "entry_title": entry_title,
-                        },
+                        translation_placeholders={"entry_title": entry_title},
                     )
                     raise ConfigEntryAuthFailed("Token expired or invalid") from ex
                 # For other errors, just log and return failure
-                _LOGGER.warning("Failed to update %s during refresh: %s", app_id, ex)
+                _LOGGER.warning(f"Failed to update {app_id} during refresh: {ex}")
                 return False  # Failure
 
         # Run all updates concurrently
@@ -721,48 +791,42 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             return_exceptions=True,
         )
 
-        # Check if any auth errors occurred (these should propagate)
-        auth_errors = []
-        other_errors = []
+        # Process results
         successful = 0
+        other_errors = []
 
-        _LOGGER.debug("Update results: %s", results)
+        _LOGGER.debug(f"Update results: {results}")
 
         for result in results:
-            if isinstance(result, ConfigEntryAuthFailed):
-                auth_errors.append(result)
-            elif isinstance(result, Exception):
-                other_errors.append(result)
-            elif result is True:
+            if result is True:
                 successful += 1
+            elif isinstance(result, ConfigEntryAuthFailed):
+                # Re-raise auth errors immediately to trigger re-auth flow
+                raise result
+            elif isinstance(result, Exception):
+                # Capture the actual exception message
+                other_errors.append(f"{type(result).__name__}: {str(result)}")
+            elif result is False:
+                # Handle cases where _update_single returned False without an exception
+                other_errors.append(
+                    "Appliance update returned False (Check connectivity)"
+                )
             else:
-                # Treat False or other non-True, non-Exception results as failures
-                other_errors.append(RuntimeError(f"Appliance update failed: {result}"))
+                # Fallback for unexpected result types
+                other_errors.append(f"Unexpected result: {result}")
 
-        # Propagate authentication errors immediately
-        if auth_errors:
-            _LOGGER.error(
-                "Authentication failed during update (%d appliances)", len(auth_errors)
-            )
-            raise auth_errors[0]  # Raise first auth error
-
-        # Check if all appliances failed
+        # Improved logging for the failure case
         if successful == 0 and len(app_dict) > 0:
-            _LOGGER.error(
-                "All appliance updates failed. Successful: %d, Total: %d, Results: %s, Errors: %s",
-                successful,
-                len(app_dict),
-                results,
-                [str(e) for e in other_errors[:3]],
+            error_detail = (
+                "; ".join(other_errors) if other_errors else "Unknown internal error"
             )
-            raise UpdateFailed("All appliance updates failed")
+            _LOGGER.error(f"All appliance updates failed. Errors: [{error_detail}]")
+            raise UpdateFailed(f"All appliance updates failed: {error_detail}")
 
         # Log partial failures
         if other_errors:
             _LOGGER.debug(
-                "Some appliances failed to update (%d/%d successful)",
-                successful,
-                len(app_dict),
+                f"Some appliances failed to update ({successful}/{len(app_dict)} successful)"
             )
 
         # Periodically clean up removed appliances (once per day)
@@ -770,13 +834,32 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if not hasattr(self, "_last_cleanup_time"):
             self._last_cleanup_time = 0
 
-        import time
-
-        current_time = time.time()
+        current_time = self.hass.loop.time()
         if current_time - self._last_cleanup_time > CLEANUP_INTERVAL:  # 24 hours
             _LOGGER.debug("Running periodic appliance cleanup")
             await self.cleanup_removed_appliances()
             self._last_cleanup_time = int(current_time)
+
+        # Check for offline appliances based on update timeout
+        offline_count = 0
+        for app_id, app_obj in app_dict.items():
+            last_update = self._last_update_times.get(app_id)
+            if last_update is not None:
+                time_since_update = current_time - last_update
+                if time_since_update > APPLIANCE_OFFLINE_TIMEOUT:
+                    # Mark appliance as offline
+                    if app_obj.state.get(CONNECTIVITY_STATE_KEY) != STATE_DISCONNECTED:
+                        _LOGGER.info(
+                            f"Marking appliance {app_id} as offline "
+                            f"(no updates for {int(time_since_update)} seconds)"
+                        )
+                        app_obj.state["connectivityState"] = "disconnected"
+                        offline_count += 1
+
+        if offline_count > 0:
+            _LOGGER.debug(
+                f"Marked {offline_count} appliances as offline due to timeout"
+            )
 
         return self.data
 
@@ -795,6 +878,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     current_ids.add(appliance_id)
 
             # Get appliances we're tracking
+            if self.data is None:
+                _LOGGER.warning("No coordinator data available for cleanup")
+                return
             tracked_appliances = self.data.get("appliances")
             if not tracked_appliances:
                 return
@@ -806,17 +892,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
             if removed_ids:
                 _LOGGER.info(
-                    "Removing %d appliances no longer in account: %s",
-                    len(removed_ids),
-                    removed_ids,
+                    f"Removing {len(removed_ids)} appliances no longer in account: {removed_ids}"
                 )
 
-                # Remove from tracking
-                for appliance_id in removed_ids:
-                    del tracked_appliances.appliances[appliance_id]
+                # Remove from tracking with lock protection
+                async with self._appliances_lock:
+                    for appliance_id in removed_ids:
+                        # .pop() is safe if key doesn't exist
+                        removed = tracked_appliances.appliances.pop(appliance_id, None)
+                        if removed:
+                            _LOGGER.debug(
+                                f"Removed appliance {appliance_id} from tracking"
+                            )
 
                 # Trigger entity registry cleanup
                 self.async_set_updated_data(self.data)
 
         except Exception as ex:
-            _LOGGER.debug("Error during appliance cleanup: %s", ex)
+            _LOGGER.debug(f"Error during appliance cleanup: {ex}")

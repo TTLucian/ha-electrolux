@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token from the Electrolux Developer Portal.",
-            "incomplete_credentials": "All API credentials (API Key, Access Token, Refresh Token) must be provided together."
+            "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token from the Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Only a single Electrolux configuration is allowed.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electrolux Options",
-                "description": "Configure your Electrolux integration settings. You can update API credentials or notification preferences here.\n\n**Note:** Changes to API credentials require a restart.",
+                "description": "Update your Electrolux API credentials if they have expired.\n\n**To generate new credentials:**\n1. Visit {url}\n2. Generate new API Key, Access Token, and Refresh Token\n3. Update the fields below\n\n**Security Note:** Access Token and Refresh Token fields are intentionally left empty. Always generate fresh tokens from the portal - never reuse or share existing tokens.",
                 "data": {
-                    "api_key": "API Key (restart required)",
-                    "access_token": "Access Token (restart required)",
-                    "refresh_token": "Refresh Token (restart required)",
+                    "api_key": "API Key",
+                    "access_token": "Access Token",
+                    "refresh_token": "Refresh Token",
                     "notifications": "Enable notifications for critical alerts",
                     "notifications_warning": "Enable notifications for warnings",
                     "notifications_diagnostic": "Enable notifications for diagnostic messages"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "All API credentials (API Key, Access Token, Refresh Token) must be provided together.",
             "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux authentication problem",
+            "description": "The Electrolux integration failed to refresh API tokens: {message}. Please reauthenticate via the integration options to restore functionality."
         }
     }
 }

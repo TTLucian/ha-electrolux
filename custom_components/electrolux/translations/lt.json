@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "„Electrolux“ sąranka",
-                "description": "Prijunkite savo Electrolux prietaisus naudodami API kredencialus iš Electrolux kūrėjų portalo.\n\n**Kad gautumėte API kredencialus:**\n1. Apsilankykite adresu {url}\n2. Užsiregistruokite ir sukurkite programą\n3. Gaukite API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n\nJei jums reikia pagalbos, apsilankykite integravimo dokumentacijoje.",
+                "description": "Prijunkite savo Electrolux prietaisus naudodami API kredencialus iš Electrolux kūrėjų portalo.\n\n**Kad gautumėte API kredencialus:**\n1. Apsilankykite {url}\n2. Užsiregistruokite ir sukurkite programą\n3. Gaukite API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n\nJei jums reikia pagalbos, apsilankykite integravimo dokumentacijoje.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Iš naujo patvirtinkite Electrolux",
-                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naudodami naujus žetonus iš Electrolux kūrėjų portalo.\n\nApsilankykite {url}, kad sukurtumėte naujus prieigos raktus.",
+                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naudodami naujus žetonus iš Electrolux kūrėjų portalo.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -24,25 +24,24 @@
             }
         },
         "error": {
-            "invalid_auth": "Netinkami API kredencialai. Patikrinkite savo API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą Electrolux kūrėjų portale.",
-            "incomplete_credentials": "Visi API kredencialai (API raktas, prieigos prieigos raktas, atnaujinimo prieigos raktas) turi būti pateikti kartu."
+            "invalid_auth": "Netinkami API kredencialai. Patikrinkite savo API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą Electrolux kūrėjų portale."
         },
         "abort": {
             "single_instance_allowed": "Leidžiama tik viena Electrolux konfigūracija.",
             "already_configured": "Šis įrenginys jau sukonfigūruotas.",
             "already_configured_account": "Šis API raktas jau sukonfigūruotas.",
-            "reconfigure_successful": "Pakartotinis konfigūravimas buvo sėkmingas."
+            "reconfigure_successful": "Iš naujo konfigūruoti pavyko."
         }
     },
     "options": {
         "step": {
             "user": {
                 "title": "„Electrolux“ parinktys",
-                "description": "Konfigūruokite savo Electrolux integravimo nustatymus. Čia galite atnaujinti API kredencialus arba pranešimų nuostatas.\n\n**Pastaba:** norint pakeisti API kredencialus, reikia paleisti iš naujo.",
+                "description": "Atnaujinkite savo Electrolux API kredencialus, jei jų galiojimo laikas baigėsi.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Atnaujinkite toliau pateiktus laukus\n\n**Saugumo pastaba:** Prieigos prieigos rakto ir Atnaujinimo prieigos rakto laukai tyčia paliekami tušti. Visada generuokite naujus žetonus iš portalo – niekada nenaudokite pakartotinai ir nedalykite esamų žetonų.",
                 "data": {
-                    "api_key": "API raktas (reikia paleisti iš naujo)",
-                    "access_token": "Prieigos prieigos raktas (reikia paleisti iš naujo)",
-                    "refresh_token": "Atnaujinti prieigos raktą (reikia paleisti iš naujo)",
+                    "api_key": "API raktas",
+                    "access_token": "Prieigos prieigos raktas",
+                    "refresh_token": "Atnaujinti žetoną",
                     "notifications": "Įgalinti pranešimus apie svarbius įspėjimus",
                     "notifications_warning": "Įgalinti įspėjimų pranešimus",
                     "notifications_diagnostic": "Įgalinti diagnostikos pranešimų pranešimus"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Visi API kredencialai (API raktas, prieigos prieigos raktas, atnaujinimo prieigos raktas) turi būti pateikti kartu.",
             "invalid_auth": "Netinkami API kredencialai. Patikrinkite savo API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux autentifikavimo problema",
+            "description": "„Electrolux“ integracijai nepavyko atnaujinti API prieigos raktų: {message}. Iš naujo autentifikuokite naudodami integravimo parinktis, kad atkurtumėte funkcionalumą."
         }
     }
 }

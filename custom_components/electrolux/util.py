@@ -365,16 +365,8 @@ async def execute_command_with_error_handling(
     """
     logger.debug("Executing command for %s: %s", entity_attr, command)
 
-    async def _execute_command():
-        return await client.execute_appliance_command(pnc_id, command)
-
     try:
-        result = await safe_api_call(
-            _execute_command(),
-            f"command execution for {entity_attr}",
-            logger=logger,
-            retry_network_errors=False,  # Commands shouldn't be retried automatically
-        )
+        result = await client.execute_appliance_command(pnc_id, command)
         logger.debug("Command succeeded for %s: %s", entity_attr, result)
         return result
 
@@ -986,20 +978,19 @@ class _TokenRefreshHandler(logging.Handler):
         try:
             msg = self.format(record)
             lmsg = msg.lower()
-            # Match common messages indicating token refresh failure
-            token_error_indicators = [
+            # Only match messages indicating PERMANENT token refresh failure (not normal expiration)
+            # The SDK handles normal access token expiration automatically
+            permanent_token_error_indicators = [
                 "refresh token is invalid",
                 "invalid grant",
-                "token expired",
-                "unauthorized",
-                "403",
+                "invalid refresh token",
+                "refresh token expired",
             ]
-            is_token_error = any(
-                indicator in lmsg for indicator in token_error_indicators
+            is_permanent_token_error = any(
+                indicator in lmsg for indicator in permanent_token_error_indicators
             )
-            is_auth_context = ("401" in lmsg and "refresh" in lmsg) or "token" in lmsg
 
-            if is_token_error or is_auth_context:
+            if is_permanent_token_error:
                 try:
                     # Schedule the async issue creation on the HA event loop
                     self._hass.loop.call_soon_threadsafe(
@@ -1361,6 +1352,16 @@ class ElectroluxApiClient:
                                 appliance_id,
                                 ex,
                             )
+                elif task.cancelled():
+                    _LOGGER.debug(
+                        "SSE event stream was cancelled for appliances %s",
+                        ", ".join(appliance_ids),
+                    )
+                else:
+                    _LOGGER.debug(
+                        "SSE event stream ended unexpectedly for appliances %s (no exception)",
+                        ", ".join(appliance_ids),
+                    )
 
             self._sse_task.add_done_callback(_handle_sse_failure)
 
@@ -1404,28 +1405,12 @@ class ElectroluxApiClient:
 
     async def execute_appliance_command(self, appliance_id, command):
         """Execute a command on an appliance."""
-        # The new API should have a method to send commands
-        # For now, try to call execute_command if it exists
+        # Use the ApplianceClient's send_command method
         try:
-            # Try different possible method names
-            execute_method = getattr(self._client, "execute_command", None)
-            if execute_method:
-                return await self._handle_api_call(
-                    execute_method(appliance_id, command)
-                )
-            send_method = getattr(self._client, "send_command", None)
-            if send_method:
-                return await self._handle_api_call(send_method(appliance_id, command))
-            else:
-                raise AttributeError("No command execution method found")
-        except AttributeError:
-            # If the method doesn't exist, raise an exception
-            _LOGGER.error(
-                "execute_command method not found in new API - command execution not supported"
+            result = await self._handle_api_call(
+                self._client.send_command(appliance_id, command)
             )
-            raise NotImplementedError(
-                "Command execution is not supported by the current API implementation"
-            )
+            return result
         except Exception:
             # Re-raise all exceptions to be handled by the calling entity
             raise

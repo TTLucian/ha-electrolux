@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Nastavenie Electrolux",
-                "description": "Pripojte svoje spotrebiče Electrolux pomocou poverení API z portálu Electrolux Developer Portal.\n\n**Ak chcete získať poverenia API:**\n1. Navštívte {url}\n2. Zaregistrujte sa a vytvorte aplikáciu\n3. Získajte kľúč API, prístupový token a obnovovací token\n\nAk potrebujete pomoc, navštívte integračnú dokumentáciu.",
+                "description": "Pripojte svoje spotrebiče Electrolux pomocou poverení API z portálu Electrolux Developer Portal.\n\n**Ak chcete získať poverenia API:**\n1. Navštívte stránku {url}\n2. Zaregistrujte sa a vytvorte aplikáciu\n3. Získajte kľúč API, prístupový token a obnovovací token\n\nAk potrebujete pomoc, navštívte integračnú dokumentáciu.",
                 "data": {
                     "api_key": "API kľúč",
                     "access_token": "Prístupový token",
@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Znova overte Electrolux",
-                "description": "Platnosť vašich tokenov Electrolux API vypršala alebo sú neplatné. Aktualizujte ich pomocou nových tokenov z portálu Electrolux Developer Portal.\n\nNavštívte {url} a vygenerujte nové tokeny.",
+                "description": "Platnosť vašich tokenov Electrolux API vypršala alebo sú neplatné. Aktualizujte ich pomocou nových tokenov z portálu Electrolux Developer Portal.\n\nAk chcete vygenerovať nové tokeny, navštívte stránku {url}.",
                 "data": {
                     "api_key": "API kľúč",
                     "access_token": "Prístupový token",
@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal.",
-            "incomplete_credentials": "Všetky poverenia API (API Key, Access Token, Refresh Token) musia byť poskytnuté spoločne."
+            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Je povolená iba jedna konfigurácia Electrolux.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Možnosti Electrolux",
-                "description": "Nakonfigurujte svoje nastavenia integrácie Electrolux. Tu môžete aktualizovať poverenia API alebo predvoľby upozornení.\n\n**Poznámka:** Zmeny poverení API vyžadujú reštart.",
+                "description": "Aktualizujte svoje poverenia Electrolux API, ak ich platnosť vypršala.\n\n**Vygenerovanie nových poverení:**\n1. Navštívte stránku {url}\n2. Vygenerujte nový kľúč API, prístupový token a obnovovací token\n3. Aktualizujte polia nižšie\n\n**Bezpečnostná poznámka:** Polia Access Token a Refresh Token sú zámerne ponechané prázdne. Vždy generujte nové tokeny z portálu – nikdy nepoužívajte ani nezdieľajte existujúce tokeny.",
                 "data": {
-                    "api_key": "API kľúč (vyžaduje sa reštart)",
-                    "access_token": "Prístupový token (vyžaduje sa reštart)",
-                    "refresh_token": "Obnoviť token (vyžaduje sa reštart)",
+                    "api_key": "API kľúč",
+                    "access_token": "Prístupový token",
+                    "refresh_token": "Obnoviť token",
                     "notifications": "Povoliť upozornenia na kritické upozornenia",
                     "notifications_warning": "Povoliť upozornenia na upozornenia",
                     "notifications_diagnostic": "Povoliť upozornenia na diagnostické správy"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Všetky poverenia API (API Key, Access Token, Refresh Token) musia byť poskytnuté spoločne.",
             "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Problém s autentifikáciou Electrolux",
+            "description": "Integrácii Electrolux sa nepodarilo obnoviť tokeny API: {správa}. Ak chcete obnoviť funkčnosť, znova sa overte pomocou možností integrácie."
         }
     }
 }

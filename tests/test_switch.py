@@ -18,6 +18,8 @@ class TestElectroluxSwitch:
         """Create a mock coordinator."""
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
@@ -49,6 +51,7 @@ class TestElectroluxSwitch:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {"properties": {"reported": {"testAttr": True}}}
         return entity
 

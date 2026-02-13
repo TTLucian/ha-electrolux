@@ -18,6 +18,8 @@ class TestElectroluxSelect:
         """Create a mock coordinator."""
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
@@ -53,6 +55,7 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {"properties": {"reported": {"testAttr": "OPTION1"}}}
         entity.reported_state = {"testAttr": "OPTION1"}
         return entity
@@ -119,6 +122,7 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         # The options_list should use the custom label
         assert entity.options_list["Custom Label"] == "OPTION1"
 
@@ -182,6 +186,7 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock()
         entity.is_remote_control_enabled = MagicMock(return_value=True)
@@ -227,6 +232,7 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock()
         entity.is_remote_control_enabled = MagicMock(return_value=True)
@@ -275,5 +281,6 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         assert entity.options_list == {}
         assert entity.options == []

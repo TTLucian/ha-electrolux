@@ -15,8 +15,8 @@ from .entity import ElectroluxEntity
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
+    execute_command_with_error_handling,
     format_command_for_appliance,
-    map_command_error_to_home_assistant_error,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -78,7 +78,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         if not self.is_connected():
             connectivity_state = self.reported_state.get("connectivityState", "unknown")
             _LOGGER.warning(
-                "Appliance %s is not connected (state: %s), cannot execute command for %s",
+                "Appliance %s is not connected (state: %s), cannot set %s",
                 self.pnc_id,
                 connectivity_state,
                 self.entity_attr,
@@ -135,16 +135,17 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
         _LOGGER.debug("Electrolux set value")
         try:
-            await client.execute_appliance_command(self.pnc_id, command)
+            await execute_command_with_error_handling(
+                client, self.pnc_id, command, self.entity_attr, _LOGGER, self.capability
+            )
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
-        except Exception as ex:
-            # Use shared error mapping for all errors
-            raise map_command_error_to_home_assistant_error(
-                ex, self.entity_attr, _LOGGER, self.capability
-            ) from ex
+            raise
+        except Exception:
+            # Re-raise any errors from execute_command_with_error_handling
+            raise
         _LOGGER.debug("Electrolux set value completed")
 
     async def async_turn_on(self, **kwargs: Any) -> None:

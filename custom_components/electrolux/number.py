@@ -16,8 +16,8 @@ from .entity import ElectroluxEntity
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
+    execute_command_with_error_handling,
     format_command_for_appliance,
-    map_command_error_to_home_assistant_error,
     time_minutes_to_seconds,
     time_seconds_to_minutes,
 )
@@ -283,27 +283,29 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     "Food probe must be inserted to set target temperature."
                 )
 
-            # Check if not supported by current program - clamp to 0 instead of error
+            # Check if not supported by current program - show meaningful error
             if not self._is_supported_by_program():
-                _LOGGER.debug(
-                    "Control %s not supported by current program for appliance %s, clamping to 0",
+                _LOGGER.warning(
+                    "Cannot set %s for appliance %s: not supported by current program",
                     self.entity_attr,
                     self.pnc_id,
                 )
-                # Silently ignore - value stays at 0
-                return
+                raise HomeAssistantError(
+                    f"Target food probe temperature is not supported by the current program '{self.reported_state.get('program', 'unknown')}'"
+                )
 
         # Special handling for targetTemperatureC
         if self.entity_attr == "targetTemperatureC":
-            # Check if not supported by current program - clamp to 0 instead of error
+            # Check if not supported by current program - show meaningful error
             if not self._is_supported_by_program():
-                _LOGGER.debug(
-                    "Control %s not supported by current program for appliance %s, clamping to 0",
+                _LOGGER.warning(
+                    "Cannot set %s for appliance %s: not supported by current program",
                     self.entity_attr,
                     self.pnc_id,
                 )
-                # Silently ignore - value stays at 0
-                return
+                raise HomeAssistantError(
+                    f"Target temperature is not supported by the current program '{self.reported_state.get('program', 'unknown')}'"
+                )
 
         # Prevent setting values for other unsupported programs
         if not self._is_supported_by_program():
@@ -321,11 +323,11 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         max_val = self.native_max_value
 
         if min_val is not None and value < min_val:
-            raise ValueError(
+            raise HomeAssistantError(
                 f"Value {value} is below minimum {min_val} for {self.entity_attr}"
             )
         if max_val is not None and value > max_val:
-            raise ValueError(
+            raise HomeAssistantError(
                 f"Value {value} is above maximum {max_val} for {self.entity_attr}"
             )
 
@@ -504,7 +506,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             "Electrolux sending command to appliance %s: %s", self.pnc_id, command
         )
         try:
-            result = await client.execute_appliance_command(self.pnc_id, command)
+            result = await execute_command_with_error_handling(
+                client, self.pnc_id, command, self.entity_attr, _LOGGER, self.capability
+            )
             _LOGGER.debug(
                 "Electrolux command successful for %s: result=%s",
                 self.entity_attr,
@@ -525,20 +529,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             await coordinator.handle_authentication_error(auth_ex)
             return
         except Exception as ex:
+            # Rollback on any error
             _LOGGER.error(
-                "Electrolux error setting %s to %s (command_value=%s), rolling back: %s",
+                "Electrolux command error setting %s to %s (command_value=%s), rolling back: %s",
                 self.entity_attr,
                 value,
                 command_value,
                 ex,
             )
-            # Rollback on any error
             self._cached_value = old_cached_value
             self.async_write_ha_state()
-            # Use shared error mapping for all errors
-            raise map_command_error_to_home_assistant_error(
-                ex, self.entity_attr, _LOGGER, self.capability
-            ) from ex
+            # Re-raise the error
+            raise
         # State will be updated via websocket streaming
 
     @property
@@ -547,10 +549,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if not super().available:
             return False
 
-        # Special case: oven temperature controls should always be available
-        # but clamped to 0 if not supported by program
+        # Check program support for temperature controls
         if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]:
-            return True
+            return self._is_supported_by_program()
 
         if not self._is_supported_by_program():
             return False

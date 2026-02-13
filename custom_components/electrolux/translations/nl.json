@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Ongeldige API-inloggegevens. Controleer uw API-sleutel, toegangstoken en vernieuwingstoken op de Electrolux Developer Portal.",
-            "incomplete_credentials": "Alle API-referenties (API-sleutel, toegangstoken, vernieuwingstoken) moeten samen worden opgegeven."
+            "invalid_auth": "Ongeldige API-inloggegevens. Controleer uw API-sleutel, toegangstoken en vernieuwingstoken op de Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Er is slechts één Electrolux-configuratie toegestaan.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electrolux-opties",
-                "description": "Configureer uw Electrolux-integratie-instellingen. U kunt hier de API-inloggegevens of meldingsvoorkeuren bijwerken.\n\n**Opmerking:** Wijzigingen in API-inloggegevens vereisen een herstart.",
+                "description": "Update uw Electrolux API-inloggegevens als deze zijn verlopen.\n\n**Om nieuwe inloggegevens te genereren:**\n1. Bezoek {url}\n2. Genereer een nieuwe API-sleutel, toegangstoken en vernieuwingstoken\n3. Werk de onderstaande velden bij\n\n**Veiligheidsopmerking:** De velden Toegangstoken en Vernieuwingstoken zijn opzettelijk leeg gelaten. Genereer altijd nieuwe tokens vanuit de portal - hergebruik of deel nooit bestaande tokens.",
                 "data": {
-                    "api_key": "API-sleutel (opnieuw opstarten vereist)",
-                    "access_token": "Toegangstoken (opnieuw opstarten vereist)",
-                    "refresh_token": "Vernieuwingstoken (opnieuw opstarten vereist)",
+                    "api_key": "API-sleutel",
+                    "access_token": "Toegangstoken",
+                    "refresh_token": "Token vernieuwen",
                     "notifications": "Schakel meldingen in voor kritieke waarschuwingen",
                     "notifications_warning": "Schakel meldingen voor waarschuwingen in",
                     "notifications_diagnostic": "Schakel meldingen voor diagnostische berichten in"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Alle API-referenties (API-sleutel, toegangstoken, vernieuwingstoken) moeten samen worden opgegeven.",
             "invalid_auth": "Ongeldige API-inloggegevens. Controleer uw API-sleutel, toegangstoken en vernieuwingstoken."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux-authenticatieprobleem",
+            "description": "De Electrolux-integratie kon de API-tokens niet vernieuwen: {message}. Authenticeer opnieuw via de integratieopties om de functionaliteit te herstellen."
         }
     }
 }

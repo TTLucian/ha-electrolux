@@ -27,7 +27,7 @@ CATALOG_MODEL: dict[str, dict[str, ElectroluxDevice]] = {
 # Appliance type catalogs
 CATALOG_BY_TYPE: dict[str, dict[str, ElectroluxDevice]] = {
     "OV": CATALOG_OVEN,  # Oven
-    "CR": CATALOG_REFRIGERATOR,  # Refrigerator
+    "RF": CATALOG_REFRIGERATOR,  # Refrigerator
     "WM": CATALOG_WASHER,  # Washing Machine
     "WD": CATALOG_WASHER_DRYER,  # Washer-Dryer
     "AC": CATALOG_AIR_CONDITIONER,  # Air Conditioner
@@ -152,7 +152,12 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "read",
             "type": "string",
-            "values": {"NORMAL": {}, "DEMO": {}, "SERVICE": {}},
+            "default": "NORMAL",
+            "values": {
+                "NORMAL": {},
+                "DEMO": {},
+                "SERVICE": {},
+            },
         },
         device_class=None,
         unit=None,

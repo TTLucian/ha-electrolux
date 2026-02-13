@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Todenna Electrolux uudelleen",
-                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
+                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheellisiä. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Virheelliset API-tunnistetiedot. Tarkista API-avain, käyttöoikeus ja päivitystunnus Electroluxin kehittäjäportaalista.",
-            "incomplete_credentials": "Kaikki API-tunnistetiedot (API-avain, käyttöoikeustunnus, päivitystunnus) on annettava yhdessä."
+            "invalid_auth": "Virheelliset API-tunnistetiedot. Tarkista API-avain, käyttöoikeus ja päivitystunnus Electroluxin kehittäjäportaalista."
         },
         "abort": {
             "single_instance_allowed": "Vain yksi Electrolux-kokoonpano on sallittu.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electroluxin vaihtoehdot",
-                "description": "Määritä Electroluxin integrointiasetukset. Voit päivittää API-tunnistetiedot tai ilmoitusasetukset täällä.\n\n**Huomaa:** API-tunnistetietojen muutokset vaativat uudelleenkäynnistyksen.",
+                "description": "Päivitä Electrolux API -tunnuksesi, jos ne ovat vanhentuneet.\n\n**Uusien tunnistetietojen luominen:**\n1. Käy osoitteessa {url}\n2. Luo uusi API-avain, käyttöoikeustunnus ja päivitystunnus\n3. Päivitä alla olevat kentät\n\n**Turvallisuushuomautus:** Access Token- ja Refresh Token -kentät jätetään tarkoituksella tyhjiksi. Luo aina uusia tunnuksia portaalista – älä koskaan käytä uudelleen tai jaa olemassa olevia tunnuksia.",
                 "data": {
-                    "api_key": "API-avain (uudelleenkäynnistys vaaditaan)",
-                    "access_token": "Käyttöoikeustunnus (uudelleenkäynnistys vaaditaan)",
-                    "refresh_token": "Refresh Token (uudelleenkäynnistys vaaditaan)",
+                    "api_key": "API-avain",
+                    "access_token": "Käyttöoikeustunnus",
+                    "refresh_token": "Päivitä Token",
                     "notifications": "Ota käyttöön kriittisten hälytysten ilmoitukset",
                     "notifications_warning": "Ota käyttöön varoitusilmoitukset",
                     "notifications_diagnostic": "Ota diagnostiikkaviestien ilmoitukset käyttöön"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Kaikki API-tunnistetiedot (API-avain, käyttöoikeustunnus, päivitystunnus) on annettava yhdessä.",
             "invalid_auth": "Virheelliset API-tunnistetiedot. Tarkista API-avain, käyttöoikeus ja päivitystunnus."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electroluxin todennusongelma",
+            "description": "Electroluxin integraatio ei onnistunut päivittämään API-tunnuksia: {message}. Todenna uudelleen integrointivaihtoehtojen kautta toiminnan palauttamiseksi."
         }
     }
 }

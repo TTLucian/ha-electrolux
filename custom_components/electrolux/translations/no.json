@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Electrolux oppsett",
-                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**For å få API-legitimasjon:**\n1. Besøk {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
+                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**For å få API-legitimasjon:**\n1. Gå til {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
                 "data": {
                     "api_key": "API-nøkkel",
                     "access_token": "Tilgangstoken",
@@ -24,25 +24,24 @@
             }
         },
         "error": {
-            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk din API-nøkkel, tilgangstoken og oppdateringstoken fra Electrolux utviklerportal.",
-            "incomplete_credentials": "All API-legitimasjon (API Key, Access Token, Refresh Token) må oppgis sammen."
+            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken fra Electrolux utviklerportal."
         },
         "abort": {
             "single_instance_allowed": "Kun én enkelt Electrolux-konfigurasjon er tillatt.",
             "already_configured": "Denne enheten er allerede konfigurert.",
             "already_configured_account": "Denne API-nøkkelen er allerede konfigurert.",
-            "reconfigure_successful": "Omkonfigureringen var vellykket."
+            "reconfigure_successful": "Re-konfigurasjonen var vellykket."
         }
     },
     "options": {
         "step": {
             "user": {
                 "title": "Electrolux-alternativer",
-                "description": "Konfigurer Electrolux-integrasjonsinnstillingene. Du kan oppdatere API-legitimasjon eller varslingspreferanser her.\n\n**Merk:** Endringer i API-legitimasjonen krever omstart.",
+                "description": "Oppdater Electrolux API-legitimasjonen din hvis den har utløpt.\n\n**Slik genererer du ny legitimasjon:**\n1. Visit {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Oppdater feltene nedenfor\n\n**Sikkerhetsmerknad:** Feltene for tilgangstoken og oppdateringstoken er tomme med hensikt. Generer alltid nye tokens fra portalen - aldri gjenbruk eller del eksisterende tokens.",
                 "data": {
-                    "api_key": "API-nøkkel (omstart kreves)",
-                    "access_token": "Tilgangstoken (omstart kreves)",
-                    "refresh_token": "Oppdater token (omstart kreves)",
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token",
                     "notifications": "Aktiver varsler for kritiske varsler",
                     "notifications_warning": "Aktiver varsler for advarsler",
                     "notifications_diagnostic": "Aktiver varsler for diagnostiske meldinger"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "All API-legitimasjon (API Key, Access Token, Refresh Token) må oppgis sammen.",
             "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux autentiseringsproblem",
+            "description": "Electrolux-integrasjonen klarte ikke å oppdatere API-tokens: {message}. Vennligst autentiser på nytt via integreringsalternativene for å gjenopprette funksjonaliteten."
         }
     }
 }

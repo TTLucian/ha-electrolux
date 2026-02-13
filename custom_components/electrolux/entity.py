@@ -3,7 +3,6 @@
 import asyncio
 import hashlib
 import logging
-import time
 from typing import Any, cast
 
 from homeassistant.config_entries import ConfigEntry
@@ -317,33 +316,14 @@ class ElectroluxEntity(CoordinatorEntity):
         """Check if the appliance is connected.
 
         Returns True if connectivityState is 'connected' or not reported (assume connected).
-        Returns False if connectivityState is 'disconnected' or other offline states,
-        or if no updates received recently (fallback detection).
+        Returns False if connectivityState is 'disconnected' or other offline states.
         """
-        import time
 
-        from .coordinator import APPLIANCE_OFFLINE_TIMEOUT
-
-        # First check explicit connectivity state
+        # Check explicit connectivity state from appliance reports
         connectivity_state = self.reported_state.get("connectivityState")
         if connectivity_state is not None:
             connectivity_str = str(connectivity_state).lower()
             if connectivity_str != "connected":
-                return False
-
-        # Fallback: check if we've received updates recently
-        # This catches cases where SSE connection is lost but connectivityState hasn't been updated
-        last_update = getattr(self.coordinator, "_last_update_times", {}).get(
-            self.pnc_id
-        )
-        if last_update is not None:
-            time_since_update = time.time() - last_update
-            if time_since_update > APPLIANCE_OFFLINE_TIMEOUT:
-                _LOGGER.debug(
-                    "Appliance %s marked offline due to stale updates (%d seconds old)",
-                    self.pnc_id,
-                    int(time_since_update),
-                )
                 return False
 
         # If connectivity state is reported as connected, or no state reported (backwards compatibility)
@@ -576,7 +556,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
     async def _rate_limit_command(self) -> None:
         """Enforce minimum interval between commands."""
-        now = time.time()
+        now = self.hass.loop.time()
         time_since_last = now - self._last_command_time
 
         if time_since_last < self._min_command_interval:
@@ -588,4 +568,4 @@ class ElectroluxEntity(CoordinatorEntity):
             )
             await asyncio.sleep(wait_time)
 
-        self._last_command_time = time.time()
+        self._last_command_time = self.hass.loop.time()

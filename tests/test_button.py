@@ -15,8 +15,11 @@ class TestElectroluxButton:
     @pytest.fixture
     def mock_coordinator(self):
         """Create a mock coordinator."""
+
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
         coordinator.api = AsyncMock()
         coordinator._last_update_times = {}
@@ -50,6 +53,7 @@ class TestElectroluxButton:
             catalog_entry=None,
             val_to_send="PRESS",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         return entity
 
     def test_entity_domain(self, button_entity):
@@ -140,16 +144,12 @@ class TestElectroluxButton:
         # Mock the API call
         button_entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
-        # Mock the coordinator update
-        button_entity.coordinator.async_request_refresh = AsyncMock()
-
         await button_entity.async_press()
 
         # Verify command was sent
         button_entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC", {"testAttr": "PRESS"}
         )
-        button_entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_press_with_entity_source(self, mock_coordinator, mock_capability):
@@ -183,14 +183,12 @@ class TestElectroluxButton:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_press()
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC", {"testAttr": "PRESS"}
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_press_api_failure(self, button_entity):
@@ -238,14 +236,12 @@ class TestElectroluxButton:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_press()
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "1:TEST_PNC", {"commands": [{"airConditioner": {"testAttr": "PRESS"}}]}
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_press_with_legacy_appliance(self, mock_coordinator, mock_capability):
@@ -274,14 +270,12 @@ class TestElectroluxButton:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_press()
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC", {"testAttr": "PRESS"}
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     def test_device_class_from_catalog(self, mock_coordinator, mock_capability):
         """Test device class from catalog entry."""

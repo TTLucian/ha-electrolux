@@ -103,6 +103,13 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                     value = live_value
         elif get_capability(self.capability, "access") == "constant":
             value = get_capability(self.capability, "default")
+
+        # Use default value if no value is available from API
+        if value is None:
+            default_value = get_capability(self.capability, "default")
+            if default_value is not None:
+                value = default_value
+
         elif self.entity_attr == "alerts":
             value = len(value) if value is not None else 0
         elif value is not None and self.unit == UnitOfTime.MINUTES:

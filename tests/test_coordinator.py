@@ -29,6 +29,14 @@ def mock_coordinator(mock_api_client):
         coord.renew_interval = 7200
         coord.data = {}  # Initialize as empty dict instead of None
         coord._last_update_times = {}
+
+        # Mock hass.loop.time() for cleanup timing
+        mock_loop = MagicMock()
+        mock_loop.time.return_value = 1000000.0  # Mock timestamp
+        mock_hass = MagicMock()
+        mock_hass.loop = mock_loop
+        coord.hass = mock_hass
+
         return coord
 
 

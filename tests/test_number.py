@@ -19,6 +19,8 @@ class TestElectroluxNumber:
         """Create a mock coordinator."""
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
@@ -53,6 +55,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {
             "properties": {"reported": {"testAttr": 75, "remoteControl": "ENABLED"}}
         }
@@ -80,6 +83,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:clock-start",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         assert entity.mode == NumberMode.BOX
 
     def test_mode_slider_for_non_time_entities(self, number_entity):
@@ -104,6 +108,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:thermometer",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         assert entity.device_class == NumberDeviceClass.TEMPERATURE
 
     def test_native_value_basic(self, number_entity):
@@ -135,6 +140,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timelapse",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {
             "properties": {"reported": {"targetDuration": 3600}}
         }  # 3600 seconds
@@ -166,6 +172,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:clock-start",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {
             "properties": {"reported": {"startTime": 1800}}
         }  # 1800 seconds
@@ -189,6 +196,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:clock-start",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {"properties": {"reported": {"startTime": -1}}}
         entity.reported_state = {"startTime": -1}
         assert entity.native_value is None
@@ -211,6 +219,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:thermometer-probe",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {
             "properties": {"reported": {"foodProbeInsertionState": "NOT_INSERTED"}}
         }
@@ -290,6 +299,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:clock",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity._get_program_constraint = MagicMock(return_value=None)
         assert entity.native_step == 5  # 300 seconds = 5 minutes
 
@@ -361,6 +371,7 @@ class TestElectroluxNumber:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:thermometer-probe",
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.reported_state = {"foodProbeInsertionState": "NOT_INSERTED"}
 
         with pytest.raises(HomeAssistantError, match="Food probe must be inserted"):
@@ -375,6 +386,71 @@ class TestElectroluxNumber:
             HomeAssistantError, match="not supported by the current program"
         ):
             await number_entity.async_set_native_value(50.0)
+
+    @pytest.mark.asyncio
+    async def test_async_set_native_value_target_temperature_not_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test setting target temperature when not supported by program raises error."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.reported_state = {"program": "unsupported_program"}
+        entity._is_supported_by_program = MagicMock(return_value=False)
+
+        with pytest.raises(
+            HomeAssistantError,
+            match="Target temperature is not supported by the current program",
+        ):
+            await entity.async_set_native_value(180.0)
+
+    @pytest.mark.asyncio
+    async def test_async_set_native_value_food_probe_temperature_not_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test setting food probe temperature when not supported by program raises error."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Food Probe Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="food_probe_temperature",
+            entity_attr="targetFoodProbeTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-probe",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.reported_state = {
+            "program": "unsupported_program",
+            "foodProbeInsertionState": "INSERTED",
+        }
+        entity._is_supported_by_program = MagicMock(return_value=False)
+
+        with pytest.raises(
+            HomeAssistantError,
+            match="Target food probe temperature is not supported by the current program",
+        ):
+            await entity.async_set_native_value(70.0)
 
     @pytest.mark.asyncio
     async def test_async_set_native_value_time_conversion(self, mock_coordinator):
@@ -432,3 +508,111 @@ class TestElectroluxNumber:
         """Test that entity is unavailable when not supported by program."""
         number_entity._is_supported_by_program = MagicMock(return_value=False)
         assert not number_entity.available
+
+    def test_available_property_target_temperature_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test that target temperature is available when supported by program."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        assert entity.available
+
+    def test_available_property_target_temperature_not_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test that target temperature is unavailable when not supported by program."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+        entity._is_supported_by_program = MagicMock(return_value=False)
+        assert not entity.available
+
+    def test_available_property_food_probe_temperature_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test that food probe temperature is available when supported by program."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Food Probe Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="food_probe_temperature",
+            entity_attr="targetFoodProbeTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-probe",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        assert entity.available
+
+    def test_available_property_food_probe_temperature_not_supported_by_program(
+        self, mock_coordinator
+    ):
+        """Test that food probe temperature is unavailable when not supported by program."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Food Probe Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="food_probe_temperature",
+            entity_attr="targetFoodProbeTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class="temperature",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-probe",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+        entity._is_supported_by_program = MagicMock(return_value=False)
+        assert not entity.available

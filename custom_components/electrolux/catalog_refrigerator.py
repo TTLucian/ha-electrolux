@@ -126,8 +126,9 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     # Main appliance controls
     "applianceMode": ElectroluxDevice(
         capability_info={
-            "access": "readwrite",
+            "access": "read",
             "type": "string",
+            "default": "NORMAL",
             "values": {
                 "NORMAL": {"icon": "mdi:fridge"},
                 "DEMO": {"icon": "mdi:presentation"},

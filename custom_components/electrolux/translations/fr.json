@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Informations d'identification API non valides. Veuillez vérifier votre clé API, votre jeton d'accès et votre jeton d'actualisation sur le portail des développeurs Electrolux.",
-            "incomplete_credentials": "Toutes les informations d'identification API (clé API, jeton d'accès, jeton d'actualisation) doivent être fournies ensemble."
+            "invalid_auth": "Informations d'identification API non valides. Veuillez vérifier votre clé API, votre jeton d'accès et votre jeton d'actualisation sur le portail des développeurs Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Une seule configuration Electrolux est autorisée.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Options Electrolux",
-                "description": "Configurez vos paramètres d'intégration Electrolux. Vous pouvez mettre à jour les informations d'identification de l'API ou les préférences de notification ici.\n\n**Remarque :** Les modifications apportées aux informations d'identification de l'API nécessitent un redémarrage.",
+                "description": "Mettez à jour vos informations d'identification API Electrolux si elles ont expiré.\n\n**Pour générer de nouveaux identifiants :**\n1. Visitez {url}\n2. Générez une nouvelle clé API, un jeton d'accès et un jeton d'actualisation\n3. Mettez à jour les champs ci-dessous\n\n**Remarque de sécurité :** Les champs Jeton d'accès et Jeton d'actualisation sont intentionnellement laissés vides. Générez toujours de nouveaux jetons à partir du portail - ne réutilisez ni ne partagez jamais les jetons existants.",
                 "data": {
-                    "api_key": "Clé API (redémarrage requis)",
-                    "access_token": "Jeton d'accès (redémarrage requis)",
-                    "refresh_token": "Actualiser le jeton (redémarrage requis)",
+                    "api_key": "Clé API",
+                    "access_token": "Jeton d'accès",
+                    "refresh_token": "Actualiser le jeton",
                     "notifications": "Activer les notifications pour les alertes critiques",
                     "notifications_warning": "Activer les notifications pour les avertissements",
                     "notifications_diagnostic": "Activer les notifications pour les messages de diagnostic"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Toutes les informations d'identification API (clé API, jeton d'accès, jeton d'actualisation) doivent être fournies ensemble.",
             "invalid_auth": "Informations d'identification API non valides. Veuillez vérifier votre clé API, votre jeton d'accès et votre jeton d'actualisation."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Problème d'authentification Electrolux",
+            "description": "L'intégration Electrolux n'a pas réussi à actualiser les jetons API : {message}. Veuillez vous réauthentifier via les options d'intégration pour restaurer la fonctionnalité."
         }
     }
 }

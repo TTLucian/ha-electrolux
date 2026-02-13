@@ -17,6 +17,8 @@ class TestElectroluxText:
         """Create a mock coordinator."""
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
         coordinator.api = AsyncMock()
         coordinator._last_update_times = {}
@@ -50,6 +52,7 @@ class TestElectroluxText:
             icon="mdi:test",
             catalog_entry=None,
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {
             "properties": {"reported": {"testAttr": "test value"}}
         }
@@ -77,6 +80,7 @@ class TestElectroluxText:
             icon="mdi:test",
             catalog_entry=None,
         )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
         assert entity.name == "Original Name"
 
     def test_name_fallback_to_catalog(self, mock_coordinator, mock_capability):
@@ -238,16 +242,12 @@ class TestElectroluxText:
         # Mock the API call
         text_entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
-        # Mock the coordinator update
-        text_entity.coordinator.async_request_refresh = AsyncMock()
-
         await text_entity.async_set_value("new value")
 
         # Verify command was sent
         text_entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC", {"testAttr": "new value"}
         )
-        text_entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_set_value_with_entity_source(
@@ -282,7 +282,6 @@ class TestElectroluxText:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_set_value("new value")
 
@@ -290,7 +289,6 @@ class TestElectroluxText:
             "TEST_PNC",
             {"testAttr": "new value"},
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_set_value_api_failure(self, text_entity):
@@ -341,14 +339,12 @@ class TestElectroluxText:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_set_value("new value")
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "1:TEST_PNC", {"commands": [{"airConditioner": {"testAttr": "new value"}}]}
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_set_value_with_legacy_appliance(
@@ -380,14 +376,12 @@ class TestElectroluxText:
         }
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
-        entity.coordinator.async_request_refresh = AsyncMock()
 
         await entity.async_set_value("new value")
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC", {"testAttr": "new value"}
         )
-        entity.coordinator.async_request_refresh.assert_called_once()
 
     def test_mode_from_catalog(self, mock_coordinator, mock_capability):
         """Test mode from catalog entry."""

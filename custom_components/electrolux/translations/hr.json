@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "Electrolux Postavljanje",
+                "title": "Postavljanje Electroluxa",
                 "description": "Povežite svoje Electrolux uređaje pomoću API vjerodajnica s Electrolux Developer Portala.\n\n**Da biste dobili API vjerodajnice:**\n1. Posjetite {url}\n2. Registrirajte se i kreirajte aplikaciju\n3. Nabavite svoj API ključ, pristupni token i token za osvježavanje\n\nAko trebate pomoć, posjetite integracijsku dokumentaciju.",
                 "data": {
                     "api_key": "API ključ",
@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Nevažeće API vjerodajnice. Provjerite svoj API ključ, pristupni token i token za osvježavanje na Electroluxovom portalu za razvojne programere.",
-            "incomplete_credentials": "Sve API vjerodajnice (API Key, Access Token, Refresh Token) moraju biti dostavljene zajedno."
+            "invalid_auth": "Nevažeće API vjerodajnice. Provjerite svoj API ključ, pristupni token i token za osvježavanje na Electroluxovom portalu za razvojne programere."
         },
         "abort": {
             "single_instance_allowed": "Dopuštena je samo jedna Electrolux konfiguracija.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electrolux opcije",
-                "description": "Konfigurirajte svoje Electrolux postavke integracije. Ovdje možete ažurirati API vjerodajnice ili postavke obavijesti.\n\n**Napomena:** Promjene API vjerodajnica zahtijevaju ponovno pokretanje.",
+                "description": "Ažurirajte svoje Electrolux API vjerodajnice ako su istekle.\n\n**Za generiranje novih vjerodajnica:**\n1. Posjetite {url}\n2. Generirajte novi API ključ, pristupni token i token za osvježavanje\n3. Ažurirajte donja polja\n\n**Sigurnosna napomena:** polja Access Token i Refresh Token namjerno su ostavljena prazna. Uvijek generirajte nove tokene s portala - nikada ponovno ne koristite niti dijelite postojeće tokene.",
                 "data": {
-                    "api_key": "API ključ (potrebno ponovno pokretanje)",
-                    "access_token": "Pristupni token (potrebno ponovno pokretanje)",
-                    "refresh_token": "Osvježi token (potrebno ponovno pokretanje)",
+                    "api_key": "API ključ",
+                    "access_token": "Pristupni token",
+                    "refresh_token": "Osvježi token",
                     "notifications": "Omogući obavijesti za kritična upozorenja",
                     "notifications_warning": "Omogući obavijesti za upozorenja",
                     "notifications_diagnostic": "Omogući obavijesti za dijagnostičke poruke"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Sve API vjerodajnice (API Key, Access Token, Refresh Token) moraju biti dostavljene zajedno.",
             "invalid_auth": "Nevažeće API vjerodajnice. Provjerite svoj API ključ, pristupni token i token za osvježavanje."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux problem s autentifikacijom",
+            "description": "Integracija Electroluxa nije uspjela osvježiti API tokene: {message}. Ponovo se autentificirajte putem opcija integracije kako biste vratili funkcionalnost."
         }
     }
 }

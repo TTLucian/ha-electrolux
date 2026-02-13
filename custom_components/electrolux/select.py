@@ -18,8 +18,8 @@ from .model import ElectroluxDevice
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
+    execute_command_with_error_handling,
     format_command_for_appliance,
-    map_command_error_to_home_assistant_error,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -254,7 +254,25 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             else:
                 command = {self.entity_source: {self.entity_attr: formatted_value}}
         else:
-            command = {self.entity_attr: formatted_value}
+            if self.entity_attr == "program":
+                # For program changes, include programUID from userSelections
+                reported = (
+                    self.appliance_status.get("properties", {}).get("reported", {})
+                    if self.appliance_status
+                    else {}
+                )
+                program_uid = reported.get("userSelections", {}).get("programUID")
+                if program_uid:
+                    command = {
+                        "userSelections": {
+                            "programUID": program_uid,
+                            "program": formatted_value,
+                        }
+                    }
+                else:
+                    command = {self.entity_attr: formatted_value}
+            else:
+                command = {self.entity_attr: formatted_value}
 
         # Wrap DAM commands in the required format
         if self.is_dam_appliance:
@@ -262,17 +280,17 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         _LOGGER.debug("Electrolux select option %s", command)
         try:
-            result = await client.execute_appliance_command(self.pnc_id, command)
+            result = await execute_command_with_error_handling(
+                client, self.pnc_id, command, self.entity_attr, _LOGGER, self.capability
+            )
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
             return  # Explicit return (unreachable but clear)
-        except Exception as ex:
-            # Use shared error mapping for all errors
-            raise map_command_error_to_home_assistant_error(
-                ex, self.entity_attr, _LOGGER, self.capability
-            ) from ex
+        except Exception:
+            # Re-raise any errors from execute_command_with_error_handling
+            raise
         _LOGGER.debug("Electrolux select option result %s", result)
         # State will be updated via websocket streaming
 

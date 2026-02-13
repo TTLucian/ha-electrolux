@@ -1,51 +1,61 @@
 {
-  "config": {
-    "step": {
-      "user": {
-        "title": "Electrolux Opsætning",
-        "description": "Tilslut dine Electrolux apparater ved hjælp af API legitimationsoplysninger fra Electrolux Developer Portal.\n\nHvis du har brug for hjælp til at få API legitimationsoplysninger, besøg: https://github.com/TTLucian/ha-electrolux",
-        "data": {
-          "api_key": "API-nøgle",
-          "access_token": "Adgangstoken",
-          "refresh_token": "Opdateringstoken",
-          "language": "Sprog",
-          "notifications": "Aktivér notifikationer for ALERT niveau meddelelser",
-          "notifications_warning": "Aktivér notifikationer for WARNING niveau meddelelser",
-          "notifications_diagnostic": "Aktivér notifikationer for DIAGNOSTIC niveau meddelelser"
+    "config": {
+        "step": {
+            "user": {
+                "title": "Electrolux opsætning",
+                "description": "Tilslut dine Electrolux-apparater ved hjælp af API-legitimationsoplysninger fra Electrolux Developer Portal.\n\n**Sådan får du API-legitimationsoplysninger:**\n1. Besøg {url}\n2. Registrer og opret en ansøgning\n3. Få din API-nøgle, adgangstoken og opdateringstoken\n\nHvis du har brug for hjælp, kan du besøge integrationsdokumentationen.",
+                "data": {
+                    "api_key": "API nøgle",
+                    "access_token": "Adgangstoken",
+                    "refresh_token": "Opdater token",
+                    "notifications": "Aktiver meddelelser for kritiske advarsler",
+                    "notifications_warning": "Aktiver meddelelser for advarsler",
+                    "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
+                }
+            },
+            "reauth_validate": {
+                "title": "Genautentificer Electrolux",
+                "description": "Dine Electrolux API-tokens er udløbet eller er ugyldige. Opdater dem venligst med nye tokens fra Electrolux Developer Portal.\n\nBesøg {url} for at generere nye tokens.",
+                "data": {
+                    "api_key": "API nøgle",
+                    "access_token": "Adgangstoken",
+                    "refresh_token": "Opdater token"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken fra Electrolux Developer Portal."
+        },
+        "abort": {
+            "single_instance_allowed": "Kun en enkelt Electrolux-konfiguration er tilladt.",
+            "already_configured": "Denne enhed er allerede konfigureret.",
+            "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
+            "reconfigure_successful": "Genkonfigurationen lykkedes."
         }
-      },
-      "reauth_validate": {
-        "title": "Gen-autentificer Electrolux",
-        "description": "Dine Electrolux API-tokens er udløbet eller ugyldige. Opdater dem med nye tokens fra Electrolux Developer Portal.",
-        "data": {
-          "api_key": "API-nøgle",
-          "access_token": "Adgangstoken",
-          "refresh_token": "Opdateringstoken"
-        }
-      }
     },
-    "error": {
-      "invalid_auth": "Ugyldige API legitimationsoplysninger. Tjek din API-nøgle, adgangstoken og opdateringstoken."
-    },
-    "abort": {
-      "single_instance_allowed": "Kun en enkelt konfiguration er tilladt.",
-      "already_configured": "Denne enhed er allerede konfigureret.",
-      "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
-      "reconfigure_successful": "Genkonfiguration lykkedes."
-    }
-  },
-  "options": {
-    "step": {
-      "user": {
-        "title": "Electrolux Indstillinger",
-        "description": "Konfigurer Electrolux integrationsindstillinger.",
-        "data": {
-          "language": "Visningssprog",
-          "notifications": "Aktivér notifikationer for ALERT niveau meddelelser",
-          "notifications_warning": "Aktivér notifikationer for WARNING niveau meddelelser",
-          "notifications_diagnostic": "Aktivér notifikationer for DIAGNOSTIC niveau meddelelser"
+    "options": {
+        "step": {
+            "user": {
+                "title": "Electrolux optioner",
+                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsnote:** Felterne Adgangstoken og Opdater Token efterlades med vilje tomme. Generer altid friske tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
+                "data": {
+                    "api_key": "API nøgle",
+                    "access_token": "Adgangstoken",
+                    "refresh_token": "Opdater token",
+                    "notifications": "Aktiver meddelelser for kritiske advarsler",
+                    "notifications_warning": "Aktiver meddelelser for advarsler",
+                    "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken."
         }
-      }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux-godkendelsesproblem",
+            "description": "Electrolux-integrationen kunne ikke opdatere API-tokens: {message}. Genautentificer venligst via integrationsmulighederne for at gendanne funktionaliteten."
+        }
     }
-  }
 }

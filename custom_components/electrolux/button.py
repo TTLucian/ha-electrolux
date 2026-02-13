@@ -18,7 +18,7 @@ from .model import ElectroluxDevice
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
-    map_command_error_to_home_assistant_error,
+    execute_command_with_error_handling,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -235,23 +235,24 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         _LOGGER.debug("Electrolux send command %s", command)
         try:
-            result = await client.execute_appliance_command(self.pnc_id, command)
+            result = await execute_command_with_error_handling(
+                client, self.pnc_id, command, self.entity_attr, _LOGGER
+            )
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
-        except Exception as ex:
-            # Use shared error mapping for all errors
-            raise map_command_error_to_home_assistant_error(
-                ex, self.entity_attr, _LOGGER
-            ) from ex
+        except Exception:
+            # Re-raise any errors from execute_command_with_error_handling
+            raise
         _LOGGER.debug("Electrolux send command result %s", result)
         return True
 
     async def async_press(self) -> None:
         """Execute a button press."""
         await self.send_command()
-        await self.coordinator.async_request_refresh()
+        # Coordinator refresh is now handled automatically in execute_command_with_error_handling
+        # await self.coordinator.async_request_refresh()
         # await self.hass.async_add_executor_job(self.send_command)
         # if self.entity_attr == "ExecuteCommand":
         #     await self.hass.async_add_executor_job(self.coordinator.api.setHacl, self.get_appliance.pnc_id, "0x0403", self.val_to_send, self.entity_source)

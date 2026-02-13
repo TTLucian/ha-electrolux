@@ -3,12 +3,12 @@
         "step": {
             "user": {
                 "title": "Electroluxi seadistamine",
-                "description": "Ühendage oma Electroluxi seadmed, kasutades Electroluxi arendajaportaali API mandaate.\n\n**API mandaatide hankimiseks:**\n1. Külastage veebisaiti {url}\n2. Registreeru ja loo taotlus\n3. Hankige oma API võti, juurdepääsuluba ja värskendusluba\n\nKui vajate abi, vaadake integreerimise dokumentatsiooni.",
+                "description": "Ühendage oma Electroluxi seadmed, kasutades Electroluxi arendajaportaali API mandaate.\n\n**API mandaatide hankimiseks:**\n1. Külastage aadressi {url}\n2. Registreeru ja loo taotlus\n3. Hankige oma API võti, juurdepääsuluba ja värskendusluba\n\nKui vajate abi, vaadake integreerimise dokumentatsiooni.",
                 "data": {
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
                     "refresh_token": "Värskenda märki",
-                    "notifications": "Lubage kriitiliste hoiatusteadete märguanded",
+                    "notifications": "Lubage kriitiliste hoiatuste teatised",
                     "notifications_warning": "Hoiatuste märguannete lubamine",
                     "notifications_diagnostic": "Lubage diagnostikasõnumite märguanded"
                 }
@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Kehtetud API mandaadid. Kontrollige oma API võtit, juurdepääsuluba ja värskendusluba Electroluxi arendajaportaalist.",
-            "incomplete_credentials": "Kõik API mandaadid (API võti, juurdepääsuluba, värskendusluba) tuleb esitada koos."
+            "invalid_auth": "Kehtetud API mandaadid. Kontrollige oma API võtit, juurdepääsuluba ja värskendusluba Electroluxi arendajaportaalist."
         },
         "abort": {
             "single_instance_allowed": "Lubatud on ainult üks Electroluxi konfiguratsioon.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electroluxi valikud",
-                "description": "Konfigureerige oma Electroluxi integratsiooniseaded. Siin saate värskendada API mandaate või teavituse eelistusi.\n\n**Märkus.** API mandaatide muutmine nõuab taaskäivitamist.",
+                "description": "Värskendage oma Electroluxi API mandaate, kui need on aegunud.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage aadressi {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Värskendage allolevaid välju\n\n**Turvamärkus:** Access Token ja Refresh Token väljad jäetakse tahtlikult tühjaks. Looge portaalist alati värskeid märke – ärge kunagi kasutage olemasolevaid märke ega jagage neid.",
                 "data": {
-                    "api_key": "API võti (vajalik taaskäivitamine)",
-                    "access_token": "Juurdepääsuluba (vajalik taaskäivitamine)",
-                    "refresh_token": "Refresh Token (vajalik taaskäivitamine)",
+                    "api_key": "API võti",
+                    "access_token": "Juurdepääsuluba",
+                    "refresh_token": "Värskenda märki",
                     "notifications": "Lubage kriitiliste hoiatusteadete märguanded",
                     "notifications_warning": "Hoiatuste märguannete lubamine",
                     "notifications_diagnostic": "Lubage diagnostikasõnumite märguanded"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Kõik API mandaadid (API võti, juurdepääsuluba, värskendusluba) tuleb esitada koos.",
             "invalid_auth": "Kehtetud API mandaadid. Kontrollige oma API võtit, juurdepääsuluba ja värskendusluba."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electroluxi autentimise probleem",
+            "description": "Electroluxi integratsioonil ei õnnestunud API lubasid värskendada: {message}. Funktsionaalsuse taastamiseks autentige uuesti integreerimisvalikute kaudu."
         }
     }
 }

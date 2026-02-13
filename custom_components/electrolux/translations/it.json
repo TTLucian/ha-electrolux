@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Credenziali API non valide. Controlla la chiave API, il token di accesso e il token di aggiornamento dal portale per sviluppatori Electrolux.",
-            "incomplete_credentials": "Tutte le credenziali API (chiave API, token di accesso, token di aggiornamento) devono essere fornite insieme."
+            "invalid_auth": "Credenziali API non valide. Controlla la chiave API, il token di accesso e il token di aggiornamento dal portale per sviluppatori Electrolux."
         },
         "abort": {
             "single_instance_allowed": "È consentita una sola configurazione Electrolux.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Opzioni Electrolux",
-                "description": "Configura le tue impostazioni di integrazione Electrolux. Puoi aggiornare le credenziali API o le preferenze di notifica qui.\n\n**Nota:** le modifiche alle credenziali API richiedono un riavvio.",
+                "description": "Aggiorna le tue credenziali API Electrolux se sono scadute.\n\n**Per generare nuove credenziali:**\n1. Visita {url}\n2. Genera nuova chiave API, token di accesso e token di aggiornamento\n3. Aggiorna i campi sottostanti\n\n**Nota sulla sicurezza:** i campi Token di accesso e Token di aggiornamento sono lasciati intenzionalmente vuoti. Genera sempre nuovi token dal portale: non riutilizzare o condividere mai i token esistenti.",
                 "data": {
-                    "api_key": "Chiave API (riavvio richiesto)",
-                    "access_token": "Token di accesso (riavvio richiesto)",
-                    "refresh_token": "Aggiorna token (riavvio richiesto)",
+                    "api_key": "Chiave API",
+                    "access_token": "Gettone di accesso",
+                    "refresh_token": "Aggiorna gettone",
                     "notifications": "Abilita le notifiche per gli avvisi critici",
                     "notifications_warning": "Abilita le notifiche per gli avvisi",
                     "notifications_diagnostic": "Abilita le notifiche per i messaggi diagnostici"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Tutte le credenziali API (chiave API, token di accesso, token di aggiornamento) devono essere fornite insieme.",
             "invalid_auth": "Credenziali API non valide. Controlla la chiave API, il token di accesso e il token di aggiornamento."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Problema di autenticazione Electrolux",
+            "description": "L'integrazione di Electrolux non è riuscita ad aggiornare i token API: {messaggio}. Si prega di autenticarsi nuovamente tramite le opzioni di integrazione per ripristinare la funzionalità."
         }
     }
 }

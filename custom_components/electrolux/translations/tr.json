@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Electrolux'ün kimliğini yeniden doğrulayın",
-                "description": "Electrolux API belirteçlerinizin süresi dolmuş veya geçersiz. Lütfen bunları Electrolux Geliştirici Portalından yeni tokenlarla güncelleyin.\n\nYeni tokenler oluşturmak için {url} adresini ziyaret edin.",
+                "description": "Electrolux API belirteçlerinizin süresi dolmuş veya geçersiz. Lütfen bunları Electrolux Geliştirici Portalından yeni tokenlarla güncelleyin.\n\nYeni jetonlar oluşturmak için {url} adresini ziyaret edin.",
                 "data": {
                     "api_key": "API Anahtarı",
                     "access_token": "Erişim Jetonu",
@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Geçersiz API kimlik bilgileri. Lütfen Electrolux Geliştirici Portalından API Anahtarınızı, Erişim Simgenizi ve Yenileme Simgenizi kontrol edin.",
-            "incomplete_credentials": "Tüm API kimlik bilgileri (API Anahtarı, Erişim Belirteci, Yenileme Belirteci) birlikte sağlanmalıdır."
+            "invalid_auth": "Geçersiz API kimlik bilgileri. Lütfen Electrolux Geliştirici Portalından API Anahtarınızı, Erişim Simgenizi ve Yenileme Simgenizi kontrol edin."
         },
         "abort": {
             "single_instance_allowed": "Yalnızca tek bir Electrolux konfigürasyonuna izin verilir.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electrolux Seçenekleri",
-                "description": "Electrolux entegrasyon ayarlarınızı yapılandırın. API kimlik bilgilerini veya bildirim tercihlerini buradan güncelleyebilirsiniz.\n\n**Not:** API kimlik bilgilerinde yapılan değişiklikler yeniden başlatma gerektirir.",
+                "description": "Süresi dolmuşsa Electrolux API kimlik bilgilerinizi güncelleyin.\n\n**Yeni kimlik bilgileri oluşturmak için:**\n1. {url} adresini ziyaret edin\n2. Yeni API Anahtarı, Erişim Belirteci ve Yenileme Belirteci oluşturun\n3. Aşağıdaki alanları güncelleyin\n\n**Güvenlik Notu:** Erişim Jetonu ve Jetonu Yenile alanları kasıtlı olarak boş bırakılmıştır. Portaldan her zaman yeni jetonlar oluşturun; mevcut jetonları asla yeniden kullanmayın veya paylaşmayın.",
                 "data": {
-                    "api_key": "API Anahtarı (yeniden başlatma gerekli)",
-                    "access_token": "Erişim Belirteci (yeniden başlatma gerekli)",
-                    "refresh_token": "Jetonu Yenile (yeniden başlatma gerekli)",
+                    "api_key": "API Anahtarı",
+                    "access_token": "Erişim Jetonu",
+                    "refresh_token": "Jetonu Yenile",
                     "notifications": "Kritik uyarılar için bildirimleri etkinleştirin",
                     "notifications_warning": "Uyarılar için bildirimleri etkinleştir",
                     "notifications_diagnostic": "Teşhis mesajları için bildirimleri etkinleştir"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "Tüm API kimlik bilgileri (API Anahtarı, Erişim Belirteci, Yenileme Belirteci) birlikte sağlanmalıdır.",
             "invalid_auth": "Geçersiz API kimlik bilgileri. Lütfen API Anahtarınızı, Erişim Simgenizi ve Yenileme Simgenizi kontrol edin."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux kimlik doğrulama sorunu",
+            "description": "Electrolux entegrasyonu API belirteçlerini yenileyemedi: {message}. İşlevselliği geri yüklemek için lütfen entegrasyon seçeneklerini kullanarak yeniden kimlik doğrulaması yapın."
         }
     }
 }

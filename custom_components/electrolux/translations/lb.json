@@ -24,8 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Ongülteg API Umeldungsinformatiounen. Kuckt w.e.g. Ären API Key, Access Token, an Refresh Token vum Electrolux Developer Portal.",
-            "incomplete_credentials": "All API Umeldungsinformatioune (API Key, Access Token, Refresh Token) mussen zesumme geliwwert ginn."
+            "invalid_auth": "Ongülteg API Umeldungsinformatiounen. Kuckt w.e.g. Ären API Key, Access Token, an Refresh Token vum Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Nëmmen eng eenzeg Electrolux Konfiguratioun ass erlaabt.",
@@ -38,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Electrolux Optiounen",
-                "description": "Konfiguréiert Är Electrolux Integratiounsastellungen. Dir kënnt API Umeldungsinformatiounen oder Notifikatiounsvirléiften hei aktualiséieren.\n\n** Notiz: ** Ännerungen un API Umeldungsinformatiounen erfuerderen e Restart.",
+                "description": "Update Är Electrolux API Umeldungsinformatiounen wa se ofgelaf sinn.\n\n**Fir nei Umeldungsinformatiounen ze generéieren:**\n1. Besicht {url}\n2. Generéiere neien API Key, Access Token, an Refresh Token\n3. Update d'Felder hei drënner\n\n**Sécherheetsnotiz:** Zougang Token an Refresh Token Felder ginn bewosst eidel gelooss. Generéiert ëmmer frësch Tokens vum Portal - ni nei benotzt oder deelt existent Tokens.",
                 "data": {
-                    "api_key": "API Schlëssel (Restart néideg)",
-                    "access_token": "Zougang Token (Restart erfuerderlech)",
-                    "refresh_token": "Refresh Token (Restart néideg)",
+                    "api_key": "API Schlëssel",
+                    "access_token": "Zougang Token",
+                    "refresh_token": "Refresh Token",
                     "notifications": "Aktivéiert Notifikatiounen fir kritesch Alarmer",
                     "notifications_warning": "Aktivéiert Notifikatiounen fir Warnungen",
                     "notifications_diagnostic": "Aktivéiert Notifikatiounen fir diagnostesch Messagen"
@@ -50,8 +49,13 @@
             }
         },
         "error": {
-            "incomplete_credentials": "All API Umeldungsinformatioune (API Key, Access Token, Refresh Token) mussen zesumme geliwwert ginn.",
             "invalid_auth": "Ongülteg API Umeldungsinformatiounen. Kuckt w.e.g. Ären API Key, Access Token, an Refresh Token."
+        }
+    },
+    "issues": {
+        "invalid_refresh_token": {
+            "title": "Electrolux Authentifikatioun Problem",
+            "description": "D'Electrolux Integratioun konnt d'API Tokens net erfrëschen: {Message}. W.e.g. reauthentifizéieren iwwer d'Integratiounsoptioune fir d'Funktionalitéit ze restauréieren."
         }
     }
 }
