@@ -10,8 +10,7 @@ from custom_components.electrolux.models import Appliance, Appliances
 @pytest.fixture
 def mock_api_client():
     """Create a mock API client."""
-    client = type("MockClient", (), {})()
-    return client
+    return MagicMock()
 
 
 @pytest.fixture
@@ -64,7 +63,7 @@ async def test_async_update_data_success(mock_coordinator, mock_api_client):
     # Create a mock appliance in the coordinator data
     mock_appliance = MagicMock()
     mock_appliance.pnc_id = "test_appliance_1"
-    mock_appliance.update = MagicMock()
+    # mock_appliance.update = MagicMock()  # Already a MagicMock
 
     mock_appliances = MagicMock()
     mock_appliances.get_appliances.return_value = {"test_appliance_1": mock_appliance}
@@ -149,17 +148,9 @@ async def test_async_update_data_multiple_appliances(mock_coordinator, mock_api_
     }
 
     # Mock the API to return different states for different appliances
-    call_count = 0
-
-    async def mock_get_state(app_id):
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            return mock_state_1
-        else:
-            return mock_state_2
-
-    mock_api_client.get_appliance_state = mock_get_state
+    mock_api_client.get_appliance_state = AsyncMock(
+        side_effect=[mock_state_1, mock_state_2]
+    )
 
     # Create mock appliances
     mock_appliance_1 = MagicMock()

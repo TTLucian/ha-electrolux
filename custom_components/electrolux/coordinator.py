@@ -641,6 +641,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 app_obj.update(status)
                 # Update last seen time for successful updates
+                import time
+
                 self._last_update_times[app_id] = time.time()
                 return True  # Success
             except asyncio.CancelledError:
@@ -698,6 +700,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 other_errors.append(result)
             elif result is True:
                 successful += 1
+            else:
+                # Treat False or other non-True, non-Exception results as failures
+                other_errors.append(RuntimeError(f"Appliance update failed: {result}"))
 
         # Propagate authentication errors immediately
         if auth_errors:
