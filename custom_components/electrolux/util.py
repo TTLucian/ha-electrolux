@@ -1330,7 +1330,12 @@ class ElectroluxApiClient:
 
             # Add callback to handle task failures
             def _handle_sse_failure(task):
-                if task.exception() is not None:
+                if task.cancelled():
+                    _LOGGER.debug(
+                        "SSE event stream was cancelled for appliances %s",
+                        ", ".join(appliance_ids),
+                    )
+                elif task.exception() is not None:
                     _LOGGER.error(
                         "SSE event stream failed for appliances %s: %s",
                         ", ".join(appliance_ids),
@@ -1352,11 +1357,6 @@ class ElectroluxApiClient:
                                 appliance_id,
                                 ex,
                             )
-                elif task.cancelled():
-                    _LOGGER.debug(
-                        "SSE event stream was cancelled for appliances %s",
-                        ", ".join(appliance_ids),
-                    )
                 else:
                     _LOGGER.debug(
                         "SSE event stream ended unexpectedly for appliances %s (no exception)",

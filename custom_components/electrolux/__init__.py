@@ -145,9 +145,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.async_on_unload(cleanup_tasks)
 
     # Start background tasks after HA has fully started to prevent blocking startup
-    entry.async_on_unload(
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
-    )
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
 
     async def _close_coordinator(event):
         """Close coordinator resources on HA shutdown."""
