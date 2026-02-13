@@ -43,10 +43,10 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 # - CLEANUP_INTERVAL: How often to check for removed appliances
 
 SSE_RENEW_INTERVAL_HOURS = 6
-APPLIANCE_STATE_TIMEOUT = 8.0  # seconds
-APPLIANCE_CAPABILITY_TIMEOUT = 8.0  # seconds
+APPLIANCE_STATE_TIMEOUT = 12.0  # seconds
+APPLIANCE_CAPABILITY_TIMEOUT = 12.0  # seconds
 SETUP_TIMEOUT_TOTAL = 30.0  # seconds
-UPDATE_TIMEOUT = 10.0  # seconds
+UPDATE_TIMEOUT = 15.0  # seconds
 FIRST_REFRESH_TIMEOUT = 15.0  # seconds for initial setup refresh
 DEFERRED_UPDATE_DELAY = 70  # seconds
 DEFERRED_TASK_LIMIT = 5  # maximum concurrent deferred tasks
@@ -115,6 +115,28 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # For transient network/other errors, allow HA to retry setup
             _LOGGER.error("Could not log in to ElectroluxStatus, %s", ex)
             raise ConfigEntryNotReady from ex
+
+    def setup_token_refresh_callback(self) -> None:
+        """Set up the token refresh callback to update config entry with new tokens."""
+        if hasattr(self, "config_entry") and self.config_entry:
+
+            def on_token_update(
+                access_token: str, refresh_token: str, api_key: str, expires_at: int
+            ) -> None:
+                """Callback to update config entry with refreshed tokens and expiration."""
+                _LOGGER.info(
+                    "Tokens refreshed, updating config entry (expires at %d)",
+                    expires_at,
+                )
+                new_data = dict(self.config_entry.data)
+                new_data["access_token"] = access_token
+                new_data["refresh_token"] = refresh_token
+                new_data["token_expires_at"] = expires_at
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry, data=new_data
+                )
+
+            self.api.set_token_update_callback_with_expiry(on_token_update)
 
     async def handle_authentication_error(self, exception: Exception) -> None:
         """Handle authentication errors by raising ConfigEntryAuthFailed.
@@ -197,6 +219,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 data["property"],
                 data["value"],
             )
+            # Log info message when appliance becomes offline
+            if (
+                data["property"] == "connectivityState"
+                and str(data["value"]).lower() == "disconnected"
+            ):
+                _LOGGER.info("Device %s is now offline", appliance_id)
             appliance = appliances.get_appliance(appliance_id)
             if appliance is None:
                 _LOGGER.warning(
@@ -220,6 +248,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     appliance_id,
                 )
                 return
+
+            # Update last seen time for this appliance (for timeout fallback)
+            self._last_update_times[appliance_id] = time.time()
 
             self.async_set_updated_data(self.data)
 
@@ -641,9 +672,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 app_obj.update(status)
                 # Update last seen time for successful updates
-                import time
+                from datetime import datetime
 
-                self._last_update_times[app_id] = time.time()
+                self._last_update_times[app_id] = datetime.now().timestamp()
                 return True  # Success
             except asyncio.CancelledError:
                 raise
@@ -679,7 +710,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
                     raise ConfigEntryAuthFailed("Token expired or invalid") from ex
                 # For other errors, just log and return failure
-                _LOGGER.debug("Failed to update %s during refresh: %s", app_id, ex)
+                _LOGGER.warning("Failed to update %s during refresh: %s", app_id, ex)
                 return False  # Failure
 
         # Run all updates concurrently
@@ -692,6 +723,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         auth_errors = []
         other_errors = []
         successful = 0
+
+        _LOGGER.debug("Update results: %s", results)
 
         for result in results:
             if isinstance(result, ConfigEntryAuthFailed):
@@ -714,8 +747,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Check if all appliances failed
         if successful == 0 and len(app_dict) > 0:
             _LOGGER.error(
-                "All appliance updates failed. Errors: %s",
-                [str(e) for e in other_errors[:3]],  # Show first 3 errors
+                "All appliance updates failed. Successful: %d, Total: %d, Results: %s, Errors: %s",
+                successful,
+                len(app_dict),
+                results,
+                [str(e) for e in other_errors[:3]],
             )
             raise UpdateFailed("All appliance updates failed")
 

@@ -59,6 +59,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     coordinator.config_entry = entry
 
+    # Set up token refresh callback to persist new tokens
+    coordinator.setup_token_refresh_callback()
+
     # Authenticate
     if not await coordinator.async_login():
         # Create an issue to trigger reauth flow

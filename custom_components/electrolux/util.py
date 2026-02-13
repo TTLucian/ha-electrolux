@@ -4,13 +4,27 @@ import asyncio
 import base64
 import logging
 import re
-from typing import Any
+import time
+from typing import Any, Callable
 
+from electrolux_group_developer_sdk.auth.auth_data import (
+    AuthData,  # type: ignore[import-untyped]
+)
 from electrolux_group_developer_sdk.auth.token_manager import (
     TokenManager,  # type: ignore[import-untyped]
 )
 from electrolux_group_developer_sdk.client.appliance_client import (
     ApplianceClient,  # type: ignore[import-untyped]
+)
+from electrolux_group_developer_sdk.client.client_util import (
+    request,  # type: ignore[import-untyped]
+)
+from electrolux_group_developer_sdk.config import (
+    TOKEN_REFRESH_URL,  # type: ignore[import-untyped]
+)
+from electrolux_group_developer_sdk.constants import (  # type: ignore[import-untyped]
+    POST,
+    REFRESH_TOKEN,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -18,6 +32,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import issue_registry as issue_registry
 
 from .const import (
+    ACCESS_TOKEN_VALIDITY_SECONDS,
     CONF_NOTIFICATION_DEFAULT,
     CONF_NOTIFICATION_DIAG,
     CONF_NOTIFICATION_WARNING,
@@ -993,37 +1008,82 @@ class _TokenRefreshHandler(logging.Handler):
                         )
                     )
 
-                    # CRITICAL FIX: Trigger reauth flow
-                    def trigger_reauth():
-                        """Trigger the reauth flow for the integration."""
-                        try:
-                            entries = self._hass.config_entries.async_entries(DOMAIN)
-                            if entries:
-                                entry = entries[0]
-                                coordinator = self._hass.data.get(DOMAIN, {}).get(
-                                    entry.entry_id
-                                )
-                                if coordinator and hasattr(
-                                    coordinator, "async_set_update_error"
-                                ):
-                                    _LOGGER.warning(
-                                        "Token refresh failed, triggering reauth flow for entry %s",
-                                        entry.entry_id,
-                                    )
-                                    coordinator.async_set_update_error(
-                                        ConfigEntryAuthFailed(
-                                            "Refresh token expired - please reauthenticate"
-                                        )
-                                    )
-                        except Exception as ex:
-                            _LOGGER.exception("Failed to trigger reauth flow: %s", ex)
-
-                    # Schedule the reauth trigger
-                    self._hass.loop.call_soon_threadsafe(trigger_reauth)
+                    # Note: We create an issue that directs user to options, rather than triggering reauth flow
+                    # This avoids conflicts between issue-based and exception-based reauth triggering
                 except Exception:
                     _LOGGER.exception("Failed to schedule token refresh issue creation")
         except Exception:
             _LOGGER.exception("TokenRefreshHandler emit failed")
+
+
+class ElectroluxTokenManager(TokenManager):
+    """Custom token manager that captures token expiration information."""
+
+    def __init__(
+        self,
+        access_token: str,
+        refresh_token: str,
+        api_key: str,
+        on_token_update: Callable[[str, str, str], None] | None = None,
+    ):
+        """Initialize the custom token manager."""
+        super().__init__(
+            access_token, refresh_token, api_key, on_token_update=on_token_update
+        )
+        self._on_token_update_with_expiry: (
+            Callable[[str, str, str, int], None] | None
+        ) = None
+
+    def set_token_update_callback_with_expiry(
+        self, callback: Callable[[str, str, str, int], None]
+    ) -> None:
+        """Set callback that includes expiration timestamp."""
+        self._on_token_update_with_expiry = callback
+
+    async def refresh_token(self) -> bool:
+        """Refresh the access token and capture expiration information."""
+        auth_data = self._auth_data
+
+        if not auth_data or auth_data.refresh_token is None:
+            _LOGGER.error("Refresh token is missing")
+            raise Exception("Missing refresh token")
+
+        payload = {REFRESH_TOKEN: auth_data.refresh_token}
+
+        try:
+            data = await request(method=POST, url=TOKEN_REFRESH_URL, json_body=payload)
+
+            # Calculate expiration timestamp
+            expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
+            expires_at = int(time.time()) + expires_in
+
+            # Update with new tokens
+            self.update_with_expiry(
+                access_token=data["accessToken"],
+                refresh_token=data["refreshToken"],
+                api_key=auth_data.api_key,
+                expires_at=expires_at,
+            )
+
+            return True
+        except Exception as e:
+            _LOGGER.error("Error during token refresh: %s", e)
+            return False
+
+    def update_with_expiry(
+        self, access_token: str, refresh_token: str, api_key: str, expires_at: int
+    ) -> None:
+        """Update the authentication data with expiration information."""
+        # Call the enhanced callback if available
+        if self._on_token_update_with_expiry:
+            self._on_token_update_with_expiry(
+                access_token, refresh_token, api_key, expires_at
+            )
+        # Fall back to standard callback
+        elif self._on_token_update:
+            self._on_token_update(access_token, refresh_token, api_key)
+
+        self._auth_data = AuthData(access_token, refresh_token, api_key)
 
 
 class ElectroluxApiClient:
@@ -1039,7 +1099,9 @@ class ElectroluxApiClient:
         """Initialize the API client."""
         # Explicitly annotate hass as optional HomeAssistant
         self.hass: HomeAssistant | None = hass
-        self._token_manager = TokenManager(access_token, refresh_token, api_key)
+        self._token_manager = ElectroluxTokenManager(
+            access_token, refresh_token, api_key
+        )
         self._client = ApplianceClient(self._token_manager)
         self._token_handler = None  # Track handler
         self._token_logger = None  # Track logger
@@ -1055,6 +1117,14 @@ class ElectroluxApiClient:
                 self._token_logger.addHandler(self._token_handler)
             except Exception:
                 _LOGGER.exception("Failed to attach token refresh logger handler")
+
+    def set_token_update_callback(self, callback):
+        """Set the callback for token updates."""
+        self._token_manager._on_token_update = callback
+
+    def set_token_update_callback_with_expiry(self, callback):
+        """Set the callback for token updates with expiration information."""
+        self._token_manager.set_token_update_callback_with_expiry(callback)
 
     async def _report_token_refresh_error(self, message: str) -> None:
         """Create an HA issue when token refresh fails so user can re-authenticate."""
@@ -1266,6 +1336,34 @@ class ElectroluxApiClient:
                 )
             else:
                 self._sse_task = asyncio.create_task(self._client.start_event_stream())
+
+            # Add callback to handle task failures
+            def _handle_sse_failure(task):
+                if task.exception() is not None:
+                    _LOGGER.error(
+                        "SSE event stream failed for appliances %s: %s",
+                        ", ".join(appliance_ids),
+                        task.exception(),
+                    )
+                    # Mark appliances as offline by calling callback with disconnect state
+                    for appliance_id in appliance_ids:
+                        try:
+                            callback(
+                                {
+                                    "applianceId": appliance_id,
+                                    "property": "connectivityState",
+                                    "value": "disconnected",
+                                }
+                            )
+                        except Exception as ex:
+                            _LOGGER.error(
+                                "Failed to mark appliance %s offline after SSE failure: %s",
+                                appliance_id,
+                                ex,
+                            )
+
+            self._sse_task.add_done_callback(_handle_sse_failure)
+
             _LOGGER.debug(
                 "Started SSE event stream for %d appliances", len(appliance_ids)
             )

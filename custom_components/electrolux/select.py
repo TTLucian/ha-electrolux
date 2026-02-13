@@ -163,7 +163,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 option,
             )
             raise HomeAssistantError(
-                f"Appliance is not connected (current state: {connectivity_state}). "
+                f"Appliance is offline (current state: {connectivity_state}). "
                 "Please check that the appliance is plugged in and has network connectivity."
             )
 

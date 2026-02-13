@@ -27,6 +27,10 @@ CONF_NOTIFICATION_WARNING = "notifications_warning"
 CONF_API_KEY = "api_key"
 CONF_ACCESS_TOKEN = "access_token"
 CONF_REFRESH_TOKEN = "refresh_token"
+CONF_TOKEN_EXPIRES_AT = "token_expires_at"
+
+# Token validity
+ACCESS_TOKEN_VALIDITY_SECONDS = 43200  # 12 hours
 
 # Defaults
 DEFAULT_WEBSOCKET_RENEWAL_DELAY = (

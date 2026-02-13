@@ -130,7 +130,10 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
                 return result
             # Invalid, show form with errors
 
-        return await self._show_config_form(user_input, "reauth_validate")
+        # For reauth, populate defaults with current config entry values
+        entry = self._get_reauth_entry()
+        defaults = dict(entry.data) if user_input is None else user_input
+        return await self._show_config_form(defaults, "reauth_validate")
 
     @staticmethod
     @callback
@@ -224,8 +227,8 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         """Manage the options."""
         return await self.async_step_user()
 
-    def _get_options_schema(self) -> vol.Schema:
-        """Get the options schema with current values."""
+    async def _get_options_schema(self) -> vol.Schema:
+        """Get the options schema with current values, checking credential validity."""
         # Get current values from config entry data and options
         current_api_key = self._config_entry.data.get(CONF_API_KEY, "")
         current_access_token = self._config_entry.data.get(CONF_ACCESS_TOKEN, "")
@@ -237,6 +240,11 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
             CONF_NOTIFICATION_WARNING, False
         )
         current_notify_diag = self._config_entry.data.get(CONF_NOTIFICATION_DIAG, False)
+
+        # For security, never pre-fill access_token and refresh_token fields
+        # Users should generate new credentials from the portal
+        current_access_token = ""
+        current_refresh_token = ""
 
         return vol.Schema(
             {
@@ -348,11 +356,11 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
             # Invalid credentials, show form with errors
             return self.async_show_form(
                 step_id="user",
-                data_schema=self._get_options_schema(),
+                data_schema=await self._get_options_schema(),
                 errors={"base": "invalid_auth"},
             )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=self._get_options_schema(),
+            data_schema=await self._get_options_schema(),
         )

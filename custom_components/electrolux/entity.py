@@ -311,7 +311,7 @@ class ElectroluxEntity(CoordinatorEntity):
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.is_remote_control_enabled() and self.is_connected()
+        return self.is_remote_control_enabled()
 
     def is_connected(self) -> bool:
         """Check if the appliance is connected.

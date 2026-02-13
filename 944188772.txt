@@ -6,7 +6,7 @@ ID: 944188772_00:31862190-443E07363DAB
 Type: OV
 Model: 944188772
 Connection: connected
-Retrieved at: 2026-02-12T15:03:10.186378
+Retrieved at: 2026-02-13T13:09:52.512589
 
 RAW STATE DATA:
 {
@@ -34,7 +34,7 @@ RAW STATE DATA:
       "networkInterface": {
         "swVersion": "v3.0.0S_argo",
         "otaState": "IDLE",
-        "linkQualityIndicator": "VERY_GOOD",
+        "linkQualityIndicator": "GOOD",
         "niuSwUpdateCurrentDescription": "A23642201A-S00007645A",
         "swAncAndRevision": "S00007645A"
       },
@@ -45,12 +45,12 @@ RAW STATE DATA:
       "targetDuration": 0,
       "startTime": -1,
       "processPhase": "NONE",
-      "connectivityState": "connected",
+      "connectivityState": "disconnected",
       "displayTemperatureC": 30.0,
       "timeToEnd": -1,
-      "displayFoodProbeTemperatureC": 20.0,
+      "displayFoodProbeTemperatureC": 17.0,
       "displayTemperatureF": 86.0,
-      "displayFoodProbeTemperatureF": 68.0
+      "displayFoodProbeTemperatureF": 62.6
     }
   }
 }
