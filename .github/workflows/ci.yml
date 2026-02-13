@@ -54,12 +54,7 @@ jobs:
         run: |
           mypy custom_components/electrolux --ignore-missing-imports
 
-      # 8️⃣ Fix josepy compatibility issue
-      - name: Fix josepy compatibility
-        run: |
-          python fix_josepy.py
-
-      # 9️⃣ Run tests
+      # 8️⃣ Run tests
       - name: Run tests
         run: |
           pytest -v
