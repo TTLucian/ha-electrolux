@@ -267,7 +267,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Marketing model names (e.g., "BSE788380M") are not exposed by the API
 
 ### Debug Logging
-Enable debug logging for detailed troubleshooting:
+Enable debug logging in your configuration.yaml for detailed troubleshooting by adding this:
 ```yaml
 logger:
   logs:
