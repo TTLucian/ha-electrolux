@@ -56,6 +56,10 @@
     "invalid_refresh_token": {
       "title": "Electrolux authentication problem",
       "description": "The Electrolux integration failed to refresh API tokens: {message}. Please reauthenticate via the integration options to restore functionality."
+    },
+    "food_probe_not_supported": {
+      "title": "Food probe not supported by current program",
+      "description": "The food probe temperature setting is not supported by the current program '{program}' on {entry_title}. The temperature has been set to the minimum allowed value."
     }
   }
 }

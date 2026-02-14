@@ -267,7 +267,11 @@ class ElectroluxEntity(CoordinatorEntity):
     @property
     def reported_state(self) -> dict[str, Any]:
         """Return reported state of the appliance."""
-        if self.appliance_status is None or not isinstance(self.appliance_status, dict):
+        if (
+            not hasattr(self, "appliance_status")
+            or self.appliance_status is None
+            or not isinstance(self.appliance_status, dict)
+        ):
             return {}
 
         return self.appliance_status.get("properties", {}).get("reported", {})
@@ -310,7 +314,10 @@ class ElectroluxEntity(CoordinatorEntity):
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.is_remote_control_enabled()
+        # Must have appliance status to be available
+        if not hasattr(self, "appliance_status") or self.appliance_status is None:
+            return False
+        return self.is_connected()
 
     def is_connected(self) -> bool:
         """Check if the appliance is connected.
@@ -569,3 +576,147 @@ class ElectroluxEntity(CoordinatorEntity):
             await asyncio.sleep(wait_time)
 
         self._last_command_time = self.hass.loop.time()
+
+    def _is_supported_by_program(self) -> bool:
+        """Check if the entity is supported by the current program."""
+        if self.entity_attr in [
+            "program",
+            "userSelections/programUID",
+        ]:
+            return True
+        current_program = self.reported_state.get("program")
+        if not current_program:
+            return True  # If no program, assume supported
+
+        # Check if the appliance has program-specific capabilities
+        if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
+            return True
+
+        appliance_data = self.get_appliance.data
+        if not (
+            hasattr(appliance_data, "capabilities") and appliance_data.capabilities
+        ):
+            return True
+
+        program_caps = (
+            appliance_data.capabilities.get("program", {})
+            .get("values", {})
+            .get(current_program, {})
+        )
+
+        # If the entity is not in the program capabilities, it's not supported
+        if self.entity_attr not in program_caps:
+            # Special check for targetDuration: always available regardless of program
+            if self.entity_attr == "targetDuration":
+                return True
+            return False
+
+        # Start with the base disabled state from program capabilities
+        entity_cap = program_caps[self.entity_attr]
+        disabled = False
+        if isinstance(entity_cap, dict):
+            disabled = entity_cap.get("disabled", False)
+
+        # Process triggers that affect this entity
+        all_capabilities = appliance_data.capabilities
+        for cap_name, cap_def in all_capabilities.items():
+            if isinstance(cap_def, dict) and "triggers" in cap_def:
+                for trigger in cap_def["triggers"]:
+                    if isinstance(trigger, dict) and "action" in trigger:
+                        action = trigger["action"]
+                        # Check if this trigger affects our entity
+                        if self.entity_attr in action:
+                            # Check if the condition is met
+                            if self._evaluate_trigger_condition(
+                                trigger.get("condition", {}), cap_name
+                            ):
+                                # Apply the action
+                                entity_action = action[self.entity_attr]
+                                if (
+                                    isinstance(entity_action, dict)
+                                    and "disabled" in entity_action
+                                ):
+                                    disabled = entity_action["disabled"]
+                                    _LOGGER.debug(
+                                        "Trigger applied to %s: disabled=%s (trigger from %s)",
+                                        self.entity_attr,
+                                        disabled,
+                                        cap_name,
+                                    )
+
+        # If disabled by triggers or program settings, not supported
+        if disabled:
+            return False
+
+        # Special check for food probe temperature: only available if probe is inserted
+        if self.entity_attr == "targetFoodProbeTemperatureC":
+            food_probe_state = self.reported_state.get("foodProbeInsertionState")
+            if food_probe_state == "NOT_INSERTED":
+                return False
+
+        # targetDuration is always available regardless of program
+        if self.entity_attr == "targetDuration":
+            return True
+
+        return True
+
+    def _get_program_constraint(self, key: str) -> Any | None:
+        """Get a specific constraint (min/max/step) for the current program."""
+        current_program = self.reported_state.get("program")
+        if not current_program or not self.get_appliance.data:
+            return None
+        try:
+            return (
+                self.get_appliance.data.capabilities.get("program", {})
+                .get("values", {})
+                .get(current_program, {})
+                .get(self.entity_attr, {})
+                .get(key)
+            )
+        except (AttributeError, KeyError):
+            return None
+
+    def _evaluate_trigger_condition(
+        self, condition: dict, trigger_cap_name: str
+    ) -> bool:
+        """Evaluate a trigger condition."""
+        if not condition:
+            return True
+
+        operator = condition.get("operator", "eq")
+        operand1 = condition.get("operand_1")
+        operand2 = condition.get("operand_2")
+
+        # Handle nested operands
+        if isinstance(operand1, dict):
+            operand1 = self._evaluate_operand(operand1, trigger_cap_name)
+        if isinstance(operand2, dict):
+            operand2 = self._evaluate_operand(operand2, trigger_cap_name)
+
+        # Evaluate based on operator
+        if operator == "eq":
+            return operand1 == operand2
+        elif operator == "and":
+            return bool(operand1) and bool(operand2)
+        elif operator == "or":
+            return bool(operand1) or bool(operand2)
+
+        return False
+
+    def _evaluate_operand(self, operand: dict, trigger_cap_name: str) -> Any:
+        """Evaluate a trigger operand."""
+        if "operand_1" in operand and "operand_2" in operand:
+            # This is a nested condition
+            return self._evaluate_trigger_condition(operand, trigger_cap_name)
+        elif "operand_1" in operand:
+            # Reference to another capability
+            cap_name = operand["operand_1"]
+            if cap_name == "value":
+                # Special case: refers to the capability that has the trigger
+                return self.reported_state.get(trigger_cap_name)
+            else:
+                # Get the value from reported state
+                return self.reported_state.get(cap_name)
+        else:
+            # Literal value
+            return operand.get("value")

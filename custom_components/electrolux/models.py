@@ -552,6 +552,10 @@ class Appliances:
         """Initialize the class."""
         self.appliances = appliances
 
+    def __len__(self) -> int:
+        """Return the number of appliances."""
+        return len(self.appliances)
+
     def get_appliance(self, pnc_id: str) -> Appliance | None:
         """Return the appliance."""
         return self.appliances.get(pnc_id, None)

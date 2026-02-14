@@ -5,7 +5,7 @@ import base64
 import logging
 import re
 import time
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 
 from electrolux_group_developer_sdk.auth.auth_data import (
     AuthData,  # type: ignore[import-untyped]
@@ -41,6 +41,19 @@ from .const import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+# Common error pattern lists for reuse across functions
+REMOTE_CONTROL_ERROR_PHRASES = [
+    "remote control disabled",
+    "remote control not enabled",
+    "remote control is not enabled",
+    "remote control not active",
+    "remote control is not active",
+    "remote control off",
+    "rc disabled",
+    "rc not enabled",
+    "rc not active",
+]
 
 
 class CommandError(Exception):
@@ -86,14 +99,14 @@ class NetworkError(CommandError):
 
 
 def get_electrolux_session(
-    api_key, access_token, refresh_token, client_session, hass=None
+    api_key, access_token, refresh_token, client_session, hass=None, config_entry=None
 ) -> "ElectroluxApiClient":
     """Return Electrolux API Session.
 
     Note: client_session is currently unused by the underlying SDK but is kept
     for future compatibility when the SDK supports passing in a shared aiohttp session.
     """
-    return ElectroluxApiClient(api_key, access_token, refresh_token, hass)
+    return ElectroluxApiClient(api_key, access_token, refresh_token, hass, config_entry)
 
 
 def should_send_notification(config_entry, alert_severity, alert_status) -> bool:
@@ -475,7 +488,8 @@ def _parse_error_detail_for_user_message(
     if "type mismatch" in detail_lower:
         return "Integration Error: Formatting mismatch (Expected Boolean/String)."
 
-    if "remote control disabled" in detail_lower:
+    # Additional patterns for remote control issues
+    if any(phrase in detail_lower for phrase in REMOTE_CONTROL_ERROR_PHRASES):
         return "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
 
     if "temporary_locked" in detail_lower or "temporary lock" in detail_lower:
@@ -645,6 +659,19 @@ def map_command_error_to_home_assistant_error(
         if error_code and str(error_code).upper() in ERROR_CODE_MAPPING:
             user_message = ERROR_CODE_MAPPING[str(error_code).upper()]
 
+            # Special handling for COMMAND_VALIDATION_ERROR with remote control issues
+            if str(error_code).upper() == "COMMAND_VALIDATION_ERROR":
+                if error_data and isinstance(error_data, dict):
+                    detail = error_data.get("detail") or error_data.get("message", "")
+                    if detail and "remote control" in str(detail).lower():
+                        user_message = "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
+                        logger.warning(
+                            "Command failed for %s: %s (overridden to remote control disabled)",
+                            entity_attr,
+                            ex,
+                        )
+                        return HomeAssistantError(user_message)
+
             # Enhanced error code handling with detail parsing
             detail_message = None
             try:
@@ -714,6 +741,19 @@ def map_command_error_to_home_assistant_error(
 
             # Enhanced 406 error handling with detail parsing
             if status_code == 406:
+                # Special handling for 406 with remote control issues
+                if error_data and isinstance(error_data, dict):
+                    detail = error_data.get("detail") or error_data.get("message", "")
+                    if detail and "remote control" in str(detail).lower():
+                        user_message = "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
+                        logger.warning(
+                            "Command failed for %s: HTTP %d - %s (overridden to remote control disabled)",
+                            entity_attr,
+                            status_code,
+                            ex,
+                        )
+                        return HomeAssistantError(user_message)
+
                 detail_message = None
                 try:
                     # Try to extract detail from error response
@@ -748,17 +788,7 @@ def map_command_error_to_home_assistant_error(
     error_msg = str(ex).lower()
 
     # More comprehensive pattern matching
-    if any(
-        phrase in error_msg
-        for phrase in [
-            "remote control disabled",
-            "remote control is disabled",
-            "remote control not active",
-            "remote control off",
-            "rc disabled",
-            "rc not active",
-        ]
-    ):
+    if any(phrase in error_msg for phrase in REMOTE_CONTROL_ERROR_PHRASES):
         logger.warning(
             "Command failed for %s: remote control disabled - %s",
             entity_attr,
@@ -994,13 +1024,8 @@ class _TokenRefreshHandler(logging.Handler):
                 try:
                     # Schedule the async issue creation on the HA event loop
                     self._hass.loop.call_soon_threadsafe(
-                        lambda: asyncio.create_task(
-                            self._client._report_token_refresh_error(msg)
-                        )
+                        lambda: asyncio.create_task(self._client._trigger_reauth(msg))
                     )
-
-                    # Note: We create an issue that directs user to options, rather than triggering reauth flow
-                    # This avoids conflicts between issue-based and exception-based reauth triggering
                 except Exception:
                     _LOGGER.exception("Failed to schedule token refresh issue creation")
         except Exception:
@@ -1024,6 +1049,11 @@ class ElectroluxTokenManager(TokenManager):
         self._on_token_update_with_expiry: (
             Callable[[str, str, str, int], None] | None
         ) = None
+        self._on_auth_error: Callable[[str], Awaitable[None]] | None = None
+        self._refresh_lock = asyncio.Lock()
+        self._last_refresh_time = 0
+        self._expires_at = 0  # Store token expiration timestamp
+        self._last_failed_refresh = 0  # Track failed refresh attempts
 
     def set_token_update_callback_with_expiry(
         self, callback: Callable[[str, str, str, int], None]
@@ -1031,35 +1061,121 @@ class ElectroluxTokenManager(TokenManager):
         """Set callback that includes expiration timestamp."""
         self._on_token_update_with_expiry = callback
 
+    def set_auth_error_callback(
+        self, callback: Callable[[str], Awaitable[None]]
+    ) -> None:
+        """Set callback for authentication errors."""
+        self._on_auth_error = callback
+
     async def refresh_token(self) -> bool:
         """Refresh the access token and capture expiration information."""
-        auth_data = self._auth_data
+        current_time = int(time.time())
+        _LOGGER.debug(
+            f"TokenManager refresh_token: Starting token refresh process at {current_time}"
+        )
 
-        if not auth_data or auth_data.refresh_token is None:
-            _LOGGER.error("Refresh token is missing")
-            raise Exception("Missing refresh token")
+        # Pre-lock check: avoid acquiring lock if token is still fresh
+        if self._expires_at and (self._expires_at - current_time > 900):
+            remaining_seconds = self._expires_at - current_time
+            _LOGGER.debug(
+                f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
+            )
+            return True
 
-        payload = {REFRESH_TOKEN: auth_data.refresh_token}
+        _LOGGER.debug("TokenManager refresh_token: Acquiring refresh lock")
+        async with self._refresh_lock:
+            _LOGGER.debug("TokenManager refresh_token: Refresh lock acquired")
+            # Double-check inside lock: another task may have refreshed while we waited
+            current_time = int(time.time())
 
-        try:
-            data = await request(method=POST, url=TOKEN_REFRESH_URL, json_body=payload)
+            # Check retry cooldown: don't attempt refresh if we failed recently
+            if current_time - self._last_failed_refresh < 60:
+                cooldown_remaining = 60 - (current_time - self._last_failed_refresh)
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Refresh on cooldown, {cooldown_remaining}s remaining after last failure"
+                )
+                return False
 
-            # Calculate expiration timestamp
-            expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
-            expires_at = int(time.time()) + expires_in
+            # Freshness check: if token is still valid for >15 minutes, skip refresh
+            if self._expires_at and (
+                self._expires_at - current_time > 900
+            ):  # 15 minutes
+                remaining_seconds = self._expires_at - current_time
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
+                )
+                return True
 
-            # Update with new tokens
-            self.update_with_expiry(
-                access_token=data["accessToken"],
-                refresh_token=data["refreshToken"],
-                api_key=auth_data.api_key,
-                expires_at=expires_at,
+            _LOGGER.debug("TokenManager refresh_token: Preparing refresh request")
+            auth_data = self._auth_data
+
+            if not auth_data or auth_data.refresh_token is None:
+                _LOGGER.error("TokenManager refresh_token: Refresh token is missing")
+                raise Exception("Missing refresh token")
+
+            payload = {REFRESH_TOKEN: auth_data.refresh_token}
+            _LOGGER.debug(
+                f"TokenManager refresh_token: Sending refresh request to {TOKEN_REFRESH_URL}"
             )
 
-            return True
-        except Exception as e:
-            _LOGGER.error("Error during token refresh: %s", e)
-            return False
+            try:
+                _LOGGER.debug("TokenManager refresh_token: Making HTTP request")
+                data = await request(
+                    method=POST, url=TOKEN_REFRESH_URL, json_body=payload
+                )
+                _LOGGER.debug("TokenManager refresh_token: HTTP request successful")
+
+                # Calculate expiration timestamp
+                expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
+                expires_at = int(time.time()) + expires_in
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Token expires in {expires_in}s, expires_at: {expires_at}"
+                )
+
+                # Update with new tokens
+                _LOGGER.debug("TokenManager refresh_token: Updating token data")
+                self.update_with_expiry(
+                    access_token=data["accessToken"],
+                    refresh_token=data["refreshToken"],
+                    api_key=auth_data.api_key,
+                    expires_at=expires_at,
+                )
+
+                # Update last refresh timestamp
+                self._last_refresh_time = current_time
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Token refresh completed successfully at {current_time}"
+                )
+                return True
+
+            except Exception as e:
+                error_msg = str(e).lower()
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Exception during refresh: {e}"
+                )
+                # Check for permanent token errors (401/Invalid Grant)
+                if any(
+                    keyword in error_msg
+                    for keyword in ["401", "invalid grant", "forbidden"]
+                ):
+                    _LOGGER.error(
+                        f"TokenManager refresh_token: Permanent token error: {e}"
+                    )
+                    # Trigger reauthentication immediately
+                    if self._on_auth_error:
+                        _LOGGER.debug(
+                            "TokenManager refresh_token: Triggering auth error callback"
+                        )
+                        await self._on_auth_error(f"Token refresh failed: {e}")
+                    return False
+
+                # For other errors, set cooldown and return False
+                _LOGGER.error(f"TokenManager refresh_token: Token refresh failed: {e}")
+                self._last_failed_refresh = current_time
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Set failed refresh timestamp to {current_time}"
+                )
+                return False
 
     def update_with_expiry(
         self, access_token: str, refresh_token: str, api_key: str, expires_at: int
@@ -1075,6 +1191,7 @@ class ElectroluxTokenManager(TokenManager):
             self._on_token_update(access_token, refresh_token, api_key)
 
         self._auth_data = AuthData(access_token, refresh_token, api_key)
+        self._expires_at = expires_at  # Store expiration timestamp for freshness checks
 
 
 class ElectroluxApiClient:
@@ -1086,13 +1203,19 @@ class ElectroluxApiClient:
         access_token: str,
         refresh_token: str,
         hass: HomeAssistant | None = None,
+        config_entry: ConfigEntry | None = None,
     ):
         """Initialize the API client."""
         # Explicitly annotate hass as optional HomeAssistant
         self.hass: HomeAssistant | None = hass
+        self.config_entry: ConfigEntry | None = config_entry
+        self._auth_failed = False  # Flag to indicate auth failure
+        self.coordinator: Any = None  # Reference to coordinator for triggering refresh
         self._token_manager = ElectroluxTokenManager(
             access_token, refresh_token, api_key
         )
+        # Set auth error callback to trigger reauthentication
+        self._token_manager.set_auth_error_callback(self._trigger_reauth)
         self._client = ApplianceClient(self._token_manager)
         self._token_handler = None  # Track handler
         self._token_logger = None  # Track logger
@@ -1117,8 +1240,34 @@ class ElectroluxApiClient:
         """Set the callback for token updates with expiration information."""
         self._token_manager.set_token_update_callback_with_expiry(callback)
 
+    async def _trigger_reauth(self, message: str) -> None:
+        """Trigger reauthentication by setting flag, creating issue, and forcing refresh."""
+        _LOGGER.debug(f"_trigger_reauth: Triggering reauth due to: {message}")
+        self._auth_failed = True
+        _LOGGER.debug("_trigger_reauth: Set auth_failed flag to True")
+
+        _LOGGER.debug(
+            "_trigger_reauth: Reporting token refresh error to create HA issue"
+        )
+        await self._report_token_refresh_error(message)
+
+        # Force an immediate coordinator refresh to trigger reauth
+        if self.hass and self.coordinator:
+            _LOGGER.debug(
+                "_trigger_reauth: Forcing immediate coordinator refresh to trigger reauth"
+            )
+            self.hass.loop.call_soon_threadsafe(
+                lambda: asyncio.create_task(self.coordinator.async_refresh())
+            )
+            _LOGGER.debug("_trigger_reauth: Coordinator refresh task scheduled")
+        else:
+            _LOGGER.debug(
+                "_trigger_reauth: Cannot force refresh - hass or coordinator not available"
+            )
+
     async def _report_token_refresh_error(self, message: str) -> None:
         """Create an HA issue when token refresh fails so user can re-authenticate."""
+        _LOGGER.debug(f"_report_token_refresh_error: Called with message: {message}")
         # Avoid passing None to Home Assistant APIs
         if not self.hass:
             _LOGGER.warning(
@@ -1126,36 +1275,51 @@ class ElectroluxApiClient:
                 message,
             )
             return
+
         try:
+            _LOGGER.debug("_report_token_refresh_error: Finding config entries")
             # Find the config entry
             entries = self.hass.config_entries.async_entries(DOMAIN)
             if entries:
                 entry = entries[0]
                 issue_id = f"invalid_refresh_token_{entry.entry_id}"
+                _LOGGER.debug(
+                    f"_report_token_refresh_error: Using entry {entry.entry_id} for issue ID {issue_id}"
+                )
             else:
                 issue_id = "invalid_refresh_token"
+                _LOGGER.debug(
+                    "_report_token_refresh_error: No entries found, using generic issue ID"
+                )
 
             _LOGGER.warning("Token refresh failed: %s. Creating HA issue.", message)
+            _LOGGER.debug(
+                f"_report_token_refresh_error: Creating issue with ID {issue_id}"
+            )
             issue_registry.async_create_issue(
                 self.hass,
                 DOMAIN,
                 issue_id,
                 is_fixable=True,
                 is_persistent=True,
-                issue_domain=DOMAIN,
                 severity=issue_registry.IssueSeverity.CRITICAL,
                 translation_key="invalid_refresh_token",
                 translation_placeholders={"message": message},
             )
+            _LOGGER.debug("_report_token_refresh_error: HA issue created successfully")
         except Exception:
             _LOGGER.exception("Failed to create token refresh issue in Home Assistant")
 
     async def _handle_api_call(self, coro):
         """Wrap API calls to handle authentication errors."""
+        _LOGGER.debug("_handle_api_call: Starting API call wrapper")
         try:
-            return await coro
+            result = await coro
+            _LOGGER.debug("_handle_api_call: API call completed successfully")
+            return result
         except Exception as ex:
             error_msg = str(ex).lower()
+            _LOGGER.debug(f"_handle_api_call: Exception caught: {ex}")
             # Check for authentication-related errors
             if any(
                 keyword in error_msg
@@ -1169,14 +1333,19 @@ class ElectroluxApiClient:
             ):
                 # Trigger token refresh handler by logging the error
                 _LOGGER.error("API call failed with authentication error: %s", ex)
+                _LOGGER.debug(
+                    "_handle_api_call: Authentication error detected, raising ConfigEntryAuthFailed"
+                )
                 # Also raise so coordinator can handle it
                 from homeassistant.exceptions import ConfigEntryAuthFailed
 
                 raise ConfigEntryAuthFailed(
                     "Authentication failed - token may be expired"
                 ) from ex
-            # Re-raise other errors
-            raise
+            else:
+                _LOGGER.debug("_handle_api_call: Non-authentication error, re-raising")
+                # Re-raise other errors
+                raise
 
     async def get_appliances_list(self):
         """Get list of appliances."""
@@ -1341,22 +1510,36 @@ class ElectroluxApiClient:
                         ", ".join(appliance_ids),
                         task.exception(),
                     )
-                    # Mark appliances as offline by calling callback with disconnect state
-                    for appliance_id in appliance_ids:
-                        try:
-                            callback(
-                                {
-                                    "applianceId": appliance_id,
-                                    "property": "connectivityState",
-                                    "value": "disconnected",
-                                }
+                    # Check if it's an auth error and trigger reauth
+                    if self.hass and self.config_entry:
+                        error_msg = str(task.exception()).lower()
+                        auth_keywords = [
+                            "401",
+                            "unauthorized",
+                            "auth",
+                            "token",
+                            "invalid grant",
+                            "forbidden",
+                        ]
+                        if any(keyword in error_msg for keyword in auth_keywords):
+                            _LOGGER.debug(
+                                f"SSE auth error detected: {task.exception()}"
                             )
-                        except Exception as ex:
-                            _LOGGER.error(
-                                "Failed to mark appliance %s offline after SSE failure: %s",
-                                appliance_id,
-                                ex,
+                            self.hass.loop.call_soon_threadsafe(
+                                lambda: asyncio.create_task(
+                                    self._trigger_reauth(
+                                        f"SSE auth error: {task.exception()}"
+                                    )
+                                )
                             )
+                    # Note: We don't mark appliances as offline here because SSE failure
+                    # doesn't necessarily mean appliances are disconnected. Individual
+                    # appliance connectivity is tracked through data updates and timeouts.
+                    _LOGGER.warning(
+                        "SSE stream failed for appliances %s. "
+                        "Appliance connectivity will be determined by individual data updates.",
+                        ", ".join(appliance_ids),
+                    )
                 else:
                     _LOGGER.debug(
                         "SSE event stream ended unexpectedly for appliances %s (no exception)",

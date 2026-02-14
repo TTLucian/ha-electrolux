@@ -381,9 +381,10 @@ class TestElectroluxNumber:
     async def test_async_set_native_value_not_supported_by_program(self, number_entity):
         """Test setting value when not supported by program raises error."""
         number_entity._is_supported_by_program = MagicMock(return_value=False)
+        number_entity.entity_attr = "someControl"  # Not targetFoodProbeTemperatureC
 
         with pytest.raises(
-            HomeAssistantError, match="not supported by the current program"
+            HomeAssistantError, match="not supported by current program"
         ):
             await number_entity.async_set_native_value(50.0)
 
@@ -391,7 +392,7 @@ class TestElectroluxNumber:
     async def test_async_set_native_value_target_temperature_not_supported_by_program(
         self, mock_coordinator
     ):
-        """Test setting target temperature when not supported by program raises error."""
+        """Test setting target temperature when not supported by program shows notification and doesn't proceed."""
         capability = {"access": "readwrite", "type": "temperature"}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -413,14 +414,13 @@ class TestElectroluxNumber:
         entity._is_supported_by_program = MagicMock(return_value=False)
 
         with pytest.raises(
-            HomeAssistantError,
-            match="Target temperature is not supported by the current program",
+            HomeAssistantError, match="Target temperature control not supported"
         ):
             await entity.async_set_native_value(180.0)
 
     @pytest.mark.asyncio
     async def test_async_set_native_value_food_probe_temperature_not_supported_by_program(
-        self, mock_coordinator
+        self, mock_coordinator, caplog
     ):
         """Test setting food probe temperature when not supported by program raises error."""
         capability = {"access": "readwrite", "type": "temperature"}
@@ -440,21 +440,31 @@ class TestElectroluxNumber:
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
-        entity.reported_state = {
-            "program": "unsupported_program",
-            "foodProbeInsertionState": "INSERTED",
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "program": "unsupported_program",
+                    "foodProbeInsertionState": "INSERTED",
+                    "remoteControl": "ENABLED",
+                }
+            }
         }
         entity._is_supported_by_program = MagicMock(return_value=False)
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(
+            return_value={"result": "success"}
+        )
+        entity._rate_limit_command = AsyncMock()
 
-        with pytest.raises(
-            HomeAssistantError,
-            match="Target food probe temperature is not supported by the current program",
-        ):
-            await entity.async_set_native_value(70.0)
-
-    @pytest.mark.asyncio
-    async def test_async_set_native_value_time_conversion(self, mock_coordinator):
-        """Test that time values are converted from minutes to seconds when setting."""
+        # Mock _get_converted_constraint to return 30.0 for min
+        with patch.object(entity, "_get_converted_constraint", return_value=30.0):
+            # Mock async_write_ha_state to avoid entity setup issues
+            with patch.object(entity, "async_write_ha_state"):
+                with pytest.raises(
+                    HomeAssistantError,
+                    match="Target food probe temperature not supported",
+                ):
+                    await entity.async_set_native_value(70.0)
         capability = {"access": "readwrite", "type": "number", "max": 7200, "step": 60}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -504,10 +514,12 @@ class TestElectroluxNumber:
         number_entity._is_supported_by_program = MagicMock(return_value=True)
         assert number_entity.available
 
-    def test_available_property_not_supported_by_program(self, number_entity):
-        """Test that entity is unavailable when not supported by program."""
+    def test_available_property_always_available_regardless_of_program_support(
+        self, number_entity
+    ):
+        """Test that entities are always available regardless of program support (Entity Availability Rules)."""
         number_entity._is_supported_by_program = MagicMock(return_value=False)
-        assert not number_entity.available
+        assert number_entity.available  # Should remain available
 
     def test_available_property_target_temperature_supported_by_program(
         self, mock_coordinator
@@ -539,7 +551,7 @@ class TestElectroluxNumber:
     def test_available_property_target_temperature_not_supported_by_program(
         self, mock_coordinator
     ):
-        """Test that target temperature is unavailable when not supported by program."""
+        """Test that target temperature is always available (shows 0 when not supported by program)."""
         capability = {"access": "readwrite", "type": "temperature"}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -561,7 +573,8 @@ class TestElectroluxNumber:
             "properties": {"reported": {"remoteControl": "ENABLED"}}
         }
         entity._is_supported_by_program = MagicMock(return_value=False)
-        assert not entity.available
+        # targetTemperatureC is now always available regardless of program support
+        assert entity.available
 
     def test_available_property_food_probe_temperature_supported_by_program(
         self, mock_coordinator
@@ -593,7 +606,7 @@ class TestElectroluxNumber:
     def test_available_property_food_probe_temperature_not_supported_by_program(
         self, mock_coordinator
     ):
-        """Test that food probe temperature is unavailable when not supported by program."""
+        """Test that food probe temperature is always available (shows 0 when not supported by program)."""
         capability = {"access": "readwrite", "type": "temperature"}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -614,5 +627,5 @@ class TestElectroluxNumber:
         entity.appliance_status = {
             "properties": {"reported": {"remoteControl": "ENABLED"}}
         }
-        entity._is_supported_by_program = MagicMock(return_value=False)
-        assert not entity.available
+        # targetFoodProbeTemperatureC is now always available regardless of program support
+        assert entity.available

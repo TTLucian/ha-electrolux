@@ -26,7 +26,7 @@ async def test_report_token_refresh_creates_issue(monkeypatch):
     # Mock config_entries to return empty list so issue_id doesn't include entry_id
     hass.config_entries.async_entries.return_value = []
 
-    client = ElectroluxApiClient("api", "access", "refresh", hass)
+    client = ElectroluxApiClient("api", "access", "refresh", hass, config_entry=None)
 
     await client._report_token_refresh_error("Refresh token is invalid.")
 
@@ -57,7 +57,9 @@ async def test_report_token_refresh_no_hass_does_not_create_issue(monkeypatch):
 
     from custom_components.electrolux.util import ElectroluxApiClient
 
-    client = ElectroluxApiClient("api", "access", "refresh", hass=None)
+    client = ElectroluxApiClient(
+        "api", "access", "refresh", hass=None, config_entry=None
+    )
 
     await client._report_token_refresh_error("No HA available")
 

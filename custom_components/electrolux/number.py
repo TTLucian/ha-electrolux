@@ -1,7 +1,6 @@
 """Number platform for Electrolux."""
 
 import logging
-from typing import Any
 
 from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
@@ -115,27 +114,31 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # Special handling for targetFoodProbeTemperatureC
         if self.entity_attr == "targetFoodProbeTemperatureC":
-            # Only return 0 if no valid value is reported and food probe is not inserted
-            if not value or value == 0:
-                food_probe_state = self.reported_state.get("foodProbeInsertionState")
-                if food_probe_state == "NOT_INSERTED":
-                    return 0.0
-            # Return 0 if not supported by current program and no valid value reported
-            if not value and not self._is_supported_by_program():
+            # Return 0 if food probe is not inserted
+            food_probe_state = self.reported_state.get("foodProbeInsertionState")
+            if food_probe_state == "NOT_INSERTED":
                 return 0.0
+            # Return min value if not supported by current program
+            if not self._is_supported_by_program():
+                min_val = self.native_min_value
+                return min_val if min_val is not None else 0.0
 
         # Special handling for targetTemperatureC
         if self.entity_attr == "targetTemperatureC":
-            # Return 0 if not supported by current program and no valid value reported
+            # Return minimum value if not supported by current program and no valid value reported
             if not value and not self._is_supported_by_program():
-                return 0.0
+                min_val = self.native_min_value
+                return min_val if min_val is not None else 0.0
 
-        # For non-global entities, return None if not supported by current program
+        # For non-global entities, return minimum value if not supported by current program
         if (
-            self.entity_attr not in ["targetDuration", "startTime"]
+            self.entity_attr
+            not in ["targetDuration", "startTime", "targetFoodProbeTemperatureC"]
             and not self._is_supported_by_program()
         ):
-            return None
+            # Return minimum value when not supported by program
+            min_val = self.native_min_value
+            return min_val if min_val is not None else 0.0
 
         if self.entity_attr == "startTime" and value == -1:
             return None
@@ -152,6 +155,8 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     _LOGGER.debug(
                         "Using program default for %s: %s", self.entity_attr, value
                     )
+                elif self.entity_attr == "targetTemperatureC":
+                    value = self.capability.get("default", 0.0)
             # Fall back to base capability default
             if value is None:
                 value = self.capability.get("default", None)
@@ -244,6 +249,14 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # 2. Fallback to API/Program logic
         val = self._get_program_constraint(key) or self.capability.get(key)
 
+        # For
+        # C and targetFoodProbeTemperatureC, use 0.0 as last resort if no API values
+        if (
+            self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]
+            and val is None
+        ):
+            val = 0.0
+
         # 3. Convert only if coming from API (seconds) and entity is time-based
         if self.unit == UnitOfTime.SECONDS and val is not None:
             converted_val = time_seconds_to_minutes(val) or 0
@@ -283,7 +296,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     "Food probe must be inserted to set target temperature."
                 )
 
-            # Check if not supported by current program - show meaningful error
+            # Check if not supported by current program - prevent modification
             if not self._is_supported_by_program():
                 _LOGGER.warning(
                     "Cannot set %s for appliance %s: not supported by current program",
@@ -291,23 +304,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     self.pnc_id,
                 )
                 raise HomeAssistantError(
-                    f"Target food probe temperature is not supported by the current program '{self.reported_state.get('program', 'unknown')}'"
+                    f"Target food probe temperature control not supported by current program '{self.reported_state.get('program', 'unknown')}'"
                 )
 
-        # Special handling for targetTemperatureC
-        if self.entity_attr == "targetTemperatureC":
-            # Check if not supported by current program - show meaningful error
-            if not self._is_supported_by_program():
-                _LOGGER.warning(
-                    "Cannot set %s for appliance %s: not supported by current program",
-                    self.entity_attr,
-                    self.pnc_id,
-                )
-                raise HomeAssistantError(
-                    f"Target temperature is not supported by the current program '{self.reported_state.get('program', 'unknown')}'"
-                )
-
-        # Prevent setting values for other unsupported programs
+        # Prevent setting values for unsupported programs
         if not self._is_supported_by_program():
             _LOGGER.warning(
                 "Cannot set %s for appliance %s: not supported by current program",
@@ -315,7 +315,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 self.pnc_id,
             )
             raise HomeAssistantError(
-                f"Control '{self.entity_attr}' is not supported by the current program"
+                f"Control '{self.entity_attr}' not supported by current program '{self.reported_state.get('program', 'unknown')}'"
             )
 
         # ADD RANGE VALIDATION HERE
@@ -388,7 +388,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 remote_control,
             )
             raise HomeAssistantError(
-                f"Remote control disabled (status: {remote_control})"
+                f"Remote control is disabled (status: {remote_control})"
             )
 
         # Convert UI minutes back to seconds for time entities
@@ -549,168 +549,15 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if not super().available:
             return False
 
-        # Check program support for temperature controls
-        if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]:
-            return self._is_supported_by_program()
-
-        if not self._is_supported_by_program():
-            return False
-
-        # If the appliance says step is 0, the control is fixed/unavailable
-        if self._get_program_constraint("step") == 0:
-            return False
-
+        # All number entities must remain available regardless of program support
+        # to prevent UI rendering issues (per Entity Availability Rules)
         return True
-
-    def _is_supported_by_program(self) -> bool:
-        """Check if the entity is supported by the current program."""
-        # Global entities are always supported by the appliance regardless of program
-        if self.entity_attr in [
-            "targetDuration",
-            "startTime",
-            "targetTemperature",
-            "targetTemperatureC",
-        ]:
-            return True
-        current_program = self.reported_state.get("program")
-        if not current_program:
-            return True  # If no program, assume supported
-
-        # Check if the appliance has program-specific capabilities
-        if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
-            return True
-
-        appliance_data = self.get_appliance.data
-        if not (
-            hasattr(appliance_data, "capabilities") and appliance_data.capabilities
-        ):
-            return True
-
-        program_caps = (
-            appliance_data.capabilities.get("program", {})
-            .get("values", {})
-            .get(current_program, {})
-        )
-
-        # If the entity is not in the program capabilities, it's not supported
-        if self.entity_attr not in program_caps:
-            # Special check for targetDuration: always available regardless of program
-            if self.entity_attr == "targetDuration":
-                return True
-            return False
-
-        # Start with the base disabled state from program capabilities
-        entity_cap = program_caps[self.entity_attr]
-        disabled = False
-        if isinstance(entity_cap, dict):
-            disabled = entity_cap.get("disabled", False)
-
-        # Process triggers that affect this entity
-        all_capabilities = appliance_data.capabilities
-        for cap_name, cap_def in all_capabilities.items():
-            if isinstance(cap_def, dict) and "triggers" in cap_def:
-                for trigger in cap_def["triggers"]:
-                    if isinstance(trigger, dict) and "action" in trigger:
-                        action = trigger["action"]
-                        # Check if this trigger affects our entity
-                        if self.entity_attr in action:
-                            # Check if the condition is met
-                            if self._evaluate_trigger_condition(
-                                trigger.get("condition", {}), cap_name
-                            ):
-                                # Apply the action
-                                entity_action = action[self.entity_attr]
-                                if (
-                                    isinstance(entity_action, dict)
-                                    and "disabled" in entity_action
-                                ):
-                                    disabled = entity_action["disabled"]
-                                    _LOGGER.debug(
-                                        "Trigger applied to %s: disabled=%s (trigger from %s)",
-                                        self.entity_attr,
-                                        disabled,
-                                        cap_name,
-                                    )
-
-        # If disabled by triggers or program settings, not supported
-        if disabled:
-            return False
-
-        # Special check for food probe temperature: only available if probe is inserted
-        if self.entity_attr == "targetFoodProbeTemperatureC":
-            food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
-                return False
-
-        # targetDuration is always available regardless of program
-        if self.entity_attr == "targetDuration":
-            return True
-
-        return True
-
-    def _get_program_constraint(self, key: str) -> Any | None:
-        """Get a specific constraint (min/max/step) for the current program."""
-        current_program = self.reported_state.get("program")
-        if not current_program or not self.get_appliance.data:
-            return None
-        try:
-            return (
-                self.get_appliance.data.capabilities.get("program", {})
-                .get("values", {})
-                .get(current_program, {})
-                .get(self.entity_attr, {})
-                .get(key)
-            )
-        except (AttributeError, KeyError):
-            return None
-
-    def _evaluate_trigger_condition(
-        self, condition: dict, trigger_cap_name: str
-    ) -> bool:
-        """Evaluate a trigger condition."""
-        if not condition:
-            return True
-
-        operator = condition.get("operator", "eq")
-        operand1 = condition.get("operand_1")
-        operand2 = condition.get("operand_2")
-
-        # Handle nested operands
-        if isinstance(operand1, dict):
-            operand1 = self._evaluate_operand(operand1, trigger_cap_name)
-        if isinstance(operand2, dict):
-            operand2 = self._evaluate_operand(operand2, trigger_cap_name)
-
-        # Evaluate based on operator
-        if operator == "eq":
-            return operand1 == operand2
-        elif operator == "and":
-            return bool(operand1) and bool(operand2)
-        elif operator == "or":
-            return bool(operand1) or bool(operand2)
-
-        return False
-
-    def _evaluate_operand(self, operand: dict, trigger_cap_name: str) -> Any:
-        """Evaluate a trigger operand."""
-        if "operand_1" in operand and "operand_2" in operand:
-            # This is a nested condition
-            return self._evaluate_trigger_condition(operand, trigger_cap_name)
-        elif "operand_1" in operand:
-            # Reference to another capability
-            cap_name = operand["operand_1"]
-            if cap_name == "value":
-                # Special case: refers to the capability that has the trigger
-                return self.reported_state.get(trigger_cap_name)
-            else:
-                # Get the value from reported state
-                return self.reported_state.get(cap_name)
-        else:
-            # Literal value
-            return operand.get("value")
 
     @property
     def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added to the entity registry."""
+        # Always enable entities by default - availability is controlled by the available property
+        return True
         """Return if the entity should be enabled when first added to the entity registry."""
         # Always enable entities by default - availability is controlled by the available property
         return True

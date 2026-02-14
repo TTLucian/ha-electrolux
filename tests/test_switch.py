@@ -272,9 +272,12 @@ class TestElectroluxSwitch:
             assert len(command) == 1  # Only the attribute, no wrapper
 
     def test_available_property_remote_control_disabled(self, switch_entity):
-        """Test availability when remote control is disabled."""
+        """Test availability when remote control is disabled (but connected)."""
+        switch_entity.is_connected = MagicMock(return_value=True)
         switch_entity.is_remote_control_enabled = MagicMock(return_value=False)
-        assert not switch_entity.available
+        assert (
+            switch_entity.available
+        )  # Should be available even with remote control disabled
 
     def test_available_property_remote_control_enabled(self, switch_entity):
         """Test availability when remote control is enabled."""

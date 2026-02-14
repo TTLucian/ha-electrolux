@@ -171,4 +171,18 @@ CATALOG_BASE: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:lan-connect",
         friendly_name="Connectivity State",
     ),
+    "manualSync": ElectroluxDevice(
+        capability_info={
+            "access": "write",
+            "type": "string",
+            "values": {
+                "SYNC": {},
+            },
+        },
+        device_class=None,  # Will be handled as button in entity creation
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:sync",
+        friendly_name="Manual Sync",
+    ),
 }

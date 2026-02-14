@@ -101,6 +101,15 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         """Entity domain for the entry. Used for consistent entity_id."""
         return SELECT
 
+    @property
+    def available(self) -> bool:
+        """Check if the entity is available."""
+        if not super().available:
+            return False
+
+        # All select entities are always available regardless of program support
+        return True
+
     def format_label(self, value: str | None) -> str | None:
         """Convert input to label string value."""
         if value is None:
@@ -116,6 +125,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
     @property
     def current_option(self) -> str:
         """Return the current option."""
+        # If not supported by current program, show no selection
+        if not self._is_supported_by_program():
+            return ""
+
         value = self.extract_value()
 
         if value is None:
@@ -153,6 +166,17 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
+        # Check if supported by current program
+        if not self._is_supported_by_program():
+            _LOGGER.warning(
+                "Cannot select option %s for appliance %s: not supported by current program",
+                option,
+                self.pnc_id,
+            )
+            raise HomeAssistantError(
+                f"Cannot change '{self.entity_attr}': not supported by current program '{self.reported_state.get('program', 'unknown')}'"
+            )
+
         # Check if appliance is connected before sending command
         if not self.is_connected():
             connectivity_state = self.reported_state.get("connectivityState", "unknown")
@@ -186,7 +210,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 remote_control,
             )
             raise HomeAssistantError(
-                f"Remote control disabled (status: {remote_control})"
+                f"Remote control is disabled (status: {remote_control})"
             )
 
         value: Any = self.options_list.get(option, None)
@@ -307,5 +331,21 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
     @property
     def options(self) -> list[str]:
-        """Return a set of selectable options."""
-        return list(self.options_list.keys())
+        """Return a set of selectable options filtered by program constraints."""
+        # Start with all available options
+        all_options = list(self.options_list.keys())
+
+        # Check for program-specific value constraints
+        program_values = self._get_program_constraint("values")
+        if program_values is not None:
+            if isinstance(program_values, list):
+                # Filter options to only include those allowed by the program
+                allowed_values = set(str(v) for v in program_values)
+                filtered_options = []
+                for label, value in self.options_list.items():
+                    if str(value) in allowed_values:
+                        filtered_options.append(label)
+                return filtered_options
+
+        # No program constraints, return all options
+        return all_options

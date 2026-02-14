@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import (
     ConfigEntryAuthFailed,
     ConfigEntryNotReady,
+    HomeAssistantError,
 )
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -58,7 +59,6 @@ TASK_CANCEL_TIMEOUT = 2.0  # seconds for task cancellation timeouts
 WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
-APPLIANCE_OFFLINE_TIMEOUT = 900  # 15 minutes - mark appliance offline if no updates
 
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
@@ -106,16 +106,25 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.platforms: list[str] = []
         self.renew_task: Optional[asyncio.Task] = None
         self.listen_task: Optional[asyncio.Task] = None
+        self.token_refresh_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
         self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
             {}
         )  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
+        self._manual_sync_lock = (
+            asyncio.Lock()
+        )  # Prevent concurrent manual sync operations
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
         self._last_update_times: dict[str, float] = (
             {}
         )  # Track last update time per appliance
+        self._last_known_connectivity: dict[str, str] = (
+            {}
+        )  # Track previous connectivity state per appliance
+        self._last_sse_restart_time = 0  # Track when we last restarted SSE
+        self._last_manual_sync_time = 0  # Track when we last performed manual sync
 
         super().__init__(
             hass,
@@ -128,44 +137,67 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def async_login(self) -> bool:
         """Authenticate with the service."""
+        _LOGGER.debug("Electrolux async_login: Starting authentication test")
         try:
             # Test authentication by fetching appliances
+            _LOGGER.debug(
+                "Electrolux async_login: Testing authentication with appliances list fetch"
+            )
             await self.api.get_appliances_list()
             _LOGGER.info("Electrolux logged in successfully")
+            _LOGGER.debug("Electrolux async_login: Authentication test passed")
             return True
         except AuthenticationError as ex:
             _LOGGER.error(f"Electrolux authentication failed: {ex}")
+            _LOGGER.debug(f"Electrolux async_login: AuthenticationError caught: {ex}")
             raise ConfigEntryAuthFailed("Invalid credentials") from ex
         except NetworkError as ex:
             _LOGGER.error(f"Network error during login: {ex}")
+            _LOGGER.debug(f"Electrolux async_login: NetworkError caught: {ex}")
             raise ConfigEntryNotReady from ex
         except Exception as ex:
             # Catch-all for unexpected errors
             _LOGGER.exception(f"Unexpected error during login: {ex}")
+            _LOGGER.debug(f"Electrolux async_login: Unexpected exception caught: {ex}")
             raise ConfigEntryNotReady from ex
 
     def setup_token_refresh_callback(self) -> None:
         """Set up the token refresh callback to update config entry with new tokens."""
+        _LOGGER.debug("Setting up token refresh callback")
         if not hasattr(self, "config_entry") or self.config_entry is None:
+            _LOGGER.debug(
+                "setup_token_refresh_callback: No config_entry available, skipping callback setup"
+            )
             return
 
         # Capture config_entry in local variable to satisfy mypy
         config_entry = self.config_entry
+        _LOGGER.debug(
+            f"setup_token_refresh_callback: Setting up callback for config entry {config_entry.entry_id}"
+        )
 
         def on_token_update(
             access_token: str, refresh_token: str, api_key: str, expires_at: int
         ) -> None:
             """Callback to update config entry with refreshed tokens and expiration."""
-            _LOGGER.info(
+            _LOGGER.debug(
                 f"Tokens refreshed, updating config entry (expires at {expires_at})"
+            )
+            _LOGGER.debug(
+                f"on_token_update: Received new tokens - access_token length: {len(access_token)}, refresh_token length: {len(refresh_token)}"
             )
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
             new_data["token_expires_at"] = expires_at
+            _LOGGER.debug("on_token_update: Updating config entry with new token data")
             self.hass.config_entries.async_update_entry(config_entry, data=new_data)
+            _LOGGER.debug("on_token_update: Config entry updated successfully")
 
         self.api.set_token_update_callback_with_expiry(on_token_update)
+        _LOGGER.debug(
+            "setup_token_refresh_callback: Token update callback registered with API client"
+        )
 
     async def handle_authentication_error(self, exception: Exception) -> None:
         """Handle authentication errors by raising ConfigEntryAuthFailed.
@@ -173,6 +205,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         This method should be called when authentication errors are detected
         during command execution or other API calls outside the normal update cycle.
         """
+        _LOGGER.debug(f"Handling authentication error: {exception}")
         error_msg = str(exception).lower()
         if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
             _LOGGER.warning(f"Authentication failed during operation: {exception}")
@@ -299,6 +332,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if appliance.state.get("connectivityState") == "disconnected":
                 _LOGGER.info(f"Device {appliance_id} is back online")
             appliance.state["connectivityState"] = "connected"
+
+        # Update last seen time for this appliance (real-time updates via SSE)
+        self._last_update_times[appliance_id] = self.hass.loop.time()
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         self._check_deferred_update(data, appliance_id)
@@ -453,9 +489,71 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
+            # Start background token refresh task
+            if not self.token_refresh_task:
+                self.token_refresh_task = self.hass.async_create_task(
+                    self._token_refresh_loop(), name="Electrolux token refresh"
+                )
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
+
+    async def _token_refresh_loop(self):
+        """Background task to refresh tokens every hour."""
+        _LOGGER.debug("Starting background token refresh task")
+        refresh_count = 0
+        while True:
+            _LOGGER.debug(
+                f"Token refresh loop: Sleeping for 3600 seconds (iteration #{refresh_count + 1})"
+            )
+            await asyncio.sleep(3600)  # 1 hour
+            refresh_count += 1
+            _LOGGER.debug(
+                f"Performing hourly token refresh check (iteration #{refresh_count})"
+            )
+            try:
+                # Trigger token refresh by making a light API call
+                _LOGGER.debug(
+                    "Token refresh loop: Making API call to trigger token refresh"
+                )
+                await self.api.get_appliances_list()
+                _LOGGER.debug("Hourly token refresh check completed successfully")
+            except Exception as ex:
+                error_msg = str(ex).lower()
+                _LOGGER.debug(f"Token refresh loop: Exception caught: {ex}")
+                if "too frequent" in error_msg or "cas_3404" in error_msg:
+                    _LOGGER.debug("Token refresh too frequent, waiting another hour")
+                    await asyncio.sleep(3600)  # Wait another hour
+                else:
+                    _LOGGER.error(f"Error during token refresh check: {ex}")
+                    # Check for permanent token errors that require reauthentication
+                    permanent_token_error_indicators = [
+                        "refresh token is invalid",
+                        "invalid grant",
+                        "invalid refresh token",
+                        "refresh token expired",
+                        "401",
+                        "unauthorized",
+                        "forbidden",
+                    ]
+                    is_permanent_token_error = any(
+                        indicator in error_msg
+                        for indicator in permanent_token_error_indicators
+                    )
+
+                    if is_permanent_token_error:
+                        _LOGGER.debug(
+                            "Token refresh loop: Permanent token error detected, triggering reauth"
+                        )
+                        try:
+                            await self.api._trigger_reauth(
+                                f"Background token refresh failed: {ex}"
+                            )
+                        except Exception as reauth_ex:
+                            _LOGGER.error(
+                                f"Failed to trigger reauth from token refresh loop: {reauth_ex}"
+                            )
+                    # Non-permanent errors (network issues, temporary failures) will be retried on next iteration
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -536,6 +634,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await asyncio.gather(*appliance_tasks, return_exceptions=True)
 
         self._deferred_tasks_by_appliance.clear()
+
+        # Cancel token refresh task
+        if self.token_refresh_task and not self.token_refresh_task.done():
+            self.token_refresh_task.cancel()
 
         # Close API connection - util.py handles SSE stream cleanup
         try:
@@ -730,6 +832,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data for all appliances concurrently."""
+        # Check if auth has failed and trigger reauth
+        if hasattr(self.api, "_auth_failed") and self.api._auth_failed:
+            _LOGGER.debug("Auth failure detected, triggering reauth")
+            raise ConfigEntryAuthFailed("Authentication failed - please reauthenticate")
+
         if self.data is None:
             _LOGGER.warning("Coordinator data not initialized, skipping update")
             return {"appliances": Appliances({})}
@@ -739,20 +846,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if not app_dict:
             return self.data
 
-        async def _update_single(app_id: str, app_obj) -> bool:
+        async def _update_single(app_id: str, app_obj) -> tuple[bool, bool]:
+            """Returns (success, came_online) tuple."""
             try:
                 # Use a strict timeout for the background refresh
                 status = await asyncio.wait_for(
                     self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT
                 )
                 app_obj.update(status)
+
+                # Track connectivity transitions for SSE restart logic
+                old_state = self._last_known_connectivity.get(app_id)
+                new_state = status.get(
+                    "connectivityState", "connected"
+                )  # Default to connected if not specified
+
+                # Check if this appliance just came online
+                came_online = old_state == "disconnected" and new_state == "connected"
+
                 # Mark as connected since we successfully got state from API
-                if app_obj.state.get("connectivityState") == "disconnected":
-                    _LOGGER.info(f"Device {app_id} is back online (API update)")
-                app_obj.state["connectivityState"] = "connected"
+                app_obj.state["connectivityState"] = new_state
+
+                # Update our memory for next check
+                self._last_known_connectivity[app_id] = new_state
+
                 # Update last seen time for successful updates
                 self._last_update_times[app_id] = self.hass.loop.time()
-                return True  # Success
+                return True, came_online  # Success + transition info
             except asyncio.CancelledError:
                 raise
             except Exception as ex:
@@ -775,7 +895,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         DOMAIN,
                         f"invalid_refresh_token_{entry_id}",
                         is_fixable=True,
-                        issue_domain=DOMAIN,
                         severity=issue_registry.IssueSeverity.ERROR,
                         translation_key="invalid_refresh_token",
                         translation_placeholders={"entry_title": entry_title},
@@ -783,7 +902,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     raise ConfigEntryAuthFailed("Token expired or invalid") from ex
                 # For other errors, just log and return failure
                 _LOGGER.warning(f"Failed to update {app_id} during refresh: {ex}")
-                return False  # Failure
+                return False, False  # Failure + no transition
 
         # Run all updates concurrently
         results = await asyncio.gather(
@@ -793,27 +912,53 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         # Process results
         successful = 0
+        newly_online_appliances = []
         other_errors = []
 
         _LOGGER.debug(f"Update results: {results}")
 
-        for result in results:
-            if result is True:
-                successful += 1
+        for i, result in enumerate(results):
+            app_id = list(app_dict.keys())[i]  # Get appliance ID for this result
+            if isinstance(result, tuple) and len(result) == 2:
+                success, came_online = result
+                if success:
+                    successful += 1
+                    if came_online:
+                        newly_online_appliances.append(app_id)
+                        _LOGGER.info(f"Appliance {app_id} came back online!")
+                else:
+                    other_errors.append(f"{app_id}: Update failed")
             elif isinstance(result, ConfigEntryAuthFailed):
                 # Re-raise auth errors immediately to trigger re-auth flow
                 raise result
             elif isinstance(result, Exception):
                 # Capture the actual exception message
-                other_errors.append(f"{type(result).__name__}: {str(result)}")
-            elif result is False:
-                # Handle cases where _update_single returned False without an exception
-                other_errors.append(
-                    "Appliance update returned False (Check connectivity)"
-                )
+                other_errors.append(f"{app_id}: {type(result).__name__}: {str(result)}")
             else:
                 # Fallback for unexpected result types
-                other_errors.append(f"Unexpected result: {result}")
+                other_errors.append(f"{app_id}: Unexpected result: {result}")
+
+        # Trigger SSE restart if appliances came back online
+        if newly_online_appliances and self._can_restart_sse():
+            _LOGGER.info(
+                f"Restarting SSE stream to include {len(newly_online_appliances)} newly online appliance(s)"
+            )
+            try:
+                # Disconnect existing SSE
+                await asyncio.wait_for(
+                    self.api.disconnect_websocket(),
+                    timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
+                )
+                # Reconnect with updated appliance list
+                await asyncio.wait_for(self.listen_websocket(), timeout=UPDATE_TIMEOUT)
+                _LOGGER.debug(
+                    "SSE stream restarted successfully for newly online appliances"
+                )
+            except Exception as ex:
+                _LOGGER.warning(
+                    f"Failed to restart SSE stream for newly online appliances: {ex}"
+                )
+                # Don't raise - this is not critical, normal renewal will handle it
 
         # Improved logging for the failure case
         if successful == 0 and len(app_dict) > 0:
@@ -840,28 +985,22 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await self.cleanup_removed_appliances()
             self._last_cleanup_time = int(current_time)
 
-        # Check for offline appliances based on update timeout
-        offline_count = 0
-        for app_id, app_obj in app_dict.items():
-            last_update = self._last_update_times.get(app_id)
-            if last_update is not None:
-                time_since_update = current_time - last_update
-                if time_since_update > APPLIANCE_OFFLINE_TIMEOUT:
-                    # Mark appliance as offline
-                    if app_obj.state.get(CONNECTIVITY_STATE_KEY) != STATE_DISCONNECTED:
-                        _LOGGER.info(
-                            f"Marking appliance {app_id} as offline "
-                            f"(no updates for {int(time_since_update)} seconds)"
-                        )
-                        app_obj.state["connectivityState"] = "disconnected"
-                        offline_count += 1
-
-        if offline_count > 0:
-            _LOGGER.debug(
-                f"Marked {offline_count} appliances as offline due to timeout"
-            )
+        # Note: Appliances are not marked offline based on update timeouts.
+        # Connectivity is determined by explicit "connectivityState" messages
+        # or API polling failures. Idle appliances that don't send updates
+        # remain marked as connected.
 
         return self.data
+
+    def _can_restart_sse(self) -> bool:
+        """Check if we can restart SSE (debounced to prevent hammering)."""
+        current_time = self.hass.loop.time()
+        # Allow SSE restart only once every 15 minutes
+        SSE_RESTART_COOLDOWN = 900  # 15 minutes
+        if current_time - self._last_sse_restart_time > SSE_RESTART_COOLDOWN:
+            self._last_sse_restart_time = current_time
+            return True
+        return False
 
     async def cleanup_removed_appliances(self) -> None:
         """Remove appliances that no longer exist in the account."""
@@ -869,7 +1008,26 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Get current appliance list from API
             appliances_list = await self.api.get_appliances_list()
             if not appliances_list:
+                # If API returns None/empty, don't remove appliances - this could be a temporary API issue
+                _LOGGER.debug(
+                    "API returned no appliances list, skipping cleanup to avoid removing appliances due to temporary issues"
+                )
                 return
+
+            # Validate that we got a proper list with at least some appliances
+            # If the API returns an empty list when we have appliances, it might be an error
+            if (
+                self.data
+                and self.data.get("appliances")
+                and len(self.data["appliances"].appliances) > 0
+            ):
+                # We have tracked appliances but API returned empty list - this could be an API issue
+                # Only proceed with cleanup if we're confident the list is valid
+                if len(appliances_list) == 0:
+                    _LOGGER.warning(
+                        "API returned empty appliance list while tracking appliances - skipping cleanup to prevent accidental removal"
+                    )
+                    return
 
             # Get current appliance IDs
             current_ids = set()
@@ -910,3 +1068,124 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         except Exception as ex:
             _LOGGER.debug(f"Error during appliance cleanup: {ex}")
+
+    async def perform_manual_sync(self, appliance_id: str, appliance_name: str) -> None:
+        """Perform manual sync operation in a thread-safe manner.
+
+        Args:
+            appliance_id: The ID of the appliance triggering the sync
+            appliance_name: The name of the appliance for logging
+
+        Raises:
+            HomeAssistantError: If manual sync fails or is rate limited
+        """
+        # Use lock to prevent concurrent manual sync operations
+        async with self._manual_sync_lock:
+            _LOGGER.info(
+                "Starting manual sync for appliance %s (%s)",
+                appliance_name,
+                appliance_id,
+            )
+
+            # Check if we're within the manual sync cooldown period (1 minute)
+            current_time = self.hass.loop.time()
+            MANUAL_SYNC_COOLDOWN = 60  # 1 minute
+            if current_time - self._last_manual_sync_time < MANUAL_SYNC_COOLDOWN:
+                cooldown_remaining = MANUAL_SYNC_COOLDOWN - (
+                    current_time - self._last_manual_sync_time
+                )
+                seconds_remaining = int(cooldown_remaining)
+                error_msg = (
+                    f"Manual sync rate limited. Please wait at least 1 minute before trying again. "
+                    f"({seconds_remaining} seconds remaining)"
+                )
+                _LOGGER.warning(
+                    "Manual sync blocked by cooldown for appliance %s (%s): %d seconds remaining",
+                    appliance_name,
+                    appliance_id,
+                    seconds_remaining,
+                )
+                raise HomeAssistantError(error_msg)
+
+            # Update the manual sync timestamp
+            self._last_manual_sync_time = current_time
+
+            # Log warning about sensible usage
+            _LOGGER.info(
+                "Manual sync initiated for appliance %s (%s). "
+                "Please use this feature sensibly to avoid unnecessary API calls.",
+                appliance_name,
+                appliance_id,
+            )
+
+            try:
+                # Step 1: Disconnect websocket safely
+                _LOGGER.debug(
+                    "Manual sync step 1: Disconnecting websocket for appliance %s",
+                    appliance_id,
+                )
+                await asyncio.wait_for(
+                    self.api.disconnect_websocket(),
+                    timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
+                )
+
+                # Step 2: Force fresh API poll for all data
+                _LOGGER.debug(
+                    "Manual sync step 2: Requesting coordinator refresh for appliance %s",
+                    appliance_id,
+                )
+                await self.async_request_refresh()
+
+                # Step 3: Start fresh real-time stream
+                _LOGGER.debug(
+                    "Manual sync step 3: Starting fresh websocket connection for appliance %s",
+                    appliance_id,
+                )
+                await asyncio.wait_for(self.listen_websocket(), timeout=UPDATE_TIMEOUT)
+
+                _LOGGER.info(
+                    "Manual sync completed successfully for appliance %s (%s)",
+                    appliance_name,
+                    appliance_id,
+                )
+
+            except asyncio.TimeoutError as timeout_ex:
+                error_msg = f"Manual sync timed out: {timeout_ex}"
+                _LOGGER.error(
+                    "Manual sync timeout for appliance %s (%s): %s",
+                    appliance_name,
+                    appliance_id,
+                    timeout_ex,
+                )
+                # Try to restart websocket even on timeout to recover
+                try:
+                    await asyncio.wait_for(
+                        self.listen_websocket(), timeout=UPDATE_TIMEOUT
+                    )
+                except Exception:
+                    _LOGGER.error(
+                        "Failed to recover websocket after timeout for appliance %s",
+                        appliance_id,
+                    )
+                raise HomeAssistantError(error_msg) from timeout_ex
+
+            except Exception as ex:
+                error_msg = f"Manual sync failed: {ex}"
+                _LOGGER.error(
+                    "Manual sync failed for appliance %s (%s): %s",
+                    appliance_name,
+                    appliance_id,
+                    ex,
+                )
+                # Try to restart websocket to recover from failed state
+                try:
+                    await asyncio.wait_for(
+                        self.listen_websocket(), timeout=UPDATE_TIMEOUT
+                    )
+                except Exception as recovery_ex:
+                    _LOGGER.error(
+                        "Failed to recover websocket after error for appliance %s: %s",
+                        appliance_id,
+                        recovery_ex,
+                    )
+                raise HomeAssistantError(error_msg) from ex

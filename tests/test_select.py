@@ -163,7 +163,7 @@ class TestElectroluxSelect:
             "properties": {"reported": {"remoteControl": "DISABLED"}}
         }
 
-        with pytest.raises(HomeAssistantError, match="Remote control disabled"):
+        with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
             await select_entity.async_select_option("Option 1")
 
     @pytest.mark.asyncio
@@ -254,12 +254,16 @@ class TestElectroluxSelect:
             assert command == {"testAttr": "OPTION1"}
 
     def test_available_property_remote_control_disabled(self, select_entity):
-        """Test availability when remote control is disabled."""
+        """Test availability when remote control is disabled (but connected)."""
+        select_entity.is_connected = MagicMock(return_value=True)
         select_entity.is_remote_control_enabled = MagicMock(return_value=False)
-        assert not select_entity.available
+        assert (
+            select_entity.available
+        )  # Should be available even with remote control disabled
 
     def test_available_property_remote_control_enabled(self, select_entity):
         """Test availability when remote control is enabled."""
+        select_entity.is_connected = MagicMock(return_value=True)
         select_entity.is_remote_control_enabled = MagicMock(return_value=True)
         assert select_entity.available
 

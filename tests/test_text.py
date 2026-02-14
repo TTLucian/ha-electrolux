@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from homeassistant.const import EntityCategory
+from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import TEXT
 from custom_components.electrolux.text import ElectroluxText
@@ -213,11 +214,18 @@ class TestElectroluxText:
         assert text_entity.available is True
 
     def test_available_false_when_remote_control_disabled(self, text_entity):
-        """Test available property when remote control is disabled."""
+        """Test available property when remote control is disabled (but connected)."""
         text_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "DISABLED"}}
+            "properties": {
+                "reported": {
+                    "remoteControl": "DISABLED",
+                    "connectivityState": "connected",
+                }
+            }
         }
-        assert text_entity.available is False
+        assert (
+            text_entity.available is True
+        )  # Should be available even with remote control disabled
 
     def test_available_false_when_no_remote_control_info(self, text_entity):
         """Test available property when no remote control info is available."""
@@ -310,6 +318,14 @@ class TestElectroluxText:
 
         # Should still attempt to send command
         text_entity.api.execute_appliance_command.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_set_value_remote_control_disabled(self, text_entity):
+        """Test set_value when remote control is disabled raises error."""
+        text_entity.is_remote_control_enabled = MagicMock(return_value=False)
+
+        with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
+            await text_entity.async_set_value("new value")
 
     @pytest.mark.asyncio
     async def test_set_value_with_dam_appliance(

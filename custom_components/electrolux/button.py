@@ -250,9 +250,75 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Execute a button press."""
-        await self.send_command()
+        # Special handling for manual sync button
+        if self.entity_attr == "manualSync":
+            await self._perform_manual_sync()
+        else:
+            await self.send_command()
         # Coordinator refresh is now handled automatically in execute_command_with_error_handling
         # await self.coordinator.async_request_refresh()
         # await self.hass.async_add_executor_job(self.send_command)
         # if self.entity_attr == "ExecuteCommand":
         #     await self.hass.async_add_executor_job(self.coordinator.api.setHacl, self.get_appliance.pnc_id, "0x0403", self.val_to_send, self.entity_source)
+
+    async def _perform_manual_sync(self) -> None:
+        """Perform manual sync operation for all appliances."""
+        appliance_name = "Unknown Appliance"
+        try:
+            # Get appliance name for user feedback
+            appliances = self.coordinator.data.get("appliances", None)
+            if appliances:
+                appliance = appliances.get_appliance(self.pnc_id)
+                if appliance:
+                    appliance_name = appliance.name
+
+            # Fire progress events for each step
+            def fire_progress(step: int, message: str, progress: str):
+                self.hass.bus.async_fire(
+                    "electrolux_manual_sync_progress",
+                    {
+                        "appliance_id": self.pnc_id,
+                        "appliance_name": appliance_name,
+                        "step": step,
+                        "message": message,
+                        "progress": progress,
+                    },
+                )
+
+            # Initial warning about sensible usage
+            fire_progress(
+                0,
+                "Manual sync initiated. Please use this feature sensibly to avoid unnecessary API calls.",
+                "0%",
+            )
+
+            # Progress updates during sync
+            fire_progress(1, "Disconnecting real-time data stream...", "25%")
+            fire_progress(2, "Refreshing appliance data from cloud...", "50%")
+            fire_progress(3, "Starting fresh real-time data stream...", "75%")
+
+            # Use the coordinator's thread-safe manual sync method
+            await self.coordinator.perform_manual_sync(self.pnc_id, appliance_name)
+
+            # Complete
+            fire_progress(4, "Manual sync completed successfully!", "100%")
+
+        except Exception as ex:
+            error_msg = f"Manual sync failed: {ex}"
+            self.hass.bus.async_fire(
+                "electrolux_manual_sync_progress",
+                {
+                    "appliance_id": self.pnc_id,
+                    "appliance_name": appliance_name,
+                    "step": -1,
+                    "message": error_msg,
+                    "progress": "0%",
+                },
+            )
+            _LOGGER.error(
+                "Manual sync failed for appliance %s (%s): %s",
+                appliance_name,
+                self.pnc_id,
+                ex,
+            )
+            raise HomeAssistantError(error_msg) from ex

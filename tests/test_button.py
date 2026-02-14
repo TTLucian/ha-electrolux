@@ -117,11 +117,18 @@ class TestElectroluxButton:
         assert button_entity.available is True
 
     def test_available_false_when_remote_control_disabled(self, button_entity):
-        """Test available property when remote control is disabled."""
+        """Test available property when remote control is disabled (but connected)."""
         button_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "DISABLED"}}
+            "properties": {
+                "reported": {
+                    "remoteControl": "DISABLED",
+                    "connectivityState": "connected",
+                }
+            }
         }
-        assert button_entity.available is False
+        assert (
+            button_entity.available is True
+        )  # Should be available even with remote control disabled
 
     def test_available_false_when_no_remote_control_info(self, button_entity):
         """Test available property when no remote control info is available."""
