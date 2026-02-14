@@ -123,8 +123,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._last_known_connectivity: dict[str, str] = (
             {}
         )  # Track previous connectivity state per appliance
-        self._last_sse_restart_time = 0  # Track when we last restarted SSE
-        self._last_manual_sync_time = 0  # Track when we last performed manual sync
+        self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
+        self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
 
         super().__init__(
             hass,

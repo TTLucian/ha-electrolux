@@ -2,7 +2,7 @@
 
 import hashlib
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.button import ButtonDeviceClass, ButtonEntity
 from homeassistant.config_entries import ConfigEntry
@@ -298,7 +298,9 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             fire_progress(3, "Starting fresh real-time data stream...", "75%")
 
             # Use the coordinator's thread-safe manual sync method
-            await self.coordinator.perform_manual_sync(self.pnc_id, appliance_name)
+            await cast(ElectroluxCoordinator, self.coordinator).perform_manual_sync(
+                self.pnc_id, appliance_name
+            )
 
             # Complete
             fire_progress(4, "Manual sync completed successfully!", "100%")
