@@ -273,6 +273,7 @@ logger:
   logs:
     custom_components.electrolux: debug
 ```
+Then go to Settings/System/Logs, click the 3 dots in the upper right side of the screen and click "Show raw logs". You can then filter the logs by adding "electrolux" in the "Search logs" box. Copy and paste them in your Github issue editor.
 
 ### JSON Diagnostics for Device Issues
 For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
