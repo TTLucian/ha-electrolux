@@ -59,7 +59,7 @@
     },
     "food_probe_not_supported": {
       "title": "Food probe not supported by current program",
-      "description": "The food probe temperature setting is not supported by the current program '{program}' on {entry_title}. The temperature has been set to the minimum allowed value."
+      "description": "The food probe temperature setting is not supported by the current program {program} on {entry_title}. The temperature has been set to the minimum allowed value."
     }
   }
 }
