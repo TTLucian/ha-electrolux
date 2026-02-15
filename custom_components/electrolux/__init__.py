@@ -18,7 +18,11 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    ConfigEntryError,
+    ConfigEntryNotReady,
+)
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
@@ -39,6 +43,12 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
+def _validate_config(entry: ConfigEntry) -> None:
+    """Validate configuration parameters."""
+    if not entry.data.get(CONF_API_KEY):
+        raise ConfigEntryError("API key is required")
+
+
 # noinspection PyUnusedLocal
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up this integration using YAML is not supported."""
@@ -47,6 +57,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
+    _validate_config(entry)
+
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
 

@@ -11,6 +11,7 @@
 - **Connectivity Resilience**: Refined the ElectroluxCoordinator to differentiate between "Real Errors" and "Network Noise."
 - **Appliance Offline Handling**: Network drops now correctly mark entities as Unavailable without triggering unnecessary "Re-auth" pop-ups for the user.
 - **SSE Stream Recovery**: Added logic and tests to verify that the Server-Sent Events (SSE) stream can automatically recover from disconnections.
+- **Implemented Lazy Loading**: Optimized resource management that loads only required appliance data to reduce memory usage and improve startup speed.
 - **Added ElectroluxTokenManager Unit Tests**: Created a comprehensive test suite (`test_token_manager_401.py`) that uses deterministic time-mocking to verify token refresh logic.
 - **Verified Lock Logic**: Proved that the AsyncLock correctly prevents race conditions during token rotation.
 - **Verified 401 Recovery**: Confirmed the integration correctly triggers the re-authentication flow when a token is rejected.

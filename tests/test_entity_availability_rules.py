@@ -191,7 +191,9 @@ class TestEntityAvailabilityRules:
             await entity.async_set_native_value(200.0)
 
     @pytest.mark.asyncio
-    async def test_food_probe_temperature_prevents_modification_when_not_supported_by_program(self, mock_coordinator):
+    async def test_food_probe_temperature_prevents_modification_when_not_supported_by_program(
+        self, mock_coordinator
+    ):
         """Test that food probe temperature entities prevent modification when not supported by program."""
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -224,7 +226,10 @@ class TestEntityAvailabilityRules:
         entity._is_supported_by_program = MagicMock(return_value=False)
 
         # Attempting to set value should raise HomeAssistantError with specific message
-        with pytest.raises(HomeAssistantError, match="Target food probe temperature control not supported by current program 'DOUGH_PROVING'"):
+        with pytest.raises(
+            HomeAssistantError,
+            match="Target food probe temperature control not supported by current program 'DOUGH_PROVING'",
+        ):
             await entity.async_set_native_value(50.0)
 
     # ============================================================================

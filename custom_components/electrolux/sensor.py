@@ -111,18 +111,24 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 value = default_value
 
         elif self.entity_attr == "alerts":
-            value = len(value) if value is not None else 0
+            if isinstance(value, list):
+                value = len(value)
+            else:
+                value = 0
         elif value is not None and self.unit == UnitOfTime.MINUTES:
             # Electrolux bug - prevent negative/disabled timers
-            value = max(value, 0)
-            # Convert to native units (minutes for time)
-            converted = time_seconds_to_minutes(value)
-            if converted is None:
-                _LOGGER.error(
-                    "Unexpected None from time_seconds_to_minutes for %s", value
-                )
-                return self._cached_value
-            value = float(converted)
+            if isinstance(value, (int, float)):
+                value = max(value, 0)
+                # Convert to native units (minutes for time)
+                converted = time_seconds_to_minutes(value)
+                if converted is None:
+                    _LOGGER.error(
+                        "Unexpected None from time_seconds_to_minutes for %s", value
+                    )
+                    return self._cached_value
+                value = float(converted)
+            else:
+                _LOGGER.warning("Unexpected non-numeric value for time unit: %s", value)
 
         if self.catalog_entry and self.catalog_entry.value_mapping:
             # Electrolux presents as string but returns an int
@@ -139,6 +145,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             self._cached_value = value
         else:
             value = self._cached_value
+
+        # Ensure return type is str | int | float | None
+        if value is not None and not isinstance(value, (str, int, float)):
+            value = str(value)
+
         return value
 
     @property
@@ -159,18 +170,20 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             # default is nullable - set a value for display to user
             alert_types = {key: "OFF" for key in alert_types}
             if current_alerts := self.extract_value():
-                for alert in current_alerts:
-                    name = alert.get("code", "Unknown")
-                    severity = alert.get("severity", "Alert")
-                    status = alert.get("acknowledgeStatus", "")
-                    alert_types[name] = f"{severity}-{status}"
-                    create_notification(
-                        self.hass,
-                        self.config_entry,
-                        alert_name=name,
-                        alert_severity=severity,
-                        alert_status=status,
-                        title=self.name,
-                    )
+                if isinstance(current_alerts, list):
+                    for alert in current_alerts:
+                        if isinstance(alert, dict):
+                            name = alert.get("code", "Unknown")
+                            severity = alert.get("severity", "Alert")
+                            status = alert.get("acknowledgeStatus", "")
+                            alert_types[name] = f"{severity}-{status}"
+                            create_notification(
+                                self.hass,
+                                self.config_entry,
+                                alert_name=name,
+                                alert_severity=severity,
+                                alert_status=status,
+                                title=self.name,
+                            )
             return alert_types
         return {}

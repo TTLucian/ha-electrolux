@@ -462,7 +462,7 @@ class TestElectroluxNumber:
             with patch.object(entity, "async_write_ha_state"):
                 with pytest.raises(
                     HomeAssistantError,
-                    match="Target food probe temperature not supported",
+                    match="Target food probe temperature control not supported",
                 ):
                     await entity.async_set_native_value(70.0)
         capability = {"access": "readwrite", "type": "number", "max": 7200, "step": 60}
@@ -505,9 +505,9 @@ class TestElectroluxNumber:
             assert args[2] == 1800  # Should be converted to seconds
 
     def test_available_property_step_zero(self, number_entity):
-        """Test that entity is unavailable when step is 0."""
+        """Test that entity remains available even when step is 0 (Entity Availability Rules)."""
         number_entity._get_program_constraint = MagicMock(return_value=0)
-        assert not number_entity.available
+        assert number_entity.available
 
     def test_available_property_supported_by_program(self, number_entity):
         """Test availability based on program support."""

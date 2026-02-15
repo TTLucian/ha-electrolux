@@ -237,19 +237,71 @@ class ElectroluxEntity(CoordinatorEntity):
         return False
 
     def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        # _LOGGER.debug("Electrolux entity got data %s", self.coordinator.data)
+        """Handle updated data from the coordinator with stale-value protection."""
         if self.coordinator.data is None:
             return
+
         appliances = self.coordinator.data.get("appliances", None)
         if appliances is None:
             return
+
+        # 1. Capture current state before updating
+        old_program = self.reported_state.get("program")
+        old_reported_value = self.extract_value()
+
+        # 2. Update the internal appliance status
         self.appliance_status = appliances.get_appliance(self.pnc_id).state
-        # Only clear cached value if we have an actual reported value that differs from cached value
+
+        # 3. Capture new state
+        new_program = self.reported_state.get("program")
         reported_value = self.extract_value()
-        if self._cached_value is not None and reported_value is not None:
-            if self._cached_value != reported_value:
+
+        # 4. Handle optimistic cache
+        if self._cached_value is not None:
+
+            # Case A: This is the program selector itself
+            if self.entity_attr in ["program", "userSelections/programUID"]:
+                # Always clear cache on update to avoid string-match mismatches (UID vs Name)
                 self._cached_value = None
+
+            # Case B: A Program Change occurred
+            elif (
+                old_program is not None
+                and new_program is not None
+                and old_program != new_program
+            ):
+                # If the reported value actually CHANGED during this program swap,
+                # it means the oven forced a new default (like targetTemperatureC).
+                # We should clear the cache to show that new default.
+                if reported_value != old_reported_value:
+                    _LOGGER.debug(
+                        "Program change forced new value for %s. Clearing cache.",
+                        self.entity_attr,
+                    )
+                    self._cached_value = None
+                else:
+                    # If the value is the same (like Food Probe), keep our optimistic value!
+                    _LOGGER.debug(
+                        "Program change did not affect %s. Keeping cache.",
+                        self.entity_attr,
+                    )
+
+            # Case C: Standard Confirmation
+            elif reported_value == self._cached_value:
+                _LOGGER.debug(
+                    "Value confirmed for %s. Clearing cache.", self.entity_attr
+                )
+                self._cached_value = None
+
+            # Case D: Stale data / unrelated update (like cavity light)
+            elif reported_value is not None:
+                _LOGGER.debug(
+                    "Ignoring stale %s for %s; waiting for %s",
+                    reported_value,
+                    self.entity_attr,
+                    self._cached_value,
+                )
+
         self.async_write_ha_state()
 
     def get_state_attr(self, path: str) -> str | None:
@@ -435,7 +487,7 @@ class ElectroluxEntity(CoordinatorEntity):
         """Return the device class of the sensor."""
         return self._device_class
 
-    def extract_value(self) -> Any:
+    def extract_value(self) -> int | float | str | bool | None:
         """Return the appliance attributes of the entity."""
         # For constant access, return value from capability metadata
         if self.capability.get("access") == "constant":
@@ -660,7 +712,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
         return True
 
-    def _get_program_constraint(self, key: str) -> Any | None:
+    def _get_program_constraint(self, key: str) -> int | float | str | bool | None:
         """Get a specific constraint (min/max/step) for the current program."""
         current_program = self.reported_state.get("program")
         if not current_program or not self.get_appliance.data:
@@ -703,7 +755,9 @@ class ElectroluxEntity(CoordinatorEntity):
 
         return False
 
-    def _evaluate_operand(self, operand: dict, trigger_cap_name: str) -> Any:
+    def _evaluate_operand(
+        self, operand: dict, trigger_cap_name: str
+    ) -> int | float | str | bool | None:
         """Evaluate a trigger operand."""
         if "operand_1" in operand and "operand_2" in operand:
             # This is a nested condition

@@ -867,7 +867,9 @@ def map_command_error_to_home_assistant_error(
     return HomeAssistantError(f"Command failed: {ex}. Check logs for details.")
 
 
-def get_capability(capabilities: dict[str, Any], key: str) -> Any:
+def get_capability(
+    capabilities: dict[str, Any], key: str
+) -> int | float | str | bool | dict[str, Any] | None:
     """Safely get a capability value, handling both dict and direct value formats.
 
     For constant capabilities, returns the 'default' value if the capability is a dict.

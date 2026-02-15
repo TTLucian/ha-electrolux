@@ -1,0 +1,403 @@
+
+              entity_attr,
+              ex,
+          )
+          return HomeAssistantError(
+              "Too many commands sent. Please wait a moment and try again."
+          )
+  
+      elif any(
+          phrase in error_msg
+          for phrase in [
+              "command validation",
+              "validation error",
+              "invalid command",
+              "not acceptable",
+              "406",
+          ]
+      ):
+          logger.warning(
+              "Command failed for %s: command validation error - %s",
+              entity_attr,
+              ex,
+          )
+          return HomeAssistantError(
+              "Command not accepted by appliance. Check that the appliance supports this operation."
+          )
+  
+      # Default: Generic error
+      logger.error(
+          "Command failed for %s with unexpected error: %s",
+          entity_attr,
+          ex,
+      )
+      return HomeAssistantError(f"Command failed: {ex}. Check logs for details.")
+  
+  
+  def get_capability(capabilities: dict[str, Any], key: str) -> Any:
+      """Safely get a capability value, handling both dict and direct value formats.
+  
+      For constant capabilities, returns the 'default' value if the capability is a dict.
+      For other capabilities, returns the value directly.
+  
+      Args:
+          capabilities: The capabilities dictionary
+          key: The capability key to look up
+  
+      Returns:
+          The capability value, or None if not found
+      """
+      if key not in capabilities:
+          return None
+  
+      value = capabilities[key]
+      if isinstance(value, dict):
+          # For dict capabilities (like constants), return the default value
+          return value.get("default")
+      else:
+          # For direct value capabilities, return the value as-is
+          return value
+  
+  
+  def format_command_for_appliance(
+      capability: dict[str, Any], attr: str, value: Any
+  ) -> Any:
+      """Format a command value according to the appliance capability specifications.
+  
+      This function dynamically formats Home Assistant command values to match
+      the expected format for the Electrolux appliance based on capability metadata.
+  
+      Args:
+          capability: The capability definition for the attribute
+          attr: The attribute name (e.g., 'cavityLight', 'targetTemperatureC')
+          value: The raw value from Home Assistant
+  
+      Returns:
+          The formatted value ready for the appliance API
+      """
+      if not capability or not isinstance(capability, dict):
+          # Fallback to original behavior if no capability info
+          if isinstance(value, bool):
+              return "ON" if value else "OFF"
+          return value
+  
+      # Get the capability type
+      cap_type = capability.get("type", "").lower()
+  
+      if cap_type == "boolean":
+          # Boolean type - return raw Python bool
+          if isinstance(value, bool):
+              return value
+          # Handle string representations
+          if isinstance(value, str):
+              return value.lower() in ("true", "on", "1", "yes")
+          # Handle numeric representations
+          return bool(value)
+  
+      elif "temperature" in attr.lower() or cap_type in ("number", "float", "integer"):
+          # Temperature or numeric type - ensure float and apply step and range constraints
+          try:
+              numeric_value = float(value)
+  
+              # Get min/max bounds
+              min_val = capability.get("min")
+              max_val = capability.get("max")
+  
+              # Apply step constraints as safety measure (sliders should prevent invalid values, but this handles edge cases)
+              step = capability.get("step")
+              if step is not None:
+                  step = float(step)
+                  if step > 0:
+                      # For sliders, we still want to ensure step compliance
+                      # Calculate from a reasonable minimum (0 for most cases if min not specified)
+                      step_base = min_val if min_val is not None else 0
+                      steps_from_base = (numeric_value - step_base) / step
+                      # Round to nearest valid step
+                      numeric_value = step_base + round(steps_from_base) * step
+  
+              # Clamp to min/max bounds
+              if min_val is not None:
+                  numeric_value = max(numeric_value, float(min_val))
+              if max_val is not None:
+                  numeric_value = min(numeric_value, float(max_val))
+  
+              return numeric_value
+  
+          except (ValueError, TypeError):
+              _LOGGER.warning(
+                  "Invalid numeric value %s for attribute %s, using as-is", value, attr
+              )
+              return value
+  
+      elif cap_type in ("string", "enum") or "values" in capability:
+          # String or enum type - validate against allowed values
+          values_dict = capability.get("values", {})
+  
+          if isinstance(values_dict, dict) and values_dict:
+              # Check if the value is a valid key in the values dict
+              if str(value) in values_dict:
+                  return str(value)
+              else:
+                  # Try to find a matching value by case-insensitive comparison
+                  value_str = str(value).lower()
+                  for key in values_dict.keys():
+                      if key.lower() == value_str:
+                          return key
+  
+                  _LOGGER.warning(
+                      "Value %s not found in allowed values for %s: %s",
+                      value,
+                      attr,
+                      list(values_dict.keys()),
+                  )
+                  # Return the original value if not found - let the API handle validation
+                  return value
+          else:
+              # No values constraint, return as string
+              return str(value)
+  
+      else:
+          # Unknown or unspecified type - use fallback logic
+          if isinstance(value, bool):
+              return "ON" if value else "OFF"
+          return value
+  
+  
+  class _TokenRefreshHandler(logging.Handler):
+      """Logging handler to detect token refresh failures and report to HA issue registry."""
+  
+      def __init__(self, client: "ElectroluxApiClient", hass: HomeAssistant) -> None:
+          super().__init__()
+          self._client = client
+          self._hass = hass
+  
+      def emit(self, record: logging.LogRecord) -> None:
+          try:
+              msg = self.format(record)
+              lmsg = msg.lower()
+              # Only match messages indicating PERMANENT token refresh failure (not normal expiration)
+              # The SDK handles normal access token expiration automatically
+              permanent_token_error_indicators = [
+                  "refresh token is invalid",
+                  "invalid grant",
+                  "invalid refresh token",
+                  "refresh token expired",
+              ]
+              is_permanent_token_error = any(
+                  indicator in lmsg for indicator in permanent_token_error_indicators
+              )
+  
+              if is_permanent_token_error:
+                  try:
+                      # Schedule the async issue creation on the HA event loop
+                      self._hass.loop.call_soon_threadsafe(
+                          lambda: asyncio.create_task(self._client._trigger_reauth(msg))
+                      )
+                  except Exception:
+                      _LOGGER.exception("Failed to schedule token refresh issue creation")
+          except Exception:
+              _LOGGER.exception("TokenRefreshHandler emit failed")
+  
+  
+> class ElectroluxTokenManager(TokenManager):
+      """Custom token manager that captures token expiration information."""
+  
+      def __init__(
+          self,
+          access_token: str,
+          refresh_token: str,
+          api_key: str,
+          on_token_update: Callable[[str, str, str], None] | None = None,
+      ):
+          """Initialize the custom token manager."""
+          super().__init__(
+              access_token, refresh_token, api_key, on_token_update=on_token_update
+          )
+          self._on_token_update_with_expiry: (
+              Callable[[str, str, str, int], None] | None
+          ) = None
+          self._on_auth_error: Callable[[str], Awaitable[None]] | None = None
+          self._refresh_lock = asyncio.Lock()
+          self._last_refresh_time = 0
+          self._expires_at = 0  # Store token expiration timestamp
+          self._last_failed_refresh = 0  # Track failed refresh attempts
+  
+      def set_token_update_callback_with_expiry(
+          self, callback: Callable[[str, str, str, int], None]
+      ) -> None:
+          """Set callback that includes expiration timestamp."""
+          self._on_token_update_with_expiry = callback
+  
+      def set_auth_error_callback(
+          self, callback: Callable[[str], Awaitable[None]]
+      ) -> None:
+          """Set callback for authentication errors."""
+          self._on_auth_error = callback
+  
+      async def refresh_token(self) -> bool:
+          """Refresh the access token and capture expiration information."""
+          current_time = int(time.time())
+          _LOGGER.debug(
+              f"TokenManager refresh_token: Starting token refresh process at {current_time}"
+          )
+  
+          # Pre-lock check: avoid acquiring lock if token is still fresh
+          if self._expires_at and (self._expires_at - current_time > 900):
+              remaining_seconds = self._expires_at - current_time
+              _LOGGER.debug(
+                  f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
+              )
+              return True
+  
+          _LOGGER.debug("TokenManager refresh_token: Acquiring refresh lock")
+          async with self._refresh_lock:
+              _LOGGER.debug("TokenManager refresh_token: Refresh lock acquired")
+              # Double-check inside lock: another task may have refreshed while we waited
+              current_time = int(time.time())
+  
+              # Check retry cooldown: don't attempt refresh if we failed recently
+              if current_time - self._last_failed_refresh < 60:
+                  cooldown_remaining = 60 - (current_time - self._last_failed_refresh)
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Refresh on cooldown, {cooldown_remaining}s remaining after last failure"
+                  )
+                  return False
+  
+              # Freshness check: if token is still valid for >15 minutes, skip refresh
+              if self._expires_at and (
+                  self._expires_at - current_time > 900
+              ):  # 15 minutes
+                  remaining_seconds = self._expires_at - current_time
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
+                  )
+                  return True
+  
+              _LOGGER.debug("TokenManager refresh_token: Preparing refresh request")
+              auth_data = self._auth_data
+  
+              if not auth_data or auth_data.refresh_token is None:
+                  _LOGGER.error("TokenManager refresh_token: Refresh token is missing")
+                  raise Exception("Missing refresh token")
+  
+              payload = {REFRESH_TOKEN: auth_data.refresh_token}
+              _LOGGER.debug(
+                  f"TokenManager refresh_token: Sending refresh request to {TOKEN_REFRESH_URL}"
+              )
+  
+              try:
+                  _LOGGER.debug("TokenManager refresh_token: Making HTTP request")
+                  data = await request(
+                      method=POST, url=TOKEN_REFRESH_URL, json_body=payload
+                  )
+                  _LOGGER.debug("TokenManager refresh_token: HTTP request successful")
+  
+                  # Calculate expiration timestamp
+                  expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
+                  expires_at = int(time.time()) + expires_in
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Token expires in {expires_in}s, expires_at: {expires_at}"
+                  )
+  
+                  # Update with new tokens
+                  _LOGGER.debug("TokenManager refresh_token: Updating token data")
+                  self.update_with_expiry(
+                      access_token=data["accessToken"],
+                      refresh_token=data["refreshToken"],
+                      api_key=auth_data.api_key,
+                      expires_at=expires_at,
+                  )
+  
+                  # Update last refresh timestamp
+                  self._last_refresh_time = current_time
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Token refresh completed successfully at {current_time}"
+                  )
+                  return True
+  
+              except Exception as e:
+                  error_msg = str(e).lower()
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Exception during refresh: {e}"
+                  )
+                  # Check for permanent token errors (401/Invalid Grant)
+                  if any(
+                      keyword in error_msg
+                      for keyword in ["401", "invalid grant", "forbidden"]
+                  ):
+                      _LOGGER.error(
+                          f"TokenManager refresh_token: Permanent token error: {e}"
+                      )
+                      # Trigger reauthentication immediately
+                      if self._on_auth_error:
+                          _LOGGER.debug(
+                              "TokenManager refresh_token: Triggering auth error callback"
+                          )
+                          await self._on_auth_error(f"Token refresh failed: {e}")
+                      return False
+  
+                  # For other errors, set cooldown and return False
+                  _LOGGER.error(f"TokenManager refresh_token: Token refresh failed: {e}")
+                  self._last_failed_refresh = current_time
+                  _LOGGER.debug(
+                      f"TokenManager refresh_token: Set failed refresh timestamp to {current_time}"
+                  )
+                  return False
+  
+      def update_with_expiry(
+          self, access_token: str, refresh_token: str, api_key: str, expires_at: int
+      ) -> None:
+          """Update the authentication data with expiration information."""
+          # Call the enhanced callback if available
+          if self._on_token_update_with_expiry:
+              self._on_token_update_with_expiry(
+                  access_token, refresh_token, api_key, expires_at
+              )
+          # Fall back to standard callback
+          elif self._on_token_update:
+              self._on_token_update(access_token, refresh_token, api_key)
+  
+          self._auth_data = AuthData(access_token, refresh_token, api_key)
+          self._expires_at = expires_at  # Store expiration timestamp for freshness checks
+  
+  
+  class ElectroluxApiClient:
+      """Wrapper for the new Electrolux API client to maintain compatibility."""
+  
+      def __init__(
+          self,
+          api_key: str,
+          access_token: str,
+          refresh_token: str,
+          hass: HomeAssistant | None = None,
+          config_entry: ConfigEntry | None = None,
+      ):
+          """Initialize the API client."""
+          # Explicitly annotate hass as optional HomeAssistant
+          self.hass: HomeAssistant | None = hass
+          self.config_entry: ConfigEntry | None = config_entry
+          self._auth_failed = False  # Flag to indicate auth failure
+          self.coordinator: Any = None  # Reference to coordinator for triggering refresh
+          self._token_manager = ElectroluxTokenManager(
+              access_token, refresh_token, api_key
+          )
+          # Set auth error callback to trigger reauthentication
+          self._token_manager.set_auth_error_callback(self._trigger_reauth)
+          self._client = ApplianceClient(self._token_manager)
+          self._token_handler = None  # Track handler
+          self._token_logger = None  # Track logger
+  
+          # Attach token refresh handler to surface token refresh failures as HA issues
+          if hass:
+              try:
+                  self._token_handler = _TokenRefreshHandler(self, hass)
+                  self._token_handler.setLevel(logging.ERROR)
+                  self._token_logger = logging.getLogger(
+                      "electrolux_group_developer_sdk.auth.token_manager"
+                  )
+                  self._token_logger.addHandler(self._token_handler)
+              except Exception:
+                  _LOGGER.exception("Failed to attach token refresh logger handler")
+  
+      def set_token_update_callback(self, callback):
+

@@ -1127,3 +1127,14 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         recovery_ex,
                     )
                 raise HomeAssistantError(error_msg) from ex
+
+
+# Optional health check for debugging
+def get_health_status(self) -> dict[str, Any]:
+    """Return integration health status for diagnostics."""
+    return {
+        "websocket_connected": self.listen_task is not None
+        and not self.listen_task.done(),
+        "appliances_count": len(self.data.get("appliances", {})) if self.data else 0,
+        "last_update_success": self.last_update_success,
+    }

@@ -121,14 +121,14 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 return 0.0
             # Return min value if not supported by current program
             if not self._is_supported_by_program():
-                min_val = self.native_min_value
+                min_val = self._get_converted_constraint("min")
                 return min_val if min_val is not None else 0.0
 
         # Special handling for targetTemperatureC
         if self.entity_attr == "targetTemperatureC":
             # Return minimum value if not supported by current program and no valid value reported
             if not value and not self._is_supported_by_program():
-                min_val = self.native_min_value
+                min_val = self._get_converted_constraint("min")
                 return min_val if min_val is not None else 0.0
 
         # For non-global entities, return minimum value if not supported by current program
@@ -167,6 +167,17 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     value = 0
         if not value:
             return self._cached_value
+
+        # Ensure value is numeric before performing numeric operations
+        if not isinstance(value, (int, float)):
+            _LOGGER.warning(
+                "Electrolux entity %s received non-numeric value: %s (type: %s)",
+                self.entity_attr,
+                value,
+                type(value).__name__,
+            )
+            return self._cached_value
+
         if isinstance(self.unit, UnitOfTemperature):
             value = round(value, 2)
 
@@ -222,33 +233,73 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         return self.unit
 
     def _get_converted_constraint(self, key: str) -> float:
-        """Get a constraint value (min/max/step) with proper time conversion."""
-        # Special handling for temperature controls that should always be available
-        if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]:
-            if not self._is_supported_by_program():
-                return 0.0
+        """Get a constraint value (min/max/step) with proper time conversion.
 
+        This method implements a hierarchical fallback system for constraint values:
+        1. Catalog definitions (source of truth for entity-specific constraints)
+        2. Program-specific API constraints (dynamic based on current program)
+        3. Base capability constraints (fallback to entity definition)
+
+        For time-based entities, values are converted from seconds (API) to minutes (UI).
+        Special handling ensures temperature controls remain available even when
+        not supported by the current program.
+
+        Args:
+            key: The constraint type ("min", "max", or "step")
+
+        Returns:
+            float: The converted constraint value suitable for UI display
+        """
         # 1. Catalog is the Source of Truth (already in correct units - seconds)
         if (
             self._catalog_entry
             and (cat_val := self._catalog_entry.capability_info.get(key)) is not None
         ):
-            # Convert seconds to minutes for UI display
-            if self.unit == UnitOfTime.SECONDS:
-                converted_val = time_seconds_to_minutes(cat_val) or 0
-                if key == "step":
-                    _LOGGER.debug(
-                        "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
-                        self.entity_attr,
-                        key,
-                        cat_val,
-                        converted_val,
-                    )
-                return float(converted_val)
-            return float(cat_val)
+            # Ensure cat_val is numeric
+            if not isinstance(cat_val, (int, float)):
+                _LOGGER.warning(
+                    "Electrolux entity %s has non-numeric catalog constraint %s: %s (type: %s)",
+                    self.entity_attr,
+                    key,
+                    cat_val,
+                    type(cat_val).__name__,
+                )
+                cat_val = None
+
+            if cat_val is not None:
+                # Convert seconds to minutes for UI display
+                if self.unit == UnitOfTime.SECONDS:
+                    converted_val = time_seconds_to_minutes(cat_val) or 0
+                    if key == "step":
+                        _LOGGER.debug(
+                            "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
+                            self.entity_attr,
+                            key,
+                            cat_val,
+                            converted_val,
+                        )
+                    return float(converted_val)
+                return float(cat_val)
 
         # 2. Fallback to API/Program logic
-        val = self._get_program_constraint(key) or self.capability.get(key)
+        val = self._get_program_constraint(key)
+        if val is None:
+            val = self.capability.get(key)
+
+        # Ensure val is numeric or None before proceeding
+        if val is not None and not isinstance(val, (int, float)):
+            _LOGGER.warning(
+                "Electrolux entity %s received non-numeric constraint %s: %s (type: %s)",
+                self.entity_attr,
+                key,
+                val,
+                type(val).__name__,
+            )
+            val = None
+
+        # Final fallback to capability if program constraint was invalid
+        if val is None:
+            val = self.capability.get(key)
 
         # For
         # C and targetFoodProbeTemperatureC, use 0.0 as last resort if no API values
@@ -275,9 +326,13 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if key == "max":
             return float(val or 100.0)
         elif key == "min":
+            if self.entity_attr == "targetTemperatureC":
+                return float(val or 30.0)
             return float(val or 0.0)
         elif key == "step":
-            return float(val or 1.0)
+            return float(val if val is not None else 1.0)
+        if val is None and self.capability:
+            val = self.capability.get(key)
         return float(val or 1.0)
 
     async def async_set_native_value(self, value: float) -> None:
@@ -306,6 +361,19 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 )
                 raise HomeAssistantError(
                     f"Target food probe temperature control not supported by current program '{self.reported_state.get('program', 'unknown')}'"
+                )
+
+        # Special handling for targetTemperatureC
+        elif self.entity_attr == "targetTemperatureC":
+            # Check if not supported by current program - prevent modification
+            if not self._is_supported_by_program():
+                _LOGGER.warning(
+                    "Cannot set %s for appliance %s: not supported by current program",
+                    self.entity_attr,
+                    self.pnc_id,
+                )
+                raise HomeAssistantError(
+                    f"Target temperature control not supported by current program '{self.reported_state.get('program', 'unknown')}'"
                 )
 
         # Prevent setting values for unsupported programs
@@ -546,13 +614,13 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
     @property
     def available(self) -> bool:
-        """Check if the entity is supported and not fixed (step 0)."""
-        if not super().available:
-            return False
+        """Check if the entity is supported.
 
-        # All number entities must remain available regardless of program support
-        # to prevent UI rendering issues (per Entity Availability Rules)
-        return True
+        Number entities must remain available regardless of program support
+        to prevent UI rendering issues (per Entity Availability Rules).
+        They will be clamped/locked at minimum values when not supported.
+        """
+        return super().available
 
     @property
     def entity_registry_enabled_default(self) -> bool:

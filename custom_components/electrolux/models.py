@@ -17,7 +17,6 @@ from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import Platform, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .catalog_core import CATALOG_BASE, CATALOG_MODEL
 from .const import (
     BINARY_SENSOR,
     BUTTON,
@@ -29,13 +28,27 @@ from .const import (
     STATIC_ATTRIBUTES,
     SWITCH,
 )
+from .model import ElectroluxDevice
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 def deep_merge_dicts(dict1: dict[str, Any], dict2: dict[str, Any]) -> dict[str, Any]:
-    """
-    Recursively merge two dictionaries.
+    """Recursively merge two dictionaries.
+
+    This function performs a deep merge where nested dictionaries are merged
+    recursively rather than being replaced. Non-dict values from dict2 will
+    override those in dict1.
+
+    Used primarily for merging catalog configurations where nested structures
+    need to be combined while preserving both dictionaries' contributions.
+
+    Args:
+        dict1: Base dictionary (lower priority)
+        dict2: Override dictionary (higher priority)
+
+    Returns:
+        dict[str, Any]: Merged dictionary with dict2 values taking precedence
     """
     result = dict1.copy()
     for key, value in dict2.items():
@@ -111,7 +124,7 @@ class Appliance:
         )
 
     @property
-    def appliance_type(self) -> Any:
+    def appliance_type(self) -> str | None:
         """Return the reported type of the appliance.
 
         OV: Oven
@@ -159,26 +172,44 @@ class Appliance:
 
     @property
     def catalog(self) -> dict[str, Any]:
-        """Return the defined catalog for the appliance."""
+        """Return the defined catalog for the appliance.
+
+        This method builds a comprehensive entity catalog by merging multiple
+        layers of configuration in priority order: base entities, appliance-type
+        specific entities, and model-specific overrides.
+
+        The merging process ensures that more specific configurations override
+        general ones, allowing for appliance-specific customizations while
+        maintaining a consistent base set of entities.
+
+        Returns:
+            dict[str, Any]: Complete catalog of entities for this appliance
+        """
         # Return cached catalog if available
         if self._catalog_cache is not None:
             return self._catalog_cache
 
-        from .catalog_core import CATALOG_BY_TYPE
+        from .catalog_core import (
+            _get_catalog_base,
+            _get_catalog_by_type,
+            _get_catalog_model,
+        )
 
         # Start with the base catalog
-        new_catalog = copy.deepcopy(CATALOG_BASE)
+        new_catalog = copy.deepcopy(_get_catalog_base())
 
         # Merge with appliance-type specific catalog if available
         appliance_type = self.appliance_type
-        if appliance_type in CATALOG_BY_TYPE:
-            type_catalog = CATALOG_BY_TYPE[appliance_type]
+        catalog_by_type = _get_catalog_by_type()
+        if appliance_type in catalog_by_type:
+            type_catalog = catalog_by_type[appliance_type]
             for key, device in type_catalog.items():
                 new_catalog[key] = device
 
         # Apply model-specific overrides if available
-        if self.model in CATALOG_MODEL:
-            model_catalog = CATALOG_MODEL[self.model]
+        catalog_model = _get_catalog_model()
+        if self.model in catalog_model:
+            model_catalog = catalog_model[self.model]
             for key, device in model_catalog.items():
                 new_catalog[key] = device
 
@@ -190,6 +221,21 @@ class Appliance:
         """Retrieve the start from self.reported_state using the attribute name.
 
         May contain slashes for nested keys.
+
+        This method handles both simple attribute access and nested path
+        traversal using slash-separated keys. For example:
+        - "temperature" -> direct access
+        - "properties/reported/temperature" -> nested access
+
+        The nested access allows for flexible state retrieval from complex
+        appliance state structures while maintaining backward compatibility
+        with simple attribute names.
+
+        Args:
+            attr_name: Attribute name, optionally with slash-separated path
+
+        Returns:
+            The attribute value or None if not found
         """
 
         keys = attr_name.split("/")
@@ -373,8 +419,8 @@ class Appliance:
             entity_category: EntityCategory | None,
             device_class: str | None,
             icon: str | None,
-            catalog_entry: Any | None,
-            commands: Any | None = None,
+            catalog_entry: ElectroluxDevice | None,
+            commands: dict[str, Any] | None = None,
         ):
             from .binary_sensor import ElectroluxBinarySensor
             from .button import ElectroluxButton

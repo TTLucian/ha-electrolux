@@ -102,6 +102,7 @@ async def _async_get_diagnostics(
         "appliances_list": None,
         "appliances_detail": {},
         "errors": [],
+        "health_status": None,
     }
 
     errors_list = data["errors"]  # Type: list[str]
@@ -147,6 +148,11 @@ async def _async_get_diagnostics(
 
             if appliance_detail:
                 appliances_detail[appliance_id] = appliance_detail
+
+    try:
+        data["health_status"] = app_entry.get_health_status()  # type: ignore
+    except Exception as ex:
+        errors_list.append(f"Failed to get health status: {ex}")
 
     return async_redact_data(data, REDACT_ALL)
 

@@ -83,7 +83,7 @@ class ElectroluxLibraryEntity:
         """Get entity name."""
         return self.name
 
-    def get_value(self, attr_name) -> Any:
+    def get_value(self, attr_name) -> int | float | str | bool | dict[str, Any] | None:
         """Return value by attribute."""
         if "/" in attr_name:
             source, attr = attr_name.split("/")
@@ -194,7 +194,9 @@ class ElectroluxLibraryEntity:
             return UnitOfTemperature.CELSIUS
         return None
 
-    def get_entity_device_class(self, attr_name: str) -> Any:
+    def get_entity_device_class(
+        self, attr_name: str
+    ) -> NumberDeviceClass | SensorDeviceClass | None:
         """Get entity device class."""
         capability_def: dict[str, Any] | None = self.get_capability(attr_name)
         if not capability_def:

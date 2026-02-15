@@ -111,7 +111,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         # All select entities are always available regardless of program support
         return True
 
-    def format_label(self, value: str | None) -> str | None:
+    def format_label(self, value: str | int | float | bool | None) -> str | None:
         """Convert input to label string value."""
         if value is None:
             return None
@@ -144,8 +144,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         label = None
         try:
             if value is not None:
+                str_value = str(value)
                 label = list(self.options_list.keys())[
-                    list(self.options_list.values()).index(value)
+                    list(self.options_list.values()).index(str_value)
                 ]
         except (ValueError, IndexError) as ex:
             _LOGGER.info(
@@ -320,7 +321,16 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         # State will be updated via websocket streaming
 
     def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
+        """Handle updated data from the coordinator.
+
+        This method updates the appliance status from coordinator data and
+        immediately writes the new state to Home Assistant. Unlike other
+        entity types, select entities don't use caching to prevent stale
+        data issues that could lead to incorrect option filtering.
+
+        The immediate state write ensures that program-specific option
+        filtering is always based on the most current appliance state.
+        """
         if self.coordinator.data is None:
             return
         appliances = self.coordinator.data.get("appliances", None)
@@ -332,7 +342,21 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
     @property
     def options(self) -> list[str]:
-        """Return a set of selectable options filtered by program constraints."""
+        """Return a set of selectable options filtered by program constraints.
+
+        This method dynamically filters available options based on the current
+        appliance program. When a program specifies allowed values, only those
+        options are presented to prevent invalid selections.
+
+        The filtering process:
+        1. Start with all configured options from the catalog
+        2. Check for program-specific value constraints
+        3. Filter options to only include program-allowed values
+        4. Fall back to all options if no program constraints exist
+
+        Returns:
+            list[str]: Filtered list of selectable option labels
+        """
         # Start with all available options
         all_options = list(self.options_list.keys())
 
