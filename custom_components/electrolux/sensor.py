@@ -45,10 +45,10 @@ async def async_setup_entry(
                 appliance_id,
             )
             async_add_entities(entities)
+    return
 
 
 class ElectroluxSensor(ElectroluxEntity, SensorEntity):
-    """Electrolux Sensor class."""
 
     @property
     def entity_domain(self) -> str:

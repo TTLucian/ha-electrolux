@@ -229,13 +229,11 @@ async def test_handle_authentication_error(mock_coordinator):
 
 @pytest.mark.asyncio
 async def test_token_refresh_loop(mock_coordinator):
-    """Test the background token refresh loop can be started."""
-    # Mock the API call
-    mock_coordinator.api.get_appliances_list = AsyncMock()
-
-    # Just verify the method exists and can be called (without running the loop)
-    assert hasattr(mock_coordinator, "_token_refresh_loop")
-    assert callable(mock_coordinator._token_refresh_loop)
+    """Test that background token refresh loop was removed in favor of lazy refreshing."""
+    # The background token refresh loop was removed to prevent collision risks
+    # Token refresh now happens lazily through the TokenManager's get_auth_data method
+    assert not hasattr(mock_coordinator, "_token_refresh_loop")
+    assert not hasattr(mock_coordinator, "token_refresh_task")
 
 
 @pytest.mark.asyncio
@@ -286,14 +284,10 @@ async def test_token_update_callback(mock_coordinator):
 
 @pytest.mark.asyncio
 async def test_background_token_refresh_with_rate_limit(mock_coordinator):
-    """Test background token refresh handles rate limiting."""
-    # Mock API to raise rate limit error
-    mock_coordinator.api.get_appliances_list = AsyncMock(
-        side_effect=Exception("Too frequent refresh token request")
-    )
-
-    # Just verify the method exists (don't run the loop to avoid complexity)
-    assert hasattr(mock_coordinator, "_token_refresh_loop")
+    """Test that background token refresh loop was removed to prevent rate limiting issues."""
+    # The background token refresh loop was removed to prevent collision risks
+    # Rate limiting is now handled by the TokenManager's lazy refresh with cooldown
+    assert not hasattr(mock_coordinator, "_token_refresh_loop")
 
 
 @pytest.mark.asyncio

@@ -285,6 +285,57 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             return False
         return True
 
+    async def async_step_repair(
+        self, entry: ConfigEntry, data: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle repair flow for authentication issues."""
+        _LOGGER.debug("Starting repair flow for entry: %s", entry.entry_id)
+
+        # Store the entry for later use
+        self._repair_entry = entry
+
+        if data is not None:
+            # Process the repair data (new tokens)
+            result = await self._validate_repair_input(data)
+            if result is not None:
+                return result
+
+        # Show the repair form with current values as defaults
+        defaults = dict(entry.data)
+        return await self._show_config_form(defaults, "repair")
+
+    async def _validate_repair_input(
+        self, user_input: dict[str, Any]
+    ) -> ConfigFlowResult | None:
+        """Validate user input for repair."""
+        _LOGGER.debug("Validating repair input")
+
+        valid = await self._test_credentials(
+            user_input.get("api_key"),
+            user_input.get("access_token"),
+            user_input.get("refresh_token"),
+        )
+        if valid:
+            # Dismiss the token refresh issue since repair succeeded
+            from homeassistant.helpers import issue_registry
+
+            entry = getattr(self, "_repair_entry", None)
+            if entry is None:
+                _LOGGER.error("No repair entry found during repair")
+                self._errors["base"] = "repair_failed"
+                return None
+
+            issue_id = f"invalid_refresh_token_{entry.entry_id}"
+            issue_registry.async_delete_issue(self.hass, DOMAIN, issue_id)
+
+            # Update the existing entry with new tokens
+            _LOGGER.debug("Repair successful, updating entry with new tokens")
+            return self.async_update_reload_and_abort(entry, data=user_input)
+
+        _LOGGER.debug("Repair validation failed")
+        self._errors["base"] = "invalid_auth"
+        return None
+
 
 class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
     """Config flow options handler for Electrolux."""

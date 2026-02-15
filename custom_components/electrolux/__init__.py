@@ -79,6 +79,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator.setup_token_refresh_callback()
     _LOGGER.debug("Electrolux token refresh callback setup completed")
 
+    # Note: SDK's internal token refresh loop is disabled via API call serialization
+    # to prevent race conditions that cause "Invalid grant" errors
+
     # Authenticate
     _LOGGER.debug("Electrolux starting authentication process")
     if not await coordinator.async_login():

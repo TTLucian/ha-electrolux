@@ -3,6 +3,7 @@
 ## 🚀 Electrolux Integration: "Stability & UX" Update
 
 ### 🛠️ Core Infrastructure Improvements
+- **Critical Token Refresh Race Condition Fix**: Fixed a race condition where the Electrolux SDK's ApplianceClient could call `refresh_token()` directly during 401 responses, bypassing synchronization and causing "Invalid grant" errors. The `refresh_token()` method now acquires its own lock internally, ensuring thread-safe concurrent refresh attempts.
 - **Atomic Token Lifecycle Management**: Implemented a sophisticated ElectroluxTokenManager that solves common OAuth2 failures.
 - **Race-Condition Protection**: Added an AsyncLock to ensure that even if multiple sensors update simultaneously, only one refresh call is made to the servers, preventing account lockouts.
 - **Deterministic Expiry**: Added a safety buffer to refresh tokens before they expire, ensuring 24/7 data continuity.
@@ -13,6 +14,7 @@
 - **Added ElectroluxTokenManager Unit Tests**: Created a comprehensive test suite (`test_token_manager_401.py`) that uses deterministic time-mocking to verify token refresh logic.
 - **Verified Lock Logic**: Proved that the AsyncLock correctly prevents race conditions during token rotation.
 - **Verified 401 Recovery**: Confirmed the integration correctly triggers the re-authentication flow when a token is rejected.
+- **Concurrent Refresh Test**: Added `test_concurrent_sdk_refresh_calls()` to verify multiple simultaneous `refresh_token()` calls are properly serialized and don't cause race conditions.
 - **Hardened Data Coordinator**: Introduced `test_coordinator_connectivity.py` to ensure the integration can survive the "messy reality" of IoT networking.
 - **Appliance Offline Handling**: The coordinator now correctly identifies network drops vs. authentication failures, preventing unnecessary "Re-auth" pop-ups.
 - **SSE Stream Resilience**: Verified that the Server-Sent Events (SSE) stream can initialize and recover safely.
@@ -34,7 +36,7 @@ This release also implements comprehensive Entity Availability Rules, refines pr
 - **Program Support Logic**: Refined `_is_supported_by_program()` to only treat core program selectors as always-supported, while other entities follow program-specific constraints.
 
 #### Bug Fixes
-- **Slider Controls Clamping**: Fixed inconsistent clamping behavior - now properly clamps to minimum when unsupported, matching source's behavior.
+- **Optimistic Update State Persistence**: Fixed issue where number controls (particularly `targetFoodProbeTemperatureC`) would revert their state in HA when other controls were changed. The cached value is now only cleared when an actual reported value differs, not when a property is missing from state updates.
 
 
 #### Technical Improvements

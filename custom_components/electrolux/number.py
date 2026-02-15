@@ -42,6 +42,7 @@ async def async_setup_entry(
                 appliance_id,
             )
             async_add_entities(entities)
+    return
 
 
 class ElectroluxNumber(ElectroluxEntity, NumberEntity):
@@ -555,9 +556,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
     @property
     def entity_registry_enabled_default(self) -> bool:
-        """Return if the entity should be enabled when first added to the entity registry."""
-        # Always enable entities by default - availability is controlled by the available property
-        return True
         """Return if the entity should be enabled when first added to the entity registry."""
         # Always enable entities by default - availability is controlled by the available property
         return True

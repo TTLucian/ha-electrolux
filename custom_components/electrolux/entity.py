@@ -245,9 +245,9 @@ class ElectroluxEntity(CoordinatorEntity):
         if appliances is None:
             return
         self.appliance_status = appliances.get_appliance(self.pnc_id).state
-        # Only clear cached value if reported value differs from cached value
+        # Only clear cached value if we have an actual reported value that differs from cached value
         reported_value = self.extract_value()
-        if self._cached_value is not None:
+        if self._cached_value is not None and reported_value is not None:
             if self._cached_value != reported_value:
                 self._cached_value = None
         self.async_write_ha_state()

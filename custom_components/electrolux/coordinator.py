@@ -106,7 +106,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.platforms: list[str] = []
         self.renew_task: Optional[asyncio.Task] = None
         self.listen_task: Optional[asyncio.Task] = None
-        self.token_refresh_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
         self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
@@ -186,6 +185,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(
                 f"on_token_update: Received new tokens - access_token length: {len(access_token)}, refresh_token length: {len(refresh_token)}"
             )
+            # Log last 5 characters of new refresh token for debugging rotation chain
+            refresh_suffix = (
+                refresh_token[-5:] if len(refresh_token) >= 5 else refresh_token
+            )
+            _LOGGER.debug(f"New refresh token suffix: ...{refresh_suffix}")
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
@@ -489,71 +493,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
-            # Start background token refresh task
-            if not self.token_refresh_task:
-                self.token_refresh_task = self.hass.async_create_task(
-                    self._token_refresh_loop(), name="Electrolux token refresh"
-                )
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
-
-    async def _token_refresh_loop(self):
-        """Background task to refresh tokens every hour."""
-        _LOGGER.debug("Starting background token refresh task")
-        refresh_count = 0
-        while True:
-            _LOGGER.debug(
-                f"Token refresh loop: Sleeping for 3600 seconds (iteration #{refresh_count + 1})"
-            )
-            await asyncio.sleep(3600)  # 1 hour
-            refresh_count += 1
-            _LOGGER.debug(
-                f"Performing hourly token refresh check (iteration #{refresh_count})"
-            )
-            try:
-                # Trigger token refresh by making a light API call
-                _LOGGER.debug(
-                    "Token refresh loop: Making API call to trigger token refresh"
-                )
-                await self.api.get_appliances_list()
-                _LOGGER.debug("Hourly token refresh check completed successfully")
-            except Exception as ex:
-                error_msg = str(ex).lower()
-                _LOGGER.debug(f"Token refresh loop: Exception caught: {ex}")
-                if "too frequent" in error_msg or "cas_3404" in error_msg:
-                    _LOGGER.debug("Token refresh too frequent, waiting another hour")
-                    await asyncio.sleep(3600)  # Wait another hour
-                else:
-                    _LOGGER.error(f"Error during token refresh check: {ex}")
-                    # Check for permanent token errors that require reauthentication
-                    permanent_token_error_indicators = [
-                        "refresh token is invalid",
-                        "invalid grant",
-                        "invalid refresh token",
-                        "refresh token expired",
-                        "401",
-                        "unauthorized",
-                        "forbidden",
-                    ]
-                    is_permanent_token_error = any(
-                        indicator in error_msg
-                        for indicator in permanent_token_error_indicators
-                    )
-
-                    if is_permanent_token_error:
-                        _LOGGER.debug(
-                            "Token refresh loop: Permanent token error detected, triggering reauth"
-                        )
-                        try:
-                            await self.api._trigger_reauth(
-                                f"Background token refresh failed: {ex}"
-                            )
-                        except Exception as reauth_ex:
-                            _LOGGER.error(
-                                f"Failed to trigger reauth from token refresh loop: {reauth_ex}"
-                            )
-                    # Non-permanent errors (network issues, temporary failures) will be retried on next iteration
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -634,10 +576,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await asyncio.gather(*appliance_tasks, return_exceptions=True)
 
         self._deferred_tasks_by_appliance.clear()
-
-        # Cancel token refresh task
-        if self.token_refresh_task and not self.token_refresh_task.done():
-            self.token_refresh_task.cancel()
 
         # Close API connection - util.py handles SSE stream cleanup
         try:

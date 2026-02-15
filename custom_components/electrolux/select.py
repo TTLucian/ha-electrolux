@@ -43,6 +43,7 @@ async def async_setup_entry(
                 appliance_id,
             )
             async_add_entities(entities)
+    return
 
 
 class ElectroluxSelect(ElectroluxEntity, SelectEntity):

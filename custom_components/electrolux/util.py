@@ -242,7 +242,7 @@ async def retry_with_backoff(
     if last_exception:
         raise last_exception
     else:
-        raise RuntimeError("All retry attempts failed with unknown errors")
+        raise NetworkError("All retry attempts failed with unknown errors")
 
 
 def validate_api_response(
@@ -614,14 +614,14 @@ def map_command_error_to_home_assistant_error(
                 try:
                     error_data = response.json()
                 except Exception:
-                    pass
+                    pass  # JSON parsing failed, try text parsing next
             elif hasattr(response, "text"):
                 try:
                     import json
 
                     error_data = json.loads(response.text)
                 except Exception:
-                    pass
+                    pass  # Text parsing failed, continue without error data
         # Check if exception has direct error data
         elif hasattr(ex, "error_data"):
             error_data = getattr(ex, "error_data")
@@ -726,7 +726,7 @@ def map_command_error_to_home_assistant_error(
         if not status_code and hasattr(ex, "status_code"):
             status_code = getattr(ex, "status_code")
     except Exception:
-        pass
+        pass  # Safely handle any attribute access errors
 
     if status_code:
         STATUS_CODE_MAPPING = {
@@ -771,7 +771,7 @@ def map_command_error_to_home_assistant_error(
                             )
                 # If detail parsing fails, continue with generic message
                 except Exception:
-                    pass
+                    pass  # Detail parsing failed, use generic message
 
                 if detail_message:
                     user_message = detail_message
@@ -1055,6 +1055,24 @@ class ElectroluxTokenManager(TokenManager):
         self._expires_at = 0  # Store token expiration timestamp
         self._last_failed_refresh = 0  # Track failed refresh attempts
 
+    async def get_auth_data(self) -> AuthData:
+        """Get authentication data, refreshing tokens if necessary.
+
+        This method provides proactive token refresh but relies on refresh_token()
+        for synchronization since refresh_token() now acquires its own lock.
+        """
+        # Check if token needs refresh (no lock here - refresh_token() handles it)
+        current_time = int(time.time())
+        if self._expires_at and (self._expires_at - current_time <= 900):  # 15 minutes
+            _LOGGER.debug("get_auth_data: Token expired or expiring soon, refreshing")
+            success = await self.refresh_token()
+            if not success:
+                _LOGGER.warning(
+                    "get_auth_data: Token refresh failed, returning stale token. "
+                    "Reauthentication may be required."
+                )
+        return self._auth_data
+
     def set_token_update_callback_with_expiry(
         self, callback: Callable[[str, str, str, int], None]
     ) -> None:
@@ -1068,25 +1086,30 @@ class ElectroluxTokenManager(TokenManager):
         self._on_auth_error = callback
 
     async def refresh_token(self) -> bool:
-        """Refresh the access token and capture expiration information."""
-        current_time = int(time.time())
-        _LOGGER.debug(
-            f"TokenManager refresh_token: Starting token refresh process at {current_time}"
-        )
+        """Refresh the access token and capture expiration information.
 
-        # Pre-lock check: avoid acquiring lock if token is still fresh
-        if self._expires_at and (self._expires_at - current_time > 900):
-            remaining_seconds = self._expires_at - current_time
-            _LOGGER.debug(
-                f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
-            )
-            return True
+        This method is thread-safe and can be called concurrently from anywhere.
+        It acquires the refresh lock internally to prevent race conditions.
 
-        _LOGGER.debug("TokenManager refresh_token: Acquiring refresh lock")
-        async with self._refresh_lock:
-            _LOGGER.debug("TokenManager refresh_token: Refresh lock acquired")
-            # Double-check inside lock: another task may have refreshed while we waited
+        CRITICAL FIX: This method now acquires its own lock, preventing race
+        conditions when the SDK's ApplianceClient calls it directly in response
+        to 401 errors.
+        """
+        async with self._refresh_lock:  # CRITICAL FIX: Acquire lock here!
             current_time = int(time.time())
+            _LOGGER.debug(
+                f"TokenManager refresh_token: Starting token refresh process at {current_time}"
+            )
+
+            # Double-check token freshness (another task may have just refreshed while we waited for lock)
+            if self._expires_at and (
+                self._expires_at - current_time > 900
+            ):  # 15 minutes
+                remaining_seconds = self._expires_at - current_time
+                _LOGGER.debug(
+                    f"TokenManager refresh_token: Token already fresh ({remaining_seconds}s remaining), skipping refresh"
+                )
+                return True
 
             # Check retry cooldown: don't attempt refresh if we failed recently
             if current_time - self._last_failed_refresh < 60:
@@ -1096,22 +1119,14 @@ class ElectroluxTokenManager(TokenManager):
                 )
                 return False
 
-            # Freshness check: if token is still valid for >15 minutes, skip refresh
-            if self._expires_at and (
-                self._expires_at - current_time > 900
-            ):  # 15 minutes
-                remaining_seconds = self._expires_at - current_time
-                _LOGGER.debug(
-                    f"TokenManager refresh_token: Token still valid for {remaining_seconds}s (>15 mins), skipping refresh"
-                )
-                return True
-
             _LOGGER.debug("TokenManager refresh_token: Preparing refresh request")
             auth_data = self._auth_data
 
             if not auth_data or auth_data.refresh_token is None:
                 _LOGGER.error("TokenManager refresh_token: Refresh token is missing")
-                raise Exception("Missing refresh token")
+                from homeassistant.exceptions import ConfigEntryAuthFailed
+
+                raise ConfigEntryAuthFailed("Missing refresh token")
 
             payload = {REFRESH_TOKEN: auth_data.refresh_token}
             _LOGGER.debug(
@@ -1141,8 +1156,9 @@ class ElectroluxTokenManager(TokenManager):
                     expires_at=expires_at,
                 )
 
-                # Update last refresh timestamp
+                # Update last refresh timestamp and clear failed refresh counter
                 self._last_refresh_time = current_time
+                self._last_failed_refresh = 0  # Clear the failure timestamp on success
                 _LOGGER.debug(
                     f"TokenManager refresh_token: Token refresh completed successfully at {current_time}"
                 )
