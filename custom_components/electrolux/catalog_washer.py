@@ -2,6 +2,7 @@
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfMass, UnitOfTime
@@ -36,7 +37,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
             "step": 60,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timelapse",
@@ -197,28 +198,21 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:clock-start",
     ),
-    "timeToEnd": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
+    "stopTime": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "max": 86400,
+            "min": 0,
+            "step": 1800,
+            "type": "number",
+        },
         device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.MINUTES,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
-        entity_icon="mdi:timelapse",
+        entity_icon="mdi:clock-end",
+        friendly_name="Stop Time",
     ),
     # Statistics and counters
-    "applianceTotalWorkingTime": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.MINUTES,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
-    ),
-    "totalCycleCounter": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:counter",
-    ),
     "totalWashCyclesCount": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,
@@ -252,35 +246,6 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         unit=UnitOfMass.GRAMS,
         entity_category=None,
         entity_icon="mdi:weight",
-    ),
-    # UI Lock controls
-    "uiLockMode": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-            "type": "boolean",
-        },
-        device_class=SwitchDeviceClass.SWITCH,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:lock",
-        friendly_name="Child Lock",
-    ),
-    # Remote control
-    "remoteControl": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "DISABLED": {},
-                "ENABLED": {},
-                "NOT_SAFETY_RELEVANT_ENABLED": {},
-                "TEMPORARY_LOCKED": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:remote",
     ),
     # Auto-dosing system
     "autoDosing/adTankAConfiguration": ElectroluxDevice(

@@ -1,6 +1,7 @@
 """Switch platform for Electrolux."""
 
 import logging
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
@@ -8,6 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SENSOR
 from .entity import ElectroluxEntity
@@ -81,9 +83,43 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         return None
 
     @property
-    def native_value(self) -> str | int | float:
+    def native_value(self) -> datetime | str | int | float | None:
         """Return the state of the sensor."""
         value = self.extract_value()
+
+        # Special handling for timeToEnd sensors: convert to timestamp for countdown display
+        if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
+            if value is None or not isinstance(value, (int, float)):
+                return None
+            if value == -1 or value <= 0:
+                return None
+
+            # Check if appliance is in a state where timer is relevant
+            # Only show countdown when RUNNING, PAUSED, or DELAYED_START
+            appliance_state = self.reported_state.get("applianceState")
+            if appliance_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:
+                # Appliance is stopped/idle/off - don't show countdown even if API has stale value
+                return None
+
+            # API returns seconds, calculate future timestamp for countdown
+            return dt_util.now() + timedelta(seconds=value)
+
+        # Special handling for runningTime: elapsed time sensor (counts up from start)
+        if self.entity_attr == "runningTime":
+            if value is None or not isinstance(value, (int, float)):
+                return None
+            if value == -1:  # Invalid/not set
+                return None
+
+            # Check if appliance is in a state where elapsed time is relevant
+            # Only show elapsed time when RUNNING or PAUSED
+            appliance_state = self.reported_state.get("applianceState")
+            if appliance_state not in ["RUNNING", "PAUSED"]:
+                # Appliance is stopped/idle/off - don't show elapsed time
+                return None
+
+            # Allow 0 (just started) and return seconds for duration display
+            return value if value >= 0 else None
 
         # Special handling for sensors that should get live data instead of constants
         if self.entity_key in [
@@ -110,22 +146,24 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if default_value is not None:
                 value = default_value
 
-        elif self.entity_attr == "alerts":
+        if self.entity_attr == "alerts":
             if isinstance(value, list):
                 value = len(value)
             else:
                 value = 0
         elif value is not None and self.unit == UnitOfTime.MINUTES:
-            # Electrolux bug - prevent negative/disabled timers
+            # Handle timer/duration sensors
             if isinstance(value, (int, float)):
-                value = max(value, 0)
+                # Return None for invalid/unset timers (-1 or 0)
+                if value == -1 or value == 0:
+                    return None
                 # Convert to native units (minutes for time)
                 converted = time_seconds_to_minutes(value)
                 if converted is None:
                     _LOGGER.error(
                         "Unexpected None from time_seconds_to_minutes for %s", value
                     )
-                    return self._cached_value
+                    return None
                 value = float(converted)
             else:
                 _LOGGER.warning("Unexpected non-numeric value for time unit: %s", value)
@@ -141,10 +179,10 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if "_" in value:
                 value = value.replace("_", " ")
             value = value.title()
-        if value is not None:
-            self._cached_value = value
-        else:
-            value = self._cached_value
+
+        # If we still don't have a value, return None
+        if value is None:
+            return None
 
         # Ensure return type is str | int | float | None
         if value is not None and not isinstance(value, (str, int, float)):

@@ -30,37 +30,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:state-machine",
         entity_registry_enabled_default=False,
     ),
-    "applianceType": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "entity_source": "applianceInfo",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:information-outline",
-    ),
-    "capabilityHash": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "entity_source": "applianceInfo",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:lock",
-        entity_registry_enabled_default=False,
-    ),
-    "cpv": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:numeric",
-        entity_registry_enabled_default=False,
-    ),
     "cavityLight": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -77,14 +46,14 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         device_class=None,
         unit=None,
         entity_category=None,
-        entity_icon=None,
+        entity_icon="mdi:progress-clock",
     ),
     "cycleSubPhase": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},
         device_class=None,
         unit=None,
         entity_category=None,
-        entity_icon=None,
+        entity_icon="mdi:progress-helper",
     ),
     "defrostRoutineState": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},
@@ -183,19 +152,12 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:chef-hat",
     ),
-    "remoteControl": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:remote",
-    ),
     "runningTime": ElectroluxDevice(
         capability_info={"access": "read", "default": 0, "type": "number"},
         device_class=SensorDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
+        entity_icon="mdi:timer",
     ),
     "startTime": ElectroluxDevice(
         capability_info={
@@ -260,13 +222,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
-    ),
-    "timeToEnd": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.MINUTES,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
     ),
     "waterTankEmpty": ElectroluxDevice(
         capability_info={

@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import time
 from datetime import timedelta
 from typing import Any, Optional
 
@@ -124,6 +125,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
+        self._last_time_to_end: dict[str, float | None] = (
+            {}
+        )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._consecutive_auth_failures = (
+            0  # Track consecutive auth failures before creating repair
+        )
+        self._auth_failure_threshold = (
+            3  # Number of consecutive auth failures before repair
+        )
 
         super().__init__(
             hass,
@@ -136,71 +146,110 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def async_login(self) -> bool:
         """Authenticate with the service."""
-        _LOGGER.debug("Electrolux async_login: Starting authentication test")
+        _LOGGER.info("[AUTH-DEBUG] Starting authentication test")
+        _LOGGER.debug(
+            "[AUTH-DEBUG] Token manager state: token_valid=%s",
+            (
+                self.api._token_manager.is_token_valid()
+                if hasattr(self.api, "_token_manager")
+                else "N/A"
+            ),
+        )
         try:
             # Test authentication by fetching appliances
-            _LOGGER.debug(
-                "Electrolux async_login: Testing authentication with appliances list fetch"
-            )
+            _LOGGER.info("[AUTH-DEBUG] Testing credentials by fetching appliances list")
             await self.api.get_appliances_list()
-            _LOGGER.info("Electrolux logged in successfully")
-            _LOGGER.debug("Electrolux async_login: Authentication test passed")
+            _LOGGER.info("[AUTH-DEBUG] Authentication successful - credentials valid")
             return True
         except AuthenticationError as ex:
-            _LOGGER.error(f"Electrolux authentication failed: {ex}")
-            _LOGGER.debug(f"Electrolux async_login: AuthenticationError caught: {ex}")
+            _LOGGER.error(
+                f"[AUTH-DEBUG] Authentication failed - invalid credentials: {ex}"
+            )
+            _LOGGER.debug(
+                f"[AUTH-DEBUG] AuthenticationError details: {type(ex).__name__}: {str(ex)}"
+            )
             raise ConfigEntryAuthFailed("Invalid credentials") from ex
         except NetworkError as ex:
-            _LOGGER.error(f"Network error during login: {ex}")
-            _LOGGER.debug(f"Electrolux async_login: NetworkError caught: {ex}")
+            _LOGGER.error(f"[AUTH-DEBUG] Network error during authentication: {ex}")
+            _LOGGER.debug(
+                f"[AUTH-DEBUG] NetworkError details: {type(ex).__name__}: {str(ex)}"
+            )
             raise ConfigEntryNotReady from ex
         except Exception as ex:
             # Catch-all for unexpected errors
-            _LOGGER.exception(f"Unexpected error during login: {ex}")
-            _LOGGER.debug(f"Electrolux async_login: Unexpected exception caught: {ex}")
+            _LOGGER.exception(
+                f"[AUTH-DEBUG] Unexpected error during authentication: {ex}"
+            )
+            _LOGGER.debug(
+                f"[AUTH-DEBUG] Exception details: {type(ex).__name__}: {str(ex)}"
+            )
             raise ConfigEntryNotReady from ex
 
     def setup_token_refresh_callback(self) -> None:
         """Set up the token refresh callback to update config entry with new tokens."""
-        _LOGGER.debug("Setting up token refresh callback")
+        _LOGGER.info("[AUTH-DEBUG] Setting up token refresh callback")
         if not hasattr(self, "config_entry") or self.config_entry is None:
-            _LOGGER.debug(
-                "setup_token_refresh_callback: No config_entry available, skipping callback setup"
+            _LOGGER.warning(
+                "[AUTH-DEBUG] No config_entry available, cannot setup token refresh callback"
             )
             return
 
         # Capture config_entry in local variable to satisfy mypy
         config_entry = self.config_entry
-        _LOGGER.debug(
-            f"setup_token_refresh_callback: Setting up callback for config entry {config_entry.entry_id}"
+        _LOGGER.info(
+            f"[AUTH-DEBUG] Registering callback for config entry {config_entry.entry_id} (title: {config_entry.title})"
         )
 
         def on_token_update(
             access_token: str, refresh_token: str, api_key: str, expires_at: int
         ) -> None:
             """Callback to update config entry with refreshed tokens and expiration."""
-            _LOGGER.debug(
-                f"Tokens refreshed, updating config entry (expires at {expires_at})"
+            import datetime
+
+            expiry_time = datetime.datetime.fromtimestamp(expires_at)
+            time_until_expiry = expires_at - int(time.time())
+
+            _LOGGER.info(
+                "[AUTH-DEBUG] Token refresh callback triggered - new tokens received"
+            )
+            _LOGGER.info(
+                f"[AUTH-DEBUG] New token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
             )
             _LOGGER.debug(
-                f"on_token_update: Received new tokens - access_token length: {len(access_token)}, refresh_token length: {len(refresh_token)}"
+                f"[AUTH-DEBUG] Token lengths - access: {len(access_token)}, refresh: {len(refresh_token)}, api_key: {len(api_key)}"
             )
             # Log last 5 characters of new refresh token for debugging rotation chain
             refresh_suffix = (
-                refresh_token[-5:] if len(refresh_token) >= 5 else refresh_token
+                refresh_token[-5:] if len(refresh_token) >= 5 else "<short>"
             )
-            _LOGGER.debug(f"New refresh token suffix: ...{refresh_suffix}")
+            _LOGGER.debug(f"[AUTH-DEBUG] New refresh token suffix: ...{refresh_suffix}")
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
             new_data["token_expires_at"] = expires_at
-            _LOGGER.debug("on_token_update: Updating config entry with new token data")
-            self.hass.config_entries.async_update_entry(config_entry, data=new_data)
-            _LOGGER.debug("on_token_update: Config entry updated successfully")
+            _LOGGER.info("[AUTH-DEBUG] Persisting new tokens to config entry")
+
+            # Handle config entry update failures with retry
+            try:
+                self.hass.config_entries.async_update_entry(config_entry, data=new_data)
+                _LOGGER.info(
+                    "[AUTH-DEBUG] Config entry updated successfully - new tokens persisted"
+                )
+            except Exception as ex:
+                _LOGGER.error(
+                    f"[AUTH-DEBUG] CRITICAL: Failed to persist new tokens to config entry: {ex}. "
+                    f"Tokens are refreshed in memory but will be lost on restart. "
+                    f"This is a critical issue - consider restarting Home Assistant."
+                )
+                _LOGGER.debug(
+                    f"[AUTH-DEBUG] Persistence error details: {type(ex).__name__}: {str(ex)}"
+                )
+                # Tokens are still valid in memory, so operation can continue
+                # but user should be aware of persistence failure
 
         self.api.set_token_update_callback_with_expiry(on_token_update)
-        _LOGGER.debug(
-            "setup_token_refresh_callback: Token update callback registered with API client"
+        _LOGGER.info(
+            "[AUTH-DEBUG] Token update callback successfully registered with API client"
         )
 
     async def handle_authentication_error(self, exception: Exception) -> None:
@@ -219,12 +268,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def deferred_update(self, appliance_id: str, delay: int) -> None:
         """Deferred update due to Electrolux not sending updated data at the end of the appliance program/cycle."""
-        _LOGGER.debug(
-            f"Electrolux scheduling deferred update for appliance {appliance_id}"
+        _LOGGER.info(
+            f"[DEFERRED-DEBUG] Deferred update scheduled for {appliance_id}, waiting {delay}s..."
         )
         await asyncio.sleep(delay)
-        _LOGGER.debug(
-            f"Electrolux scheduled deferred update for appliance {appliance_id} running"
+        _LOGGER.info(
+            f"[DEFERRED-DEBUG] Deferred update executing for {appliance_id} after {delay}s delay"
         )
         if self.data is None:
             _LOGGER.warning("No coordinator data available for deferred update")
@@ -235,7 +284,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         try:
             appliance: Appliance = appliances.get_appliance(appliance_id)
             if appliance:
+                # Log current state before polling
+                current_time_to_end = appliance.state.get("timeToEnd", "<not set>")
+                _LOGGER.info(
+                    f"[DEFERRED-DEBUG] Before API poll: {appliance_id} timeToEnd = {current_time_to_end}"
+                )
+
                 appliance_status = await self.api.get_appliance_state(appliance_id)
+
+                # Log what the API returned
+                api_time_to_end = appliance_status.get("timeToEnd", "<not in response>")
+                _LOGGER.warning(
+                    f"[DEFERRED-DEBUG] API poll result for {appliance_id}: timeToEnd = {api_time_to_end}. "
+                    f"Full state keys: {list(appliance_status.keys())}"
+                )
+
+                # Check if this update actually changed anything
+                if current_time_to_end == api_time_to_end:
+                    _LOGGER.warning(
+                        f"[DEFERRED-DEBUG] NO CHANGE detected! API returned same timeToEnd={api_time_to_end}. "
+                        f"This suggests SSE may have already sent the final update, or state is truly stuck."
+                    )
+                else:
+                    _LOGGER.warning(
+                        f"[DEFERRED-DEBUG] State CHANGED: {current_time_to_end} -> {api_time_to_end}. "
+                        f"This confirms SSE did NOT send the final update - Electrolux bug exists!"
+                    )
+
                 appliance.update(appliance_status)
                 new_data = dict(self.data)
                 self.async_set_updated_data(new_data)
@@ -292,6 +367,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     ) -> None:
         """Process an incremental property update."""
         appliance_id = data[APPLIANCE_ID_KEY]
+
+        # Special logging for timeToEnd to verify Electrolux bug
+        if data[PROPERTY_KEY] == "timeToEnd":
+            new_value = data[VALUE_KEY]
+            old_value = self._last_time_to_end.get(appliance_id)
+
+            _LOGGER.info(
+                f"[DEFERRED-DEBUG] SSE timeToEnd update for {appliance_id}: "
+                f"{old_value} -> {new_value}s (type: {type(new_value)})"
+            )
+
+            # Detect if we skipped the 1-second trigger window
+            if old_value is not None and old_value > 1 and new_value == 0:
+                _LOGGER.warning(
+                    f"[DEFERRED-DEBUG] SKIP DETECTED! timeToEnd jumped from {old_value}s to 0s "
+                    f"without hitting the trigger range (0, 1]. This means deferred update would NOT trigger! "
+                    f"Appliance: {appliance_id}"
+                )
+            elif old_value is not None and new_value == 0:
+                _LOGGER.info(
+                    f"[DEFERRED-DEBUG] Normal completion: timeToEnd reached 0 "
+                    f"(previous value: {old_value}). Appliance: {appliance_id}"
+                )
+
+            # Track this value for next comparison
+            self._last_time_to_end[appliance_id] = new_value
+
         _LOGGER.debug(
             f"Electrolux appliance state updated for {appliance_id} "
             f"(incremental: {data[PROPERTY_KEY]} = {data[VALUE_KEY]})"
@@ -347,6 +449,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """Schedule deferred update if time entity reaches threshold."""
         appliance_data = {data[PROPERTY_KEY]: data[VALUE_KEY]}
         if self._should_defer_update(appliance_data):
+            _LOGGER.warning(
+                f"[DEFERRED-DEBUG] Trigger condition met for {appliance_id}! "
+                f"Property '{data[PROPERTY_KEY]}' = {data[VALUE_KEY]} is in range (0, 1]. "
+                f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s to check for missing final update."
+            )
             self._schedule_deferred_update(appliance_id)
 
     def _should_defer_update(self, appliance_data: dict[str, Any]) -> bool:
@@ -357,6 +464,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     value is not None
                     and TIME_ENTITY_THRESHOLD_LOW < value <= TIME_ENTITY_THRESHOLD_HIGH
                 ):
+                    _LOGGER.debug(
+                        f"[DEFERRED-DEBUG] Threshold check: {key}={value} is in trigger range (0, 1]"
+                    )
                     return True
         return False
 
@@ -506,6 +616,28 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             try:
                 await asyncio.sleep(self.renew_interval)
                 _LOGGER.debug("Electrolux renew SSE event stream")
+
+                # Validate token before reconnection to avoid using expired tokens
+                # This is a medium-priority improvement to prevent websocket connection failures
+                if hasattr(self.api, "_token_manager"):
+                    token_manager = self.api._token_manager
+                    if not token_manager.is_token_valid():
+                        _LOGGER.debug(
+                            "Token invalid/expiring before websocket renewal, triggering refresh"
+                        )
+                        try:
+                            # Give refresh up to 30 seconds to complete
+                            await asyncio.wait_for(
+                                token_manager.refresh_token(), timeout=30.0
+                            )
+                        except asyncio.TimeoutError:
+                            _LOGGER.warning(
+                                "Token refresh timed out before websocket renewal"
+                            )
+                        except Exception as ex:
+                            _LOGGER.warning(
+                                f"Token refresh failed before websocket renewal: {ex}"
+                            )
 
                 # Cancel existing SSE task before disconnecting
                 # Note: util.py watch_for_appliance_state_updates handles kill-before-restart,
@@ -817,27 +949,47 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 error_msg = str(ex).lower()
                 # Check if this is an authentication error - these should still fail the update
                 if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
-                    _LOGGER.warning(f"Authentication failed during data update: {ex}")
-                    # Create an issue to trigger reauth flow
-                    from homeassistant.helpers import issue_registry
-
-                    if self.config_entry is not None:
-                        entry_id = self.config_entry.entry_id
-                        entry_title = self.config_entry.title
-                    else:
-                        entry_id = "<unknown>"
-                        entry_title = "<unknown>"
-
-                    issue_registry.async_create_issue(
-                        self.hass,
-                        DOMAIN,
-                        f"invalid_refresh_token_{entry_id}",
-                        is_fixable=True,
-                        severity=issue_registry.IssueSeverity.ERROR,
-                        translation_key="invalid_refresh_token",
-                        translation_placeholders={"entry_title": entry_title},
+                    _LOGGER.warning(
+                        f"[AUTH-DEBUG] Authentication error during data update: {ex}"
                     )
-                    raise ConfigEntryAuthFailed("Token expired or invalid") from ex
+                    # Increment consecutive auth failure counter
+                    self._consecutive_auth_failures += 1
+                    _LOGGER.warning(
+                        f"[AUTH-DEBUG] Consecutive auth failures: {self._consecutive_auth_failures}/{self._auth_failure_threshold}"
+                    )
+
+                    # Only create repair issue after threshold is exceeded
+                    # This allows token manager's automatic refresh to recover first
+                    if self._consecutive_auth_failures >= self._auth_failure_threshold:
+                        _LOGGER.error(
+                            f"[AUTH-DEBUG] Auth failure threshold exceeded ({self._auth_failure_threshold}), creating repair issue"
+                        )
+                        from homeassistant.helpers import issue_registry
+
+                        if self.config_entry is not None:
+                            entry_id = self.config_entry.entry_id
+                            entry_title = self.config_entry.title
+                        else:
+                            entry_id = "<unknown>"
+                            entry_title = "<unknown>"
+
+                        issue_registry.async_create_issue(
+                            self.hass,
+                            DOMAIN,
+                            f"invalid_refresh_token_{entry_id}",
+                            is_fixable=True,
+                            severity=issue_registry.IssueSeverity.ERROR,
+                            translation_key="invalid_refresh_token",
+                            translation_placeholders={"entry_title": entry_title},
+                        )
+                        raise ConfigEntryAuthFailed("Token expired or invalid") from ex
+                    else:
+                        _LOGGER.info(
+                            f"[AUTH-DEBUG] Auth failure {self._consecutive_auth_failures}/{self._auth_failure_threshold}, "
+                            f"allowing token manager to retry before creating repair"
+                        )
+                        # Return failure but don't raise - let token manager handle it
+                        return False, False
                 # For other errors, just log and return failure
                 _LOGGER.warning(f"Failed to update {app_id} during refresh: {ex}")
                 return False, False  # Failure + no transition
@@ -875,6 +1027,16 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             else:
                 # Fallback for unexpected result types
                 other_errors.append(f"{app_id}: Unexpected result: {result}")
+
+        # Reset auth failure counter if ANY update succeeded
+        # This means token refresh is working, any failures were temporary
+        if successful > 0:
+            if self._consecutive_auth_failures > 0:
+                _LOGGER.info(
+                    f"[AUTH-DEBUG] Updates succeeded, resetting auth failure counter "
+                    f"(was {self._consecutive_auth_failures})"
+                )
+                self._consecutive_auth_failures = 0
 
         # Trigger SSE restart if appliances came back online
         if newly_online_appliances and self._can_restart_sse():

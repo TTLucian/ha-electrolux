@@ -107,39 +107,15 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Return the value reported by the number."""
-        # Return cached value for immediate UI feedback
-        if self._cached_value is not None:
-            return self._cached_value
+        # If entity is locked, return the locked value
+        if self._is_locked_by_program():
+            locked_value = self._get_locked_value()
+            # For time entities, convert locked value
+            if self.unit == UnitOfTime.SECONDS:
+                locked_value = time_seconds_to_minutes(locked_value) or 0
+            return locked_value
 
         value = self.extract_value()
-
-        # Special handling for targetFoodProbeTemperatureC
-        if self.entity_attr == "targetFoodProbeTemperatureC":
-            # Return 0 if food probe is not inserted
-            food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
-                return 0.0
-            # Return min value if not supported by current program
-            if not self._is_supported_by_program():
-                min_val = self._get_converted_constraint("min")
-                return min_val if min_val is not None else 0.0
-
-        # Special handling for targetTemperatureC
-        if self.entity_attr == "targetTemperatureC":
-            # Return minimum value if not supported by current program and no valid value reported
-            if not value and not self._is_supported_by_program():
-                min_val = self._get_converted_constraint("min")
-                return min_val if min_val is not None else 0.0
-
-        # For non-global entities, return minimum value if not supported by current program
-        if (
-            self.entity_attr
-            not in ["targetDuration", "startTime", "targetFoodProbeTemperatureC"]
-            and not self._is_supported_by_program()
-        ):
-            # Return minimum value when not supported by program
-            min_val = self.native_min_value
-            return min_val if min_val is not None else 0.0
 
         if self.entity_attr == "startTime" and value == -1:
             return None
@@ -148,6 +124,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             # First try program-specific default for temperature controls
             if self.entity_attr in [
                 "targetTemperatureC",
+                "targetTemperatureF",
                 "targetFoodProbeTemperatureC",
             ]:
                 program_default = self._get_program_constraint("default")
@@ -156,7 +133,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     _LOGGER.debug(
                         "Using program default for %s: %s", self.entity_attr, value
                     )
-                elif self.entity_attr == "targetTemperatureC":
+                elif self.entity_attr in ["targetTemperatureC", "targetTemperatureF"]:
                     value = self.capability.get("default", 0.0)
             # Fall back to base capability default
             if value is None:
@@ -166,7 +143,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 if not value and self.entity_attr == "targetDuration":
                     value = 0
         if not value:
-            return self._cached_value
+            return None
 
         # Ensure value is numeric before performing numeric operations
         if not isinstance(value, (int, float)):
@@ -176,7 +153,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 value,
                 type(value).__name__,
             )
-            return self._cached_value
+            return None
 
         if isinstance(self.unit, UnitOfTemperature):
             value = round(value, 2)
@@ -202,7 +179,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if max_val is not None and value > max_val:
             value = max_val
 
-        self._cached_value = value
         return value
 
     @property
@@ -220,6 +196,83 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         """Return step value: Catalog (Seconds) -> Program -> Safe Default, converted to minutes for UI."""
         return self._get_converted_constraint("step")
 
+    def _is_locked_by_program(self) -> bool:
+        """Check if this number entity is locked by the current program.
+
+        A number entity is considered locked when:
+        - Program has min=max (e.g., DEFROST with targetTemperatureC: min=40, max=40)
+        - Program has step=0 (indicating no adjustment allowed)
+        - Program doesn't include this entity in its capabilities (not supported)
+
+        Returns:
+            bool: True if entity should be locked (read-only), False if adjustable
+        """
+        # Program and global duration/time entities are never locked
+        if self.entity_attr in ["program", "targetDuration", "startTime"]:
+            return False
+
+        # Food probe temperature locked when probe not inserted
+        if self.entity_attr == "targetFoodProbeTemperatureC":
+            food_probe_state = self.reported_state.get("foodProbeInsertionState")
+            if food_probe_state == "NOT_INSERTED":
+                return True
+
+        # Get program-specific constraints
+        program_min = self._get_program_constraint("min")
+        program_max = self._get_program_constraint("max")
+        program_step = self._get_program_constraint("step")
+
+        # Check if entity is not in program capabilities at all
+        if not self._is_supported_by_program():
+            return True
+
+        # Check for locked range (min=max)
+        if program_min is not None and program_max is not None:
+            if program_min == program_max:
+                return True
+
+        # Check for zero step (no adjustment)
+        if program_step is not None and program_step == 0:
+            return True
+
+        return False
+
+    def _get_locked_value(self) -> float:
+        """Get the locked value for this entity when it's locked by the program.
+
+        Priority order:
+        1. Program-specific default value
+        2. Program-specific min value (when min=max)
+        3. Global capability default
+        4. Global capability min
+        5. 0.0 as last resort
+
+        Returns:
+            float: The value to lock the entity at
+        """
+        # Try program default first
+        program_default = self._get_program_constraint("default")
+        if program_default is not None and isinstance(program_default, (int, float)):
+            return float(program_default)
+
+        # Try program min (useful when min=max)
+        program_min = self._get_program_constraint("min")
+        if program_min is not None and isinstance(program_min, (int, float)):
+            return float(program_min)
+
+        # Fall back to global capability default
+        global_default = self.capability.get("default")
+        if global_default is not None and isinstance(global_default, (int, float)):
+            return float(global_default)
+
+        # Fall back to global capability min
+        global_min = self.capability.get("min")
+        if global_min is not None and isinstance(global_min, (int, float)):
+            return float(global_min)
+
+        # Last resort: 0.0
+        return 0.0
+
     @property
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement, converting seconds to minutes for time entities."""
@@ -236,12 +289,13 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         """Get a constraint value (min/max/step) with proper time conversion.
 
         This method implements a hierarchical fallback system for constraint values:
-        1. Catalog definitions (source of truth for entity-specific constraints)
-        2. Program-specific API constraints (dynamic based on current program)
-        3. Base capability constraints (fallback to entity definition)
+        1. Check if entity is locked (min=max or step=0) -> return locked value for all constraints
+        2. Catalog definitions (source of truth for entity-specific constraints)
+        3. Program-specific API constraints (dynamic based on current program)
+        4. Base capability constraints (fallback to entity definition)
 
         For time-based entities, values are converted from seconds (API) to minutes (UI).
-        Special handling ensures temperature controls remain available even when
+        Special handling ensures temperature controls remain available but locked when
         not supported by the current program.
 
         Args:
@@ -250,6 +304,16 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         Returns:
             float: The converted constraint value suitable for UI display
         """
+        # If entity is locked, return locked value for all constraints (min=max=step)
+        if self._is_locked_by_program():
+            locked_value = self._get_locked_value()
+            # For time entities, convert locked value if needed
+            if self.unit == UnitOfTime.SECONDS:
+                locked_value = time_seconds_to_minutes(locked_value) or 0
+            # Return 0 for step when locked (prevents UI adjustment)
+            if key == "step":
+                return 0.0
+            return float(locked_value)
         # 1. Catalog is the Source of Truth (already in correct units - seconds)
         if (
             self._catalog_entry
@@ -337,55 +401,35 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        # Special handling for targetFoodProbeTemperatureC
-        if self.entity_attr == "targetFoodProbeTemperatureC":
-            # Check if food probe is not inserted
-            food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
-                _LOGGER.warning(
-                    "Food probe not inserted for appliance %s, %s not available",
-                    self.pnc_id,
-                    self.entity_attr,
-                )
-                # Show user-friendly message
-                raise HomeAssistantError(
-                    "Food probe must be inserted to set target temperature."
-                )
+        # Check if entity is locked by program (min=max, step=0, or not supported)
+        if self._is_locked_by_program():
+            current_program = self.reported_state.get("program", "unknown")
+            locked_value = self._get_locked_value()
 
-            # Check if not supported by current program - prevent modification
-            if not self._is_supported_by_program():
-                _LOGGER.warning(
-                    "Cannot set %s for appliance %s: not supported by current program",
-                    self.entity_attr,
-                    self.pnc_id,
-                )
+            # Provide specific error message based on lock reason
+            if self.entity_attr == "targetFoodProbeTemperatureC":
+                food_probe_state = self.reported_state.get("foodProbeInsertionState")
+                if food_probe_state == "NOT_INSERTED":
+                    raise HomeAssistantError(
+                        "Food probe must be inserted to set target temperature."
+                    )
+                elif not self._is_supported_by_program():
+                    raise HomeAssistantError(
+                        f"Food probe temperature not supported by program '{current_program}'"
+                    )
+                else:
+                    raise HomeAssistantError(
+                        f"Food probe temperature locked at {locked_value}°C for program '{current_program}'"
+                    )
+            elif not self._is_supported_by_program():
                 raise HomeAssistantError(
-                    f"Target food probe temperature control not supported by current program '{self.reported_state.get('program', 'unknown')}'"
+                    f"'{self.entity_attr}' not supported by program '{current_program}'"
                 )
-
-        # Special handling for targetTemperatureC
-        elif self.entity_attr == "targetTemperatureC":
-            # Check if not supported by current program - prevent modification
-            if not self._is_supported_by_program():
-                _LOGGER.warning(
-                    "Cannot set %s for appliance %s: not supported by current program",
-                    self.entity_attr,
-                    self.pnc_id,
-                )
+            else:
+                # Locked due to min=max or step=0
                 raise HomeAssistantError(
-                    f"Target temperature control not supported by current program '{self.reported_state.get('program', 'unknown')}'"
+                    f"'{self.entity_attr}' locked at {locked_value} for program '{current_program}'"
                 )
-
-        # Prevent setting values for unsupported programs
-        if not self._is_supported_by_program():
-            _LOGGER.warning(
-                "Cannot set %s for appliance %s: not supported by current program",
-                self.entity_attr,
-                self.pnc_id,
-            )
-            raise HomeAssistantError(
-                f"Control '{self.entity_attr}' not supported by current program '{self.reported_state.get('program', 'unknown')}'"
-            )
 
         # ADD RANGE VALIDATION HERE
         min_val = self.native_min_value
@@ -409,11 +453,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         )
 
         _LOGGER.debug(
-            "Electrolux number entity %s setting value: raw=%s, unit=%s, current_cached=%s",
+            "Electrolux number entity %s setting value: raw=%s, unit=%s",
             self.entity_attr,
             value,
             self.unit,
-            self._cached_value,
         )
 
         # Rate limit commands
@@ -489,16 +532,8 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             self.capability, self.entity_attr, command_value
         )
 
-        # Save old value for rollback BEFORE optimistic update
-        old_cached_value = self._cached_value
-
-        # Optimistically update the UI immediately
-        if self.unit == UnitOfTime.SECONDS:
-            # API receives seconds, but UI shows minutes
-            self._cached_value = time_seconds_to_minutes(formatted_value) or 0
-        else:
-            self._cached_value = formatted_value
-        self.async_write_ha_state()
+        # Save old cached value for rollback BEFORE sse update
+        old_cached_value = command_value
 
         # Build the command. For legacy appliances, send simple top-level properties.
         # For DAM appliances, use appropriate wrapping.
@@ -590,9 +625,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 value,
                 old_cached_value,
             )
-            # Rollback on authentication error
-            self._cached_value = old_cached_value
-            self.async_write_ha_state()
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
@@ -606,11 +638,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 command_value,
                 ex,
             )
-            self._cached_value = old_cached_value
-            self.async_write_ha_state()
             # Re-raise the error
             raise
-        # State will be updated via websocket streaming
+        # State will be updated via SSE streaming
 
     @property
     def available(self) -> bool:

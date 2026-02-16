@@ -1,9 +1,7 @@
 """Defined catalog of entities for dishwasher type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .model import ElectroluxDevice
@@ -84,19 +82,6 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:rotate-right",
-    ),
-    # Time to end
-    "timeToEnd": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "number",
-            "min": -1,
-            "max": 86400,
-        },
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
-        entity_category=None,
-        entity_icon="mdi:clock-end",
     ),
     # Rinse aid level
     "rinseAidLevel": ElectroluxDevice(
@@ -214,18 +199,6 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:refresh",
-    ),
-    # Total cycle counter
-    "totalCycleCounter": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "number",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:counter",
-        entity_registry_enabled_default=False,
     ),
     # User selections - program options
     "userSelections/programUID": ElectroluxDevice(

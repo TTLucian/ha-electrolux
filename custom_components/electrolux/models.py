@@ -365,6 +365,8 @@ class Appliance:
                         entity_type = NUMBER
                     elif cap_type == "boolean" and access == "readwrite":
                         entity_type = SWITCH
+                    elif access == "write":
+                        entity_type = BUTTON
                     elif access == "read":
                         entity_type = SENSOR
             else:
@@ -554,6 +556,26 @@ class Appliance:
         # This ensures entities like targetDuration are always created for applicable appliance types
         for catalog_key, catalog_item in self.catalog.items():
             if catalog_item.capability_info and catalog_key not in capabilities_names:
+                # Special case: manualSync button should always be created for all appliances
+                # It's a local operation that doesn't depend on API capabilities
+                is_always_created_entity = catalog_key in ["manualSync"]
+
+                # Only add if the entity actually exists in the appliance's state
+                # (or is in the always-created list)
+                # Check both reported state and top-level state
+                attr_in_reported = catalog_key in self.reported_state
+                attr_at_top_level = (
+                    self.state.get(catalog_key) is not None if self.state else False
+                )
+                if not (
+                    attr_in_reported or attr_at_top_level or is_always_created_entity
+                ):
+                    _LOGGER.debug(
+                        "Skipping catalog entity %s - not in appliance state",
+                        catalog_key,
+                    )
+                    continue
+
                 # Check if this entity should be created for this appliance type
                 if entity := self.get_entity(catalog_key):
                     _LOGGER.debug(

@@ -1,8 +1,10 @@
 """Adds config flow for Electrolux."""
 
 import logging
+import time
 from typing import Any
 
+import jwt
 import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
@@ -10,8 +12,10 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlow,
 )
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import FlowHandler, FlowResult
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     TextSelector,
@@ -82,6 +86,28 @@ def _mask_token(token: str | None) -> str:
     return f"{token[:4]}***{token[-4:]}"
 
 
+def _extract_token_expiry(access_token: str | None) -> int | None:
+    """Extract expiry timestamp from JWT access token.
+
+    Returns unix timestamp when token expires, or None if unable to extract.
+    """
+    if not access_token:
+        return None
+
+    try:
+        payload = jwt.decode(
+            access_token,
+            options={"verify_signature": False, "verify_exp": False},
+        )
+        exp = payload.get("exp")
+        if exp and isinstance(exp, (int, float)):
+            return int(exp)
+    except Exception as e:
+        _LOGGER.debug(f"Unable to extract token expiry: {e}")
+
+    return None
+
+
 class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]  # HA metaclass requires domain kwarg
     """Config flow for Electrolux."""
 
@@ -123,6 +149,20 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             user_input.get("refresh_token"),
         )
         if valid:
+            # Extract token expiry from JWT and store it in config entry
+            access_token = user_input.get("access_token")
+            token_expiry = _extract_token_expiry(access_token)
+            if token_expiry:
+                user_input["token_expires_at"] = token_expiry
+                # Log when token will expire for visibility
+                time_remaining = token_expiry - time.time()
+                _LOGGER.info(
+                    f"Initial token expires in {time_remaining/3600:.1f} hours "
+                    f"(at timestamp {token_expiry})"
+                )
+            else:
+                _LOGGER.warning("Could not extract token expiry from JWT")
+
             return self.async_create_entry(title="Electrolux", data=user_input)
         self._errors["base"] = "invalid_auth"
         return None
@@ -143,8 +183,12 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
 
     async def async_step_reauth(self, entry: ConfigEntry) -> ConfigFlowResult:
         """Handle configuration by re-auth."""
+        _LOGGER.warning(
+            f"[AUTH-DEBUG] Reauth flow initiated for entry {entry.entry_id} (title: {entry.title})"
+        )
         # Store the entry for later use
         self._reauth_entry = entry
+        _LOGGER.info("[AUTH-DEBUG] Displaying reauth form to user")
         return await self.async_step_reauth_validate()
 
     def _get_reauth_entry(self) -> ConfigEntry:
@@ -158,25 +202,57 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self, user_input: UserInput | dict[str, Any]
     ) -> ConfigFlowResult | None:
         """Validate user input for reauth."""
+        _LOGGER.info(
+            "[AUTH-DEBUG] Validating reauth credentials (api_key: %s, access_token: %s, refresh_token: %s)",
+            _mask_token(user_input.get("api_key")),
+            _mask_token(user_input.get("access_token")),
+            _mask_token(user_input.get("refresh_token")),
+        )
         valid = await self._test_credentials(
             user_input.get("api_key"),
             user_input.get("access_token"),
             user_input.get("refresh_token"),
         )
         if valid:
+            _LOGGER.info("[AUTH-DEBUG] Reauth credentials validated successfully")
             # Dismiss the token refresh issue since re-authentication succeeded
             from homeassistant.helpers import issue_registry
 
             entry = self._get_reauth_entry()
             if entry is None:
-                _LOGGER.error("No reauth entry found during reauthentication")
+                _LOGGER.error(
+                    "[AUTH-DEBUG] CRITICAL: No reauth entry found during reauthentication"
+                )
                 self._errors["base"] = "reauth_failed"
                 return None
 
             issue_id = f"invalid_refresh_token_{entry.entry_id}"
+            _LOGGER.info(f"[AUTH-DEBUG] Dismissing repair issue: {issue_id}")
             issue_registry.async_delete_issue(self.hass, DOMAIN, issue_id)
+
+            # Extract token expiry from JWT and store it
+            access_token = user_input.get("access_token")
+            token_expiry = _extract_token_expiry(access_token)
+            entry_data = dict(user_input)
+            if token_expiry:
+                entry_data["token_expires_at"] = token_expiry
+                time_remaining = token_expiry - time.time()
+                _LOGGER.info(
+                    f"[AUTH-DEBUG] Reauth: New token expires in {time_remaining/3600:.1f} hours (at timestamp {token_expiry})"
+                )
+            else:
+                _LOGGER.warning(
+                    "[AUTH-DEBUG] Could not extract token expiry from JWT during reauth"
+                )
+
             # Update the existing entry with new tokens
-            return self.async_update_reload_and_abort(entry, data=user_input)
+            _LOGGER.info(
+                f"[AUTH-DEBUG] Updating config entry {entry.entry_id} with new credentials"
+            )
+            return self.async_update_reload_and_abort(entry, data=entry_data)
+        _LOGGER.warning(
+            "[AUTH-DEBUG] Reauth credentials validation failed - invalid credentials"
+        )
         self._errors["base"] = "invalid_auth"
         return None
 
@@ -186,14 +262,23 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         """Handle reauth and validation."""
         self._errors = {}
         if user_input is not None:
+            _LOGGER.info("[AUTH-DEBUG] Reauth form submitted, validating credentials")
             result = await self._validate_reauth_input(user_input)
             if result is not None:
+                _LOGGER.info("[AUTH-DEBUG] Reauth completed successfully")
                 return result
             # Invalid, show form with errors
+            _LOGGER.info(
+                "[AUTH-DEBUG] Reauth validation failed, showing form with errors"
+            )
 
         # For reauth, populate defaults with current config entry values
         entry = self._get_reauth_entry()
         defaults = dict(entry.data) if user_input is None else user_input
+        _LOGGER.debug(
+            "[AUTH-DEBUG] Showing reauth form with defaults (api_key: %s)",
+            _mask_token(defaults.get("api_key")),
+        )
         return await self._show_config_form(defaults, "reauth_validate")
 
     @staticmethod
@@ -284,57 +369,6 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             )
             return False
         return True
-
-    async def async_step_repair(
-        self, entry: ConfigEntry, data: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Handle repair flow for authentication issues."""
-        _LOGGER.debug("Starting repair flow for entry: %s", entry.entry_id)
-
-        # Store the entry for later use
-        self._repair_entry = entry
-
-        if data is not None:
-            # Process the repair data (new tokens)
-            result = await self._validate_repair_input(data)
-            if result is not None:
-                return result
-
-        # Show the repair form with current values as defaults
-        defaults = dict(entry.data)
-        return await self._show_config_form(defaults, "repair")
-
-    async def _validate_repair_input(
-        self, user_input: dict[str, Any]
-    ) -> ConfigFlowResult | None:
-        """Validate user input for repair."""
-        _LOGGER.debug("Validating repair input")
-
-        valid = await self._test_credentials(
-            user_input.get("api_key"),
-            user_input.get("access_token"),
-            user_input.get("refresh_token"),
-        )
-        if valid:
-            # Dismiss the token refresh issue since repair succeeded
-            from homeassistant.helpers import issue_registry
-
-            entry = getattr(self, "_repair_entry", None)
-            if entry is None:
-                _LOGGER.error("No repair entry found during repair")
-                self._errors["base"] = "repair_failed"
-                return None
-
-            issue_id = f"invalid_refresh_token_{entry.entry_id}"
-            issue_registry.async_delete_issue(self.hass, DOMAIN, issue_id)
-
-            # Update the existing entry with new tokens
-            _LOGGER.debug("Repair successful, updating entry with new tokens")
-            return self.async_update_reload_and_abort(entry, data=user_input)
-
-        _LOGGER.debug("Repair validation failed")
-        self._errors["base"] = "invalid_auth"
-        return None
 
 
 class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
@@ -500,3 +534,171 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
                 "url": "https://developer.electrolux.one/dashboard"
             },
         )
+
+
+async def async_create_fix_flow(
+    hass: HomeAssistant,
+    issue_id: str,
+    data: dict[str, str | int | float | None] | None,
+) -> FlowHandler:
+    """Create fix flow for Electrolux repair issues."""
+    return ElectroluxRepairFlow()
+
+
+class ElectroluxRepairFlow(FlowHandler):
+    """Handler for Electrolux repair flow."""
+
+    VERSION = 1
+
+    def __init__(self) -> None:
+        """Initialize repair flow."""
+        super().__init__()
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the first step of a repair flow."""
+        return await self.async_step_confirm_repair(user_input)
+
+    async def async_step_confirm_repair(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Show the form to confirm repair and enter new credentials."""
+        errors = {}
+
+        if user_input is not None:
+            # Extract entry_id from the issue_id
+            issue_id = self.context.get("issue_id", "")
+            entry_id = issue_id.replace("invalid_refresh_token_", "")
+
+            # Get the config entry
+            entry = self.hass.config_entries.async_get_entry(entry_id)
+            if entry is None:
+                _LOGGER.error("Config entry %s not found", entry_id)
+                return self.async_abort(reason="entry_not_found")
+
+            # Test the new credentials
+            api_key = user_input.get(CONF_API_KEY)
+            access_token = user_input.get(CONF_ACCESS_TOKEN)
+            refresh_token = user_input.get(CONF_REFRESH_TOKEN)
+
+            # Validate credential format
+            validation_errors = _validate_credentials(
+                api_key, access_token, refresh_token
+            )
+            if validation_errors:
+                errors["base"] = "invalid_format"
+                _LOGGER.warning(
+                    "Credential validation failed: %s", "; ".join(validation_errors)
+                )
+            else:
+                # Test credentials
+                if await self._test_credentials(api_key, access_token, refresh_token):
+                    # Update config entry with new credentials
+                    new_data = dict(entry.data)
+                    new_data[CONF_API_KEY] = api_key
+                    new_data[CONF_ACCESS_TOKEN] = access_token
+                    new_data[CONF_REFRESH_TOKEN] = refresh_token
+
+                    # Extract token expiry from JWT
+                    token_expiry = _extract_token_expiry(access_token)
+                    if token_expiry:
+                        new_data["token_expires_at"] = token_expiry
+                        time_remaining = token_expiry - time.time()
+                        _LOGGER.info(
+                            f"Repair: Token expires in {time_remaining/3600:.1f} hours"
+                        )
+
+                    self.hass.config_entries.async_update_entry(entry, data=new_data)
+
+                    # Delete the repair issue
+                    ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+
+                    # Reload the config entry
+                    await self.hass.config_entries.async_reload(entry.entry_id)
+
+                    _LOGGER.info(
+                        "Repair successful for entry %s, credentials updated", entry_id
+                    )
+                    return self.async_create_entry(title="", data={})
+
+                errors["base"] = "invalid_auth"
+                _LOGGER.warning("Invalid credentials provided during repair")
+
+        # Show the form with current values as defaults (entry_id in issue_id)
+        issue_id = self.context.get("issue_id", "")
+        entry_id = issue_id.replace("invalid_refresh_token_", "")
+        entry = self.hass.config_entries.async_get_entry(entry_id)
+
+        defaults = {}
+        if entry:
+            defaults = {
+                CONF_API_KEY: entry.data.get(CONF_API_KEY, ""),
+                CONF_ACCESS_TOKEN: "",  # Don't show old tokens for security
+                CONF_REFRESH_TOKEN: "",
+            }
+
+        data_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")
+                ): TextSelector(
+                    TextSelectorConfig(
+                        type=TextSelectorType.TEXT, autocomplete="api-key"
+                    )
+                ),
+                vol.Required(
+                    CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")
+                ): TextSelector(
+                    TextSelectorConfig(
+                        type=TextSelectorType.PASSWORD, autocomplete="access-token"
+                    )
+                ),
+                vol.Required(
+                    CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")
+                ): TextSelector(
+                    TextSelectorConfig(
+                        type=TextSelectorType.PASSWORD, autocomplete="refresh-token"
+                    )
+                ),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="confirm_repair",
+            data_schema=data_schema,
+            errors=errors,
+            description_placeholders={
+                "url": "https://developer.electrolux.one/dashboard"
+            },
+        )
+
+    async def _test_credentials(
+        self, api_key: str | None, access_token: str | None, refresh_token: str | None
+    ) -> bool:
+        """Return true if credentials is valid."""
+        _LOGGER.debug(
+            "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
+            _mask_token(api_key),
+            _mask_token(access_token),
+            _mask_token(refresh_token),
+        )
+        try:
+            client = get_electrolux_session(
+                api_key,
+                access_token,
+                refresh_token,
+                async_get_clientsession(self.hass),
+                self.hass,
+            )
+            await client.get_appliances_list()
+        except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
+            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
+            return False
+        except Exception as e:  # Fallback for unexpected errors
+            _LOGGER.error(
+                "Unexpected error during Electrolux authentication: %s",
+                type(e).__name__,
+            )
+            return False
+        return True

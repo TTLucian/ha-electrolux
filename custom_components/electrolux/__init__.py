@@ -11,6 +11,7 @@ except ImportError:
 
 import asyncio
 import logging
+import time
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -31,6 +32,7 @@ from .const import (
     CONF_ACCESS_TOKEN,
     CONF_API_KEY,
     CONF_REFRESH_TOKEN,
+    CONF_TOKEN_EXPIRES_AT,
     DEFAULT_WEBSOCKET_RENEWAL_DELAY,
     DOMAIN,
     PLATFORMS,
@@ -41,6 +43,13 @@ from .util import get_electrolux_session
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+
+def _mask_token(token: str | None) -> str:
+    """Mask sensitive token for logging purposes."""
+    if not token or len(token) < 8:
+        return "***"
+    return f"{token[:4]}***{token[-4:]}"
 
 
 def _validate_config(entry: ConfigEntry) -> None:
@@ -57,25 +66,47 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
+    _LOGGER.info(
+        f"[AUTH-DEBUG] Setting up integration entry {entry.entry_id} (title: {entry.title})"
+    )
     _validate_config(entry)
 
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
 
     # Always create new coordinator for clean, predictable behavior
-    _LOGGER.debug("Electrolux creating coordinator instance")
+    _LOGGER.debug("[AUTH-DEBUG] Creating coordinator instance")
     renew_interval = DEFAULT_WEBSOCKET_RENEWAL_DELAY
 
     api_key = entry.data.get(CONF_API_KEY) or ""
     access_token = entry.data.get(CONF_ACCESS_TOKEN) or ""
     refresh_token = entry.data.get(CONF_REFRESH_TOKEN) or ""
+    token_expires_at = entry.data.get(CONF_TOKEN_EXPIRES_AT)
+
+    _LOGGER.info(
+        "[AUTH-DEBUG] Config entry credentials loaded: api_key=%s, access_token=%s, refresh_token=%s",
+        _mask_token(api_key),
+        _mask_token(access_token),
+        _mask_token(refresh_token),
+    )
+    if token_expires_at:
+        import datetime
+
+        expiry_time = datetime.datetime.fromtimestamp(token_expires_at)
+        time_until_expiry = token_expires_at - time.time()
+        _LOGGER.info(
+            f"[AUTH-DEBUG] Stored token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
+        )
+    else:
+        _LOGGER.warning("[AUTH-DEBUG] No token expiry stored in config entry")
+
     session = async_get_clientsession(hass)
 
-    _LOGGER.debug("Electrolux creating API client session")
+    _LOGGER.debug("[AUTH-DEBUG] Creating API client session")
     client = get_electrolux_session(
         api_key, access_token, refresh_token, session, hass, entry
     )
-    _LOGGER.debug("Electrolux API client created successfully")
+    _LOGGER.info("[AUTH-DEBUG] API client created successfully")
 
     coordinator = ElectroluxCoordinator(
         hass,
@@ -87,32 +118,41 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator.config_entry = entry
 
     # Set up token refresh callback to persist new tokens
-    _LOGGER.debug("Electrolux setting up token refresh callback")
+    _LOGGER.info("[AUTH-DEBUG] Setting up token refresh callback")
     coordinator.setup_token_refresh_callback()
-    _LOGGER.debug("Electrolux token refresh callback setup completed")
+    _LOGGER.info("[AUTH-DEBUG] Token refresh callback setup completed")
 
     # Note: SDK's internal token refresh loop is disabled via API call serialization
     # to prevent race conditions that cause "Invalid grant" errors
 
     # Authenticate
-    _LOGGER.debug("Electrolux starting authentication process")
-    if not await coordinator.async_login():
-        _LOGGER.debug("Electrolux authentication failed - creating reauth issue")
-        # Create an issue to trigger reauth flow
-        from homeassistant.helpers import issue_registry
-
-        issue_registry.async_create_issue(
-            hass,
-            DOMAIN,
-            f"invalid_refresh_token_{entry.entry_id}",
-            is_fixable=True,
-            severity=issue_registry.IssueSeverity.ERROR,
-            translation_key="invalid_refresh_token",
-            translation_placeholders={
-                "entry_title": entry.title,
-            },
+    _LOGGER.info("[AUTH-DEBUG] Starting authentication test")
+    try:
+        result = await coordinator.async_login()
+        if not result:
+            _LOGGER.error(
+                "[AUTH-DEBUG] Authentication returned False - likely network issue"
+            )
+            raise ConfigEntryNotReady("Authentication failed - retrying")
+    except ConfigEntryAuthFailed as ex:
+        # Don't create repair issue here - let token manager handle it
+        # Token manager distinguishes between temporary (expired token) and permanent (invalid credentials)
+        # and will create repair only for permanent errors after retry attempts
+        _LOGGER.warning(
+            "[AUTH-DEBUG] Authentication failed, converting to ConfigEntryNotReady to allow token manager retry: %s",
+            ex,
         )
-        raise ConfigEntryAuthFailed("Electrolux wrong credentials")
+        # Convert to ConfigEntryNotReady so HA retries setup
+        # Token manager will create repair if credentials are truly invalid
+        raise ConfigEntryNotReady(
+            "Authentication failed - allowing token manager to retry"
+        ) from ex
+    except ConfigEntryNotReady:
+        # Network errors - let HA retry
+        _LOGGER.error(
+            "[AUTH-DEBUG] Network error during authentication - will retry on next HA restart"
+        )
+        raise
 
     _LOGGER.debug("Electrolux authentication completed successfully")
 

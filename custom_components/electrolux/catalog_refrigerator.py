@@ -1,6 +1,7 @@
 """Defined catalog of entities for refrigerator type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
@@ -47,10 +48,10 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     ),
     "freezer/fastModeTimeToEnd": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.TIMESTAMP,
+        unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:fridge-variant",
+        entity_icon="mdi:timer-outline",
     ),
     "freezer/targetTemperatureC": ElectroluxDevice(
         capability_info={
@@ -104,10 +105,10 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     ),
     "fridge/fastModeTimeToEnd": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.TIMESTAMP,
+        unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:fridge-variant",
+        entity_icon="mdi:timer-outline",
     ),
     "fridge/targetTemperatureC": ElectroluxDevice(
         capability_info={
@@ -124,23 +125,6 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:thermometer",
     ),
     # Main appliance controls
-    "applianceMode": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "default": "NORMAL",
-            "values": {
-                "NORMAL": {"icon": "mdi:fridge"},
-                "DEMO": {"icon": "mdi:presentation"},
-                "SERVICE": {"icon": "mdi:wrench"},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:cog",
-        friendly_name="Appliance Mode",
-    ),
     "sabbathMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -271,8 +255,8 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
             "step": 60,
             "type": "number",
         },
-        device_class=None,
-        unit="min",
+        device_class=NumberDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:clock",
         friendly_name="Reminder Time",

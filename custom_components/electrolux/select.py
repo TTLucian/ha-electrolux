@@ -133,7 +133,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         value = self.extract_value()
 
         if value is None:
-            return self._cached_value
+            return ""
 
         if self.catalog_entry and self.catalog_entry.value_mapping:
             mapping = self.catalog_entry.value_mapping
@@ -160,11 +160,8 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             label = self.format_label(value)
             if label is not None and value is not None:
                 self.options_list[label] = str(value)
-        if label is not None:
-            self._cached_value = label
-        else:
-            label = self._cached_value
-        return str(label or self._cached_value or "")
+
+        return str(label or "")
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
@@ -318,27 +315,21 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             # Re-raise any errors from execute_command_with_error_handling
             raise
         _LOGGER.debug("Electrolux select option result %s", result)
-        # State will be updated via websocket streaming
+
+        # State will be updated via SSE streaming
+        # Note: targetTemperatureC is automatically updated by the Electrolux API when program changes
+        # We do NOT need to manually send a temperature command - it creates cache conflicts
 
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator.
 
         This method updates the appliance status from coordinator data and
-        immediately writes the new state to Home Assistant. Unlike other
-        entity types, select entities don't use caching to prevent stale
-        data issues that could lead to incorrect option filtering.
-
-        The immediate state write ensures that program-specific option
-        filtering is always based on the most current appliance state.
+        immediately writes the new state to Home Assistant. Select entities
+        rely on the base class's cache management to ensure reported_state
+        is always current for option filtering.
         """
-        if self.coordinator.data is None:
-            return
-        appliances = self.coordinator.data.get("appliances", None)
-        if appliances is None:
-            return
-        self.appliance_status = appliances.get_appliance(self.pnc_id).state
-        # For select entities, don't use caching to avoid stale data issues
-        self.async_write_ha_state()
+        # Call parent to update caches and detect program changes
+        super()._handle_coordinator_update()
 
     @property
     def options(self) -> list[str]:

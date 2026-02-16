@@ -30,41 +30,10 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:state-machine",
         entity_registry_enabled_default=False,
     ),
-    "applianceType": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "entity_source": "applianceInfo",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:information-outline",
-    ),
-    "capabilityHash": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "entity_source": "applianceInfo",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:lock",
-        entity_registry_enabled_default=False,
-    ),
-    "cpv": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:numeric",
-        entity_registry_enabled_default=False,
-    ),
     # Air conditioner specific controls
     "executeCommand": ElectroluxDevice(
         capability_info={
-            "access": "readwrite",
+            "access": "write",
             "type": "string",
             "values": {
                 "ON": {},
@@ -258,17 +227,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:timer",
     ),
-    "timeToEnd": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "number",
-            "unit": "min",
-        },
-        device_class=None,
-        unit="min",
-        entity_category=None,
-        entity_icon="mdi:timer-off",
-    ),
     # Energy monitoring
     "powerConsumption": ElectroluxDevice(
         capability_info={
@@ -291,5 +249,206 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         unit="kWh",
         entity_category=None,
         entity_icon="mdi:lightning-bolt",
+    ),
+    # Additional operating modes and features
+    "cleanAirMode": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+    ),
+    "sleepMode": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:sleep",
+    ),
+    "batchSchedulerMode": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "boolean",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:calendar-clock",
+    ),
+    "verticalSwing": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:arrow-up-down",
+    ),
+    # Fan speed controls
+    "fanSpeedSetting": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "AUTO": {},
+                "HIGH": {},
+                "LOW": {},
+                "MIDDLE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan",
+    ),
+    "fanSpeedState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "HIGH": {},
+                "LOW": {},
+                "MIDDLE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan",
+    ),
+    # Filter maintenance
+    "filterState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "BUY": {},
+                "CHANGE": {},
+                "CLEAN": {},
+                "GOOD": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+    ),
+    "airFilterLifeTime": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+    ),
+    "hepaFilterLifeTime": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+    ),
+    # Timer controls
+    "stopTime": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 0,
+            "max": 1440,
+            "step": 15,
+            "unit": "min",
+        },
+        device_class=None,
+        unit="min",
+        entity_category=None,
+        entity_icon="mdi:timer-off",
+    ),
+    # Diagnostic sensors
+    "applianceUiSwVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:information",
+        entity_registry_enabled_default=False,
+    ),
+    "applianceCategory": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "default": 2,
+            "type": "enum",
+            "values": {"2": {}},
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:tag",
+        entity_registry_enabled_default=False,
+    ),
+    # Network diagnostics
+    "networkInterface/linkQualityIndicator": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "EXCELLENT": {},
+                "GOOD": {},
+                "POOR": {},
+                "UNDEFINED": {},
+                "VERY_GOOD": {},
+                "VERY_POOR": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:wifi",
+        entity_registry_enabled_default=False,
+    ),
+    "networkInterface/swVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:chip",
+        entity_registry_enabled_default=False,
+    ),
+    "networkInterface/otaState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "DESCRIPTION_AVAILABLE": {},
+                "DESCRIPTION_DOWNLOADING": {},
+                "DESCRIPTION_READY": {},
+                "FW_DOWNLOADING": {},
+                "FW_DOWNLOAD_START": {},
+                "FW_SIGNATURE_CHECK": {},
+                "FW_UPDATE_IN_PROGRESS": {},
+                "IDLE": {},
+                "READY_TO_UPDATE": {},
+                "UPDATE_ABORT": {},
+                "UPDATE_CHECK": {},
+                "UPDATE_ERROR": {},
+                "UPDATE_OK": {},
+                "WAITINGFORAUTHORIZATION": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:update",
+        entity_registry_enabled_default=False,
     ),
 }

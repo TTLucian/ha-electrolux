@@ -34,7 +34,7 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
             "step": 60,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timelapse",
@@ -133,13 +133,19 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:rotate-right",
         friendly_name="Cycle Phase",
     ),
-    "timeToEnd": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
+    "stopTime": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "max": 86400,
+            "min": 0,
+            "step": 1800,
+            "type": "number",
+        },
         device_class=SensorDeviceClass.DURATION,
-        unit=UnitOfTime.MINUTES,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
-        entity_icon="mdi:clock-end",
-        friendly_name="Time to End",
+        entity_icon="mdi:camera-timer",
+        friendly_name="Stop Time",
     ),
     # Load weight sensors
     "dryingNominalLoadWeight": ElectroluxDevice(

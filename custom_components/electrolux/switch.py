@@ -62,16 +62,14 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 value = self.get_state_attr(mapping)
 
         if value is None:
-            return self._cached_value if self._cached_value is not None else False
+            return False
+
         # Ensure value is boolean
         if isinstance(value, bool):
-            self._cached_value = value
             return value
         else:
             # If it's not a boolean, try to convert it
-            bool_value = bool(value)
-            self._cached_value = bool_value
-            return bool_value
+            return bool(value)
 
     async def switch(self, value: bool) -> None:
         """Control switch state."""
@@ -148,6 +146,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             # Re-raise any errors from execute_command_with_error_handling
             raise
         _LOGGER.debug("Electrolux set value completed")
+        # State will be updated via SSE streaming
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""

@@ -1,6 +1,5 @@
 """Entity platform for Electrolux."""
 
-import asyncio
 import hashlib
 import logging
 from typing import Any, cast
@@ -149,7 +148,6 @@ class ElectroluxEntity(CoordinatorEntity):
         self.root_attribute = ["properties", "reported"]
         self.data: Appliances | None = None
         self.coordinator = coordinator
-        self._cached_value: Any = None
         self._name = name
         self._icon = icon
         self._device_class = device_class
@@ -164,6 +162,15 @@ class ElectroluxEntity(CoordinatorEntity):
         self.pnc_id = pnc_id
         self.unit = unit
         self.capability = capability
+
+        # Performance cache: reported_state updated by coordinator
+        self._reported_state_cache: dict[str, Any] = {}
+
+        # Performance cache: program support/constraints (cleared on program change)
+        self._program_cache_key: str | None = None
+        self._is_supported_cache: bool | None = None
+        self._constraints_cache: dict[str, Any] = {}
+
         # Set entity_key for consistent FRIENDLY_NAMES lookup
         # Strip any 'fppn' prefix (with or without underscore) and make case-insensitive for robust matching
         entity_attr_lower = entity_attr.lower()
@@ -178,10 +185,6 @@ class ElectroluxEntity(CoordinatorEntity):
         # Preserving or migrating existing entity_ids should be done
         # via the entity registry APIs during setup, not by assigning
         # `self.entity_id` here which can break users' automations.
-
-        # Rate limiting for commands
-        self._last_command_time: float = 0
-        self._min_command_interval: float = 1.0  # 1 second minimum between commands
 
         _LOGGER.debug("Electrolux new entity %s for appliance %s", name, pnc_id)
 
@@ -237,7 +240,11 @@ class ElectroluxEntity(CoordinatorEntity):
         return False
 
     def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator with stale-value protection."""
+        """Handle updated data from the coordinator.
+
+        State updates arrive via SSE streaming with sub-second latency,
+        so no optimistic caching is needed.
+        """
         if self.coordinator.data is None:
             return
 
@@ -245,62 +252,23 @@ class ElectroluxEntity(CoordinatorEntity):
         if appliances is None:
             return
 
-        # 1. Capture current state before updating
-        old_program = self.reported_state.get("program")
-        old_reported_value = self.extract_value()
-
-        # 2. Update the internal appliance status
+        # Update internal state from SSE stream
         self.appliance_status = appliances.get_appliance(self.pnc_id).state
 
-        # 3. Capture new state
-        new_program = self.reported_state.get("program")
-        reported_value = self.extract_value()
+        # Performance: Cache reported_state to avoid repeated dict lookups
+        if self.appliance_status and isinstance(self.appliance_status, dict):
+            self._reported_state_cache = self.appliance_status.get(
+                "properties", {}
+            ).get("reported", {})
+        else:
+            self._reported_state_cache = {}
 
-        # 4. Handle optimistic cache
-        if self._cached_value is not None:
-
-            # Case A: This is the program selector itself
-            if self.entity_attr in ["program", "userSelections/programUID"]:
-                # Always clear cache on update to avoid string-match mismatches (UID vs Name)
-                self._cached_value = None
-
-            # Case B: A Program Change occurred
-            elif (
-                old_program is not None
-                and new_program is not None
-                and old_program != new_program
-            ):
-                # If the reported value actually CHANGED during this program swap,
-                # it means the oven forced a new default (like targetTemperatureC).
-                # We should clear the cache to show that new default.
-                if reported_value != old_reported_value:
-                    _LOGGER.debug(
-                        "Program change forced new value for %s. Clearing cache.",
-                        self.entity_attr,
-                    )
-                    self._cached_value = None
-                else:
-                    # If the value is the same (like Food Probe), keep our optimistic value!
-                    _LOGGER.debug(
-                        "Program change did not affect %s. Keeping cache.",
-                        self.entity_attr,
-                    )
-
-            # Case C: Standard Confirmation
-            elif reported_value == self._cached_value:
-                _LOGGER.debug(
-                    "Value confirmed for %s. Clearing cache.", self.entity_attr
-                )
-                self._cached_value = None
-
-            # Case D: Stale data / unrelated update (like cavity light)
-            elif reported_value is not None:
-                _LOGGER.debug(
-                    "Ignoring stale %s for %s; waiting for %s",
-                    reported_value,
-                    self.entity_attr,
-                    self._cached_value,
-                )
+        # Performance: Invalidate program caches if program changed
+        current_program = self._reported_state_cache.get("program")
+        if current_program != self._program_cache_key:
+            self._program_cache_key = current_program
+            self._is_supported_cache = None
+            self._constraints_cache.clear()
 
         self.async_write_ha_state()
 
@@ -318,15 +286,12 @@ class ElectroluxEntity(CoordinatorEntity):
 
     @property
     def reported_state(self) -> dict[str, Any]:
-        """Return reported state of the appliance."""
-        if (
-            not hasattr(self, "appliance_status")
-            or self.appliance_status is None
-            or not isinstance(self.appliance_status, dict)
-        ):
-            return {}
+        """Return reported state of the appliance.
 
-        return self.appliance_status.get("properties", {}).get("reported", {})
+        Performance: Returns cached value populated in _handle_coordinator_update()
+        to avoid repeated dict.get() chains (called dozens of times per render).
+        """
+        return self._reported_state_cache
 
     @reported_state.setter
     def reported_state(self, value: dict[str, Any] | None) -> None:
@@ -488,18 +453,30 @@ class ElectroluxEntity(CoordinatorEntity):
         return self._device_class
 
     def extract_value(self) -> int | float | str | bool | None:
-        """Return the appliance attributes of the entity."""
-        # For constant access, return value from capability metadata
+        """Return the appliance attributes of the entity with program constraint handling."""
+        # 1. Constant access check
         if self.capability.get("access") == "constant":
-            result: Any = self.capability.get("default")
-            if result is not None:
-                _LOGGER.debug(
-                    "Extracted constant value for %s: %s", self.entity_attr, result
-                )
-                return result
-            return None
+            return self.capability.get("default")
 
-        # For other access types, get from data
+        # 2. Support/Constraint Check (The "Lock" logic)
+        # If the program or hardware (probe not inserted) doesn't support the entity:
+        if not self._is_supported_by_program():
+            if self.entity_attr == "targetFoodProbeTemperatureC":
+                # Look for program-specific min first, then global min, then default to 0
+                min_val = self._get_program_constraint("min") or self.capability.get(
+                    "min", 0
+                )
+                _LOGGER.debug(
+                    "%s is not supported/inserted; locking UI to min: %s",
+                    self.entity_attr,
+                    min_val,
+                )
+                return min_val
+
+            # For other entities (like Target Temp), you might want to return None or min
+            # depending on how you want the HA UI to look when disabled.
+
+        # 3. Standard Data Extraction
         value: Any | None = None
         if self.entity_source == "applianceInfo":
             if self.appliance_status and isinstance(self.appliance_status, dict):
@@ -507,10 +484,11 @@ class ElectroluxEntity(CoordinatorEntity):
                 if isinstance(appliance_info, dict):
                     value = appliance_info.get(self.entity_attr)
         else:
-            # Check reported state first
+            # Look in reported_state (where most live oven data is)
             value = self.reported_state.get(self.entity_attr)
+
+            # Handle nested paths (e.g., userSelections/values)
             if value is None and self.entity_source:
-                # Handle nested entity_source in reported
                 if "/" in self.entity_source:
                     parts = self.entity_source.split("/")
                     category: dict[str, Any] | None = self.reported_state
@@ -521,25 +499,12 @@ class ElectroluxEntity(CoordinatorEntity):
                             category = None
                             break
                     if category and isinstance(category, dict):
-                        value = cast(Any, category.get(self.entity_attr))  # type: ignore[assignment]
+                        value = cast(Any, category.get(self.entity_attr))
                 else:
                     category = self.reported_state.get(self.entity_source, None)
                     if category and isinstance(category, dict):
                         value = category.get(self.entity_attr)
-            if value is None:
-                # Check appliance_status
-                if self.appliance_status and isinstance(self.appliance_status, dict):
-                    value = cast(Any, self.appliance_status.get(self.entity_attr))  # type: ignore[assignment]
 
-        if value is not None:
-            _LOGGER.debug("Extracted value for %s: %s", self.entity_attr, value)
-        else:
-            _LOGGER.debug(
-                "No value found for entity %s (attr: %s, source: %s)",
-                self.name,
-                self.entity_attr,
-                self.entity_source,
-            )
         return value
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
@@ -614,40 +579,45 @@ class ElectroluxEntity(CoordinatorEntity):
     #     }
 
     async def _rate_limit_command(self) -> None:
-        """Enforce minimum interval between commands."""
-        now = self.hass.loop.time()
-        time_since_last = now - self._last_command_time
+        """Rate limiting removed - Electrolux API handles its own rate limits.
 
-        if time_since_last < self._min_command_interval:
-            wait_time = self._min_command_interval - time_since_last
-            _LOGGER.debug(
-                "Rate limiting command for %s, waiting %.2fs",
-                self.entity_attr,
-                wait_time,
-            )
-            await asyncio.sleep(wait_time)
-
-        self._last_command_time = self.hass.loop.time()
+        The API will return RATE_LIMIT_EXCEEDED errors if commands are sent too quickly.
+        With SSE streaming providing instant updates, artificial delays are unnecessary.
+        """
+        pass
 
     def _is_supported_by_program(self) -> bool:
-        """Check if the entity is supported by the current program."""
+        """Check if the entity is supported by the current program.
+
+        Performance: Cache the result since this is called 5+ times per render
+        with expensive capability traversal. Invalidated when program changes.
+        """
+        # Return cached result if available (invalidated on program change)
+        if self._is_supported_cache is not None:
+            return self._is_supported_cache
+
+        # Compute support status
         if self.entity_attr in [
             "program",
             "userSelections/programUID",
         ]:
+            self._is_supported_cache = True
             return True
         current_program = self.reported_state.get("program")
         if not current_program:
+            self._is_supported_cache = True
             return True  # If no program, assume supported
 
         # Check if the appliance has program-specific capabilities
         if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
+            self._is_supported_cache = True
             return True
 
         appliance_data = self.get_appliance.data
         if not (
             hasattr(appliance_data, "capabilities") and appliance_data.capabilities
         ):
+            self._is_supported_cache = True
             return True
 
         program_caps = (
@@ -660,7 +630,9 @@ class ElectroluxEntity(CoordinatorEntity):
         if self.entity_attr not in program_caps:
             # Special check for targetDuration: always available regardless of program
             if self.entity_attr == "targetDuration":
+                self._is_supported_cache = True
                 return True
+            self._is_supported_cache = False
             return False
 
         # Start with the base disabled state from program capabilities
@@ -698,33 +670,49 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # If disabled by triggers or program settings, not supported
         if disabled:
+            self._is_supported_cache = False
             return False
 
         # Special check for food probe temperature: only available if probe is inserted
         if self.entity_attr == "targetFoodProbeTemperatureC":
             food_probe_state = self.reported_state.get("foodProbeInsertionState")
             if food_probe_state == "NOT_INSERTED":
+                self._is_supported_cache = False
                 return False
 
         # targetDuration is always available regardless of program
         if self.entity_attr == "targetDuration":
+            self._is_supported_cache = True
             return True
 
+        self._is_supported_cache = True
         return True
 
     def _get_program_constraint(self, key: str) -> int | float | str | bool | None:
-        """Get a specific constraint (min/max/step) for the current program."""
+        """Get a specific constraint (min/max/step) for the current program.
+
+        Performance: Cache constraints since this is called 4+ times per render
+        (min, max, step, default). Invalidated when program changes.
+        """
+        # Return cached value if available
+        if key in self._constraints_cache:
+            return self._constraints_cache[key]
+
+        # Compute constraint value
         current_program = self.reported_state.get("program")
         if not current_program or not self.get_appliance.data:
             return None
         try:
-            return (
+            value = (
                 self.get_appliance.data.capabilities.get("program", {})
                 .get("values", {})
                 .get(current_program, {})
                 .get(self.entity_attr, {})
                 .get(key)
             )
+            # Cache the result (cleared on program change)
+            self._constraints_cache[key] = value
+            return value
         except (AttributeError, KeyError):
             return None
 

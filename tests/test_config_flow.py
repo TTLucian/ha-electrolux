@@ -4,7 +4,11 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from custom_components.electrolux.config_flow import ElectroluxStatusFlowHandler
+from custom_components.electrolux.config_flow import (
+    ElectroluxRepairFlow,
+    ElectroluxStatusFlowHandler,
+    async_create_fix_flow,
+)
 
 
 def test_config_flow_class():
@@ -13,45 +17,52 @@ def test_config_flow_class():
 
 
 @pytest.mark.asyncio
-async def test_repair_flow_step():
-    """Test that the repair flow step exists and can be called."""
-    # Create a mock config entry
-    mock_entry = Mock()
-    mock_entry.entry_id = "test_entry"
-    mock_entry.data = {"access_token": "old_token", "refresh_token": "old_refresh"}
+async def test_repair_flow_initialization():
+    """Test that the repair flow can be created."""
+    # Create mock hass
+    mock_hass = Mock()
+    mock_hass.config_entries = Mock()
+    mock_hass.config_entries.async_get_entry = Mock(return_value=None)
 
-    # Create a flow handler
-    flow = ElectroluxStatusFlowHandler()
-
-    # Mock required methods
-    flow._test_credentials = AsyncMock(return_value={"title": "Test"})
-    flow._show_config_form = AsyncMock(
-        return_value={"type": "form", "step_id": "repair"}
-    )
-    flow.hass = Mock()
-    flow.hass.config_entries = Mock()
-    flow.hass.config_entries.async_update_entry = AsyncMock()
-
-    # Test that the repair method exists and can be called
-    result = await flow.async_step_repair(mock_entry)
-    assert result["type"] == "form"
-    assert result["step_id"] == "repair"
+    # Test that the repair flow can be created
+    flow = await async_create_fix_flow(mock_hass, "invalid_refresh_token_test", None)
+    assert flow is not None
+    assert isinstance(flow, ElectroluxRepairFlow)
 
 
 @pytest.mark.asyncio
 async def test_repair_validation():
     """Test repair input validation."""
-    flow = ElectroluxStatusFlowHandler()
+    # Create mock hass with config entry
+    mock_hass = Mock()
+    mock_entry = Mock()
+    mock_entry.entry_id = "test_entry"
+    mock_entry.data = {"api_key": "old_key", "access_token": "old_token"}
 
-    # Mock required methods
-    flow._test_credentials = AsyncMock(return_value={"title": "Test"})
-    flow.hass = Mock()
-    flow.hass.config_entries = Mock()
-    flow.hass.config_entries.async_update_entry = AsyncMock()
-    flow.hass.issue_registry = Mock()
-    flow.hass.issue_registry.async_delete = AsyncMock()
+    mock_hass.config_entries = Mock()
+    mock_hass.config_entries.async_get_entry = Mock(return_value=mock_entry)
+    mock_hass.config_entries.async_update_entry = AsyncMock()
+    mock_hass.config_entries.async_reload = AsyncMock()
+
+    # Create repair flow
+    flow = ElectroluxRepairFlow()
+    flow.hass = mock_hass
+    # Mock the context dict
+    flow.context = {"issue_id": "invalid_refresh_token_test_entry"}  # type: ignore[typeddict-item]
+
+    # Mock _test_credentials to return True
+    flow._test_credentials = AsyncMock(return_value=True)
 
     # Test validation with valid input
-    user_input = {"access_token": "new_token", "refresh_token": "new_refresh"}
-    result = await flow._validate_repair_input(user_input)
-    assert result is None  # None means validation passed
+    user_input = {
+        "api_key": "new_key",
+        "access_token": "new_token",
+        "refresh_token": "new_refresh",
+    }
+
+    # Mock async_create_entry to prevent actual entry creation
+    flow.async_create_entry = Mock(return_value={"type": "create_entry"})
+    flow.async_show_form = Mock(return_value={"type": "form"})
+
+    result = await flow.async_step_confirm_repair(user_input)
+    assert result is not None

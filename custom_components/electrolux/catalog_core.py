@@ -2,6 +2,9 @@
 
 from functools import lru_cache
 
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.const import UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .catalog_utils import (
@@ -69,6 +72,14 @@ def _get_catalog_washer_dryer():
     return CATALOG_WASHER_DRYER
 
 
+@lru_cache(maxsize=None)
+def _get_catalog_dryer():
+    """Lazy load dryer catalog."""
+    from .catalog_dryer import CATALOG_DRYER
+
+    return CATALOG_DRYER
+
+
 # definitions of model explicit overrides. These will be used to
 # create a new catalog with a merged definition of properties
 @lru_cache(maxsize=1)
@@ -107,6 +118,7 @@ def _get_catalog_by_type():
     - RF: Refrigerator - includes temperature zones and alerts
     - WM: Washing Machine - includes cycle programs and options
     - WD: Washer-Dryer - combines washing and drying functionality
+    - TD: Tumble Dryer - includes drying programs and controls
     - AC: Air Conditioner - includes climate control and air quality
     - DW: Dishwasher - includes wash programs and options
 
@@ -118,6 +130,7 @@ def _get_catalog_by_type():
         "RF": _get_catalog_refrigerator()[0],  # Refrigerator
         "WM": _get_catalog_washer(),  # Washing Machine
         "WD": _get_catalog_washer_dryer(),  # Washer-Dryer
+        "TD": _get_catalog_dryer(),  # Tumble Dryer
         "AC": _get_catalog_air_conditioner(),  # Air Conditioner
         "DW": _get_catalog_dishwasher(),  # Dishwasher
     }
@@ -325,6 +338,90 @@ def _get_catalog_base():
             entity_category=None,
             entity_icon="mdi:sync",
             friendly_name="Manual Sync",
+        ),
+        # Common diagnostic entities
+        "applianceType": ElectroluxDevice(
+            capability_info={
+                "access": "read",
+                "type": "string",
+                "entity_source": "applianceInfo",
+            },
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_icon="mdi:information-outline",
+        ),
+        "capabilityHash": ElectroluxDevice(
+            capability_info={
+                "access": "read",
+                "type": "string",
+                "entity_source": "applianceInfo",
+            },
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_icon="mdi:lock",
+            entity_registry_enabled_default=False,
+        ),
+        "cpv": ElectroluxDevice(
+            capability_info={"access": "read", "type": "string"},
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_icon="mdi:numeric",
+            entity_registry_enabled_default=False,
+        ),
+        # Common control and status entities
+        "remoteControl": ElectroluxDevice(
+            capability_info={
+                "access": "read",
+                "type": "string",
+                "values": {
+                    "DISABLED": {},
+                    "ENABLED": {},
+                    "NOT_SAFETY_RELEVANT_ENABLED": {},
+                    "TEMPORARY_LOCKED": {},
+                },
+            },
+            device_class=None,
+            unit=None,
+            entity_category=None,
+            entity_icon="mdi:remote",
+        ),
+        "uiLockMode": ElectroluxDevice(
+            capability_info={
+                "access": "readwrite",
+                "type": "boolean",
+            },
+            device_class=SwitchDeviceClass.SWITCH,
+            unit=None,
+            entity_category=None,
+            entity_icon="mdi:lock",
+            friendly_name="Child Lock",
+        ),
+        # Common statistics and counters
+        "totalCycleCounter": ElectroluxDevice(
+            capability_info={"access": "read", "type": "number"},
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_icon="mdi:counter",
+        ),
+        "applianceTotalWorkingTime": ElectroluxDevice(
+            capability_info={"access": "read", "type": "number"},
+            device_class=SensorDeviceClass.DURATION,
+            unit=UnitOfTime.MINUTES,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_icon="mdi:timelapse",
+        ),
+        # Common time-to-end countdown (used by ovens, washers, dryers, dishwashers, AC)
+        "timeToEnd": ElectroluxDevice(
+            capability_info={"access": "read", "type": "number"},
+            device_class=SensorDeviceClass.TIMESTAMP,
+            unit=None,
+            entity_category=None,
+            entity_icon="mdi:timer-outline",
+            friendly_name="Time to End",
         ),
     }
 
