@@ -55,7 +55,6 @@
   "issues": {
     "invalid_refresh_token": {
       "title": "Electrolux authentication problem",
-      "is_fixable": true,
       "fix_flow": {
         "step": {
           "confirm_repair": {
