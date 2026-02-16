@@ -75,8 +75,7 @@
         "abort": {
           "entry_not_found": "The configuration entry could not be found."
         }
-      },
-      "description": "The Electrolux integration failed to refresh API tokens: {message}. Click 'Fix' to update your credentials and restore functionality."
+      }
     },
     "food_probe_not_supported": {
       "title": "Food probe not supported by current program",
