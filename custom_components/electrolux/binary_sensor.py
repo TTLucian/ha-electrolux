@@ -92,7 +92,10 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
                 value = False  # Off otherwise
 
         if get_capability(self.capability, "access") == "constant":
-            value = get_capability(self.capability, "default")
+            default_value = get_capability(self.capability, "default")
+            # Type narrow: only assign if it's not a dict
+            if default_value is not None and not isinstance(default_value, dict):
+                value = default_value
         if isinstance(value, str):
             value = string_to_boolean(value, True)
         if value is None:

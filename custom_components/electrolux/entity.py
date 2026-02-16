@@ -371,7 +371,7 @@ class ElectroluxEntity(CoordinatorEntity):
             and self._catalog_entry.entity_icons_value_map
             and current_value in self._catalog_entry.entity_icons_value_map
         ):
-            return self._catalog_entry.entity_icons_value_map[current_value]
+            return self._catalog_entry.entity_icons_value_map[str(current_value)]
 
         # Check for value-specific icons in capability values
         if current_value is not None and self.capability.get("values"):

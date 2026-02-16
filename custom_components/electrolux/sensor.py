@@ -138,12 +138,15 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 if live_value is not None:
                     value = live_value
         elif get_capability(self.capability, "access") == "constant":
-            value = get_capability(self.capability, "default")
+            default_value = get_capability(self.capability, "default")
+            # Type narrow: only assign if it's not a dict
+            if default_value is not None and not isinstance(default_value, dict):
+                value = default_value
 
         # Use default value if no value is available from API
         if value is None:
             default_value = get_capability(self.capability, "default")
-            if default_value is not None:
+            if default_value is not None and not isinstance(default_value, dict):
                 value = default_value
 
         if self.entity_attr == "alerts":

@@ -9,7 +9,6 @@
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/TTLucian/ha-electrolux/issues",
   "loggers": ["electrolux_group_developer_sdk"],
-  "repairs": "config_flow.py",
   "requirements": [
     "electrolux-group-developer-sdk>=0.2.0"
   ],
