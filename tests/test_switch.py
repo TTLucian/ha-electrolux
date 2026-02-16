@@ -53,6 +53,7 @@ class TestElectroluxSwitch:
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
         entity.appliance_status = {"properties": {"reported": {"testAttr": True}}}
+        entity.reported_state = {"testAttr": True}
         return entity
 
     def test_entity_domain(self, switch_entity):

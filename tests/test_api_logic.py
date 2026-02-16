@@ -4,7 +4,7 @@ from custom_components.electrolux.api import (
     ElectroluxLibraryEntity,
     deep_merge_dicts,
 )
-from custom_components.electrolux.parsing import string_to_boolean
+from custom_components.electrolux.util import string_to_boolean
 
 
 class TestDeepMergeDicts:

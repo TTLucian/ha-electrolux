@@ -139,7 +139,7 @@ class ElectroluxEntity(CoordinatorEntity):
         capability: dict[str, Any],
         unit: str | None,
         device_class: Any,
-        entity_category: EntityCategory,
+        entity_category: EntityCategory | None,
         icon: str,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
@@ -313,8 +313,11 @@ class ElectroluxEntity(CoordinatorEntity):
 
         if value is None:
             self.appliance_status["properties"]["reported"] = {}
+            self._reported_state_cache = {}
         else:
             self.appliance_status["properties"]["reported"] = value
+            # Also update the cache for testing (normally done by _handle_coordinator_update)
+            self._reported_state_cache = value
 
     @property
     def is_dam_appliance(self) -> bool:

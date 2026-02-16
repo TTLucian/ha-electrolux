@@ -47,6 +47,7 @@ class TestElectroluxBinarySensor:
             icon="mdi:test",
         )
         entity.appliance_status = {"properties": {"reported": {"testAttr": True}}}
+        entity.reported_state = {"testAttr": True}
         return entity
 
     def test_entity_domain(self, binary_sensor_entity):
@@ -132,9 +133,7 @@ class TestElectroluxBinarySensor:
 
     def test_is_on_boolean_true(self, binary_sensor_entity):
         """Test is_on returns True for boolean True."""
-        binary_sensor_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": True}}
-        }
+        binary_sensor_entity.reported_state = {"testAttr": True}
         assert binary_sensor_entity.is_on is True
 
     def test_is_on_boolean_false(self, binary_sensor_entity):

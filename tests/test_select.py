@@ -84,7 +84,7 @@ class TestElectroluxSelect:
     def test_current_option_none_value(self, select_entity):
         """Test current_option handles None values."""
         select_entity.extract_value = MagicMock(return_value=None)
-        assert select_entity.current_option is None
+        assert select_entity.current_option == ""
 
     def test_current_option_unknown_value(self, select_entity):
         """Test current_option handles unknown values."""

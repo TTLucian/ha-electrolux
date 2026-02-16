@@ -114,8 +114,8 @@ class TestEntityAvailabilityRules:
         # Mock _is_supported_by_program to return False
         entity._is_supported_by_program = MagicMock(return_value=False)
 
-        # Should return minimum value (30) when not supported
-        assert entity.native_value == 30.0
+        # Should return default value (180) when not supported (locked value priority: default > min)
+        assert entity.native_value == 180.0
 
     def test_number_entity_shows_zero_fallback_when_no_minimum_defined(
         self, mock_coordinator
@@ -185,9 +185,7 @@ class TestEntityAvailabilityRules:
         entity._is_supported_by_program = MagicMock(return_value=False)
 
         # Attempting to set value should raise HomeAssistantError
-        with pytest.raises(
-            HomeAssistantError, match="not supported by current program"
-        ):
+        with pytest.raises(HomeAssistantError, match="not supported by program"):
             await entity.async_set_native_value(200.0)
 
     @pytest.mark.asyncio
@@ -228,7 +226,7 @@ class TestEntityAvailabilityRules:
         # Attempting to set value should raise HomeAssistantError with specific message
         with pytest.raises(
             HomeAssistantError,
-            match="Target food probe temperature control not supported by current program 'DOUGH_PROVING'",
+            match="Food probe temperature not supported by program",
         ):
             await entity.async_set_native_value(50.0)
 
@@ -431,12 +429,12 @@ class TestEntityAvailabilityRules:
         probe_entity.reported_state = {"program": "unsupported"}
         probe_entity._is_supported_by_program = MagicMock(return_value=False)
 
-        # Both should be available and show minimum values
+        # Both should be available and show minimum values (fallback when no default)
         assert temp_entity.available is True
-        assert temp_entity.native_value == 50.0
+        assert temp_entity.native_value == 50.0  # min value (no default in capability)
 
         assert probe_entity.available is True
-        assert probe_entity.native_value == 30.0
+        assert probe_entity.native_value == 30.0  # min value (no default in capability)
 
     def test_entities_remain_available_when_program_changes(
         self, mock_coordinator, mock_capability_temperature, mock_capability_select
@@ -494,7 +492,9 @@ class TestEntityAvailabilityRules:
         assert select_entity.available is True
 
         # Should show constrained values
-        assert temp_entity.native_value == 30.0  # min value
+        assert (
+            temp_entity.native_value == 180.0
+        )  # default value (locked value priority: default > min)
         assert select_entity.current_option == ""  # empty selection
 
         # Test with program that supports entities
@@ -509,6 +509,9 @@ class TestEntityAvailabilityRules:
             "targetTemperatureC": 200,
         }
         temp_entity._is_supported_by_program = MagicMock(return_value=True)
+        temp_entity._is_locked_by_program = MagicMock(
+            return_value=False
+        )  # Not locked when supported
 
         select_entity.appliance_status = appliance_status_supported
         select_entity.reported_state = {

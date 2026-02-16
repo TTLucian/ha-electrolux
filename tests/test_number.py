@@ -274,7 +274,9 @@ class TestElectroluxNumber:
 
     def test_native_step_program_specific(self, number_entity):
         """Test step value from program-specific constraints."""
-        number_entity._get_program_constraint = MagicMock(return_value=5)
+        number_entity._get_program_constraint = MagicMock(
+            side_effect=lambda key: 5 if key == "step" else None
+        )
         assert number_entity.native_step == 5
 
     def test_native_step_time_conversion(self, mock_coordinator):
@@ -383,9 +385,7 @@ class TestElectroluxNumber:
         number_entity._is_supported_by_program = MagicMock(return_value=False)
         number_entity.entity_attr = "someControl"  # Not targetFoodProbeTemperatureC
 
-        with pytest.raises(
-            HomeAssistantError, match="not supported by current program"
-        ):
+        with pytest.raises(HomeAssistantError, match="not supported by program"):
             await number_entity.async_set_native_value(50.0)
 
     @pytest.mark.asyncio
@@ -413,9 +413,7 @@ class TestElectroluxNumber:
         entity.reported_state = {"program": "unsupported_program"}
         entity._is_supported_by_program = MagicMock(return_value=False)
 
-        with pytest.raises(
-            HomeAssistantError, match="Target temperature control not supported"
-        ):
+        with pytest.raises(HomeAssistantError, match="not supported by program"):
             await entity.async_set_native_value(180.0)
 
     @pytest.mark.asyncio
@@ -462,7 +460,7 @@ class TestElectroluxNumber:
             with patch.object(entity, "async_write_ha_state"):
                 with pytest.raises(
                     HomeAssistantError,
-                    match="Target food probe temperature control not supported",
+                    match="not supported by program",
                 ):
                     await entity.async_set_native_value(70.0)
         capability = {"access": "readwrite", "type": "number", "max": 7200, "step": 60}

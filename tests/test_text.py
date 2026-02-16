@@ -57,6 +57,7 @@ class TestElectroluxText:
         entity.appliance_status = {
             "properties": {"reported": {"testAttr": "test value"}}
         }
+        entity.reported_state = {"testAttr": "test value"}
         return entity
 
     def test_entity_domain(self, text_entity):

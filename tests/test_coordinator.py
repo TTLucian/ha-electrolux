@@ -33,6 +33,11 @@ def mock_coordinator(mock_api_client):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0
+        coord._consecutive_auth_failures = 0
+        coord._auth_failure_threshold = 3
+        coord._last_time_to_end = {}
+        coord._deferred_tasks = set()
+        coord._deferred_tasks_by_appliance = {}
 
         # Mock hass.loop.time() for cleanup timing
         mock_loop = MagicMock()
@@ -140,6 +145,9 @@ async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
     mock_coordinator.config_entry = MagicMock()  # Mock config entry
     mock_coordinator.config_entry.entry_id = "test_entry_id"
     mock_coordinator.config_entry.title = "Test Entry"
+    mock_coordinator._auth_failure_threshold = (
+        1  # Trigger reauth on first failure for test
+    )
 
     # Call the update method and expect it to raise ConfigEntryAuthFailed
     from homeassistant.exceptions import ConfigEntryAuthFailed

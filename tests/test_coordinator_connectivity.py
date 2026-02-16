@@ -68,6 +68,9 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
         coord._manual_sync_lock = asyncio.Lock()
         coord._last_cleanup_time = 0
         coord._last_manual_sync_time = 0
+        coord._consecutive_auth_failures = 0
+        coord._auth_failure_threshold = 3
+        coord._last_time_to_end = {}
         coord._can_restart_sse = MagicMock(return_value=True)
         return coord
 
