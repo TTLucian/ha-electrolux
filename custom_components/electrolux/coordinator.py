@@ -413,6 +413,20 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
             return
 
+        # Check if value actually changed (Electrolux SSE sometimes sends duplicates)
+        old_value = appliance.reported_state.get(data[PROPERTY_KEY])
+        new_value = data[VALUE_KEY]
+        value_changed = old_value != new_value
+
+        if not value_changed:
+            _LOGGER.debug(
+                f"Skipping duplicate SSE update for {appliance_id}: "
+                f"{data[PROPERTY_KEY]} = {new_value} (unchanged)"
+            )
+            # Still update last seen time even if value unchanged (keeps appliance alive)
+            self._last_update_times[appliance_id] = self.hass.loop.time()
+            return
+
         try:
             appliance.update_reported_data({data[PROPERTY_KEY]: data[VALUE_KEY]})
         except (KeyError, ValueError, TypeError) as ex:
@@ -533,6 +547,23 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     TIMESTAMP_KEY,
                 ]
             }
+
+        # Check if any values actually changed (Electrolux SSE sometimes sends duplicates)
+        any_changed = False
+        for key, new_value in appliance_data.items():
+            old_value = appliance.reported_state.get(key)
+            if old_value != new_value:
+                any_changed = True
+                break
+
+        if not any_changed:
+            _LOGGER.debug(
+                f"Skipping duplicate bulk SSE update for {appliance_id}: "
+                f"all {len(appliance_data)} properties unchanged"
+            )
+            # Still update last seen time even if values unchanged (keeps appliance alive)
+            self._last_update_times[appliance_id] = self.hass.loop.time()
+            return
 
         _LOGGER.debug(
             f"Electrolux appliance state updated for {appliance_id} "
