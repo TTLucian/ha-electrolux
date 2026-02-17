@@ -148,6 +148,17 @@ class ElectroluxEntity(CoordinatorEntity):
         self.root_attribute = ["properties", "reported"]
         self.data: Appliances | None = None
         self.coordinator = coordinator
+
+        # Initialize appliance_status from coordinator data immediately
+        # This ensures entities have state on first load, not just after SSE updates
+        self.appliance_status: ApplianceState | dict[str, Any] | None = None
+        if coordinator.data:
+            appliances = coordinator.data.get("appliances")
+            if appliances:
+                appliance = appliances.get_appliance(pnc_id)
+                if appliance:
+                    self.appliance_status = appliance.state
+
         self._name = name
         self._icon = icon
         self._device_class = device_class
@@ -164,10 +175,16 @@ class ElectroluxEntity(CoordinatorEntity):
         self.capability = capability
 
         # Performance cache: reported_state updated by coordinator
+        # Initialize cache from appliance_status if available
         self._reported_state_cache: dict[str, Any] = {}
+        if self.appliance_status and isinstance(self.appliance_status, dict):
+            self._reported_state_cache = self.appliance_status.get(
+                "properties", {}
+            ).get("reported", {})
 
         # Performance cache: program support/constraints (cleared on program change)
-        self._program_cache_key: str | None = None
+        # Initialize from current program if available
+        self._program_cache_key: str | None = self._reported_state_cache.get("program")
         self._is_supported_cache: bool | None = None
         self._constraints_cache: dict[str, Any] = {}
 
