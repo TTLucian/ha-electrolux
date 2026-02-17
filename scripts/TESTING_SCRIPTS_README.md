@@ -40,12 +40,14 @@ The script creates files named after the appliance model with the PNC (Product N
 
 This interactive script allows you to send test commands directly to your appliances and see the results. It's invaluable for testing new features, debugging issues, and understanding the correct command format for different appliance functions.
 
+**Important:** Commands are sent **optimistically** without client-side validation. The script sends commands directly to the Electrolux API, which performs authoritative validation of remote control status, appliance state, and command support. This matches the behavior of the Home Assistant integration.
+
 #### Features:
-- **Interactive Command Testing**: Send JSON commands and see immediate results
-- **Clean API Response Display**: Shows only the raw JSON response from the Electrolux API
+- **Optimistic Command Sending**: Commands sent directly to API without pre-validation
+- **Complete API Response Display**: Shows raw JSON response including error details
 - **State Monitoring**: Check current appliance state before/after commands
 - **Command History**: Tracks command count during session
-- **Safety Features**: Shows command preview before sending
+- **Detailed Error Information**: Displays exact API rejection reasons
 
 #### Usage:
 
@@ -165,6 +167,9 @@ python scripts/script_test_commands.py
 - **Understand Timeouts**: Some commands may take time to complete
 
 ### Command Safety:
+- **Optimistic Sending**: Commands are sent directly to API for validation
+- **API Validation**: API checks remote control status, appliance state, and command support
+- **Remote Control**: API enforces remote control requirements (may vary by appliance)
 - **Boolean Commands**: `{"cavityLight": true}` / `{"cavityLight": false}` are usually safe
 - **Numeric Limits**: Respect min/max values from capabilities
 - **Step Constraints**: Use values that align with step requirements
@@ -172,8 +177,10 @@ python scripts/script_test_commands.py
 
 ### Error Handling:
 - Commands may fail due to appliance state (e.g., can't start if door is open)
+- **Remote Control Disabled**: API will reject if remote control is not enabled
+- **Validation Errors**: API provides detailed rejection reasons in response
 - Network issues can cause temporary failures
-- Invalid commands will be rejected by the API
+- Invalid commands will be rejected by the API with clear error messages
 
 ## 🔍 Troubleshooting
 
@@ -190,9 +197,13 @@ python scripts/script_test_commands.py
 - Verify the appliance ID is correct
 
 #### Command Failures:
-- Check appliance state - some commands require specific conditions
-- Verify command format matches capability definitions
-- Ensure numeric values respect min/max/step constraints
+- **Check API Response**: Script displays complete raw JSON error response
+- **Remote Control**: May fail if remote control disabled (check `remoteControl` and `persistentRemoteControl` in state)
+- **Appliance State**: Some commands require specific conditions (e.g., READY_TO_START for START)
+- **Command Format**: Verify command format matches capability definitions
+- **Value Constraints**: Ensure numeric values respect min/max/step constraints
+- **HTTP 403**: Usually indicates remote control is disabled on the appliance
+- **HTTP 406**: Usually indicates command validation failed (unsupported operation or wrong state)
 
 #### Connection Issues:
 - Check your internet connection
@@ -217,37 +228,54 @@ Choose an appliance (enter number): 1
 
 🔧 Starting test command session for: My Oven (944188772-00-31862190-443E07363DAB)
 
-📊 Getting current state for appliance: 944188772-00-31862190-443E07363DAB
-✅ Current state retrieved
+======================================================================
+COMMAND TESTING MODE - OPTIMISTIC SENDING
+======================================================================
+Commands are sent directly to the API without client-side validation.
+The API will validate remote control status and appliance support.
 
 Command #1 > {"cavityLight": true}
-📤 Sending command to appliance 944188772-00-31862190-443E07363DAB:
+📤 Sending command optimistically to appliance 944188772-00-31862190-443E07363DAB:
    Command: {
      "cavityLight": true
    }
+   (Commands are sent directly to API - API will validate remote control status)
+
 ✅ Command executed successfully!
-📨 API Response:
+📨 Raw API Response:
 {
   "commandId": "abc123-def456",
   "status": "accepted",
   "timestamp": "2024-01-15T10:30:00Z"
 }
+
+======================================================================
+✅ Command accepted by API
+======================================================================
 ```
 
 ### Error Response Example:
 ```
 Command #2 > {"cavityLight": true}
-📤 Sending command to appliance 944188772-00-31862190-443E07363DAB:
+📤 Sending command optimistically to appliance 944188772-00-31862190-443E07363DAB:
    Command: {
      "cavityLight": true
    }
-❌ Command failed!
-📨 API Response:
+   (Commands are sent directly to API - API will validate remote control status)
+
+❌ Command rejected by API!
+📨 Raw API Response:
 {
   "error": "COMMAND_VALIDATION_ERROR",
   "message": "Command validation failed",
   "detail": "Remote control disabled"
 }
+
+💡 Tip: API validates remote control status, appliance state, and command support.
+
+======================================================================
+❌ Command rejected by API
+======================================================================
 ```
 
 ## 🤝 Contributing

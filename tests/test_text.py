@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from homeassistant.const import EntityCategory
-from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import TEXT
 from custom_components.electrolux.text import ElectroluxText
@@ -322,11 +321,16 @@ class TestElectroluxText:
 
     @pytest.mark.asyncio
     async def test_set_value_remote_control_disabled(self, text_entity):
-        """Test set_value when remote control is disabled raises error."""
+        """Test set_value when remote control is disabled - command is sent optimistically to API."""
         text_entity.is_remote_control_enabled = MagicMock(return_value=False)
 
-        with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
-            await text_entity.async_set_value("new value")
+        # With optimistic sending, command should be sent to API (API will validate)
+        # Mock the API to simulate successful call (API would reject if truly disabled)
+        text_entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        await text_entity.async_set_value("new value")
+
+        # Verify command was sent to API (not blocked client-side)
+        text_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_set_value_with_dam_appliance(

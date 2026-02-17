@@ -190,27 +190,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 "Please check that the appliance is plugged in and has network connectivity."
             )
 
-        # Check if remote control is enabled
-        remote_control = (
-            self.appliance_status.get("properties", {})
-            .get("reported", {})
-            .get("remoteControl")
-            if self.appliance_status
-            else None
-        )
-        # Check for disabled states
-        if remote_control is not None and (
-            "ENABLED" not in str(remote_control) or "DISABLED" in str(remote_control)
-        ):
-            _LOGGER.warning(
-                "Cannot select option %s for appliance %s: remote control is %s",
-                option,
-                self.pnc_id,
-                remote_control,
-            )
-            raise HomeAssistantError(
-                f"Remote control is disabled (status: {remote_control})"
-            )
+        # Remote control validation removed - API handles this with precise appliance-specific rules.
+        # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
+        # that only the API can accurately validate. Error handling in util.py displays friendly messages.
 
         value: Any = self.options_list.get(option, None)
         if value is None:

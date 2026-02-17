@@ -653,4 +653,40 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         friendly_name="Cycle Personalization Quick",
         entity_registry_enabled_default=False,
     ),
+    # Software versions (diagnostic)
+    "applianceMainBoardSwVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:chip",
+        friendly_name="Main Board Software Version",
+        entity_registry_enabled_default=False,
+    ),
+    "applianceUiSwVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:monitor",
+        friendly_name="UI Software Version",
+        entity_registry_enabled_default=False,
+    ),
+    # Water hardness setting (for steam dryers)
+    "waterHardness": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "HARD": {},
+                "MEDIUM": {},
+                "SOFT": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:water-opacity",
+        friendly_name="Water Hardness",
+    ),
 }

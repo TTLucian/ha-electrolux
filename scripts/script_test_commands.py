@@ -19,40 +19,60 @@ from custom_components.electrolux.util import ElectroluxApiClient
 async def send_test_command(
     client: ElectroluxApiClient, appliance_id: str, command: dict
 ):
-    """Send a test command to an appliance."""
+    """Send a test command to an appliance (optimistic - no remote control pre-check)."""
     try:
-        print(f"📤 Sending command to appliance {appliance_id}:")
+        print(f"📤 Sending command optimistically to appliance {appliance_id}:")
         print(f"   Command: {json.dumps(command, indent=2)}")
+        print(
+            "   (Commands are sent directly to API - API will validate remote control status)"
+        )
 
         result = await client.execute_appliance_command(appliance_id, command)
 
-        print("✅ Command executed successfully!")
-        print("📨 API Response:")
+        print("\n✅ Command executed successfully!")
+        print("📨 Raw API Response:")
         if result is not None:
-            print(f"{json.dumps(result, indent=2)}")
+            print(json.dumps(result, indent=2))
         else:
             print("null")
         return True
 
     except Exception as e:
-        print("❌ Command failed!")
-        print("📨 API Response:")
+        print("\n❌ Command rejected by API!")
+        print("📨 Raw API Response:")
 
-        # Try to extract the raw JSON response from the error
+        # Try to extract and display the complete error response
         error_msg = str(e)
-        # Look for JSON in the error message
-        import re
 
-        json_match = re.search(r"message=\"(\{.*\})\"", error_msg)
-        if json_match:
-            try:
-                error_json = json.loads(json_match.group(1))
-                print(f"{json.dumps(error_json, indent=2)}")
-            except Exception:
-                print(f"{json_match.group(1)}")
-        else:
-            # Fallback to showing the error message
-            print(f"Error: {str(e)}")
+        # Check if it's an HTTP error with response body
+        try:
+            if hasattr(e, "response_body"):
+                error_json = json.loads(e.response_body)  # type: ignore
+                print(json.dumps(error_json, indent=2))
+            elif hasattr(e, "__dict__") and "response" in e.__dict__:
+                # Try to get response from exception attributes
+                print(json.dumps(e.__dict__, indent=2, default=str))
+            else:
+                # Try to extract JSON from error message
+                import re
+
+                json_match = re.search(r"\{.*\}", error_msg, re.DOTALL)
+                if json_match:
+                    try:
+                        error_json = json.loads(json_match.group(0))
+                        print(json.dumps(error_json, indent=2))
+                    except Exception:
+                        print(json_match.group(0))
+                else:
+                    # Fallback to showing the complete error message
+                    print(f"Error: {error_msg}")
+        except Exception:
+            # If all parsing fails, show the error message
+            print(f"Error: {error_msg}")
+
+        print(
+            "\n💡 Tip: API validates remote control status, appliance state, and command support."
+        )
         return False
 
 
@@ -175,10 +195,12 @@ async def main():
         await show_appliance_state(client, appliance_id)
 
         # Command loop
-        print("\n" + "=" * 60)
-        print("COMMAND TESTING MODE")
-        print("=" * 60)
-        print("Enter JSON commands to send to the appliance.")
+        print("\n" + "=" * 70)
+        print("COMMAND TESTING MODE - OPTIMISTIC SENDING")
+        print("=" * 70)
+        print("Commands are sent directly to the API without client-side validation.")
+        print("The API will validate remote control status and appliance support.")
+        print("\nEnter JSON commands to send to the appliance.")
         print("Examples:")
         print('  {"cavityLight": true}')
         print('  {"light": "ON"}')
@@ -206,6 +228,18 @@ async def main():
                     break
 
                 if command_input.lower() in ["help", "h"]:
+                    print("\n" + "=" * 70)
+                    print("OPTIMISTIC COMMAND SENDING")
+                    print("=" * 70)
+                    print(
+                        "Commands are sent directly to API - no client-side validation."
+                    )
+                    print("The API is authoritative for:")
+                    print(
+                        "  • Remote control status (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, etc.)"
+                    )
+                    print("  • Appliance state compatibility")
+                    print("  • Command support validation")
                     print("\nCommands:")
                     print("  'state' or 's' - Show current appliance state")
                     print("  'quit' or 'q' - Exit the program")
@@ -227,14 +261,18 @@ async def main():
                     print("Please enter valid JSON or use 'help' for examples.")
                     continue
 
-                # Send the command
+                # Send the command (optimistic - no pre-validation)
                 success = await send_test_command(client, appliance_id, command)
                 command_count += 1
 
                 if success:
-                    print("✅ Command sent successfully!")
+                    print("\n" + "=" * 70)
+                    print("✅ Command accepted by API")
+                    print("=" * 70)
                 else:
-                    print("❌ Command failed!")
+                    print("\n" + "=" * 70)
+                    print("❌ Command rejected by API")
+                    print("=" * 70)
 
                 # Small delay between commands
                 await asyncio.sleep(0.5)

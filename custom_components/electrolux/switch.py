@@ -87,16 +87,9 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 "Please check that the appliance is plugged in and has network connectivity."
             )
 
-        # Check if remote control is enabled before sending command
-        if not self.is_remote_control_enabled():
-            _LOGGER.warning(
-                "Remote control is disabled for appliance %s, cannot execute command for %s",
-                self.pnc_id,
-                self.entity_attr,
-            )
-            raise HomeAssistantError(
-                "Remote control is disabled for this appliance. Please check the appliance settings."
-            )
+        # Remote control validation removed - API handles this with precise appliance-specific rules.
+        # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
+        # that only the API can accurately validate. Error handling in util.py displays friendly messages.
 
         client: ElectroluxApiClient = self.api
         # Use dynamic capability-based value formatting

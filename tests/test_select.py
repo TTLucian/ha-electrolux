@@ -158,13 +158,18 @@ class TestElectroluxSelect:
 
     @pytest.mark.asyncio
     async def test_async_select_option_remote_control_disabled(self, select_entity):
-        """Test selecting option when remote control is disabled raises error."""
+        """Test selecting option when remote control is disabled - command is sent optimistically to API."""
         select_entity.appliance_status = {
             "properties": {"reported": {"remoteControl": "DISABLED"}}
         }
 
-        with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
-            await select_entity.async_select_option("Option 1")
+        # With optimistic sending, command should be sent to API (API will validate)
+        # Mock the API to simulate successful call (API would reject if truly disabled)
+        select_entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        await select_entity.async_select_option("Option 1")
+
+        # Verify command was sent to API (not blocked client-side)
+        select_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_select_with_user_selections_source(

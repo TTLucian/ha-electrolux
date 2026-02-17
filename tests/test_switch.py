@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.const import EntityCategory
-from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import SWITCH
 from custom_components.electrolux.switch import ElectroluxSwitch
@@ -158,11 +157,16 @@ class TestElectroluxSwitch:
 
     @pytest.mark.asyncio
     async def test_async_turn_on_remote_control_disabled(self, switch_entity):
-        """Test turning on when remote control is disabled raises error."""
+        """Test turning on when remote control is disabled - command is sent optimistically to API."""
         switch_entity.is_remote_control_enabled = MagicMock(return_value=False)
 
-        with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
-            await switch_entity.async_turn_on()
+        # With optimistic sending, command should be sent to API (API will validate)
+        # Mock the API to simulate successful call (API would reject if truly disabled)
+        switch_entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        await switch_entity.async_turn_on()
+
+        # Verify command was sent to API (not blocked client-side)
+        switch_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_switch_with_user_selections_source(

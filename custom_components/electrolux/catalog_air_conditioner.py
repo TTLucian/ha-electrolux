@@ -9,27 +9,6 @@ from homeassistant.helpers.entity import EntityCategory
 from .model import ElectroluxDevice
 
 CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
-    "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:state-machine",
-        entity_registry_enabled_default=False,
-    ),
     # Air conditioner specific controls
     "executeCommand": ElectroluxDevice(
         capability_info={

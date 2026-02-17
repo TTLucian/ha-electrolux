@@ -341,10 +341,9 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:leaf",
         friendly_name="Energy Score",
-        entity_registry_enabled_default=False,
     ),
     "userSelections/waterScore": ElectroluxDevice(
         capability_info={
@@ -355,10 +354,9 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:water-percent",
         friendly_name="Water Score",
-        entity_registry_enabled_default=False,
     ),
     "userSelections/ecoScore": ElectroluxDevice(
         capability_info={
@@ -369,10 +367,9 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:recycle",
         friendly_name="Eco Score",
-        entity_registry_enabled_default=False,
     ),
     # Miscellaneous state
     "miscellaneousState/ecoMode": ElectroluxDevice(

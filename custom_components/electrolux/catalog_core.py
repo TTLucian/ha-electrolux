@@ -10,7 +10,6 @@ from homeassistant.helpers.entity import EntityCategory
 from .catalog_utils import (
     create_config_entity,
     create_diagnostic_string_entity,
-    create_hidden_entity,
 )
 from .const import CAPABILITY_READ_STRING
 from .model import ElectroluxDevice
@@ -224,8 +223,13 @@ def _get_catalog_base():
             entity_icon="mdi:alert",
             friendly_name="Alerts",
         ),
-        "applianceState": create_hidden_entity(
+        "applianceState": ElectroluxDevice(
             capability_info=CAPABILITY_READ_STRING,
+            device_class=None,
+            unit=None,
+            entity_category=None,
+            entity_icon="mdi:state-machine",
+            entity_registry_enabled_default=True,
             friendly_name="Appliance State",
         ),
         "networkInterface/linkQualityIndicator": create_diagnostic_string_entity(

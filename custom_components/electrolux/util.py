@@ -602,9 +602,18 @@ def map_command_error_to_home_assistant_error(
         )
         raise AuthenticationError("Authentication failed") from ex
 
-    # Method 1: Try to parse structured error response
+    # Method 1: Try to parse structured error response and extract status code
     error_data = None
+    status_code = None
     try:
+        # Extract status code first
+        status_code = getattr(ex, "status", None)
+        if not status_code and hasattr(ex, "response"):
+            response = getattr(ex, "response")
+            status_code = getattr(response, "status", None)
+        if not status_code and hasattr(ex, "status_code"):
+            status_code = getattr(ex, "status_code")
+
         # Check if exception has response data
         if hasattr(ex, "response") and getattr(ex, "response", None):
             response = getattr(ex, "response")
@@ -628,6 +637,18 @@ def map_command_error_to_home_assistant_error(
     except Exception:
         # Parsing failed, continue to other methods
         pass
+
+    # Format error data and status code for logging
+    error_data_str = ""
+    if error_data:
+        try:
+            import json
+
+            error_data_str = f" | API Response: {json.dumps(error_data)}"
+        except Exception:
+            error_data_str = f" | API Response: {error_data}"
+
+    status_code_str = f" | HTTP {status_code}" if status_code else ""
 
     # If we got structured error data, use it
     if error_data and isinstance(error_data, dict):
@@ -664,9 +685,11 @@ def map_command_error_to_home_assistant_error(
                     if detail and "remote control" in str(detail).lower():
                         user_message = "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
                         logger.warning(
-                            "Command failed for %s: %s (overridden to remote control disabled)",
+                            "Command failed for %s: %s (overridden to remote control disabled)%s%s",
                             entity_attr,
                             ex,
+                            status_code_str,
+                            error_data_str,
                         )
                         return HomeAssistantError(user_message)
 
@@ -695,9 +718,11 @@ def map_command_error_to_home_assistant_error(
                 user_message = detail_message
 
             logger.warning(
-                "Command failed for %s: %s - %s",
+                "Command failed for %s: error_code=%s%s%s | %s",
                 entity_attr,
                 error_code,
+                status_code_str,
+                error_data_str,
                 ex,
             )
             return HomeAssistantError(user_message)
@@ -706,26 +731,17 @@ def map_command_error_to_home_assistant_error(
     error_str = str(ex).lower()
     if "type mismatch" in error_str:
         logger.warning(
-            "Command failed for %s: type mismatch - %s",
+            "Command failed for %s: type mismatch%s%s | %s",
             entity_attr,
+            status_code_str,
+            error_data_str,
             ex,
         )
         return HomeAssistantError(
             f"Integration Error: Data type mismatch for {entity_attr}. Expected Boolean."
         )
 
-    # Method 2: Check HTTP status codes
-    status_code = None
-    try:
-        status_code = getattr(ex, "status", None)
-        if not status_code and hasattr(ex, "response"):
-            response = getattr(ex, "response")
-            status_code = getattr(response, "status", None)
-        if not status_code and hasattr(ex, "status_code"):
-            status_code = getattr(ex, "status_code")
-    except Exception:
-        pass  # Safely handle any attribute access errors
-
+    # Method 2: Check HTTP status codes (already extracted above)
     if status_code:
         STATUS_CODE_MAPPING = {
             403: "Remote control is disabled for this appliance. Please enable it on the appliance's control panel.",
@@ -745,9 +761,10 @@ def map_command_error_to_home_assistant_error(
                     if detail and "remote control" in str(detail).lower():
                         user_message = "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
                         logger.warning(
-                            "Command failed for %s: HTTP %d - %s (overridden to remote control disabled)",
+                            "Command failed for %s: HTTP %d%s (overridden to remote control disabled) | %s",
                             entity_attr,
                             status_code,
+                            error_data_str,
                             ex,
                         )
                         return HomeAssistantError(user_message)
@@ -775,9 +792,10 @@ def map_command_error_to_home_assistant_error(
                     user_message = detail_message
 
             logger.warning(
-                "Command failed for %s: HTTP %d - %s",
+                "Command failed for %s: HTTP %d%s | %s",
                 entity_attr,
                 status_code,
+                error_data_str,
                 ex,
             )
             return HomeAssistantError(user_message)
@@ -788,8 +806,10 @@ def map_command_error_to_home_assistant_error(
     # More comprehensive pattern matching
     if any(phrase in error_msg for phrase in REMOTE_CONTROL_ERROR_PHRASES):
         logger.warning(
-            "Command failed for %s: remote control disabled - %s",
+            "Command failed for %s: remote control disabled%s%s | %s",
             entity_attr,
+            status_code_str,
+            error_data_str,
             ex,
         )
         return HomeAssistantError(
@@ -809,8 +829,10 @@ def map_command_error_to_home_assistant_error(
         ]
     ):
         logger.warning(
-            "Command failed for %s: appliance offline - %s",
+            "Command failed for %s: appliance offline%s%s | %s",
             entity_attr,
+            status_code_str,
+            error_data_str,
             ex,
         )
         return HomeAssistantError(
@@ -829,8 +851,10 @@ def map_command_error_to_home_assistant_error(
         ]
     ):
         logger.warning(
-            "Command failed for %s: rate limited - %s",
+            "Command failed for %s: rate limited%s%s | %s",
             entity_attr,
+            status_code_str,
+            error_data_str,
             ex,
         )
         return HomeAssistantError(
@@ -848,8 +872,10 @@ def map_command_error_to_home_assistant_error(
         ]
     ):
         logger.warning(
-            "Command failed for %s: command validation error - %s",
+            "Command failed for %s: command validation error%s%s | %s",
             entity_attr,
+            status_code_str,
+            error_data_str,
             ex,
         )
         return HomeAssistantError(
@@ -858,8 +884,10 @@ def map_command_error_to_home_assistant_error(
 
     # Default: Generic error
     logger.error(
-        "Command failed for %s with unexpected error: %s",
+        "Command failed for %s with unexpected error%s%s | %s",
         entity_attr,
+        status_code_str,
+        error_data_str,
         ex,
     )
     return HomeAssistantError(f"Command failed: {ex}. Check logs for details.")

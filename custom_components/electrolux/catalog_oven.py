@@ -28,7 +28,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:state-machine",
-        entity_registry_enabled_default=False,
     ),
     "cavityLight": ElectroluxDevice(
         capability_info={
