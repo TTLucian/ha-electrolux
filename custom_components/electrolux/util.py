@@ -1108,15 +1108,19 @@ class ElectroluxTokenManager(TokenManager):
             time_remaining = exp - current_time
             is_valid = time_remaining > 900
 
+            # Format time remaining as hours and minutes
+            hours = int(time_remaining // 3600)
+            minutes = int((time_remaining % 3600) // 60)
+
             if not is_valid:
                 _LOGGER.info(
-                    f"[TOKEN-CHECK] Token expiring soon: {time_remaining:.0f}s remaining (< 15 min buffer), "
+                    f"[TOKEN-CHECK] Token expiring soon: {hours} hours, {minutes} minutes remaining (< 15 min buffer), "
                     f"triggering proactive refresh"
                 )
                 self._marked_needs_refresh = True  # Mark to bypass cooldown
             else:
                 _LOGGER.debug(
-                    f"[TOKEN-CHECK] Token valid: {time_remaining:.0f}s remaining ({time_remaining/3600:.1f} hours)"
+                    f"[TOKEN-CHECK] Token valid: {hours} hours, {minutes} minutes remaining"
                 )
 
             return is_valid
@@ -1224,8 +1228,13 @@ class ElectroluxTokenManager(TokenManager):
                 # Calculate expiration timestamp from response
                 expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
                 expires_at = int(time.time()) + expires_in
+
+                # Format expiration as hours and minutes
+                exp_hours = int(expires_in // 3600)
+                exp_minutes = int((expires_in % 3600) // 60)
+
                 _LOGGER.debug(
-                    f"[TOKEN-REFRESH] New token received: expires in {expires_in}s ({expires_in/3600:.1f} hours)"
+                    f"[TOKEN-REFRESH] New token received: expires in {exp_hours} hours, {exp_minutes} minutes"
                 )
                 _LOGGER.debug(
                     f"[TOKEN-REFRESH] Token expiration timestamp: {expires_at}"
@@ -1255,7 +1264,7 @@ class ElectroluxTokenManager(TokenManager):
                 self._consecutive_failures = 0  # Reset exponential backoff
                 self._marked_needs_refresh = False
                 _LOGGER.info(
-                    f"[TOKEN-REFRESH] Token refresh completed successfully (new token valid for {expires_in/3600:.1f} hours)"
+                    f"[TOKEN-REFRESH] Token refresh completed successfully (new token valid for {exp_hours} hours, {exp_minutes} minutes)"
                 )
                 return True
 
