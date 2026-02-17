@@ -1,4 +1,4 @@
-# Home Assistant Electrolux Integration
+# 🏠 Home Assistant Electrolux Integration
 <p align="center">
   <img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" />
   <img src="https://img.shields.io/github/license/TTLucian/ha-electrolux?style=for-the-badge" />
@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/github/actions/workflow/status/TTLucian/ha-electrolux/ci.yml?style=for-the-badge" />
   <a href="https://buymeacoffee.com/ttlucian"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
 </p>
-## Description
+## 📖 Description
 
 A comprehensive Home Assistant integration for Electrolux appliances using the official Electrolux Group Developer API. This integration provides real-time monitoring and control of Electrolux and Electrolux-owned brand appliances including AEG, Frigidaire, and +home.
 
@@ -19,9 +19,9 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 - ✅ Multi-language support
 - ✅ Robust error handling and connection management
 
-**Disclaimer:** This Home Assistant integration was not made by Electrolux. It is not official, not developed, and not supported by Electrolux.
+**⚠️ Disclaimer:** This Home Assistant integration was not made by Electrolux. It is not official, not developed, and not supported by Electrolux.
 
-## Credits
+## 🌟 Credits
 
 **Maintained by [TTLucian](https://github.com/TTLucian)**
 
@@ -29,9 +29,9 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 |-------------|-------------|
 | [TTLucian](https://github.com/TTLucian) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/TTLucian) |
 
-## Prerequisites
+## 📋 Prerequisites
 
-### API Credentials Required
+### 🔑 API Credentials Required
 
 This integration requires API credentials from the official Electrolux Developer Portal.
 
@@ -47,31 +47,31 @@ This integration requires API credentials from the official Electrolux Developer
    - **Access Token**
    - **Refresh Token**
 
-**Important:** Keep your API credentials secure and never share them publicly.
+**⚠️ Important:** Keep your API credentials secure and never share them publicly.
 
-### Device Setup
+### 📱 Device Setup
 
 All appliances must be:
 - Connected to your Electrolux account via the official mobile app
 - Properly configured with aliases/names in the app
 - Connected to the internet
 
-## Installation
+## 💾 Installation
 
-### HACS Installation (Recommended)
+### 🎯 HACS Installation (Recommended)
 
 1. Add this repository to HACS: `https://github.com/TTLucian/ha-electrolux`
 2. Search for "Electrolux" in HACS
 3. Click Install
 4. Restart Home Assistant
 
-### Manual Installation
+### 🔧 Manual Installation
 
 1. Download the `custom_components/electrolux/` directory
 2. Copy it to your Home Assistant `custom_components` folder
 3. Restart Home Assistant
 
-## Configuration
+## ⚙️ Configuration
 
 1. In Home Assistant, go to **Settings** → **Devices & Services**
 2. Click **Add Integration**
@@ -82,7 +82,7 @@ All appliances must be:
    - Refresh Token
 5. The integration will automatically discover and add your appliances
 
-## Supported Appliances
+## 🔌 Supported Appliances
 
 This integration works with Electrolux and Electrolux-owned brands (AEG, Frigidaire, +home) across multiple regions:
 
@@ -91,16 +91,16 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - **Latin America** (LATAM): Electrolux Home+
 - **North America** (NA): Electrolux Oven, Frigidaire 2.0
 
-### Device Types
+### 🏷️ Device Types
 
-**Ovens - tested**
+**🍳 Ovens** - tested
 - Electrolux SteamBake series
 - AEG SteamBake and AssistedCooking series
 - Real-time temperature monitoring
 - Program control and status
 - Safety lock validation
 
-**Refrigerators**
+**❄️ Refrigerators**
 - Electrolux UltimateTaste series
 - Temperature monitoring and control for fridge, freezer, and extra cavity
 - Fast mode control for rapid cooling/freezing
@@ -113,7 +113,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Cooling valve and defrost routine monitoring
 - Door status monitoring for all compartments
 
-**Washing Machines**
+**🧺 Washing Machines**
 - Electrolux UltimateCare and PerfectCare series
 - AEG ÖKOKombi and AbsoluteCare series
 - Comprehensive cycle monitoring and control
@@ -134,7 +134,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Network interface monitoring (WiFi quality, OTA updates, software version)
 - Appliance working time and cycle counters
 
-**Washer-Dryers**
+**🧺💨 Washer-Dryers**
 - Electrolux UltimateCare and PerfectCare series
 - AEG AbsoluteCare series
 - Full integrated washing and drying control
@@ -148,7 +148,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Fluff drawer maintenance alerts
 - Separate drying cycle counters and statistics
 
-**Air Conditioners**
+**❄️🌡️ Air Conditioners**
 - Electrolux air conditioning units
 - Full climate control integration with Home Assistant
 - Temperature control (16-30°C / 60-86°F) with dual scale support
@@ -162,11 +162,28 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Real-time status monitoring and diagnostics
 - Network interface monitoring and OTA updates
 
-**Dryers**
+**💨 Dryers (Tumble Dryers)**
 - Electrolux UltimateCare and PerfectCare series
 - AEG AbsoluteCare series
+- Comprehensive drying cycle monitoring and control
+- Appliance state tracking (IDLE, RUNNING, PAUSED, END_OF_CYCLE, etc.)
+- Cycle phase and sub-phase monitoring
+- Door status and lock control
+- Start time scheduling and delayed start
+- Time-to-end countdown
+- Drying time selection (0-300 minutes)
+- Dryness level selection (CUPBOARD, EXTRA, IRON, AIR_DRY)
+- Temperature settings (HIGH, MEDIUM, LOW, REFRESH)
+- Program selection with per-program configurations (COTTON, SYNTHETICS, DELICATES, WOOL, etc.)
+- Anti-crease protection
+- Load weight monitoring
+- Network interface monitoring (WiFi quality, OTA updates, software version)
+- Remote control enablement
+- Appliance working time and cycle counters
+- Fluff filter maintenance alerts and cleaning reminders
+- Energy efficiency tracking and statistics
 
-**Dishwashers**
+**🍽️ Dishwashers**
 
 - Comprehensive dishwashing cycle monitoring and control
 - Appliance state tracking (IDLE, RUNNING, PAUSED, END_OF_CYCLE, etc.)
@@ -185,7 +202,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Appliance working time and cycle counters
 - Error detection and reporting with specific dishwasher error messages
 
-**Air Purifiers**
+**💨🌿 Air Purifiers**
 - Air quality monitoring and control
 - Fan speed control (1-9 levels)
 - Work mode selection (Manual/Auto/Power Off)
@@ -193,9 +210,9 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Safety lock
 - Ionizer control
 
-## Features
+## ⚡ Features
 
-### Sensors
+### 📊 Sensors
 - Appliance state and status
 - Temperature readings (current, target, food probe, ambient)
 - Program and phase information
@@ -208,9 +225,10 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Air quality sensors (air purifiers)
 - Cycle counters and working time statistics
 - Drying cycle monitoring (washer-dryers)
+- Dryer monitoring (tumble dryers: fluff filter status, dryness levels, load weight)
 - Dishwasher monitoring (salt levels, rinse aid levels, filter status)
 
-### Controls
+### 🎮 Controls
 - Power on/off (with safety validation)
 - Program selection
 - Temperature settings
@@ -227,46 +245,54 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
   - Drying time selection
   - Dryness level selection (CUPBOARD, EXTRA, IRON)
   - Wet mode control
+- Dryer controls (tumble dryers):
+  - Program selection (COTTON, SYNTHETICS, DELICATES, WOOL, etc.)
+  - Drying time selection (0-300 minutes)
+  - Dryness level selection (CUPBOARD, EXTRA, IRON, AIR_DRY)
+  - Temperature settings (HIGH, MEDIUM, LOW, REFRESH)
+  - Anti-crease protection
+  - Delay start scheduling
 - Dishwasher controls:
   - Program selection (ECO, INTENSIVE, QUICK, GLASS, etc.)
   - Temperature settings for optimal cleaning
   - Delay start scheduling
   - Extra options (hygiene rinse, extra dry, intensive zones)
 
-### Binary Sensors
+### 🔴🟢 Binary Sensors
 - Door status
 - Connection state
 - Alert conditions
+- Dryer alerts (fluff filter maintenance)
 - Dishwasher alerts (salt level, rinse aid level, filter cleaning)
 
-### Diagnostics
+### 🔍 Diagnostics
 - Network interface information
 - Software versions
 - OTA update status
 - Communication quality
 
-## Troubleshooting
+## 🛠️ Troubleshooting
 
-### Authentication Issues
+### 🔐 Authentication Issues
 - **403 Forbidden**: Check your API credentials from the developer portal - they may have expired. Regenerate your access token and refresh token from [Electrolux Developer Portal](https://developer.electrolux.one/dashboard)
 - **Invalid Credentials**: Double-check your API key, access token, and refresh token from the developer portal
 
-### Connection Issues
+### 🌐 Connection Issues
 - Ensure appliances are connected to your Electrolux account
 - Check internet connectivity of appliances
 - Verify appliances are powered on and online
 
-### Control Not Working
+### 🎛️ Control Not Working
 - Check if appliance has safety locks enabled (door open, child lock, etc.)
 - Integration respects all appliance safety features
 - Some controls may be disabled during active cycles
 
-### Model Shows as Numbers
+### 🔢 Model Shows as Numbers
 - The integration displays the actual product code (e.g., "944188772") used by Electrolux internally
 - This is the most specific identifier available through the API
 - Marketing model names (e.g., "BSE788380M") are not exposed by the API
 
-### Debug Logging
+### 🐛 Debug Logging
 Enable debug logging in your configuration.yaml for detailed troubleshooting by adding this:
 ```yaml
 logger:
@@ -275,7 +301,7 @@ logger:
 ```
 Then go to Settings/System/Logs, click the 3 dots in the upper right side of the screen and click "Show raw logs". You can then filter the logs by adding "electrolux" in the "Search logs" box. Copy and paste them in your Github issue editor.
 
-### JSON Diagnostics for Device Issues
+### 📄 JSON Diagnostics for Device Issues
 For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
 
 **How to get diagnostics:**
@@ -307,26 +333,26 @@ This repository includes comprehensive testing scripts to help you verify applia
 
 📖 **[Testing Scripts Documentation](scripts/TESTING_SCRIPTS_README.md)** - Complete guide for using the testing tools
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! This integration is actively maintained and improved.
 
-### Development Setup
+### 👨‍💻 Development Setup
 1. Fork the repository
 2. Clone your fork
 3. Install development dependencies: `pip install -r requirements-dev.txt`
 4. Test scripts are available in the root directory for API testing
 
-### Testing Your Appliances
+### 🧪 Testing Your Appliances
 Use the provided test scripts to verify API connectivity:
 - `test_api_simple.py` - Basic appliance list test
 - `test_appliance_details.py` - Detailed appliance information
 
-## License
+## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## 💬 Support
 
 - **Issues**: [GitHub Issues](https://github.com/TTLucian/ha-electrolux/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/TTLucian/ha-electrolux/discussions)
