@@ -5,7 +5,7 @@
 
 ### 🔧 CRITICAL BUG FIXES
 
-#### ✅ Token Refresh No Longer Causes Integration Reload (v2 - FIXED)
+#### ✅ Token Refresh No Longer Causes Integration Reload
 
 **Issue:** Token refresh was triggering a full integration reload every 12 hours, causing:
 - SSE disconnection  
@@ -134,7 +134,7 @@ This release also implements comprehensive Entity Availability Rules, refines pr
 
 Special thanks to the users who:
 1. Provided detailed logs revealing the token refresh reload cycle
-2. Tested v1 and reported the state synchronization failure
+2. Tested previous versions and reported the state synchronization failure
 3. Helped identify the correct fix by describing exact symptoms
 4. Provided diagnostics json files
 5. Supported this integration's development so far
