@@ -1075,8 +1075,8 @@ class ElectroluxTokenManager(TokenManager):
         """
         # Check if auth data exists
         if not self._auth_data or not self._auth_data.access_token:
-            _LOGGER.warning(
-                "[AUTH-DEBUG] Token validation failed: No access token available"
+            _LOGGER.debug(
+                "[TOKEN-CHECK] Token validation failed: No access token available"
             )
             return False
 
@@ -1087,8 +1087,8 @@ class ElectroluxTokenManager(TokenManager):
             )
             exp = payload.get("exp")
             if exp is None:
-                _LOGGER.warning(
-                    "[AUTH-DEBUG] Token validation failed: JWT missing 'exp' claim"
+                _LOGGER.debug(
+                    "[TOKEN-CHECK] Token validation failed: JWT missing 'exp' claim"
                 )
                 return False
 
@@ -1098,8 +1098,8 @@ class ElectroluxTokenManager(TokenManager):
             time_jump = abs(current_time - self._last_check_time)
             if time_jump > 3600:  # More than 1 hour jump
                 _LOGGER.warning(
-                    f"[AUTH-DEBUG] Large time jump detected ({time_jump:.0f}s), "
-                    f"possible clock adjustment or system sleep"
+                    f"[TOKEN-CHECK] Large time jump detected ({time_jump:.0f}s), "
+                    f"possible clock adjustment or system sleep - token validity may be affected"
                 )
             self._last_check_time = current_time
 
@@ -1110,27 +1110,25 @@ class ElectroluxTokenManager(TokenManager):
 
             if not is_valid:
                 _LOGGER.info(
-                    f"[AUTH-DEBUG] Token expiring soon: {time_remaining:.0f}s remaining (< 15 min buffer), "
-                    f"marking for proactive refresh"
+                    f"[TOKEN-CHECK] Token expiring soon: {time_remaining:.0f}s remaining (< 15 min buffer), "
+                    f"triggering proactive refresh"
                 )
                 self._marked_needs_refresh = True  # Mark to bypass cooldown
             else:
                 _LOGGER.debug(
-                    f"[AUTH-DEBUG] Token valid: {time_remaining:.0f}s remaining ({time_remaining/3600:.1f} hours)"
+                    f"[TOKEN-CHECK] Token valid: {time_remaining:.0f}s remaining ({time_remaining/3600:.1f} hours)"
                 )
 
             return is_valid
 
         except jwt.ExpiredSignatureError:
-            _LOGGER.warning(
-                "[AUTH-DEBUG] Token validation failed: Access token already expired"
-            )
+            _LOGGER.info("[TOKEN-CHECK] Access token already expired, refresh required")
             self._marked_needs_refresh = True
             return False
         except Exception as e:
-            _LOGGER.error(f"[AUTH-DEBUG] Token validation error: {e}")
+            _LOGGER.error(f"[TOKEN-CHECK] Token validation error: {e}")
             _LOGGER.debug(
-                f"[AUTH-DEBUG] Validation exception details: {type(e).__name__}: {str(e)}"
+                f"[TOKEN-CHECK] Validation exception details: {type(e).__name__}: {str(e)}"
             )
             return False  # Force refresh if we can't decode JWT
 
@@ -1159,12 +1157,12 @@ class ElectroluxTokenManager(TokenManager):
         """
         async with self._refresh_lock:
             current_time = int(time.time())
-            _LOGGER.info(f"[AUTH-DEBUG] Token refresh initiated at {current_time}")
+            _LOGGER.debug(f"[TOKEN-REFRESH] Refresh initiated at {current_time}")
 
             # Double-check if token is still invalid (another task may have refreshed while we waited)
             if self.is_token_valid():
-                _LOGGER.info(
-                    "[AUTH-DEBUG] Token already fresh (refreshed by concurrent task), skipping refresh"
+                _LOGGER.debug(
+                    "[TOKEN-REFRESH] Token already fresh (refreshed by concurrent task), skipping refresh"
                 )
                 return True
 
@@ -1177,25 +1175,25 @@ class ElectroluxTokenManager(TokenManager):
             time_since_failure = current_time - self._last_failed_refresh
             if time_since_failure < backoff_delay and not self._marked_needs_refresh:
                 cooldown_remaining = backoff_delay - time_since_failure
-                _LOGGER.info(
-                    f"[AUTH-DEBUG] Refresh on cooldown: {self._consecutive_failures} previous failures, "
+                _LOGGER.warning(
+                    f"[TOKEN-REFRESH] Refresh on cooldown: {self._consecutive_failures} previous failures, "
                     f"{cooldown_remaining:.0f}s remaining (backoff: {backoff_delay}s)"
                 )
                 return False
 
             # If marked needs refresh, we bypass cooldown for one attempt
             if self._marked_needs_refresh:
-                _LOGGER.info(
-                    "[AUTH-DEBUG] Token marked needs refresh (expired/expiring), bypassing cooldown"
+                _LOGGER.debug(
+                    "[TOKEN-REFRESH] Token marked needs refresh (expired/expiring), bypassing cooldown"
                 )
                 self._marked_needs_refresh = False
 
-            _LOGGER.info("[AUTH-DEBUG] Preparing token refresh request")
+            _LOGGER.debug("[TOKEN-REFRESH] Preparing token refresh request")
             auth_data = self._auth_data
 
             if not auth_data or auth_data.refresh_token is None:
                 _LOGGER.error(
-                    "[AUTH-DEBUG] CRITICAL: Refresh token is missing, cannot refresh"
+                    "[TOKEN-REFRESH] CRITICAL: Refresh token is missing, cannot refresh"
                 )
                 from homeassistant.exceptions import ConfigEntryAuthFailed
 
@@ -1208,24 +1206,30 @@ class ElectroluxTokenManager(TokenManager):
                 if len(auth_data.refresh_token) >= 5
                 else "<short>"
             )
-            _LOGGER.info(
-                f"[AUTH-DEBUG] Sending refresh request to {TOKEN_REFRESH_URL} (token suffix: ...{refresh_suffix})"
+            _LOGGER.debug(
+                f"[TOKEN-REFRESH] Sending refresh request to {TOKEN_REFRESH_URL} (token suffix: ...{refresh_suffix})"
             )
 
             try:
-                _LOGGER.debug("[AUTH-DEBUG] Making HTTP request to token endpoint")
+                _LOGGER.debug(
+                    "[TOKEN-REFRESH] Making HTTP POST request to token endpoint"
+                )
                 data = await request(
                     method=POST, url=TOKEN_REFRESH_URL, json_body=payload
                 )
-                _LOGGER.info("[AUTH-DEBUG] Token refresh HTTP request successful")
+                _LOGGER.debug(
+                    "[TOKEN-REFRESH] HTTP request successful, processing response"
+                )
 
                 # Calculate expiration timestamp from response
                 expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
                 expires_at = int(time.time()) + expires_in
-                _LOGGER.info(
-                    f"[AUTH-DEBUG] New token received: expires in {expires_in}s ({expires_in/3600:.1f} hours)"
+                _LOGGER.debug(
+                    f"[TOKEN-REFRESH] New token received: expires in {expires_in}s ({expires_in/3600:.1f} hours)"
                 )
-                _LOGGER.debug(f"[AUTH-DEBUG] Token expiration timestamp: {expires_at}")
+                _LOGGER.debug(
+                    f"[TOKEN-REFRESH] Token expiration timestamp: {expires_at}"
+                )
 
                 # Log token rotation (suffix of new refresh token)
                 new_refresh_suffix = (
@@ -1234,11 +1238,11 @@ class ElectroluxTokenManager(TokenManager):
                     else "<none>"
                 )
                 _LOGGER.debug(
-                    f"[AUTH-DEBUG] Token rotation: old suffix ...{refresh_suffix} -> new suffix ...{new_refresh_suffix}"
+                    f"[TOKEN-REFRESH] Token rotation: old suffix ...{refresh_suffix} -> new suffix ...{new_refresh_suffix}"
                 )
 
                 # Update with new tokens
-                _LOGGER.info("[AUTH-DEBUG] Updating token manager with new tokens")
+                _LOGGER.debug("[TOKEN-REFRESH] Updating token manager with new tokens")
                 self.update_with_expiry(
                     access_token=data["accessToken"],
                     refresh_token=data["refreshToken"],
@@ -1251,52 +1255,53 @@ class ElectroluxTokenManager(TokenManager):
                 self._consecutive_failures = 0  # Reset exponential backoff
                 self._marked_needs_refresh = False
                 _LOGGER.info(
-                    "[AUTH-DEBUG] Token refresh completed successfully - failure counter reset"
+                    f"[TOKEN-REFRESH] Token refresh completed successfully (new token valid for {expires_in/3600:.1f} hours)"
                 )
                 return True
 
             except Exception as e:
                 error_msg = str(e).lower()
                 _LOGGER.error(
-                    f"[AUTH-DEBUG] Token refresh failed: {type(e).__name__}: {e}"
+                    f"[TOKEN-REFRESH] Token refresh failed: {type(e).__name__}: {e}"
                 )
+                _LOGGER.debug(f"[TOKEN-REFRESH] Full error details: {error_msg}")
                 # Check for permanent token errors (401/Invalid Grant)
                 if any(
                     keyword in error_msg
                     for keyword in ["401", "invalid grant", "forbidden"]
                 ):
                     _LOGGER.error(
-                        f"[AUTH-DEBUG] PERMANENT AUTH ERROR detected: {error_msg}"
+                        f"[TOKEN-REFRESH] PERMANENT AUTH ERROR detected: {error_msg}"
                     )
                     # Check for possible multiple instance issue
                     if "invalid grant" in error_msg and self._consecutive_failures == 0:
-                        _LOGGER.warning(
-                            "[AUTH-DEBUG] Refresh token became invalid unexpectedly (zero failures). "
+                        _LOGGER.error(
+                            "[TOKEN-REFRESH] Refresh token became invalid unexpectedly (zero failures). "
                             "This may indicate multiple Home Assistant instances using same credentials, "
                             "which is NOT supported due to single-use refresh tokens."
                         )
                     # Trigger reauthentication immediately
                     if self._on_auth_error:
                         _LOGGER.warning(
-                            "[AUTH-DEBUG] Triggering reauth callback due to permanent auth error"
+                            "[TOKEN-REFRESH] Triggering reauth callback due to permanent auth error"
                         )
                         await self._on_auth_error(f"Token refresh failed: {e}")
                     else:
                         _LOGGER.warning(
-                            "[AUTH-DEBUG] No auth error callback registered, cannot trigger reauth"
+                            "[TOKEN-REFRESH] No auth error callback registered, cannot trigger reauth"
                         )
                     self._consecutive_failures = 0  # Reset for auth errors
                     return False
 
                 # For other errors, set cooldown and return False
                 _LOGGER.warning(
-                    f"[AUTH-DEBUG] Temporary refresh failure (will retry with backoff): {e}"
+                    f"[TOKEN-REFRESH] Temporary refresh failure (will retry with backoff): {e}"
                 )
                 self._last_failed_refresh = current_time
                 self._consecutive_failures += 1
                 next_backoff = min(60 * (2**self._consecutive_failures), 300)
-                _LOGGER.info(
-                    f"[AUTH-DEBUG] Failure tracking updated: consecutive_failures={self._consecutive_failures}, "
+                _LOGGER.warning(
+                    f"[TOKEN-REFRESH] Failure tracking updated: consecutive_failures={self._consecutive_failures}, "
                     f"next_backoff={next_backoff}s"
                 )
                 return False

@@ -188,17 +188,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     def setup_token_refresh_callback(self) -> None:
         """Set up the token refresh callback to update config entry with new tokens."""
-        _LOGGER.info("[AUTH-DEBUG] Setting up token refresh callback")
+        _LOGGER.debug("[TOKEN-CALLBACK] Setting up token refresh callback")
         if not hasattr(self, "config_entry") or self.config_entry is None:
             _LOGGER.warning(
-                "[AUTH-DEBUG] No config_entry available, cannot setup token refresh callback"
+                "[TOKEN-CALLBACK] No config_entry available, cannot setup token refresh callback"
             )
             return
 
         # Capture config_entry in local variable to satisfy mypy
         config_entry = self.config_entry
-        _LOGGER.info(
-            f"[AUTH-DEBUG] Registering callback for config entry {config_entry.entry_id} (title: {config_entry.title})"
+        _LOGGER.debug(
+            f"[TOKEN-CALLBACK] Registering callback for config entry {config_entry.entry_id} (title: {config_entry.title})"
         )
 
         def on_token_update(
@@ -211,50 +211,54 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             time_until_expiry = expires_at - int(time.time())
 
             _LOGGER.info(
-                "[AUTH-DEBUG] Token refresh callback triggered - new tokens received"
-            )
-            _LOGGER.info(
-                f"[AUTH-DEBUG] New token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
+                "[TOKEN-CALLBACK] Token refresh callback triggered - new tokens received"
             )
             _LOGGER.debug(
-                f"[AUTH-DEBUG] Token lengths - access: {len(access_token)}, refresh: {len(refresh_token)}, api_key: {len(api_key)}"
+                f"[TOKEN-CALLBACK] New token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
+            )
+            _LOGGER.debug(
+                f"[TOKEN-CALLBACK] Token lengths - access: {len(access_token)}, refresh: {len(refresh_token)}, api_key: {len(api_key)}"
             )
             # Log last 5 characters of new refresh token for debugging rotation chain
             refresh_suffix = (
                 refresh_token[-5:] if len(refresh_token) >= 5 else "<short>"
             )
-            _LOGGER.debug(f"[AUTH-DEBUG] New refresh token suffix: ...{refresh_suffix}")
+            _LOGGER.debug(
+                f"[TOKEN-CALLBACK] New refresh token suffix: ...{refresh_suffix}"
+            )
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
             new_data["token_expires_at"] = expires_at
-            _LOGGER.info("[AUTH-DEBUG] Persisting new tokens to config entry")
+            _LOGGER.debug("[TOKEN-CALLBACK] Persisting new tokens to config entry")
 
             # Mark timestamp of token update to prevent reload in update_listener
             self._last_token_update = time.time()
+            _LOGGER.debug(
+                f"[TOKEN-CALLBACK] Marked token update timestamp: {self._last_token_update}"
+            )
 
             # Handle config entry update failures with retry
             try:
                 # Update config entry data - update_listener will check timestamp to prevent reload
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
                 _LOGGER.info(
-                    "[AUTH-DEBUG] Config entry updated successfully - new tokens persisted (no reload)"
+                    f"[TOKEN-CALLBACK] Config entry updated successfully - tokens persisted (valid for {time_until_expiry/3600:.1f}h)"
                 )
             except Exception as ex:
                 _LOGGER.error(
-                    f"[AUTH-DEBUG] CRITICAL: Failed to persist new tokens to config entry: {ex}. "
-                    f"Tokens are refreshed in memory but will be lost on restart. "
-                    f"This is a critical issue - consider restarting Home Assistant."
+                    f"[TOKEN-CALLBACK] CRITICAL: Failed to persist new tokens to config entry: {ex}. "
+                    f"Tokens are refreshed in memory but will be lost on restart!"
                 )
                 _LOGGER.debug(
-                    f"[AUTH-DEBUG] Persistence error details: {type(ex).__name__}: {str(ex)}"
+                    f"[TOKEN-CALLBACK] Persistence error details: {type(ex).__name__}: {str(ex)}"
                 )
                 # Tokens are still valid in memory, so operation can continue
                 # but user should be aware of persistence failure
 
         self.api.set_token_update_callback_with_expiry(on_token_update)
-        _LOGGER.info(
-            "[AUTH-DEBUG] Token update callback successfully registered with API client"
+        _LOGGER.debug(
+            "[TOKEN-CALLBACK] Token update callback successfully registered with API client"
         )
 
     async def handle_authentication_error(self, exception: Exception) -> None:

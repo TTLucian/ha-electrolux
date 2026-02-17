@@ -106,7 +106,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = get_electrolux_session(
         api_key, access_token, refresh_token, session, hass, entry
     )
-    _LOGGER.info("[AUTH-DEBUG] API client created successfully")
+    _LOGGER.debug("[AUTH-DEBUG] API client created successfully")
 
     coordinator = ElectroluxCoordinator(
         hass,
@@ -118,15 +118,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator.config_entry = entry
 
     # Set up token refresh callback to persist new tokens
-    _LOGGER.info("[AUTH-DEBUG] Setting up token refresh callback")
+    _LOGGER.debug("[AUTH-DEBUG] Setting up token refresh callback")
     coordinator.setup_token_refresh_callback()
-    _LOGGER.info("[AUTH-DEBUG] Token refresh callback setup completed")
+    _LOGGER.debug("[AUTH-DEBUG] Token refresh callback setup completed")
 
     # Note: SDK's internal token refresh loop is disabled via API call serialization
     # to prevent race conditions that cause "Invalid grant" errors
 
     # Authenticate
-    _LOGGER.info("[AUTH-DEBUG] Starting authentication test")
+    _LOGGER.debug("[AUTH-DEBUG] Starting authentication test")
     try:
         result = await coordinator.async_login()
         if not result:
@@ -154,13 +154,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         raise
 
-    _LOGGER.debug("Electrolux authentication completed successfully")
+    _LOGGER.debug("[INIT] Electrolux authentication completed successfully")
 
     # Store coordinator
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     # Initialize entities
-    _LOGGER.debug("async_setup_entry setup_entities")
+    _LOGGER.debug("[INIT] async_setup_entry setup_entities")
     await coordinator.setup_entities()
     appliances_count = (
         len(coordinator.data.get("appliances", {})) if coordinator.data else 0
@@ -170,13 +170,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         appliances_count,
     )
 
-    _LOGGER.debug("async_setup_entry async_config_entry_first_refresh")
+    _LOGGER.debug("[INIT] async_setup_entry async_config_entry_first_refresh")
     try:
         await asyncio.wait_for(
             coordinator.async_config_entry_first_refresh(),
             timeout=FIRST_REFRESH_TIMEOUT,
         )
-        _LOGGER.debug("async_setup_entry first refresh completed successfully")
+        _LOGGER.info("[INIT] First data refresh completed successfully")
     except (asyncio.TimeoutError, Exception) as err:
         # Handle both timeouts and other exceptions gracefully
         _LOGGER.warning(
@@ -191,7 +191,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         raise ConfigEntryNotReady
 
-    _LOGGER.debug("async_setup_entry extend PLATFORMS")
+    _LOGGER.debug("[INIT] async_setup_entry extend PLATFORMS")
     coordinator.platforms.extend(PLATFORMS)
     _LOGGER.debug(
         "async_setup_entry platforms extended - total platforms: %d",
@@ -199,18 +199,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Call async_setup_entry in entity files
-    _LOGGER.debug("async_setup_entry async_forward_entry_setups")
+    _LOGGER.debug("[INIT] async_setup_entry async_forward_entry_setups")
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.debug(
         "async_setup_entry async_forward_entry_setups completed - platforms forwarded"
     )
 
-    _LOGGER.debug("async_setup_entry scheduling websocket renewal task")
+    _LOGGER.debug("[INIT] async_setup_entry scheduling websocket renewal task")
 
     # Schedule websocket tasks as background tasks after HA startup completes to avoid blocking
     # Use proper HA pattern: per-entry task with automatic cleanup via async_on_unload
     async def start_background_tasks(event=None):
-        _LOGGER.debug("async_setup_entry background tasks starting after HA startup")
+        _LOGGER.debug(
+            "[INIT] async_setup_entry background tasks starting after HA startup"
+        )
         try:
             # Start websocket listening
             coordinator.listen_task = hass.async_create_task(
@@ -239,13 +241,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 )
                 if coordinator.listen_task:
                     coordinator.listen_task.cancel()
-                    _LOGGER.debug("async_setup_entry listen task cancelled")
+                    _LOGGER.debug("[INIT] async_setup_entry listen task cancelled")
                 if coordinator.renew_task:
                     coordinator.renew_task.cancel()
-                    _LOGGER.debug("async_setup_entry renewal task cancelled")
+                    _LOGGER.debug("[INIT] async_setup_entry renewal task cancelled")
 
             entry.async_on_unload(cleanup_tasks)
-            _LOGGER.debug("async_setup_entry cleanup handlers registered")
+            _LOGGER.debug("[INIT] async_setup_entry cleanup handlers registered")
 
         except Exception as ex:
             _LOGGER.error("async_setup_entry failed to start background tasks: %s", ex)
@@ -281,9 +283,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("async_setup_entry shutdown cleanup listener registered")
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
-    _LOGGER.debug("async_setup_entry update listener registered")
+    _LOGGER.debug("[INIT] async_setup_entry update listener registered")
 
-    _LOGGER.debug("async_setup_entry OVER - integration setup completed successfully")
+    _LOGGER.info(f"[INIT] Electrolux integration setup completed for '{entry.title}'")
     return True
 
 
