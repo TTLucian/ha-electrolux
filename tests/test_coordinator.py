@@ -279,14 +279,14 @@ async def test_token_update_callback(mock_coordinator):
     # Call the callback
     callback("new_access", "new_refresh", "api_key", 1234567890)
 
-    # Verify config entry was updated with reload=False
+    # Verify config entry was updated (update_listener will prevent reload via timestamp check)
     expected_data = {
         "access_token": "new_access",
         "refresh_token": "new_refresh",
         "token_expires_at": 1234567890,
     }
     mock_coordinator.hass.config_entries.async_update_entry.assert_called_once_with(
-        mock_config_entry, data=expected_data, reload=False
+        mock_config_entry, data=expected_data
     )
 
 

@@ -291,8 +291,8 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
     """Update listener.
 
     Only reload when options change, not when tokens are auto-refreshed.
-    Token updates use async_update_entry with reload=False, but this listener
-    would still trigger. We detect token-only changes and skip reload.
+    Token updates call async_update_entry, which triggers this listener.
+    We detect token-only changes by checking the timestamp and skip reload.
     """
     coordinator: ElectroluxCoordinator | None = hass.data[DOMAIN].get(
         config_entry.entry_id

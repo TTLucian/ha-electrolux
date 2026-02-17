@@ -235,12 +235,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
             # Handle config entry update failures with retry
             try:
-                # Update config entry data WITHOUT triggering reload
-                # Use async_update_entry with reload=False to properly persist tokens
-                # while maintaining HA's internal state consistency
-                self.hass.config_entries.async_update_entry(
-                    config_entry, data=new_data, reload=False
-                )
+                # Update config entry data - update_listener will check timestamp to prevent reload
+                self.hass.config_entries.async_update_entry(config_entry, data=new_data)
                 _LOGGER.info(
                     "[AUTH-DEBUG] Config entry updated successfully - new tokens persisted (no reload)"
                 )
