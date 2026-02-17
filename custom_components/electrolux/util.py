@@ -1114,8 +1114,10 @@ class ElectroluxTokenManager(TokenManager):
                     f"triggering proactive refresh"
                 )
                 self._marked_needs_refresh = True  # Mark to bypass cooldown
-            # Note: Removed routine "token valid" debug log to reduce log spam
-            # Token checks happen on every API call, logging only exceptions is sufficient
+            else:
+                _LOGGER.debug(
+                    f"[TOKEN-CHECK] Token valid: {time_remaining:.0f}s remaining ({time_remaining/3600:.1f} hours)"
+                )
 
             return is_valid
 
