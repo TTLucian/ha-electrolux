@@ -252,10 +252,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             raise
 
     # Start background tasks after HA has fully started to prevent blocking startup
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
-    _LOGGER.debug(
-        "async_setup_entry background task listener registered for EVENT_HOMEASSISTANT_STARTED"
-    )
+    # If HA is already running (e.g., during reload), start tasks immediately
+    if hass.is_running:
+        _LOGGER.debug(
+            "async_setup_entry HA already running - starting background tasks immediately"
+        )
+        await start_background_tasks()
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
+        _LOGGER.debug(
+            "async_setup_entry background task listener registered for EVENT_HOMEASSISTANT_STARTED"
+        )
 
     async def _close_coordinator(event):
         """Close coordinator resources on HA shutdown."""
@@ -281,7 +288,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
-    """Update listener."""
+    """Update listener.
+
+    Only reload when options change, not when tokens are auto-refreshed.
+    Token updates use async_update_entry with reload=False, but this listener
+    would still trigger. We detect token-only changes and skip reload.
+    """
+    coordinator: ElectroluxCoordinator | None = hass.data[DOMAIN].get(
+        config_entry.entry_id
+    )
+
+    if coordinator and hasattr(coordinator, "_last_token_update"):
+        # Check if this update happened very recently (within last 2 seconds)
+        # If so, it's likely the token refresh callback that just updated the config
+        import time
+
+        time_since_token_update = time.time() - coordinator._last_token_update
+
+        if time_since_token_update < 2.0:
+            _LOGGER.debug(
+                f"[AUTH-DEBUG] Update listener: Recent token update detected ({time_since_token_update:.1f}s ago), skipping reload"
+            )
+            return
+
+    # Options changed or first load - reload is needed
+    _LOGGER.info("Update listener: Options or settings changed, reloading integration")
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 

@@ -134,6 +134,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._auth_failure_threshold = (
             3  # Number of consecutive auth failures before repair
         )
+        self._last_token_update = 0.0  # Track last token refresh time to prevent reload
 
         super().__init__(
             hass,
@@ -229,11 +230,19 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             new_data["token_expires_at"] = expires_at
             _LOGGER.info("[AUTH-DEBUG] Persisting new tokens to config entry")
 
+            # Mark timestamp of token update to prevent reload in update_listener
+            self._last_token_update = time.time()
+
             # Handle config entry update failures with retry
             try:
-                self.hass.config_entries.async_update_entry(config_entry, data=new_data)
+                # Update config entry data WITHOUT triggering reload
+                # Use async_update_entry with reload=False to properly persist tokens
+                # while maintaining HA's internal state consistency
+                self.hass.config_entries.async_update_entry(
+                    config_entry, data=new_data, reload=False
+                )
                 _LOGGER.info(
-                    "[AUTH-DEBUG] Config entry updated successfully - new tokens persisted"
+                    "[AUTH-DEBUG] Config entry updated successfully - new tokens persisted (no reload)"
                 )
             except Exception as ex:
                 _LOGGER.error(
