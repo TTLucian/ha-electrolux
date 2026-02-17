@@ -158,18 +158,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if isinstance(self.unit, UnitOfTemperature):
             value = round(value, 2)
 
-        original_value = value  # Store for logging
-
         # Convert to native units (minutes for time entities)
         if self.unit == UnitOfTime.SECONDS:
             # Convert seconds from API to minutes for UI
             value = time_seconds_to_minutes(value) or 0
-            _LOGGER.debug(
-                "Electrolux time entity %s: converted API value %s seconds to %s minutes for UI",
-                self.entity_attr,
-                original_value,
-                value,
-            )
 
         # Clamp value to current program-specific min/max range
         min_val = self.native_min_value
@@ -277,11 +269,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement, converting seconds to minutes for time entities."""
         if self.unit == UnitOfTime.SECONDS:
-            _LOGGER.debug(
-                "Electrolux time entity %s: converting unit from %s to minutes",
-                self.entity_attr,
-                self.unit,
-            )
             return UnitOfTime.MINUTES  # Show 'min' instead of 's' for time entities
         return self.unit
 
@@ -334,14 +321,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 # Convert seconds to minutes for UI display
                 if self.unit == UnitOfTime.SECONDS:
                     converted_val = time_seconds_to_minutes(cat_val) or 0
-                    if key == "step":
-                        _LOGGER.debug(
-                            "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
-                            self.entity_attr,
-                            key,
-                            cat_val,
-                            converted_val,
-                        )
                     return float(converted_val)
                 return float(cat_val)
 
@@ -376,14 +355,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # 3. Convert only if coming from API (seconds) and entity is time-based
         if self.unit == UnitOfTime.SECONDS and val is not None:
             converted_val = time_seconds_to_minutes(val) or 0
-            if key == "step":
-                _LOGGER.debug(
-                    "Electrolux time entity %s: converted %s from %s seconds to %s minutes",
-                    self.entity_attr,
-                    key,
-                    val,
-                    converted_val,
-                )
             return float(converted_val)
 
         # Defaults
