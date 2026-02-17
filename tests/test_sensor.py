@@ -205,6 +205,22 @@ class TestTimeToEndSensor:
         result = time_to_end_entity.native_value
         assert isinstance(result, datetime)
 
+    def test_time_to_end_shows_countdown_when_ready_to_start(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd shows countdown when appliance is ready to start."""
+        time_to_end_entity.reported_state["applianceState"] = "READY_TO_START"
+        result = time_to_end_entity.native_value
+        assert isinstance(result, datetime)
+
+    def test_time_to_end_shows_countdown_when_end_of_cycle(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd shows countdown when appliance is at end of cycle."""
+        time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
+        result = time_to_end_entity.native_value
+        assert isinstance(result, datetime)
+
     def test_time_to_end_none_when_stopped(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None when appliance is stopped."""
         time_to_end_entity.reported_state["applianceState"] = "STOPPED"

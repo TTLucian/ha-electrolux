@@ -95,9 +95,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 return None
 
             # Check if appliance is in a state where timer is relevant
-            # Only show countdown when RUNNING, PAUSED, or DELAYED_START
+            # Only show countdown when RUNNING, PAUSED, DELAYED_START, READY_TO_START, or END_OF_CYCLE
             appliance_state = self.reported_state.get("applianceState")
-            if appliance_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:
+            if appliance_state not in ["RUNNING", "PAUSED", "DELAYED_START", "READY_TO_START", "END_OF_CYCLE"]:
                 # Appliance is stopped/idle/off - don't show countdown even if API has stale value
                 return None
 
