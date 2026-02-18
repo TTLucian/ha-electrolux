@@ -1,0 +1,145 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior with the Electrolux integration
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Tell us what you expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Tell us what actually happened...
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant Version
+      description: Which version of Home Assistant are you running?
+      placeholder: "e.g., 2026.2.1"
+    validations:
+      required: true
+
+  - type: input
+    id: integration-version
+    attributes:
+      label: Electrolux Integration Version
+      description: Which version of the Electrolux integration are you using?
+      placeholder: "e.g., 3.2.6"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation-type
+    attributes:
+      label: Installation Type
+      description: How is Home Assistant installed?
+      options:
+        - Home Assistant OS
+        - Home Assistant Container
+        - Home Assistant Core
+        - Home Assistant Supervised
+    validations:
+      required: true
+
+  - type: input
+    id: device-model
+    attributes:
+      label: Device Model(s)
+      description: What Electrolux device(s) are affected?
+      placeholder: "e.g., Washer-Dryer EW9W161B, Air Conditioner EACS-09HG"
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Please download and attach diagnostics file:
+        Settings → Devices & Services → Electrolux → Select Device → Download Diagnostics
+        
+        **Note:** This file may contain sensitive information. Please review before uploading.
+      placeholder: Drag and drop the diagnostics JSON file here
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug Logs
+      description: |
+        Please enable debug logging and paste relevant logs here:
+        
+        Add to configuration.yaml:
+        ```yaml
+        logger:
+          default: info
+          logs:
+            custom_components.electrolux: debug
+        ```
+        
+        Then restart Home Assistant, reproduce the issue, and paste logs below.
+      placeholder: Paste debug logs here...
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (screenshots, network setup, etc.)
+      placeholder: Add additional context...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have completed the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have updated to the latest version of the integration
+          required: true
+        - label: I have enabled debug logging and included relevant logs
+          required: false

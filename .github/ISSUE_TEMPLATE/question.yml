@@ -1,0 +1,93 @@
+name: ❓ Question / Help
+description: Ask a question or get help with setup and configuration
+title: "[Question]: "
+labels: ["question"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help with the Electrolux integration? Please fill out the information below.
+        
+        **Note:** For urgent issues or bugs, please use the Bug Report template instead.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like help with?
+      placeholder: I need help with...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: What steps have you already taken to solve this?
+      placeholder: |
+        I have tried...
+        1. ...
+        2. ...
+    validations:
+      required: false
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant Version
+      description: Which version of Home Assistant are you running?
+      placeholder: "e.g., 2026.2.1"
+    validations:
+      required: false
+
+  - type: input
+    id: integration-version
+    attributes:
+      label: Electrolux Integration Version
+      description: Which version of the Electrolux integration are you using?
+      placeholder: "e.g., 3.2.6"
+    validations:
+      required: false
+
+  - type: input
+    id: device-model
+    attributes:
+      label: Device Model(s)
+      description: What Electrolux device(s) are you asking about?
+      placeholder: "e.g., Washer-Dryer EW9W161B"
+    validations:
+      required: false
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant Configuration
+      description: If applicable, share your configuration (remove sensitive info like API keys)
+      placeholder: |
+        ```yaml
+        # Your configuration here
+        ```
+      render: yaml
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or information that might help.
+      placeholder: Additional details...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have completed the following
+      options:
+        - label: I have read the integration documentation
+          required: false
+        - label: I have searched existing issues for similar questions
+          required: true
