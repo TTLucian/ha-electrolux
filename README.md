@@ -292,16 +292,60 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - This is the most specific identifier available through the API
 - Marketing model names (e.g., "BSE788380M") are not exposed by the API
 
-### 🐛 Debug Logging
-Enable debug logging in your configuration.yaml for detailed troubleshooting by adding this:
-```yaml
+### 🛠️ Troubleshooting & Debugging
+If you encounter issues with the Electrolux integration, providing debug logs is the fastest way to get help. Follow the steps below to capture and share the necessary information.
+
+#### 1. Enable Debug Logging
+Choose one of the two methods below:
+
+##### Option A: The Easy Way (UI)
+Best for capturing issues happening right now without a restart.
+
+- Go to Settings > Devices & Services.
+- Locate the Electrolux card.
+- Click the three dots (⋮) and select Enable debug logging.
+- Reproduce the issue (e.g., try to trigger a device command).
+- Go back to the card and click Disable debug logging.
+- The log file will automatically download to your computer.
+
+##### Option B: The Persistent Way (YAML)
+Required for troubleshooting startup issues or long-term monitoring.
+
+Add this to your configuration.yaml and restart Home Assistant:
+
+```YAML
 logger:
+  default: info
   logs:
     custom_components.electrolux: debug
 ```
-Then go to Settings/System/Logs, click the 3 dots in the upper right side of the screen and click "Show raw logs". You can then filter the logs by adding "electrolux" in the "Search logs" box. Copy and paste them in your Github issue editor.
+#### 2. Viewing and Filtering Raw Logs
+If you want to inspect the logs manually or copy specific lines:
+- Navigate to Settings > System > Logs.
+- Click the Load Full Logs button at the bottom of the page.
+- Use the search/filter bar in the top right corner and type electrolux.
+- This will hide all unrelated system noise, leaving only the Electrolux-specific entries.
 
-### 📄 JSON Diagnostics for Device Issues
+#### 3. Sharing Logs on GitHub
+##### How to Download
+If you used Option B, you can download the entire log file by clicking Download logs at the bottom of the Settings > System > Logs page.
+
+##### How to Copy/Paste (Recommended for snippets)
+- To keep the GitHub issue clean, please wrap your logs in a code block.
+- Highlight the filtered log text in your browser and copy it.
+- In your GitHub issue description, paste it like this:
+
+````
+```text
+PASTE YOUR LOGS HERE
+```
+````
+
+[!CAUTION]
+Privacy Check: The integration automatically redacts any sensitive information like api key and tokens but, just to be safe, before posting, scan the logs for sensitive data. Delete or mask any email addresses, passwords, unique API tokens, or GPS coordinates.
+
+### 📄 JSON Diagnostics for Device Issues 
+ATTENTION!!! You only need to send the diagnostics json once. It contains the same information every time you generate it. 
 For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
 
 **How to get diagnostics:**
@@ -315,7 +359,7 @@ For device-specific issues or when certain features aren't working as expected, 
 - API communication details and errors
 - Model and firmware information
 
-**🔒 Privacy & Security:** All sensitive information (API keys, tokens, personal data, emails, addresses, device identifiers, and other PII) is automatically redacted from diagnostics files. They are safe to share when reporting issues.
+**🔒 Privacy & Security:** All sensitive information (API keys, tokens, personal data, emails, addresses, device identifiers, and other PII) is automatically redacted from diagnostics files. They are safe to share when reporting issues but check it yourselves before sending just to be sure
 
 **When to provide diagnostics:**
 - **Missing or incorrect sensors/controls**: If your appliance is missing expected sensors or controls, or if existing ones show wrong values or don't work properly
