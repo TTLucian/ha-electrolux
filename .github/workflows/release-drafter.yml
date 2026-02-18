@@ -33,14 +33,12 @@ jobs:
         run: |
           RELEASE_FILE="RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md"
           if [ -f "$RELEASE_FILE" ]; then
-            # Extract title from the first line (e.g., "# Release Notes - v3.2.3")
-            TITLE=$(head -n 1 "$RELEASE_FILE" | sed 's/^# //')
-            echo "title=$TITLE" >> $GITHUB_OUTPUT
+            echo "title=Version ${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "found=true" >> $GITHUB_OUTPUT
             echo "Release notes found for version ${{ steps.get_version.outputs.version }}"
           else
             echo "No release notes file found: $RELEASE_FILE"
-            echo "title=v${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "title=Version ${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "found=false" >> $GITHUB_OUTPUT
           fi
 
