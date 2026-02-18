@@ -1130,7 +1130,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # or API polling failures. Idle appliances that don't send updates
         # remain marked as connected.
 
-        return self.data
+        # Return a new dict to ensure coordinator detects change and notifies entities
+        # Without this, returning the same object reference prevents entity updates
+        return dict(self.data)
 
     def _can_restart_sse(self) -> bool:
         """Check if we can restart SSE (debounced to prevent hammering)."""
@@ -1330,13 +1332,14 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
                 raise HomeAssistantError(error_msg) from ex
 
-
-# Optional health check for debugging
-def get_health_status(self) -> dict[str, Any]:
-    """Return integration health status for diagnostics."""
-    return {
-        "websocket_connected": self.listen_task is not None
-        and not self.listen_task.done(),
-        "appliances_count": len(self.data.get("appliances", {})) if self.data else 0,
-        "last_update_success": self.last_update_success,
-    }
+    # Optional health check for debugging
+    def get_health_status(self) -> dict[str, Any]:
+        """Return integration health status for diagnostics."""
+        return {
+            "websocket_connected": self.listen_task is not None
+            and not self.listen_task.done(),
+            "appliances_count": (
+                len(self.data.get("appliances", {})) if self.data else 0
+            ),
+            "last_update_success": self.last_update_success,
+        }
