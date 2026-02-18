@@ -205,6 +205,50 @@ class TestTimeToEndSensor:
         result = time_to_end_entity.native_value
         assert isinstance(result, datetime)
 
+    def test_time_to_end_shows_countdown_when_ready_to_start(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd shows countdown when appliance is ready with delayed start."""
+        time_to_end_entity.reported_state["applianceState"] = "READY_TO_START"
+        result = time_to_end_entity.native_value
+        assert isinstance(result, datetime)
+        now = dt_util.now()
+        expected = now + timedelta(seconds=3600)
+        assert abs((result - expected).total_seconds()) < 2
+
+    def test_time_to_end_shows_countdown_during_end_of_cycle_anticrease(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd shows countdown during END_OF_CYCLE with active ANTICREASE phase."""
+        time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
+        time_to_end_entity.reported_state["cyclePhase"] = "ANTICREASE"
+        time_to_end_entity.reported_state["timeToEnd"] = (
+            600  # 10 minutes of anti-crease
+        )
+        result = time_to_end_entity.native_value
+        assert isinstance(result, datetime)
+        now = dt_util.now()
+        expected = now + timedelta(seconds=600)
+        assert abs((result - expected).total_seconds()) < 2
+
+    def test_time_to_end_shows_countdown_during_end_of_cycle_cool(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd shows countdown during END_OF_CYCLE with active COOL phase."""
+        time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
+        time_to_end_entity.reported_state["cyclePhase"] = "COOL"
+        time_to_end_entity.reported_state["timeToEnd"] = 300
+        result = time_to_end_entity.native_value
+        assert isinstance(result, datetime)
+
+    def test_time_to_end_none_during_end_of_cycle_without_active_phase(
+        self, time_to_end_entity: ElectroluxSensor
+    ):
+        """Test timeToEnd returns None during END_OF_CYCLE when no active phase."""
+        time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
+        time_to_end_entity.reported_state["cyclePhase"] = "UNAVAILABLE"
+        assert time_to_end_entity.native_value is None
+
     def test_time_to_end_none_when_stopped(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None when appliance is stopped."""
         time_to_end_entity.reported_state["applianceState"] = "STOPPED"

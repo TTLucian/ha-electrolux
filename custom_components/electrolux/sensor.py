@@ -95,11 +95,27 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 return None
 
             # Check if appliance is in a state where timer is relevant
-            # Only show countdown when RUNNING, PAUSED, or DELAYED_START
             appliance_state = self.reported_state.get("applianceState")
-            if appliance_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:
-                # Appliance is stopped/idle/off - don't show countdown even if API has stale value
-                return None
+
+            # Primary active states where countdown is always valid
+            if appliance_state in ["RUNNING", "PAUSED", "DELAYED_START"]:
+                # API returns seconds, calculate future timestamp for countdown
+                return dt_util.now() + timedelta(seconds=value)
+
+            # READY_TO_START: valid if delayed start is configured (timeToEnd > 0 already checked)
+            if appliance_state == "READY_TO_START":
+                return dt_util.now() + timedelta(seconds=value)
+
+            # END_OF_CYCLE: only show countdown if there's still active work (anti-crease, cooling, etc.)
+            if appliance_state == "END_OF_CYCLE":
+                cycle_phase = self.reported_state.get("cyclePhase")
+                # Active phases that continue after main cycle: ANTICREASE, COOL, SPIN
+                # Do NOT show for: UNAVAILABLE, CYCLE_PHASE_HIDDEN, or None (truly finished)
+                if cycle_phase in ["ANTICREASE", "COOL", "SPIN"]:
+                    return dt_util.now() + timedelta(seconds=value)
+
+            # All other states (IDLE, OFF, STOPPED, ALARM) - don't show countdown
+            return None
 
             # API returns seconds, calculate future timestamp for countdown
             return dt_util.now() + timedelta(seconds=value)

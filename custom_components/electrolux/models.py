@@ -133,13 +133,7 @@ class Appliance:
         WD: Washer-Dryer
         AC: Air Conditioner
         """
-        from typing import cast
-
-        return (
-            cast(dict[str, Any], self.state)
-            .get("applianceData", {})
-            .get("applianceType")
-        )
+        return self.reported_state.get("applianceInfo", {}).get("applianceType")
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""

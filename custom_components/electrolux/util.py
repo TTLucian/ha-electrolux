@@ -921,7 +921,7 @@ def get_capability(
 
 
 def format_command_for_appliance(
-    capability: dict[str, Any], attr: str, value: Any
+    capability: dict[str, Any] | None, attr: str, value: Any
 ) -> Any:
     """Format a command value according to the appliance capability specifications.
 
@@ -929,7 +929,7 @@ def format_command_for_appliance(
     the expected format for the Electrolux appliance based on capability metadata.
 
     Args:
-        capability: The capability definition for the attribute
+        capability: The capability definition for the attribute (can be None)
         attr: The attribute name (e.g., 'cavityLight', 'targetTemperatureC')
         value: The raw value from Home Assistant
 

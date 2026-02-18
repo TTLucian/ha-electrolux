@@ -33,7 +33,22 @@ async def async_setup_entry(
         for appliance_id, appliance in appliances.appliances.items():
             # Create climate entities for air conditioners
             if appliance.appliance_type == "AC":
-                climate_entity = ElectroluxClimate(appliance, coordinator)
+                climate_entity = ElectroluxClimate(
+                    coordinator=coordinator,
+                    name=appliance.name,
+                    config_entry=entry,
+                    pnc_id=appliance.pnc_id,
+                    entity_type=CLIMATE,
+                    entity_name="climate",
+                    entity_attr="climate",
+                    entity_source=None,
+                    capability={},
+                    unit=None,
+                    device_class=None,
+                    entity_category=None,
+                    icon="mdi:air-conditioner",
+                    catalog_entry=None,
+                )
                 entities.append(climate_entity)
                 _LOGGER.debug(
                     "Electrolux created CLIMATE entity for appliance %s",
@@ -46,9 +61,40 @@ async def async_setup_entry(
 class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
     """Electrolux climate class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        coordinator,
+        name: str,
+        config_entry,
+        pnc_id: str,
+        entity_type,
+        entity_name,
+        entity_attr: str,
+        entity_source,
+        capability: dict,
+        unit: str | None,
+        device_class,
+        entity_category,
+        icon: str,
+        catalog_entry=None,
+    ):
         """Initialize the climate entity."""
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            coordinator=coordinator,
+            name=name,
+            config_entry=config_entry,
+            pnc_id=pnc_id,
+            entity_type=entity_type,
+            entity_name=entity_name,
+            entity_attr=entity_attr,
+            entity_source=entity_source,
+            capability=capability,
+            unit=unit,
+            device_class=device_class,
+            entity_category=entity_category,
+            icon=icon,
+            catalog_entry=catalog_entry,
+        )
         self._enable_turn_on_off_backwards_compatibility = False
 
     @property
