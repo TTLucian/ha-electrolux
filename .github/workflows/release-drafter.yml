@@ -46,15 +46,30 @@ jobs:
 
       - name: Create or Update Release with Release Notes
         if: steps.release_notes.outputs.found == 'true'
-        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: ${{ steps.release_notes.outputs.title }}
-          body_path: RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md
-          draft: true
-          prerelease: false
+          VERSION: ${{ steps.get_version.outputs.version }}
+          TITLE: ${{ steps.release_notes.outputs.title }}
+        run: |
+          # Read the release notes file
+          BODY=$(cat "RELEASE_NOTES_v${VERSION}.md")
+          
+          # Check if a draft release already exists for this version
+          EXISTING_RELEASE=$(gh release list --json tagName,isDraft,id --jq ".[] | select(.tagName == \"v${VERSION}\" and .isDraft == true) | .id")
+          
+          if [ -n "$EXISTING_RELEASE" ]; then
+            echo "Updating existing draft release v${VERSION} (ID: $EXISTING_RELEASE)"
+            gh release edit "v${VERSION}" \
+              --draft \
+              --title "$TITLE" \
+              --notes-file "RELEASE_NOTES_v${VERSION}.md"
+          else
+            echo "Creating new draft release v${VERSION}"
+            gh release create "v${VERSION}" \
+              --draft \
+              --title "$TITLE" \
+              --notes-file "RELEASE_NOTES_v${VERSION}.md"
+          fi
 
       - name: Skip Release Creation
         if: steps.release_notes.outputs.found == 'false'
