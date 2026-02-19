@@ -1,6 +1,7 @@
 """Defined catalog of entities for oven type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
@@ -32,8 +33,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
     "cavityLight": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -103,6 +102,7 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
+        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "executeCommand": ElectroluxDevice(
         capability_info={
@@ -189,38 +189,33 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
     ),
     "targetFoodProbeTemperatureC": ElectroluxDevice(
         capability_info={"access": "readwrite", "step": 1.0, "type": "temperature"},
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
     ),
     "targetFoodProbeTemperatureF": ElectroluxDevice(
         capability_info={"access": "readwrite", "step": 1.0, "type": "temperature"},
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
-    ),
-    "targetMicrowavePower": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.ENERGY,
-        unit="W",
-        entity_category=None,
-        entity_icon="mdi:microwave",
+        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "targetTemperatureC": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "temperature"},
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
         entity_icon="mdi:thermometer",
     ),
     "targetTemperatureF": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "temperature"},
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
+        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "waterTankEmpty": ElectroluxDevice(
         capability_info={

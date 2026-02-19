@@ -2,7 +2,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" />
   <img src="https://img.shields.io/github/license/TTLucian/ha-electrolux?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge" />
   <img src="https://img.shields.io/github/actions/workflow/status/TTLucian/ha-electrolux/ci.yml?style=for-the-badge" />
   <a href="https://buymeacoffee.com/ttlucian"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
 </p>
@@ -60,10 +60,15 @@ All appliances must be:
 
 ### 🎯 HACS Installation (Recommended)
 
-1. Add this repository to HACS: `https://github.com/TTLucian/ha-electrolux`
-2. Search for "Electrolux" in HACS
-3. Click Install
-4. Restart Home Assistant
+**Good news!** This integration is now available directly in the HACS default repository.
+
+1. Open HACS in Home Assistant
+2. Go to **Integrations**
+3. Search for "Electrolux"
+4. Click **Install**
+5. Restart Home Assistant
+
+**Note:** No custom repository URL needed anymore!
 
 ### 🔧 Manual Installation
 
@@ -210,6 +215,16 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Safety lock
 - Ionizer control
 
+**🌊 Microwaves** - ⚠️ Basic Support (In Preparation)
+- Appliance state monitoring
+- Microwave power sensor (Watts)
+- Time-to-end countdown
+- **Status**: Foundation infrastructure added in v3.2.7
+- **Full support pending**: Requires diagnostic JSON files from users with microwave appliances
+- **Coming soon**: Power level controls, cooking modes, timer controls, quick start, defrost settings, child lock
+
+> **Help me improve microwave support!** If you have an Electrolux microwave, please submit diagnostic files via Settings → Devices & Services → Electrolux → [Your Microwave] → Download Diagnostics.
+
 ## ⚡ Features
 
 ### 📊 Sensors
@@ -227,6 +242,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Drying cycle monitoring (washer-dryers)
 - Dryer monitoring (tumble dryers: fluff filter status, dryness levels, load weight)
 - Dishwasher monitoring (salt levels, rinse aid levels, filter status)
+- Microwave monitoring (power output, time-to-end)
 
 ### 🎮 Controls
 - Power on/off (with safety validation)

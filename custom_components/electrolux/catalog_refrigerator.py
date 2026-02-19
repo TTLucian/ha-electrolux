@@ -38,8 +38,6 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     "freezer/fastMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -62,7 +60,7 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
             "step": 1.0,
             "type": "temperature",
         },
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
         entity_icon="mdi:thermometer",
@@ -95,8 +93,6 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     "fridge/fastMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -119,7 +115,7 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
             "step": 1.0,
             "type": "temperature",
         },
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
         entity_icon="mdi:thermometer",
@@ -128,8 +124,6 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     "sabbathMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -140,8 +134,6 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
     "vacationHolidayMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -262,6 +254,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         friendly_name="Reminder Time",
     ),
     # Extra cavity (wine cellar, etc.)
+    "extraCavity/alerts": ElectroluxDevice(
+        capability_info={"access": "read", "type": "alert"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert",
+        friendly_name="Extra Cavity Alerts",
+    ),
     "extraCavity/applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -316,7 +316,7 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
             "type": "temperature",
             "values": {"-2.0": {}, "0.0": {}, "3.0": {}, "7.0": {}},
         },
-        device_class=SensorDeviceClass.TEMPERATURE,
+        device_class=NumberDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
         entity_icon="mdi:thermometer",
@@ -335,6 +335,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         friendly_name="Extra Cavity Adjusting",
     ),
     # Ice maker
+    "iceMaker/alerts": ElectroluxDevice(
+        capability_info={"access": "read", "type": "alert"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert",
+        friendly_name="Ice Maker Alerts",
+    ),
     "iceMaker/applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -400,14 +408,114 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:tray",
         friendly_name="Ice Tray Fill Setting",
     ),
+    # Filter maintenance thresholds (constants from device)
+    "airFilterLifeTimeBuyThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+        friendly_name="Air Filter Buy Threshold",
+    ),
+    "airFilterLifeTimeChangeThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+        friendly_name="Air Filter Change Threshold",
+    ),
+    "waterFilterFlowBuyThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=None,
+        unit="L",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:water-pump",
+        entity_registry_enabled_default=False,
+        friendly_name="Water Filter Buy Threshold (Flow)",
+    ),
+    "waterFilterFlowChangeThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=None,
+        unit="L",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:water-pump",
+        entity_registry_enabled_default=False,
+        friendly_name="Water Filter Change Threshold (Flow)",
+    ),
+    "waterFilterLifeTimeBuyThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:water-pump",
+        entity_registry_enabled_default=False,
+        friendly_name="Water Filter Buy Threshold (Time)",
+    ),
+    "waterFilterLifeTimeChangeThreshold": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "number",
+        },
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:water-pump",
+        entity_registry_enabled_default=False,
+        friendly_name="Water Filter Change Threshold (Time)",
+    ),
+    "applianceMainBoardSwVersion": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:chip",
+        entity_registry_enabled_default=False,
+        friendly_name="Main Board Software Version",
+    ),
+    "applianceMode": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "DEMO": {},
+                "NORMAL": {},
+                "SERVICE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:wrench",
+        entity_registry_enabled_default=False,
+        friendly_name="Appliance Mode",
+    ),
 }
 
 EHE6899SA = {
     "uiLockMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "boolean",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -418,8 +526,6 @@ EHE6899SA = {
     "ui2LockMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "boolean",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,

@@ -13,6 +13,59 @@ from .util import get_capability, string_to_boolean
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
+
+def infer_boolean_from_enum(value: str) -> bool:
+    """Infer boolean state from appliance-specific enum values.
+
+    This handles binary sensor values that aren't covered by the generic
+    string_to_boolean() function. Uses common patterns in appliance enums.
+
+    Args:
+        value: The string value to interpret
+
+    Returns:
+        True for "positive" states, False for "negative" states
+
+    Examples:
+        "INSERTED" → True, "NOT_INSERTED" → False
+        "STEAM_TANK_FULL" → True, "STEAM_TANK_EMPTY" → False
+        "CONNECTED" → True, "DISCONNECTED" → False
+    """
+    normalized = value.upper().replace("_", " ")
+
+    # Negative patterns (False states)
+    negative_patterns = [
+        "NOT ",
+        "NO ",
+        " EMPTY",
+        "DISCONNECTED",
+        "DISABLED",
+        "UNAVAILABLE",
+    ]
+
+    for pattern in negative_patterns:
+        if pattern in normalized:
+            return False
+
+    # Positive patterns (True states)
+    positive_patterns = [
+        "INSERT",  # Matches INSERTED, INSERTION, etc.
+        "INSTALL",  # Matches INSTALLED, INSTALLATION, etc.
+        "FULL",
+        "CONNECT",  # Matches CONNECTED, CONNECTION, etc.
+        "ENABLE",  # Matches ENABLED, etc.
+        "AVAILABLE",
+        "DETECT",  # Matches DETECTED, DETECTION, etc.
+    ]
+
+    for pattern in positive_patterns:
+        if pattern in normalized:
+            return True
+
+    # Default: treat as True if no pattern matches (safer for binary sensors)
+    return True
+
+
 FRIENDLY_NAMES = {
     "ovwater_tank_empty": "Water Tank Status",
     "foodProbeInsertionState": "Food Probe",
@@ -76,14 +129,8 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
         """Return true if the binary_sensor is on."""
         value = self.extract_value()
 
-        # Special handling for food probe insertion state
-        if self.entity_name == "foodProbeInsertionState":
-            live_value = self.reported_state.get("foodProbeInsertionState")
-            if live_value is not None:
-                # Show 'On' when inserted
-                value = live_value == "INSERTED"
         # Special handling for cleaning and probe end sensors
-        elif self.entity_name in ["ovcleaning_ended", "ovfood_probe_end_of_cooking"]:
+        if self.entity_name in ["ovcleaning_ended", "ovfood_probe_end_of_cooking"]:
             # Check processPhase - return On if STOPPED (process completed)
             process_phase = self.reported_state.get("processPhase")
             if process_phase == "STOPPED":
@@ -97,7 +144,16 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
             if default_value is not None and not isinstance(default_value, dict):
                 value = default_value
         if isinstance(value, str):
-            value = string_to_boolean(value, True)
+            # Try generic string-to-boolean conversion first
+            # When fallback=True (default), unrecognized strings return the original value
+            converted = string_to_boolean(value, fallback=True)
+            if isinstance(converted, bool):
+                # string_to_boolean recognized it - use the result
+                value = converted
+            else:
+                # string_to_boolean returned the fallback value (original string)
+                # Try appliance-specific enum inference
+                value = infer_boolean_from_enum(value)
         if value is None:
             if self.catalog_entry and self.catalog_entry.state_mapping:
                 mapping = self.catalog_entry.state_mapping

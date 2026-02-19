@@ -231,8 +231,6 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "readwrite",
             "default": "OFF",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -244,8 +242,6 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
     "remoteNotificationPending": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=None,
         unit=None,

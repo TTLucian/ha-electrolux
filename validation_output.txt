@@ -1,0 +1,38 @@
+
+================================================================================
+Validating Air Conditioner (AC)
+================================================================================
+
+Catalog has 50 entities (including core catalog)
+Traceback (most recent call last):
+  File "D:\Lucian\Documents\Github\ha-electrolux\validate_catalogs.py", line 100, in validate_appliance_type
+    print(f"  \u2713 {sample_file.name}: {len(caps)} leaf capabilities")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 2: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Lucian\Documents\Github\ha-electrolux\validate_catalogs.py", line 249, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "D:\Lucian\Documents\Github\ha-electrolux\validate_catalogs.py", line 151, in main
+    validate_appliance_type(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        "Air Conditioner (AC)",
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        core_catalog,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Lucian\Documents\Github\ha-electrolux\validate_catalogs.py", line 102, in validate_appliance_type
+    print(f"  \u26a0\ufe0f  Error loading {sample_file}: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-3: character maps to <undefined>

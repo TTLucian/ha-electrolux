@@ -417,6 +417,7 @@ cython_debug/
 .vscode
 .github/**/*instruction*
 *samples*
+*pyrightconfig*
 
 # PyCharm
 #  JetBrains specific template is maintainted in a separate JetBrains.gitignore that can

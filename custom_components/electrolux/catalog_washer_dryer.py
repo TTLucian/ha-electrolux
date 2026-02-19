@@ -43,8 +43,6 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
     "ui2LockMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "boolean",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -54,8 +52,6 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
     "vacationHolidayMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "boolean",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=None,
         unit=None,

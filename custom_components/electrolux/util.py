@@ -634,6 +634,22 @@ def map_command_error_to_home_assistant_error(
             error_data = getattr(ex, "error_data")
         elif hasattr(ex, "details"):
             error_data = getattr(ex, "details")
+
+        # If no structured data found, try parsing the exception message string
+        if not error_data:
+            import json
+            import re
+
+            ex_str = str(ex)
+            # Look for JSON-like dict in the message: message='{"error": ...}' or message="{'error': ...}"
+            match = re.search(r"message=['\"](\{.+?\})['\"]", ex_str)
+            if match:
+                try:
+                    # Replace single quotes with double quotes for valid JSON
+                    json_str = match.group(1).replace("'", '"')
+                    error_data = json.loads(json_str)
+                except Exception:
+                    pass  # Parsing failed
     except Exception:
         # Parsing failed, continue to other methods
         pass
@@ -871,6 +887,21 @@ def map_command_error_to_home_assistant_error(
             "406",
         ]
     ):
+        # Try to extract detail from error_data for more specific message
+        detail_msg = None
+        if error_data and isinstance(error_data, dict):
+            detail = error_data.get("detail") or error_data.get("message")
+            if detail and detail != "Command validation failed":
+                detail_msg = f"Command not accepted: {detail}"
+
+        if not detail_msg:
+            # Fallback: try to extract useful info from exception string
+            ex_str = str(ex)
+            if len(ex_str) > 0 and len(ex_str) < 200:
+                detail_msg = f"Command not accepted by appliance: {ex_str}"
+            else:
+                detail_msg = "Command not accepted by appliance. Check that the appliance supports this operation."
+
         logger.warning(
             "Command failed for %s: command validation error%s%s | %s",
             entity_attr,
@@ -878,9 +909,7 @@ def map_command_error_to_home_assistant_error(
             error_data_str,
             ex,
         )
-        return HomeAssistantError(
-            "Command not accepted by appliance. Check that the appliance supports this operation."
-        )
+        return HomeAssistantError(detail_msg)
 
     # Default: Generic error
     logger.error(
@@ -1091,6 +1120,9 @@ class ElectroluxTokenManager(TokenManager):
             None  # Server time from last successful API call
         )
         self._marked_needs_refresh = False  # Flag to bypass cooldown if refresh needed
+        self._last_log_time = 0.0  # Cache timestamp for log throttling
+        self._last_log_status = ""  # Cache last logged status
+        self._last_time_jump_log = 0.0  # Track last time jump warning
 
     def is_token_valid(self) -> bool:
         """Check token validity with 15-minute proactive refresh buffer.
@@ -1122,13 +1154,17 @@ class ElectroluxTokenManager(TokenManager):
 
             current_time = time.time()
 
-            # Clock skew detection
+            # Clock skew detection - throttle to once per hour
             time_jump = abs(current_time - self._last_check_time)
             if time_jump > 3600:  # More than 1 hour jump
-                _LOGGER.warning(
-                    f"[TOKEN-CHECK] Large time jump detected ({time_jump:.0f}s), "
-                    f"possible clock adjustment or system sleep - token validity may be affected"
-                )
+                # Only log if we haven't logged a time jump in the last hour
+                time_since_last_jump_log = current_time - self._last_time_jump_log
+                if time_since_last_jump_log > 3600 or self._last_time_jump_log == 0.0:
+                    _LOGGER.warning(
+                        f"[TOKEN-CHECK] Large time jump detected ({time_jump:.0f}s), "
+                        f"possible clock adjustment or system sleep - token validity may be affected"
+                    )
+                    self._last_time_jump_log = current_time
             self._last_check_time = current_time
 
             # 900 seconds = 15 minutes proactive refresh buffer
@@ -1147,9 +1183,15 @@ class ElectroluxTokenManager(TokenManager):
                 )
                 self._marked_needs_refresh = True  # Mark to bypass cooldown
             else:
-                _LOGGER.debug(
-                    f"[TOKEN-CHECK] Token valid: {hours} hours, {minutes} minutes remaining"
-                )
+                # Only log if status changed or 30+ seconds since last log (reduce noise)
+                status_msg = f"valid: {hours}h {minutes}m"
+                time_since_log = current_time - self._last_log_time
+                if self._last_log_status != status_msg or time_since_log >= 30:
+                    _LOGGER.debug(
+                        f"[TOKEN-CHECK] Token valid: {hours} hours, {minutes} minutes remaining"
+                    )
+                    self._last_log_time = current_time
+                    self._last_log_status = status_msg
 
             return is_valid
 

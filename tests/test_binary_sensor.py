@@ -5,8 +5,54 @@ from unittest.mock import MagicMock
 import pytest
 from homeassistant.const import EntityCategory
 
-from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
+from custom_components.electrolux.binary_sensor import (
+    ElectroluxBinarySensor,
+    infer_boolean_from_enum,
+)
 from custom_components.electrolux.const import BINARY_SENSOR
+
+
+class TestInferBooleanFromEnum:
+    """Test the infer_boolean_from_enum helper function."""
+
+    def test_negative_patterns(self):
+        """Test negative patterns return False."""
+        assert infer_boolean_from_enum("NOT_INSERTED") is False
+        assert infer_boolean_from_enum("NOT_AVAILABLE") is False
+        assert infer_boolean_from_enum("NO_WATER") is False
+        assert infer_boolean_from_enum("STEAM_TANK_EMPTY") is False
+        assert infer_boolean_from_enum("DISCONNECTED") is False
+        assert infer_boolean_from_enum("DISABLED") is False
+        assert infer_boolean_from_enum("UNAVAILABLE") is False
+
+    def test_positive_patterns(self):
+        """Test positive patterns return True."""
+        assert infer_boolean_from_enum("INSERTED") is True
+        assert infer_boolean_from_enum("INSTALLED") is True
+        assert infer_boolean_from_enum("STEAM_TANK_FULL") is True
+        assert infer_boolean_from_enum("WATER_FULL") is True
+        assert infer_boolean_from_enum("CONNECTED") is True
+        assert infer_boolean_from_enum("ENABLED") is True
+        assert infer_boolean_from_enum("AVAILABLE") is True
+        assert infer_boolean_from_enum("DETECTED") is True
+
+    def test_case_insensitive(self):
+        """Test function is case insensitive."""
+        assert infer_boolean_from_enum("not_inserted") is False
+        assert infer_boolean_from_enum("inserted") is True
+        assert infer_boolean_from_enum("installed") is True
+        assert infer_boolean_from_enum("Not_Available") is False
+
+    def test_underscore_handling(self):
+        """Test underscores are handled properly."""
+        assert infer_boolean_from_enum("NOT_INSERTED") is False
+        assert infer_boolean_from_enum("STEAM_TANK_EMPTY") is False
+        assert infer_boolean_from_enum("TANK_FULL") is True
+
+    def test_unknown_defaults_to_true(self):
+        """Test unknown values default to True."""
+        assert infer_boolean_from_enum("UNKNOWN_STATE") is True
+        assert infer_boolean_from_enum("SOME_VALUE") is True
 
 
 class TestElectroluxBinarySensor:
@@ -206,7 +252,7 @@ class TestElectroluxBinarySensor:
         assert entity.is_on is True
 
     def test_is_on_food_probe_insertion_state(self, mock_coordinator, mock_capability):
-        """Test special handling for food probe insertion state."""
+        """Test generic enum handling for food probe insertion state."""
         entity = ElectroluxBinarySensor(
             coordinator=mock_coordinator,
             name="Food Probe",
@@ -222,10 +268,10 @@ class TestElectroluxBinarySensor:
             entity_category=EntityCategory.DIAGNOSTIC,
             icon="mdi:test",
         )
-        entity.reported_state = {"foodProbeInsertionState": "INSERTED"}
+        entity.extract_value = MagicMock(return_value="INSERTED")
         assert entity.is_on is True
 
-        entity.reported_state = {"foodProbeInsertionState": "NOT_INSERTED"}
+        entity.extract_value = MagicMock(return_value="NOT_INSERTED")
         assert entity.is_on is False
 
     def test_is_on_cleaning_ended(self, mock_coordinator, mock_capability):
@@ -273,6 +319,99 @@ class TestElectroluxBinarySensor:
 
         entity.reported_state = {"processPhase": "RUNNING"}
         assert entity.is_on is False
+
+    def test_is_on_water_tank_empty(self, mock_coordinator, mock_capability):
+        """Test generic enum handling for water tank empty sensor."""
+        entity = ElectroluxBinarySensor(
+            coordinator=mock_coordinator,
+            name="Water Tank Status",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BINARY_SENSOR,
+            entity_name="waterTankEmpty",
+            entity_attr="waterTankEmpty",
+            entity_source=None,
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:test",
+        )
+        # Tank is empty - should be Off (empty is "negative")
+        entity.extract_value = MagicMock(return_value="STEAM_TANK_EMPTY")
+        assert entity.is_on is False
+
+        # Tank is full - should be On (full is "positive")
+        entity.extract_value = MagicMock(return_value="STEAM_TANK_FULL")
+        assert entity.is_on is True
+
+    def test_is_on_water_tray_insertion_state(self, mock_coordinator, mock_capability):
+        """Test generic enum handling for water tray insertion state sensor."""
+        entity = ElectroluxBinarySensor(
+            coordinator=mock_coordinator,
+            name="Water Tray",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BINARY_SENSOR,
+            entity_name="waterTrayInsertionState",
+            entity_attr="waterTrayInsertionState",
+            entity_source=None,
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:test",
+        )
+        # Tray is inserted - should be On
+        entity.extract_value = MagicMock(return_value="INSERTED")
+        assert entity.is_on is True
+
+        # Tray is not inserted - should be Off
+        entity.extract_value = MagicMock(return_value="NOT_INSERTED")
+        assert entity.is_on is False
+
+    def test_is_on_generic_enum_handling(self, mock_coordinator, mock_capability):
+        """Test generic enum value handling for unknown appliances."""
+        # Test with an unknown binary sensor that has enum values
+        entity = ElectroluxBinarySensor(
+            coordinator=mock_coordinator,
+            name="Filter Status",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BINARY_SENSOR,
+            entity_name="filterInstalled",  # Not in special handling list
+            entity_attr="filterInstalled",
+            entity_source=None,
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:test",
+        )
+
+        # Test negative patterns - mock extract_value to return enum strings
+        entity.extract_value = MagicMock(return_value="NOT_AVAILABLE")
+        assert entity.is_on is False
+
+        entity.extract_value = MagicMock(return_value="DISCONNECTED")
+        assert entity.is_on is False
+
+        entity.extract_value = MagicMock(return_value="FILTER_EMPTY")
+        assert entity.is_on is False
+
+        # Test positive patterns
+        entity.extract_value = MagicMock(return_value="INSTALLED")
+        assert entity.is_on is True
+
+        entity.extract_value = MagicMock(return_value="CONNECTED")
+        assert entity.is_on is True
+
+        entity.extract_value = MagicMock(return_value="FILTER_FULL")
+        assert entity.is_on is True
+
+        # Test unknown values default to True
+        entity.extract_value = MagicMock(return_value="UNKNOWN_STATE")
+        assert entity.is_on is True
 
     def test_is_on_with_state_mapping(self, mock_coordinator, mock_capability):
         """Test is_on with state mapping fallback."""

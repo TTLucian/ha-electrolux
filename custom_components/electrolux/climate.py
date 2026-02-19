@@ -33,6 +33,25 @@ async def async_setup_entry(
         for appliance_id, appliance in appliances.appliances.items():
             # Create climate entities for air conditioners
             if appliance.appliance_type == "AC":
+                # Extract relevant capabilities for climate entity
+                capabilities_dict = {}
+                if appliance.data and hasattr(appliance.data, "capabilities"):
+                    all_caps = appliance.data.capabilities or {}
+                    # Extract climate-relevant capabilities
+                    climate_attrs = [
+                        "mode",
+                        "fanSpeedSetting",
+                        "fanMode",
+                        "verticalSwing",
+                        "swingMode",
+                        "targetTemperatureC",
+                        "targetTemperatureF",
+                        "executeCommand",
+                    ]
+                    for attr in climate_attrs:
+                        if attr in all_caps:
+                            capabilities_dict[attr] = all_caps[attr]
+
                 climate_entity = ElectroluxClimate(
                     coordinator=coordinator,
                     name=appliance.name,
@@ -42,7 +61,7 @@ async def async_setup_entry(
                     entity_name="climate",
                     entity_attr="climate",
                     entity_source=None,
-                    capability={},
+                    capability=capabilities_dict,
                     unit=None,
                     device_class=None,
                     entity_category=None,
@@ -51,8 +70,9 @@ async def async_setup_entry(
                 )
                 entities.append(climate_entity)
                 _LOGGER.debug(
-                    "Electrolux created CLIMATE entity for appliance %s",
+                    "Electrolux created CLIMATE entity for appliance %s with capabilities: %s",
                     appliance_id,
+                    list(capabilities_dict.keys()),
                 )
         async_add_entities(entities)
     return
@@ -277,6 +297,16 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
         if max_val is not None:
             return float(max_val)
         return 30.0  # Default maximum
+
+    @property
+    def target_temperature_step(self) -> float:
+        """Return the supported step of target temperature."""
+        # Get temperature step from appliance capabilities
+        temp_capability = self.capability.get("targetTemperatureC", {})
+        step = temp_capability.get("step")
+        if step is not None:
+            return float(step)
+        return 1.0  # Default to 1 degree steps (not 0.5 which HA default)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""

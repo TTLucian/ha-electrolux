@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import time
 from typing import Any, cast
 
 from homeassistant.config_entries import ConfigEntry
@@ -350,11 +351,15 @@ class ElectroluxEntity(CoordinatorEntity):
 
     @property
     def available(self) -> bool:
-        """Return True if entity is available."""
+        """Return True if entity is available.
+
+        Entities remain available even when disconnected - they will show 'unknown' state.
+        Only unavailable if appliance_status doesn't exist (integration not loaded).
+        """
         # Must have appliance status to be available
         if not hasattr(self, "appliance_status") or self.appliance_status is None:
             return False
-        return self.is_connected()
+        return True
 
     def is_connected(self) -> bool:
         """Check if the appliance is connected.
@@ -474,6 +479,10 @@ class ElectroluxEntity(CoordinatorEntity):
 
     def extract_value(self) -> int | float | str | bool | None:
         """Return the appliance attributes of the entity with program constraint handling."""
+        # Special case: connectivityState sensor should always show its value (even when disconnected)
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         # 1. Constant access check
         if self.capability.get("access") == "constant":
             return self.capability.get("default")
@@ -486,11 +495,17 @@ class ElectroluxEntity(CoordinatorEntity):
                 min_val = self._get_program_constraint("min") or self.capability.get(
                     "min", 0
                 )
-                _LOGGER.debug(
-                    "%s is not supported/inserted; locking UI to min: %s",
-                    self.entity_attr,
-                    min_val,
-                )
+                # Throttle logging to reduce noise - only log once per hour or when value changes
+                current_time = time.time()
+                log_key = f"probe_not_supported_{self.entity_attr}"
+                last_log = getattr(self, f"_last_log_{log_key}", 0.0)
+                if current_time - last_log > 3600:  # Log once per hour
+                    _LOGGER.debug(
+                        "%s is not supported/inserted; locking UI to min: %s",
+                        self.entity_attr,
+                        min_val,
+                    )
+                    setattr(self, f"_last_log_{log_key}", current_time)
                 return min_val
 
             # For other entities (like Target Temp), you might want to return None or min

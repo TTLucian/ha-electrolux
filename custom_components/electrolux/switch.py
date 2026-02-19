@@ -17,6 +17,7 @@ from .util import (
     ElectroluxApiClient,
     execute_command_with_error_handling,
     format_command_for_appliance,
+    string_to_boolean,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -64,12 +65,19 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         if value is None:
             return False
 
-        # Ensure value is boolean
+        # Handle boolean values
         if isinstance(value, bool):
             return value
-        else:
-            # If it's not a boolean, try to convert it
-            return bool(value)
+
+        # Handle string values like "ON"/"OFF"
+        if isinstance(value, str):
+            result = string_to_boolean(value, fallback=False)
+            if isinstance(result, bool):
+                return result
+            return False
+
+        # For other types, try to convert to boolean
+        return bool(value)
 
     async def switch(self, value: bool) -> None:
         """Control switch state."""

@@ -233,8 +233,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
     "cleanAirMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -244,8 +242,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
     "sleepMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -255,8 +251,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
     "batchSchedulerMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "boolean",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -266,8 +260,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
     "verticalSwing": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {"OFF": {}, "ON": {}},
         },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -429,5 +421,32 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:update",
         entity_registry_enabled_default=False,
+    ),
+    # Feature availability indicators
+    "hMEPN_ACAirFilterClean": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "int",
+            "default": 1,
+        },
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=True,
+        friendly_name="Air Filter Clean Required",
+    ),
+    "hMEPN_ACAlerts": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "int",
+            "default": 1,
+        },
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert",
+        entity_registry_enabled_default=True,
+        friendly_name="AC Alerts Supported",
     ),
 }

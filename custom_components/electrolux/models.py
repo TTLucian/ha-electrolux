@@ -364,8 +364,26 @@ class Appliance:
                     elif access == "read":
                         entity_type = SENSOR
             else:
-                # Merge catalog capability_info into API capability_info
-                capability_info.update(catalog_item.capability_info)
+                # CRITICAL: API capability_info is the source of truth for device capabilities
+                # Catalog provides metadata (icons, friendly names, entity_source, etc.)
+                # Start with catalog as base, then let API values completely override
+                catalog_capability = catalog_item.capability_info.copy()
+
+                # For specific fields like "values", API should completely replace catalog
+                # (not merge) to prevent catalog template values from appearing on devices
+                # that don't support them (e.g., HEAT mode on cooling-only AC units)
+                if "values" in capability_info:
+                    catalog_capability.pop("values", None)
+                if "min" in capability_info:
+                    catalog_capability.pop("min", None)
+                if "max" in capability_info:
+                    catalog_capability.pop("max", None)
+                if "step" in capability_info:
+                    catalog_capability.pop("step", None)
+
+                # Merge: catalog base + API overrides (API wins on conflicts)
+                merged = {**catalog_capability, **capability_info}
+                capability_info = merged
 
             device_class = catalog_item.device_class
             unit = catalog_item.unit

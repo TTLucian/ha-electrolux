@@ -81,6 +81,36 @@ class TestElectroluxSwitch:
         switch_entity.reported_state = {"testAttr": 1}
         assert switch_entity.is_on is True
 
+    def test_is_on_string_on(self, switch_entity):
+        """Test is_on returns True for string 'ON'."""
+        switch_entity.appliance_status = {
+            "properties": {"reported": {"testAttr": "ON"}}
+        }
+        switch_entity.reported_state = {"testAttr": "ON"}
+        assert switch_entity.is_on is True
+
+    def test_is_on_string_off(self, switch_entity):
+        """Test is_on returns False for string 'OFF'."""
+        switch_entity.appliance_status = {
+            "properties": {"reported": {"testAttr": "OFF"}}
+        }
+        switch_entity.reported_state = {"testAttr": "OFF"}
+        assert switch_entity.is_on is False
+
+    def test_is_on_string_lowercase(self, switch_entity):
+        """Test is_on handles lowercase string values."""
+        switch_entity.appliance_status = {
+            "properties": {"reported": {"testAttr": "on"}}
+        }
+        switch_entity.reported_state = {"testAttr": "on"}
+        assert switch_entity.is_on is True
+
+        switch_entity.appliance_status = {
+            "properties": {"reported": {"testAttr": "off"}}
+        }
+        switch_entity.reported_state = {"testAttr": "off"}
+        assert switch_entity.is_on is False
+
     def test_is_on_none_value(self, switch_entity):
         """Test is_on handles None values."""
         switch_entity.appliance_status = {"properties": {"reported": {}}}

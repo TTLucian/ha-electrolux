@@ -79,6 +79,14 @@ def _get_catalog_dryer():
     return CATALOG_DRYER
 
 
+@lru_cache(maxsize=None)
+def _get_catalog_microwave():
+    """Lazy load microwave catalog."""
+    from .catalog_microwave import CATALOG_MICROWAVE
+
+    return CATALOG_MICROWAVE
+
+
 # definitions of model explicit overrides. These will be used to
 # create a new catalog with a merged definition of properties
 @lru_cache(maxsize=1)
@@ -120,6 +128,7 @@ def _get_catalog_by_type():
     - TD: Tumble Dryer - includes drying programs and controls
     - AC: Air Conditioner - includes climate control and air quality
     - DW: Dishwasher - includes wash programs and options
+    - MW: Microwave - includes power levels and cooking programs (in preparation)
 
     Returns:
         dict: Mapping of appliance type codes to their entity catalogs
@@ -132,6 +141,7 @@ def _get_catalog_by_type():
         "TD": _get_catalog_dryer(),  # Tumble Dryer
         "AC": _get_catalog_air_conditioner(),  # Air Conditioner
         "DW": _get_catalog_dishwasher(),  # Dishwasher
+        "MW": _get_catalog_microwave(),  # Microwave (in preparation)
     }
 
 
@@ -232,6 +242,21 @@ def _get_catalog_base():
             entity_registry_enabled_default=True,
             friendly_name="Appliance State",
         ),
+        "temperatureRepresentation": ElectroluxDevice(
+            capability_info={
+                "access": "readwrite",
+                "type": "string",
+                "values": {
+                    "CELSIUS": {},
+                    "FAHRENHEIT": {},
+                },
+            },
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.CONFIG,
+            entity_icon="mdi:thermometer-lines",
+            friendly_name="Temperature Unit",
+        ),
         "networkInterface/linkQualityIndicator": create_diagnostic_string_entity(
             capability_info={
                 "access": "read",
@@ -247,6 +272,24 @@ def _get_catalog_base():
             },
             friendly_name="Link Quality",
             icon="mdi:wifi",
+        ),
+        "networkInterface/command": ElectroluxDevice(
+            capability_info={
+                "access": "write",
+                "type": "string",
+                "values": {
+                    "APPLIANCE_AUTHORIZE": {},
+                    "START": {},
+                    "USER_AUTHORIZE": {},
+                    "USER_NOT_AUTHORIZE": {},
+                },
+            },
+            device_class=None,
+            unit=None,
+            entity_category=EntityCategory.CONFIG,
+            entity_icon="mdi:console-network",
+            entity_registry_enabled_default=False,
+            friendly_name="Network Command",
         ),
         "networkInterface/niuSwUpdateCurrentDescription": create_diagnostic_string_entity(
             capability_info=CAPABILITY_READ_STRING,
