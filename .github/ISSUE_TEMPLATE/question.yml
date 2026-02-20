@@ -7,15 +7,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        Need help with the Electrolux integration? Please fill out the information below.
+        Need help? We're here for you! 👋
         
-        **Note:** For urgent issues or bugs, please use the Bug Report template instead.
+        **Tip:** The more context you provide, the better we can help. But just describe your question - everything else is optional!
 
   - type: textarea
     id: question
     attributes:
-      label: Your Question
-      description: What would you like help with?
+      label: What do you need help with?
+      description: Describe your question or issue
       placeholder: I need help with...
     validations:
       required: true
@@ -23,8 +23,8 @@ body:
   - type: textarea
     id: context
     attributes:
-      label: What have you tried?
-      description: What steps have you already taken to solve this?
+      label: What have you tried? (Optional)
+      description: Let us know what you've already attempted
       placeholder: |
         I have tried...
         1. ...
@@ -35,8 +35,8 @@ body:
   - type: input
     id: ha-version
     attributes:
-      label: Home Assistant Version
-      description: Which version of Home Assistant are you running?
+      label: Home Assistant Version (Optional)
+      description: Which version are you running?
       placeholder: "e.g., 2026.2.1"
     validations:
       required: false
@@ -44,17 +44,17 @@ body:
   - type: input
     id: integration-version
     attributes:
-      label: Electrolux Integration Version
-      description: Which version of the Electrolux integration are you using?
-      placeholder: "e.g., 3.2.6"
+      label: Integration Version (Optional)
+      description: Which version of the integration?
+      placeholder: "e.g., 3.2.8"
     validations:
       required: false
 
   - type: input
     id: device-model
     attributes:
-      label: Device Model(s)
-      description: What Electrolux device(s) are you asking about?
+      label: Device Model (Optional)
+      description: Which Electrolux device(s)?
       placeholder: "e.g., Washer-Dryer EW9W161B"
     validations:
       required: false
@@ -62,8 +62,8 @@ body:
   - type: textarea
     id: config
     attributes:
-      label: Relevant Configuration
-      description: If applicable, share your configuration (remove sensitive info like API keys)
+      label: Configuration (Optional)
+      description: If relevant, share your configuration (remove API keys!)
       placeholder: |
         ```yaml
         # Your configuration here
@@ -75,8 +75,8 @@ body:
   - type: textarea
     id: additional
     attributes:
-      label: Additional Context
-      description: Add any other context, screenshots, or information that might help.
+      label: Anything else?
+      description: Screenshots or additional context
       placeholder: Additional details...
     validations:
       required: false
@@ -84,10 +84,10 @@ body:
   - type: checkboxes
     id: checklist
     attributes:
-      label: Checklist
-      description: Please confirm you have completed the following
+      label: Quick check
+      description: Just confirming...
       options:
-        - label: I have read the integration documentation
+        - label: I checked the documentation
           required: false
-        - label: I have searched existing issues for similar questions
-          required: true
+        - label: I searched for similar questions
+          required: false

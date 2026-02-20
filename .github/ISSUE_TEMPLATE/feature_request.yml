@@ -7,22 +7,24 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a feature! Please fill out the information below to help us understand your request.
+        Thanks for suggesting a feature! 🚀
+        
+        We love hearing your ideas - describe what you'd like to see and we'll consider it!
 
   - type: textarea
     id: problem
     attributes:
-      label: Is your feature request related to a problem?
-      description: A clear and concise description of what the problem is.
-      placeholder: "I'm frustrated when..."
+      label: Is this solving a problem? (Optional)
+      description: What problem or frustration would this feature address?
+      placeholder: "It would be great if..."
     validations:
       required: false
 
   - type: textarea
     id: solution
     attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you want to happen.
+      label: What would you like to see?
+      description: Describe the feature you'd like
       placeholder: I would like to...
     validations:
       required: true
@@ -30,8 +32,8 @@ body:
   - type: textarea
     id: alternatives
     attributes:
-      label: Describe alternatives you've considered
-      description: A clear and concise description of any alternative solutions or features you've considered.
+      label: Alternative approaches (Optional)
+      description: Have you considered other ways to achieve this?
       placeholder: Alternative approaches...
     validations:
       required: false
@@ -39,8 +41,8 @@ body:
   - type: input
     id: device-model
     attributes:
-      label: Device Model(s)
-      description: Which Electrolux device(s) would this feature apply to?
+      label: Device Model (Optional)
+      description: Which devices would this apply to?
       placeholder: "e.g., All devices, Air Conditioners, Ovens, etc."
     validations:
       required: false
@@ -48,8 +50,8 @@ body:
   - type: textarea
     id: use-case
     attributes:
-      label: Use Case / Example
-      description: Provide a specific example of how you would use this feature.
+      label: How would you use this? (Optional)
+      description: A specific example helps us understand your need
       placeholder: |
         For example:
         - I would use this to automate...
@@ -60,8 +62,8 @@ body:
   - type: textarea
     id: additional
     attributes:
-      label: Additional Context
-      description: Add any other context, screenshots, or mockups about the feature request here.
+      label: Anything else?
+      description: Screenshots, mockups, or additional context
       placeholder: Additional details...
     validations:
       required: false
@@ -69,10 +71,10 @@ body:
   - type: checkboxes
     id: checklist
     attributes:
-      label: Checklist
-      description: Please confirm you have completed the following
+      label: Quick check
+      description: Just confirming...
       options:
-        - label: I have searched existing issues to ensure this is not a duplicate
-          required: true
-        - label: This feature would be useful to other users, not just me
+        - label: I searched existing issues to avoid duplicates
+          required: false
+        - label: This would benefit other users too (not just me)
           required: false

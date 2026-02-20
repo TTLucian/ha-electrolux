@@ -7,13 +7,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+        Thanks for taking the time to report a bug! 
+        
+        **📝 Quick tip:** The more details you provide, the faster we can help you. But don't worry - only the description is required. Fill out what you can!
 
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: A clear and concise description of what the bug is.
+      label: What happened?
+      description: A brief description of the issue. This is the only required field - everything else is optional but helpful!
       placeholder: Tell us what happened...
     validations:
       required: true
@@ -21,92 +23,84 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: Steps to Reproduce
-      description: Steps to reproduce the behavior
+      label: Steps to Reproduce (Optional)
+      description: If you can reliably reproduce this, let us know how
       placeholder: |
         1. Go to '...'
         2. Click on '...'
         3. See error...
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: expected
     attributes:
-      label: Expected Behavior
+      label: Expected Behavior (Optional)
       description: What did you expect to happen?
-      placeholder: Tell us what you expected...
+      placeholder: I expected...
     validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual Behavior
-      description: What actually happened?
-      placeholder: Tell us what actually happened...
-    validations:
-      required: true
+      required: false
 
   - type: input
     id: ha-version
     attributes:
-      label: Home Assistant Version
+      label: Home Assistant Version (Recommended)
       description: Which version of Home Assistant are you running?
       placeholder: "e.g., 2026.2.1"
     validations:
-      required: true
+      required: false
 
   - type: input
     id: integration-version
     attributes:
-      label: Electrolux Integration Version
-      description: Which version of the Electrolux integration are you using?
-      placeholder: "e.g., 3.2.6"
+      label: Integration Version (Recommended)
+      description: Which version of the Electrolux integration?
+      placeholder: "e.g., 3.2.8"
     validations:
-      required: true
+      required: false
 
   - type: dropdown
     id: installation-type
     attributes:
-      label: Installation Type
+      label: Installation Type (Optional)
       description: How is Home Assistant installed?
       options:
         - Home Assistant OS
         - Home Assistant Container
         - Home Assistant Core
         - Home Assistant Supervised
+        - Not sure / Other
     validations:
-      required: true
+      required: false
 
   - type: input
     id: device-model
     attributes:
-      label: Device Model(s)
-      description: What Electrolux device(s) are affected?
+      label: Device Model (Optional)
+      description: Which Electrolux device(s) are affected?
       placeholder: "e.g., Washer-Dryer EW9W161B, Air Conditioner EACS-09HG"
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: diagnostics
     attributes:
-      label: Diagnostics
+      label: Diagnostics File (Very Helpful!)
       description: |
-        Please download and attach diagnostics file:
+        **This really helps us fix bugs faster!** Download diagnostics:
         Settings → Devices & Services → Electrolux → Select Device → Download Diagnostics
         
-        **Note:** This file may contain sensitive information. Please review before uploading.
-      placeholder: Drag and drop the diagnostics JSON file here
+        **Privacy:** Sensitive data (API keys, tokens) is automatically redacted, but please double-check before uploading.
+      placeholder: Drag and drop the diagnostics JSON file here (or leave empty)
     validations:
       required: false
 
   - type: textarea
     id: logs
     attributes:
-      label: Debug Logs
+      label: Debug Logs (Optional but Very Helpful)
       description: |
-        Please enable debug logging and paste relevant logs here:
+        If you can, enable debug logging and paste relevant logs:
         
         Add to configuration.yaml:
         ```yaml
@@ -116,8 +110,8 @@ body:
             custom_components.electrolux: debug
         ```
         
-        Then restart Home Assistant, reproduce the issue, and paste logs below.
-      placeholder: Paste debug logs here...
+        Then restart HA, reproduce the issue, and paste logs below.
+      placeholder: Paste logs here (or leave empty)
       render: text
     validations:
       required: false
@@ -125,21 +119,19 @@ body:
   - type: textarea
     id: additional
     attributes:
-      label: Additional Context
-      description: Add any other context about the problem here (screenshots, network setup, etc.)
-      placeholder: Add additional context...
+      label: Anything else?
+      description: Screenshots, network setup, recent changes - anything that might help!
+      placeholder: Additional context...
     validations:
       required: false
 
   - type: checkboxes
     id: checklist
     attributes:
-      label: Checklist
-      description: Please confirm you have completed the following
+      label: Quick Checklist
+      description: Just confirming...
       options:
-        - label: I have searched existing issues to ensure this is not a duplicate
-          required: true
-        - label: I have updated to the latest version of the integration
-          required: true
-        - label: I have enabled debug logging and included relevant logs
+        - label: I searched existing issues to avoid duplicates
+          required: false
+        - label: I'm using the latest integration version (or at least tried updating)
           required: false
