@@ -296,9 +296,12 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         except Exception:
             # Re-raise any errors from execute_command_with_error_handling
             raise
+
         _LOGGER.debug("Electrolux select option result %s", result)
 
-        # State will be updated via SSE streaming
+        # Optimistically update local state using base class helper method
+        self._apply_optimistic_update(self.entity_attr, formatted_value)
+
         # Note: targetTemperatureC is automatically updated by the Electrolux API when program changes
         # We do NOT need to manually send a temperature command - it creates cache conflicts
 

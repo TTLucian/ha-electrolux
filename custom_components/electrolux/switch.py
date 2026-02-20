@@ -146,8 +146,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         except Exception:
             # Re-raise any errors from execute_command_with_error_handling
             raise
+
+        # Optimistically update local state using base class helper method
+        self._apply_optimistic_update(self.entity_attr, command_value)
+
         _LOGGER.debug("Electrolux set value completed")
-        # State will be updated via SSE streaming
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""

@@ -390,6 +390,10 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
             await execute_command_with_error_handling(
                 client, self.pnc_id, command, attr, _LOGGER, self.capability
             )
+
+            # Optimistically update local state using base class helper method
+            self._apply_optimistic_update(attr, command_value)
+
         except Exception as ex:
             _LOGGER.error("Electrolux climate command failed for %s: %s", attr, ex)
             raise

@@ -120,7 +120,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if self.entity_attr == "startTime" and value == -1:
             return None
 
-        if not value:
+        if value is None:
             # First try program-specific default for temperature controls
             if self.entity_attr in [
                 "targetTemperatureC",
@@ -140,9 +140,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 value = self.capability.get("default", None)
                 if value == "INVALID_OR_NOT_SET_TIME":
                     value = self.capability.get("min", None)
-                if not value and self.entity_attr == "targetDuration":
+                if value is None and self.entity_attr == "targetDuration":
                     value = 0
-        if not value:
+        if value is None:
             return None
 
         # Ensure value is numeric before performing numeric operations
@@ -291,16 +291,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         Returns:
             float: The converted constraint value suitable for UI display
         """
-        # If entity is locked, return locked value for all constraints (min=max=step)
-        if self._is_locked_by_program():
+        # If entity is locked, return the locked value for both min and max
+        # This makes min=max, which causes the UI to grey out the control (standard HA pattern)
+        # While this prevents showing custom error messages, it provides clear visual feedback
+        # that the control is read-only and prevents confusing "adjustable but blocked" UX
+        if self._is_locked_by_program() and key != "step":
             locked_value = self._get_locked_value()
             # For time entities, convert locked value if needed
             if self.unit == UnitOfTime.SECONDS:
                 locked_value = time_seconds_to_minutes(locked_value) or 0
-            # Return 0 for step when locked (prevents UI adjustment)
-            if key == "step":
-                return 0.0
             return float(locked_value)
+
+        # For non-locked or step constraint, fall through to normal logic
         # 1. Catalog is the Source of Truth (already in correct units - seconds)
         if (
             self._catalog_entry
@@ -365,7 +367,11 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 return float(val or 30.0)
             return float(val or 0.0)
         elif key == "step":
-            return float(val if val is not None else 1.0)
+            # Never return 0 for step to prevent schema validation errors
+            # Entity locking is enforced by min=max, not step=0
+            if val is not None and val != 0:
+                return float(val)
+            return 1.0
         if val is None and self.capability:
             val = self.capability.get(key)
         return float(val or 1.0)
@@ -566,6 +572,15 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 self.entity_attr,
                 result,
             )
+
+            # Optimistically update local state using base class helper method
+            # Store the API value (seconds for time entities, raw value otherwise)
+            self._apply_optimistic_update(
+                self.entity_attr,
+                command_value,
+                "API value, will be confirmed by SSE",
+            )
+
         except AuthenticationError as auth_ex:
             _LOGGER.error(
                 "Electrolux authentication error setting %s, rolling back from %s to %s",
@@ -588,7 +603,6 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
             # Re-raise the error
             raise
-        # State will be updated via SSE streaming
 
     @property
     def available(self) -> bool:

@@ -229,6 +229,7 @@ class TestElectroluxNumber:
     def test_native_max_value_program_specific(self, number_entity):
         """Test max value from program-specific constraints."""
         number_entity._get_program_constraint = MagicMock(return_value=80)
+        number_entity._is_locked_by_program = MagicMock(return_value=False)
         assert number_entity.native_max_value == 80
 
     def test_native_max_value_capability_fallback(self, number_entity):

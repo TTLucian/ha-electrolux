@@ -282,7 +282,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             # Initial warning about sensible usage
             fire_progress(
                 0,
-                "Manual sync initiated. Please use this feature sensibly to avoid unnecessary API calls.",
+                "Manual sync initiated. This refreshes ALL appliances and causes heavy API load. Use only when data appears stuck.",
                 "0%",
             )
 

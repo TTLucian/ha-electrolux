@@ -246,6 +246,17 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Microwave monitoring (power output, time-to-end)
 
 ### 🎮 Controls
+- **Manual Sync Button** (⚠️ **Use Sparingly**):
+  - Forces a complete refresh of all appliance data
+  - Disconnects and reconnects the real-time data stream
+  - Updates all appliances simultaneously
+  - **Rate limited**: 60-second cooldown between syncs
+  - **⚠️ Warning**: This causes significant API load. Only use when:
+    - Data appears stale or stuck
+    - After appliance power cycle or network interruption
+    - As a last resort troubleshooting step
+  - **Normal operation**: Real-time updates via SSE work automatically - manual sync is rarely needed
+  - Each appliance has its own manual sync button, but triggering any button refreshes ALL appliances
 - Power on/off (with safety validation)
 - Program selection
 - Temperature settings
@@ -304,7 +315,32 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Integration respects all appliance safety features
 - Some controls may be disabled during active cycles
 
-### 🔢 Model Shows as Numbers
+### � Stale or Stuck Data
+If sensor values appear outdated or frozen:
+
+**First, check the basics:**
+- Verify appliance is powered on and connected to Wi-Fi
+- Check if appliance shows as "connected" in the official Electrolux app
+- Wait 5-10 minutes - data updates automatically via real-time SSE stream
+
+**If data is still stuck:**
+- Use the **Manual Sync** button (available on each appliance)
+- **⚠️ Important**: This button is rate-limited (60 seconds cooldown) and causes heavy API load
+- **Only use when necessary** - normal operation doesn't require manual sync
+- The button refreshes ALL appliances, not just the one triggered
+
+**When Manual Sync is appropriate:**
+- After appliance power cycle or firmware update
+- After router reboot or network interruption
+- Data hasn't updated for 30+ minutes despite appliance being online
+- As a troubleshooting step before reporting an issue
+
+**Manual Sync is NOT needed for:**
+- Normal operation - real-time updates work automatically
+- Immediate feedback after commands - state updates happen within seconds via SSE
+- Regular data refreshes - integration polls every 6 hours automatically
+
+### �🔢 Model Shows as Numbers
 - The integration displays the actual product code (e.g., "944188772") used by Electrolux internally
 - This is the most specific identifier available through the API
 - Marketing model names (e.g., "BSE788380M") are not exposed by the API

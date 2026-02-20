@@ -337,6 +337,46 @@ class ElectroluxEntity(CoordinatorEntity):
             # Also update the cache for testing (normally done by _handle_coordinator_update)
             self._reported_state_cache = value
 
+    def _apply_optimistic_update(
+        self, attr: str, value: Any, log_message: str | None = None
+    ) -> None:
+        """Apply optimistic state update after successful command.
+
+        This updates the local state immediately to prevent UI "snap back" while
+        waiting for SSE confirmation. SSE updates will override if actual state differs.
+
+        Args:
+            attr: Attribute name to update
+            value: New value (should be API format, not UI format)
+            log_message: Optional custom log message suffix
+        """
+        if (
+            self.appliance_status
+            and isinstance(self.appliance_status, dict)
+            and "properties" in self.appliance_status
+            and "reported" in self.appliance_status["properties"]
+        ):
+            self.appliance_status["properties"]["reported"][attr] = value
+            self._reported_state_cache[attr] = value
+            # Only write state if entity has been added to HA (skip in tests)
+            if self.entity_id:
+                self.async_write_ha_state()
+
+            # Log with custom message or default
+            if log_message:
+                _LOGGER.debug(
+                    "Optimistically updated %s to %s (%s)",
+                    attr,
+                    value,
+                    log_message,
+                )
+            else:
+                _LOGGER.debug(
+                    "Optimistically updated %s to %s (will be confirmed by SSE)",
+                    attr,
+                    value,
+                )
+
     @property
     def is_dam_appliance(self) -> bool:
         """Return True if this is a DAM (One Connected Platform) appliance."""
