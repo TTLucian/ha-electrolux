@@ -184,8 +184,19 @@ class ElectroluxEntity(CoordinatorEntity):
             ).get("reported", {})
 
         # Performance cache: program support/constraints (cleared on program change)
-        # Initialize from current program if available
-        self._program_cache_key: str | None = self._reported_state_cache.get("program")
+        # Initialize from current program if available (check multiple locations)
+        program_key = self._reported_state_cache.get("program")
+        if not program_key:
+            user_selections = self._reported_state_cache.get("userSelections", {})
+            if isinstance(user_selections, dict):
+                program_key = user_selections.get("programUID")
+        if not program_key:
+            cycle_personalization = self._reported_state_cache.get(
+                "cyclePersonalization", {}
+            )
+            if isinstance(cycle_personalization, dict):
+                program_key = cycle_personalization.get("programUID")
+        self._program_cache_key: str | None = program_key
         self._is_supported_cache: bool | None = None
         self._constraints_cache: dict[str, Any] = {}
 
@@ -282,7 +293,19 @@ class ElectroluxEntity(CoordinatorEntity):
             self._reported_state_cache = {}
 
         # Performance: Invalidate program caches if program changed
+        # Check multiple locations where program might be stored
         current_program = self._reported_state_cache.get("program")
+        if not current_program:
+            user_selections = self._reported_state_cache.get("userSelections", {})
+            if isinstance(user_selections, dict):
+                current_program = user_selections.get("programUID")
+        if not current_program:
+            cycle_personalization = self._reported_state_cache.get(
+                "cyclePersonalization", {}
+            )
+            if isinstance(cycle_personalization, dict):
+                current_program = cycle_personalization.get("programUID")
+
         if current_program != self._program_cache_key:
             self._program_cache_key = current_program
             self._is_supported_cache = None
@@ -678,10 +701,24 @@ class ElectroluxEntity(CoordinatorEntity):
         ]:
             self._is_supported_cache = True
             return True
+
+        # Get current program from various possible locations
+        # Different appliance types store program in different places
         current_program = self.reported_state.get("program")
         if not current_program:
+            # Try userSelections/programUID (used by dryers)
+            user_selections = self.reported_state.get("userSelections", {})
+            if isinstance(user_selections, dict):
+                current_program = user_selections.get("programUID")
+        if not current_program:
+            # Try cyclePersonalization/programUID (alternative location)
+            cycle_personalization = self.reported_state.get("cyclePersonalization", {})
+            if isinstance(cycle_personalization, dict):
+                current_program = cycle_personalization.get("programUID")
+
+        if not current_program:
             self._is_supported_cache = True
-            return True  # If no program, assume supported
+            return True  # If no program found, assume supported
 
         # Check if the appliance has program-specific capabilities
         if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
@@ -774,7 +811,17 @@ class ElectroluxEntity(CoordinatorEntity):
             return self._constraints_cache[key]
 
         # Compute constraint value
+        # Get current program from various possible locations
         current_program = self.reported_state.get("program")
+        if not current_program:
+            user_selections = self.reported_state.get("userSelections", {})
+            if isinstance(user_selections, dict):
+                current_program = user_selections.get("programUID")
+        if not current_program:
+            cycle_personalization = self.reported_state.get("cyclePersonalization", {})
+            if isinstance(cycle_personalization, dict):
+                current_program = cycle_personalization.get("programUID")
+
         if not current_program or not self.get_appliance.data:
             return None
         try:

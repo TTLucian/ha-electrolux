@@ -223,7 +223,7 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
             "type": "string",
             "values": {"STEAM_TANK_EMPTY": {}, "STEAM_TANK_FULL": {}},
         },
-        device_class=BinarySensorDeviceClass.BATTERY,
+        device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=None,
         entity_icon="mdi:water",

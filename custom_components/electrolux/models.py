@@ -572,19 +572,42 @@ class Appliance:
                 # It's a local operation that doesn't depend on API capabilities
                 is_always_created_entity = catalog_key in ["manualSync"]
 
-                # Only add if the entity actually exists in the appliance's state
-                # (or is in the always-created list)
-                # Check both reported state and top-level state
+                # Check if entity is in appliance state
                 attr_in_reported = catalog_key in self.reported_state
                 attr_at_top_level = (
                     self.state.get(catalog_key) is not None if self.state else False
                 )
+
+                # Detect writable entities (write/readwrite access)
+                capability_access = catalog_item.capability_info.get("access", "")
+                is_writable_entity = capability_access in ["write", "readwrite"]
+
+                # Detect if we're in capabilities fallback mode (capabilities API failed)
+                # When capabilities_names is None or empty, we need to create writable entities
+                # from catalog even if not in state, so controls remain available
+                in_fallback_mode = (
+                    capabilities_names is None or len(capabilities_names) == 0
+                )
+
+                # CRITICAL: Only create catalog entities if:
+                # - They're in the appliance state (entity was used/reported before), OR
+                # - They're in the always-created list (like manualSync), OR
+                # - We're in fallback mode AND it's a writable entity (preserve controls during offline/timeout)
+                #
+                # This prevents:
+                # 1. Creating entities for capabilities the appliance doesn't have (normal mode)
+                # 2. Removing writable entities when appliance is offline and capabilities timeout (fallback mode)
                 if not (
-                    attr_in_reported or attr_at_top_level or is_always_created_entity
+                    attr_in_reported
+                    or attr_at_top_level
+                    or is_always_created_entity
+                    or (in_fallback_mode and is_writable_entity)
                 ):
                     _LOGGER.debug(
-                        "Skipping catalog entity %s - not in appliance state",
+                        "Skipping catalog entity %s - not in appliance state or capabilities (access: %s, fallback: %s)",
                         catalog_key,
+                        capability_access,
+                        in_fallback_mode,
                     )
                     continue
 

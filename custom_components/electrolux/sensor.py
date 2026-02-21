@@ -1,7 +1,7 @@
 """Switch platform for Electrolux."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
@@ -9,7 +9,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SENSOR
 from .entity import ElectroluxEntity
@@ -87,7 +86,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         """Return the state of the sensor."""
         value = self.extract_value()
 
-        # Special handling for timeToEnd sensors: convert to timestamp for countdown display
+        # Special handling for timeToEnd sensors: return seconds for countdown display
         if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
             if value is None or not isinstance(value, (int, float)):
                 return None
@@ -99,12 +98,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
 
             # Primary active states where countdown is always valid
             if appliance_state in ["RUNNING", "PAUSED", "DELAYED_START"]:
-                # API returns seconds, calculate future timestamp for countdown
-                return dt_util.now() + timedelta(seconds=value)
+                # Return raw seconds for DURATION display (shows as "Xh Ym")
+                return int(value)
 
             # READY_TO_START: valid if delayed start is configured (timeToEnd > 0 already checked)
             if appliance_state == "READY_TO_START":
-                return dt_util.now() + timedelta(seconds=value)
+                return int(value)
 
             # END_OF_CYCLE: only show countdown if there's still active work (anti-crease, cooling, etc.)
             if appliance_state == "END_OF_CYCLE":
@@ -112,13 +111,10 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 # Active phases that continue after main cycle: ANTICREASE, COOL, SPIN
                 # Do NOT show for: UNAVAILABLE, CYCLE_PHASE_HIDDEN, or None (truly finished)
                 if cycle_phase in ["ANTICREASE", "COOL", "SPIN"]:
-                    return dt_util.now() + timedelta(seconds=value)
+                    return int(value)
 
             # All other states (IDLE, OFF, STOPPED, ALARM) - don't show countdown
             return None
-
-            # API returns seconds, calculate future timestamp for countdown
-            return dt_util.now() + timedelta(seconds=value)
 
         # Special handling for runningTime: elapsed time sensor (counts up from start)
         if self.entity_attr == "runningTime":

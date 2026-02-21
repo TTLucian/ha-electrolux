@@ -1,12 +1,10 @@
 """Tests for the Electrolux sensor platform."""
 
-from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
-from homeassistant.util import dt as dt_util
 
 from custom_components.electrolux.const import SENSOR
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -178,68 +176,62 @@ class TestTimeToEndSensor:
     def test_time_to_end_shows_countdown_when_running(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown timestamp when appliance is running."""
+        """Test timeToEnd returns seconds for countdown display when appliance is running."""
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
-        # Should be approximately now + 3600 seconds (allow 2 second tolerance)
-        now = dt_util.now()
-        expected = now + timedelta(seconds=3600)
-        assert abs((result - expected).total_seconds()) < 2
+        assert isinstance(result, int)
+        # Should return the raw seconds value for DURATION display
+        assert result == 3600
 
     def test_time_to_end_shows_countdown_when_paused(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown when appliance is paused."""
+        """Test timeToEnd returns seconds when appliance is paused."""
         time_to_end_entity.reported_state["applianceState"] = "PAUSED"
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
-        now = dt_util.now()
-        expected = now + timedelta(seconds=3600)
-        assert abs((result - expected).total_seconds()) < 2
+        assert isinstance(result, int)
+        assert result == 3600
 
     def test_time_to_end_shows_countdown_when_delayed_start(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown when appliance has delayed start."""
+        """Test timeToEnd returns seconds when appliance has delayed start."""
         time_to_end_entity.reported_state["applianceState"] = "DELAYED_START"
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
+        assert isinstance(result, int)
+        assert result == 3600
 
     def test_time_to_end_shows_countdown_when_ready_to_start(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown when appliance is ready with delayed start."""
+        """Test timeToEnd returns seconds when appliance is ready with delayed start."""
         time_to_end_entity.reported_state["applianceState"] = "READY_TO_START"
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
-        now = dt_util.now()
-        expected = now + timedelta(seconds=3600)
-        assert abs((result - expected).total_seconds()) < 2
+        assert isinstance(result, int)
+        assert result == 3600
 
     def test_time_to_end_shows_countdown_during_end_of_cycle_anticrease(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown during END_OF_CYCLE with active ANTICREASE phase."""
+        """Test timeToEnd returns seconds during END_OF_CYCLE with active ANTICREASE phase."""
         time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
         time_to_end_entity.reported_state["cyclePhase"] = "ANTICREASE"
         time_to_end_entity.reported_state["timeToEnd"] = (
             600  # 10 minutes of anti-crease
         )
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
-        now = dt_util.now()
-        expected = now + timedelta(seconds=600)
-        assert abs((result - expected).total_seconds()) < 2
+        assert isinstance(result, int)
+        assert result == 600
 
     def test_time_to_end_shows_countdown_during_end_of_cycle_cool(
         self, time_to_end_entity: ElectroluxSensor
     ):
-        """Test timeToEnd shows countdown during END_OF_CYCLE with active COOL phase."""
+        """Test timeToEnd returns seconds during END_OF_CYCLE with active COOL phase."""
         time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
         time_to_end_entity.reported_state["cyclePhase"] = "COOL"
         time_to_end_entity.reported_state["timeToEnd"] = 300
         result = time_to_end_entity.native_value
-        assert isinstance(result, datetime)
+        assert isinstance(result, int)
+        assert result == 300
 
     def test_time_to_end_none_during_end_of_cycle_without_active_phase(
         self, time_to_end_entity: ElectroluxSensor

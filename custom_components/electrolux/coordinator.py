@@ -975,8 +975,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 async with self._appliances_lock:
                     self.data["appliances"].appliances[appliance_id] = appliance
 
+                # CRITICAL: Call setup() even for minimal appliances
+                # This creates entities from catalog so they persist as "unavailable"
+                # instead of being removed entirely from HA
+                appliance.setup(
+                    ElectroluxLibraryEntity(
+                        name=appliance_name or "Unknown",
+                        status="disconnected",
+                        state=minimal_state,
+                        appliance_info={},
+                        capabilities={},
+                    )
+                )
+
                 _LOGGER.debug(
-                    "Created minimal appliance entry for %s (%s), will populate during next 6-hour update cycle",
+                    "Created minimal appliance entry for %s (%s) with catalog entities, will populate during next 6-hour update cycle",
                     appliance_id,
                     appliance_name or "Unknown",
                 )
@@ -1040,8 +1053,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             try:
                 appliance_capabilities = await capabilities_task
             except Exception as ex:
-                _LOGGER.debug(
-                    f"Could not get capabilities for appliance {appliance_id}: {ex}"
+                _LOGGER.warning(
+                    "Could not get capabilities for appliance %s (%s): %s - %s (will use catalog fallback for entities)",
+                    appliance_id,
+                    appliance_name or "Unknown",
+                    type(ex).__name__,
+                    ex,
                 )
 
             # Process appliance data
@@ -1125,8 +1142,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                             failed_appliance_id
                         ] = minimal_appliance
 
+                    # CRITICAL: Call setup() even for minimal appliances
+                    # This creates entities from catalog so they persist as "unavailable"
+                    # instead of being removed entirely from HA
+                    minimal_appliance.setup(
+                        ElectroluxLibraryEntity(
+                            name=failed_appliance_name or "Unknown",
+                            status="disconnected",
+                            state=minimal_state,
+                            appliance_info={},
+                            capabilities={},
+                        )
+                    )
+
                     _LOGGER.info(
-                        "Created minimal appliance entry for %s (%s) after data validation error, "
+                        "Created minimal appliance entry for %s (%s) after data validation error with catalog entities, "
                         "will populate during next update cycle (within 6 hours)",
                         failed_appliance_id,
                         failed_appliance_name or "Unknown",
@@ -1178,8 +1208,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                             failed_appliance_id
                         ] = minimal_appliance
 
+                    # CRITICAL: Call setup() even for minimal appliances
+                    # This creates entities from catalog so they persist as "unavailable"
+                    # instead of being removed entirely from HA
+                    minimal_appliance.setup(
+                        ElectroluxLibraryEntity(
+                            name=failed_appliance_name or "Unknown",
+                            status="disconnected",
+                            state=minimal_state,
+                            appliance_info={},
+                            capabilities={},
+                        )
+                    )
+
                     _LOGGER.info(
-                        "Created minimal appliance entry for %s (%s) after network error, "
+                        "Created minimal appliance entry for %s (%s) after network error with catalog entities, "
                         "will populate during next update cycle (within 6 hours)",
                         failed_appliance_id,
                         failed_appliance_name or "Unknown",
@@ -1491,26 +1534,62 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
             tracked_ids = set(tracked_appliances.appliances.keys())
 
-            # Find appliances that were removed
-            removed_ids = tracked_ids - current_ids
+            # Find appliances that are not in the current API list
+            missing_ids = tracked_ids - current_ids
 
-            if removed_ids:
-                _LOGGER.info(
-                    f"Removing {len(removed_ids)} appliances no longer in account: {removed_ids}"
-                )
+            if missing_ids:
+                # CRITICAL FIX: Don't remove disconnected/offline appliances
+                # Only remove appliances that are truly deleted from account
+                truly_removed_ids = []
 
-                # Remove from tracking with lock protection
-                async with self._appliances_lock:
-                    for appliance_id in removed_ids:
-                        # .pop() is safe if key doesn't exist
-                        removed = tracked_appliances.appliances.pop(appliance_id, None)
-                        if removed:
-                            _LOGGER.debug(
-                                f"Removed appliance {appliance_id} from tracking"
+                for appliance_id in missing_ids:
+                    appliance = tracked_appliances.appliances.get(appliance_id)
+                    if appliance:
+                        connectivity = appliance.state.get(
+                            "connectivityState", ""
+                        ).lower()
+                        connection = appliance.state.get("connectionState", "").lower()
+
+                        # If appliance is disconnected/offline, keep it (user may have unplugged it)
+                        if (
+                            connectivity == "disconnected"
+                            or connection == "disconnected"
+                        ):
+                            _LOGGER.info(
+                                f"Keeping offline appliance {appliance_id} (connectivity: {connectivity}, "
+                                f"connection: {connection}) - not removing disconnected appliances"
                             )
+                            continue
 
-                # Trigger entity registry cleanup
-                self.async_set_updated_data(self.data)
+                        # If we don't have connectivity info or it's connected but missing from API,
+                        # it's likely truly removed from account
+                        truly_removed_ids.append(appliance_id)
+                    else:
+                        # No appliance object - safe to remove
+                        truly_removed_ids.append(appliance_id)
+
+                if truly_removed_ids:
+                    _LOGGER.info(
+                        f"Removing {len(truly_removed_ids)} appliances truly deleted from account: {truly_removed_ids}"
+                    )
+
+                    # Remove from tracking with lock protection
+                    async with self._appliances_lock:
+                        for appliance_id in truly_removed_ids:
+                            removed = tracked_appliances.appliances.pop(
+                                appliance_id, None
+                            )
+                            if removed:
+                                _LOGGER.debug(
+                                    f"Removed appliance {appliance_id} from tracking"
+                                )
+
+                    # Trigger entity registry cleanup
+                    self.async_set_updated_data(self.data)
+                else:
+                    _LOGGER.debug(
+                        f"All {len(missing_ids)} missing appliances are offline/disconnected - keeping them"
+                    )
 
         except Exception as ex:
             _LOGGER.debug("Error during appliance cleanup: %s", ex)

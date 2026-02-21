@@ -464,7 +464,7 @@ def _get_catalog_base():
         # Common time-to-end countdown (used by ovens, washers, dryers, dishwashers, AC)
         "timeToEnd": ElectroluxDevice(
             capability_info={"access": "read", "type": "number"},
-            device_class=SensorDeviceClass.TIMESTAMP,
+            device_class=SensorDeviceClass.DURATION,
             unit=None,
             entity_category=None,
             entity_icon="mdi:timer-outline",
