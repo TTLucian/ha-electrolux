@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "Postavljanje Electroluxa",
+                "title": "Electrolux Postavljanje",
                 "description": "Povežite svoje Electrolux uređaje pomoću API vjerodajnica s Electrolux Developer Portala.\n\n**Da biste dobili API vjerodajnice:**\n1. Posjetite {url}\n2. Registrirajte se i kreirajte aplikaciju\n3. Nabavite svoj API ključ, pristupni token i token za osvježavanje\n\nAko trebate pomoć, posjetite integracijsku dokumentaciju.",
                 "data": {
                     "api_key": "API ključ",
@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Ponovno provjerite autentičnost Electroluxa",
-                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s Electroluxovog portala za razvojne programere.\n\nPosjetite {url} za generiranje novih tokena.",
+                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s portala za razvojne programere Electrolux.\n\nPosjetite {url} za generiranje novih tokena.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Pristupni token",
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux problem s autentifikacijom",
-            "description": "Integracija Electroluxa nije uspjela osvježiti API tokene: {message}. Ponovo se autentificirajte putem opcija integracije kako biste vratili funkcionalnost."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Ažurirajte Electrolux API vjerodajnice",
+                        "description": "Vaši Electrolux API tokeni su istekli i automatsko osvježavanje nije uspjelo. Unesite nove vjerodajnice s Electroluxovog portala za razvojne programere kako biste vratili funkcionalnost.\n\n**Za generiranje novih vjerodajnica:**\n1. Posjetite {url}\n2. Generirajte novi API ključ, pristupni token i token za osvježavanje\n3. Enter them below",
+                        "data": {
+                            "api_key": "API ključ",
+                            "access_token": "Pristupni token",
+                            "refresh_token": "Osvježi token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Nevažeće API vjerodajnice. Provjerite svoj API ključ, pristupni token i token za osvježavanje.",
+                    "invalid_format": "Nevažeći format vjerodajnice. Provjerite jesu li sva polja ispravno popunjena.",
+                    "entry_not_found": "Unos konfiguracije nije pronađen."
+                },
+                "abort": {
+                    "entry_not_found": "Unos konfiguracije nije pronađen."
+                }
+            }
         }
     }
 }

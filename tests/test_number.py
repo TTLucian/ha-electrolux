@@ -262,6 +262,94 @@ class TestElectroluxNumber:
         entity._get_program_constraint = MagicMock(return_value=None)
         assert entity.native_max_value == 120  # 7200 seconds = 120 minutes
 
+    def test_native_max_value_temperature_fallback_celsius(self, mock_coordinator):
+        """Test targetTemperatureC gets proper fallback max (250°C)."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature C",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature_c",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            entity_category=None,
+            icon="mdi:thermometer",
+        )
+        entity._get_program_constraint = MagicMock(return_value=None)
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        assert entity.native_max_value == 250.0
+
+    def test_native_max_value_temperature_fallback_fahrenheit(self, mock_coordinator):
+        """Test targetTemperatureF gets proper fallback max (500°F)."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature F",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature_f",
+            entity_attr="targetTemperatureF",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.FAHRENHEIT,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            entity_category=None,
+            icon="mdi:thermometer",
+        )
+        entity._get_program_constraint = MagicMock(return_value=None)
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        assert entity.native_max_value == 500.0
+
+    def test_native_max_value_food_probe_fallback_celsius(self, mock_coordinator):
+        """Test targetFoodProbeTemperatureC gets proper fallback max (99°C)."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Food Probe Temperature C",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_food_probe_temperature_c",
+            entity_attr="targetFoodProbeTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            entity_category=None,
+            icon="mdi:thermometer-probe",
+        )
+        entity._get_program_constraint = MagicMock(return_value=None)
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        assert entity.native_max_value == 99.0
+
+    def test_native_max_value_food_probe_fallback_fahrenheit(self, mock_coordinator):
+        """Test targetFoodProbeTemperatureF gets proper fallback max (210°F)."""
+        capability = {"access": "readwrite", "type": "temperature"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Food Probe Temperature F",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_food_probe_temperature_f",
+            entity_attr="targetFoodProbeTemperatureF",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.FAHRENHEIT,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            entity_category=None,
+            icon="mdi:thermometer-probe",
+        )
+        entity._get_program_constraint = MagicMock(return_value=None)
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        assert entity.native_max_value == 210.0
+
     def test_native_min_value_program_specific(self, number_entity):
         """Test min value from program-specific constraints."""
         number_entity._get_program_constraint = MagicMock(return_value=20)

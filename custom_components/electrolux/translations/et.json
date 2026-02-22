@@ -8,7 +8,7 @@
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
                     "refresh_token": "Värskenda märki",
-                    "notifications": "Lubage kriitiliste hoiatuste teatised",
+                    "notifications": "Lubage kriitiliste hoiatusteadete märguanded",
                     "notifications_warning": "Hoiatuste märguannete lubamine",
                     "notifications_diagnostic": "Lubage diagnostikasõnumite märguanded"
                 }
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electroluxi autentimise probleem",
-            "description": "Electroluxi integratsioonil ei õnnestunud API lubasid värskendada: {message}. Funktsionaalsuse taastamiseks autentige uuesti integreerimisvalikute kaudu."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Värskendage Electroluxi API mandaati",
+                        "description": "Teie Electroluxi API märgid on aegunud ja automaatne värskendamine ebaõnnestus. Funktsionaalsuse taastamiseks sisestage Electroluxi arendajaportaalist uued mandaadid.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage aadressi {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Sisestage need alla",
+                        "data": {
+                            "api_key": "API võti",
+                            "access_token": "Juurdepääsuluba",
+                            "refresh_token": "Värskenda märki"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Kehtetud API mandaadid. Kontrollige oma API võtit, juurdepääsuluba ja värskendusluba.",
+                    "invalid_format": "Kehtetu mandaadi vorming. Veenduge, et kõik väljad oleksid õigesti täidetud.",
+                    "entry_not_found": "Konfiguratsioonikirjet ei leitud."
+                },
+                "abort": {
+                    "entry_not_found": "Seadistuse kirjet ei leitud."
+                }
+            }
         }
     }
 }

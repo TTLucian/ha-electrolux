@@ -24,7 +24,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
+            "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Je povolená iba jedna konfigurácia Electrolux.",
@@ -49,13 +49,33 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
+            "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
         }
     },
     "issues": {
         "invalid_refresh_token": {
             "title": "Problém s autentifikáciou Electrolux",
-            "description": "Integrácii Electrolux sa nepodarilo obnoviť tokeny API: {správa}. Ak chcete obnoviť funkčnosť, znova sa overte pomocou možností integrácie."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Aktualizujte poverenia Electrolux API",
+                        "description": "Platnosť vašich tokenov Electrolux API vypršala a automatické obnovenie zlyhalo. Na obnovenie funkčnosti zadajte nové prihlasovacie údaje z portálu Electrolux Developer Portal.\n\n**Vygenerovanie nových poverení:**\n1. Navštívte stránku {url}\n2. Vygenerujte nový kľúč API, prístupový token a obnovovací token\n3. Zadajte ich nižšie",
+                        "data": {
+                            "api_key": "API kľúč",
+                            "access_token": "Prístupový token",
+                            "refresh_token": "Obnoviť token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token.",
+                    "invalid_format": "Neplatný formát poverení. Uistite sa, že sú všetky polia vyplnené správne.",
+                    "entry_not_found": "Záznam konfigurácie sa nenašiel."
+                },
+                "abort": {
+                    "entry_not_found": "Konfiguračný záznam sa nepodarilo nájsť."
+                }
+            }
         }
     }
 }

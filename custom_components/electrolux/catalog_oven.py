@@ -82,6 +82,14 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:thermometer",
     ),
+    "displayFoodProbeTemperatureF": ElectroluxDevice(
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.FAHRENHEIT,
+        entity_category=None,
+        entity_icon="mdi:thermometer",
+        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
+    ),
     "displayTemperature": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.TEMPERATURE,

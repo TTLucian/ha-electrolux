@@ -10,7 +10,7 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
                 }
             },
             "reauth_validate": {
@@ -44,18 +44,38 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze API-kulcsát, hozzáférési tokent és frissítési tokent."
+            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze az API-kulcsot, a hozzáférési tokent és a frissítési tokent."
         }
     },
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux hitelesítési probléma",
-            "description": "Az Electrolux integrációja nem tudta frissíteni az API-tokeneket: {message}. A működés visszaállításához hitelesítse újra az integrációs lehetőségeket."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Frissítse az Electrolux API hitelesítő adatait",
+                        "description": "Electrolux API-tokenjei lejártak, és az automatikus frissítés nem sikerült. Kérjük, adja meg az új hitelesítő adatokat az Electrolux fejlesztői portálról a működés visszaállításához.\n\n**Új hitelesítő adatok létrehozása:**\n1. Látogassa meg a következőt: {url}\n2. Hozzon létre új API-kulcsot, hozzáférési tokent és frissítési tokent\n3. Írja be őket alább",
+                        "data": {
+                            "api_key": "API kulcs",
+                            "access_token": "Hozzáférési token",
+                            "refresh_token": "Token frissítése"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze az API-kulcsot, a hozzáférési tokent és a frissítési tokent.",
+                    "invalid_format": "Érvénytelen hitelesítő adatformátum. Kérjük, győződjön meg arról, hogy minden mezőt helyesen töltött ki.",
+                    "entry_not_found": "A konfigurációs bejegyzés nem található."
+                },
+                "abort": {
+                    "entry_not_found": "A konfigurációs bejegyzés nem található."
+                }
+            }
         }
     }
 }

@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Nastavitev Electrolux",
-                "description": "Povežite svoje naprave Electrolux z uporabo poverilnic API s portala za razvijalce Electrolux.\n\n**Če želite pridobiti poverilnice za API:**\n1. Obiščite {url}\n2. Registrirajte se in ustvarite aplikacijo\n3. Pridobite svoj ključ API, žeton za dostop in žeton za osvežitev\n\nČe potrebujete pomoč, obiščite integracijsko dokumentacijo.",
+                "description": "Povežite svoje naprave Electrolux s poverilnicami API s portala za razvijalce Electrolux.\n\n**Če želite pridobiti poverilnice za API:**\n1. Obiščite {url}\n2. Registrirajte se in ustvarite aplikacijo\n3. Pridobite svoj ključ API, žeton za dostop in žeton za osvežitev\n\nČe potrebujete pomoč, obiščite integracijsko dokumentacijo.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Žeton za dostop",
@@ -14,7 +14,7 @@
                 }
             },
             "reauth_validate": {
-                "title": "Ponovno preverite Electrolux",
+                "title": "Ponovno preverite pristnost Electroluxa",
                 "description": "Vaši Electrolux API žetoni so potekli ali so neveljavni. Posodobite jih s svežimi žetoni s portala za razvijalce Electrolux.\n\nObiščite {url}, da ustvarite nove žetone.",
                 "data": {
                     "api_key": "API ključ",
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Težava pri preverjanju pristnosti Electrolux",
-            "description": "Integracija Electrolux ni uspela osvežiti žetonov API: {message}. Za obnovitev funkcionalnosti ponovno preverite pristnost prek možnosti integracije."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Posodobite poverilnice Electrolux API",
+                        "description": "Vaši Electrolux API žetoni so potekli in samodejna osvežitev ni uspela. Vnesite nove poverilnice s portala za razvijalce Electrolux, da obnovite funkcionalnost.\n\n**Za ustvarjanje novih poverilnic:**\n1. Obiščite {url}\n2. Ustvarite nov ključ API, žeton za dostop in žeton za osvežitev\n3. Vnesite jih spodaj",
+                        "data": {
+                            "api_key": "API ključ",
+                            "access_token": "Žeton za dostop",
+                            "refresh_token": "Osveži žeton"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Neveljavne poverilnice za API. Preverite svoj ključ API, žeton za dostop in žeton za osvežitev.",
+                    "invalid_format": "Neveljavna oblika poverilnice. Prepričajte se, da so vsa polja pravilno izpolnjena.",
+                    "entry_not_found": "Konfiguracijski vnos ni bil najden."
+                },
+                "abort": {
+                    "entry_not_found": "Konfiguracijskega vnosa ni bilo mogoče najti."
+                }
+            }
         }
     }
 }

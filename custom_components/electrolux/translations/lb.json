@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux Authentifikatioun Problem",
-            "description": "D'Electrolux Integratioun konnt d'API Tokens net erfrëschen: {Message}. W.e.g. reauthentifizéieren iwwer d'Integratiounsoptioune fir d'Funktionalitéit ze restauréieren."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Update Electrolux API Umeldungsinformatiounen",
+                        "description": "Är Electrolux API Tokens sinn ofgelaf an den automateschen Erfrëschung ass gescheitert. Gitt w.e.g. nei Umeldungsinformatiounen aus dem Electrolux Entwéckler Portal fir d'Funktionalitéit ze restauréieren.\n\n**Fir nei Umeldungsinformatiounen ze generéieren:**\n1. Besicht {url}\n2. Generéiere neien API Key, Access Token, an Refresh Token\n3. Gitt hinnen ënnert",
+                        "data": {
+                            "api_key": "API Schlëssel",
+                            "access_token": "Zougang Token",
+                            "refresh_token": "Refresh Token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Ongülteg API Umeldungsinformatiounen. Kuckt w.e.g. Ären API Key, Access Token, an Refresh Token.",
+                    "invalid_format": "Ongëlteg Umeldungsformat. Gitt sécher datt all Felder richteg ausgefëllt sinn.",
+                    "entry_not_found": "Configuratioun Entrée net fonnt."
+                },
+                "abort": {
+                    "entry_not_found": "D'Konfiguratiounseintrag konnt net fonnt ginn."
+                }
+            }
         }
     }
 }

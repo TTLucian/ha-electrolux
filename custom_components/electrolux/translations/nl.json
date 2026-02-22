@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux-authenticatieprobleem",
-            "description": "De Electrolux-integratie kon de API-tokens niet vernieuwen: {message}. Authenticeer opnieuw via de integratieopties om de functionaliteit te herstellen."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Update de Electrolux API-gegevens",
+                        "description": "Uw Electrolux API-tokens zijn verlopen en het automatisch vernieuwen is mislukt. Voer nieuwe inloggegevens van het Electrolux Developer Portal in om de functionaliteit te herstellen.\n\n**Om nieuwe inloggegevens te genereren:**\n1. Bezoek {url}\n2. Genereer een nieuwe API-sleutel, toegangstoken en vernieuwingstoken\n3. Vul ze hieronder in",
+                        "data": {
+                            "api_key": "API-sleutel",
+                            "access_token": "Toegangstoken",
+                            "refresh_token": "Token vernieuwen"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Ongeldige API-inloggegevens. Controleer uw API-sleutel, toegangstoken en vernieuwingstoken.",
+                    "invalid_format": "Ongeldig identificatieformaat. Zorg ervoor dat alle velden correct zijn ingevuld.",
+                    "entry_not_found": "Configuratie-item niet gevonden."
+                },
+                "abort": {
+                    "entry_not_found": "Het configuratie-item kan niet worden gevonden."
+                }
+            }
         }
     }
 }

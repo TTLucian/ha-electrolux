@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux autentifikavimo problema",
-            "description": "„Electrolux“ integracijai nepavyko atnaujinti API prieigos raktų: {message}. Iš naujo autentifikuokite naudodami integravimo parinktis, kad atkurtumėte funkcionalumą."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Atnaujinkite Electrolux API kredencialus",
+                        "description": "Baigėsi jūsų Electrolux API prieigos raktų galiojimo laikas ir nepavyko automatiškai atnaujinti. Norėdami atkurti funkcionalumą, įveskite naujus kredencialus iš Electrolux kūrėjų portalo.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Įveskite juos žemiau",
+                        "data": {
+                            "api_key": "API raktas",
+                            "access_token": "Prieigos prieigos raktas",
+                            "refresh_token": "Atnaujinti žetoną"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Netinkami API kredencialai. Patikrinkite savo API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą.",
+                    "invalid_format": "Neteisingas kredencialo formatas. Įsitikinkite, kad visi laukai užpildyti teisingai.",
+                    "entry_not_found": "Konfigūracijos įrašas nerastas."
+                },
+                "abort": {
+                    "entry_not_found": "Nepavyko rasti konfigūracijos įrašo."
+                }
+            }
         }
     }
 }

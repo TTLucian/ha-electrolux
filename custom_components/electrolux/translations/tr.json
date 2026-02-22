@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux kimlik doğrulama sorunu",
-            "description": "Electrolux entegrasyonu API belirteçlerini yenileyemedi: {message}. İşlevselliği geri yüklemek için lütfen entegrasyon seçeneklerini kullanarak yeniden kimlik doğrulaması yapın."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Electrolux API Kimlik Bilgilerini Güncelleyin",
+                        "description": "Electrolux API belirteçlerinizin süresi doldu ve otomatik yenileme başarısız oldu. İşlevselliği geri yüklemek için lütfen Electrolux Geliştirici Portalından yeni kimlik bilgileri girin.\n\n**Yeni kimlik bilgileri oluşturmak için:**\n1. {url} adresini ziyaret edin\n2. Yeni API Anahtarı, Erişim Belirteci ve Yenileme Belirteci oluşturun\n3. Bunları aşağıya girin",
+                        "data": {
+                            "api_key": "API Anahtarı",
+                            "access_token": "Erişim Jetonu",
+                            "refresh_token": "Jetonu Yenile"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Geçersiz API kimlik bilgileri. Lütfen API Anahtarınızı, Erişim Simgenizi ve Yenileme Simgenizi kontrol edin.",
+                    "invalid_format": "Geçersiz kimlik bilgisi biçimi. Lütfen tüm alanların doğru şekilde doldurulduğundan emin olun.",
+                    "entry_not_found": "Yapılandırma girişi bulunamadı."
+                },
+                "abort": {
+                    "entry_not_found": "Yapılandırma girişi bulunamadı."
+                }
+            }
         }
     }
 }

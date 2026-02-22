@@ -361,6 +361,15 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # Defaults
         if key == "max":
+            # Temperature entities need proper fallback max values
+            if self.entity_attr == "targetTemperatureC":
+                return float(val or 250.0)  # Typical oven max temp
+            elif self.entity_attr == "targetTemperatureF":
+                return float(val or 500.0)  # ~260°C equivalent
+            elif self.entity_attr == "targetFoodProbeTemperatureC":
+                return float(val or 99.0)  # Typical probe max
+            elif self.entity_attr == "targetFoodProbeTemperatureF":
+                return float(val or 210.0)  # ~99°C equivalent
             return float(val or 100.0)
         elif key == "min":
             if self.entity_attr == "targetTemperatureC":

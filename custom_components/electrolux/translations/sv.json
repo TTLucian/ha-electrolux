@@ -37,7 +37,7 @@
         "step": {
             "user": {
                 "title": "Electrolux tillval",
-                "description": "Uppdatera dina Electrolux API-uppgifter om de har gått ut.\n\n**Så här genererar du nya autentiseringsuppgifter:**\n1. Besök {url}\n2. Skapa ny API-nyckel, åtkomsttoken och uppdateringstoken\n3. Uppdatera fälten nedan\n\n**Säkerhetsnotering:** Fälten Access Token och Refresh Token lämnas avsiktligt tomma. Generera alltid nya tokens från portalen – återanvänd eller dela aldrig befintliga tokens.",
+                "description": "Uppdatera dina Electrolux API-uppgifter om de har gått ut.\n\n**Så här genererar du nya autentiseringsuppgifter:**\n1. Besök {url}\n2. Skapa ny API-nyckel, åtkomsttoken och uppdateringstoken\n3. Uppdatera fälten nedan\n\n**Säkerhetsnotering:** Fälten för åtkomsttoken och uppdateringstoken lämnas avsiktligt tomma. Generera alltid nya tokens från portalen – återanvänd eller dela aldrig befintliga tokens.",
                 "data": {
                     "api_key": "API-nyckel",
                     "access_token": "Access Token",
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux autentiseringsproblem",
-            "description": "Electrolux-integrationen kunde inte uppdatera API-tokens: {meddelande}. Vänligen autentisera på nytt via integrationsalternativen för att återställa funktionaliteten."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Uppdatera Electrolux API-uppgifter",
+                        "description": "Dina Electrolux API-tokens har gått ut och automatisk uppdatering misslyckades. Vänligen ange nya inloggningsuppgifter från Electrolux utvecklarportal för att återställa funktionaliteten.\n\n**Så här genererar du nya autentiseringsuppgifter:**\n1. Besök {url}\n2. Skapa ny API-nyckel, åtkomsttoken och uppdateringstoken\n3. Ange dem nedan",
+                        "data": {
+                            "api_key": "API-nyckel",
+                            "access_token": "Access Token",
+                            "refresh_token": "Uppdatera token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, åtkomsttoken och uppdateringstoken.",
+                    "invalid_format": "Ogiltigt autentiseringsformat. Se till att alla fält är korrekt ifyllda.",
+                    "entry_not_found": "Konfigurationsposten hittades inte."
+                },
+                "abort": {
+                    "entry_not_found": "Konfigurationsposten kunde inte hittas."
+                }
+            }
         }
     }
 }

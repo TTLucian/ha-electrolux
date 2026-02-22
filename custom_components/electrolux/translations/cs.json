@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Problém s ověřováním Electrolux",
-            "description": "Integraci Electroluxu se nepodařilo obnovit tokeny API: {zpráva}. Chcete-li obnovit funkčnost, znovu se ověřte pomocí možností integrace."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Aktualizujte přihlašovací údaje Electrolux API",
+                        "description": "Platnost vašich tokenů Electrolux API vypršela a automatické obnovení se nezdařilo. Pro obnovení funkčnosti zadejte nové přihlašovací údaje z portálu Electrolux Developer Portal.\n\n**Vygenerování nových přihlašovacích údajů:**\n1. Navštivte stránku {url}\n2. Vygenerujte nový klíč API, přístupový token a obnovovací token\n3. Zadejte je níže",
+                        "data": {
+                            "api_key": "Klíč API",
+                            "access_token": "Přístupový token",
+                            "refresh_token": "Obnovit token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Neplatné přihlašovací údaje rozhraní API. Zkontrolujte svůj API klíč, přístupový token a obnovovací token.",
+                    "invalid_format": "Neplatný formát pověření. Ujistěte se, že jsou všechna pole správně vyplněna.",
+                    "entry_not_found": "Záznam konfigurace nebyl nalezen."
+                },
+                "abort": {
+                    "entry_not_found": "Záznam konfigurace nebyl nalezen."
+                }
+            }
         }
     }
 }

@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Problem mit der Electrolux-Authentifizierung",
-            "description": "Die Electrolux-Integration konnte die API-Tokens nicht aktualisieren: {message}. Bitte authentifizieren Sie sich erneut über die Integrationsoptionen, um die Funktionalität wiederherzustellen."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Aktualisieren Sie die Electrolux-API-Anmeldeinformationen",
+                        "description": "Ihre Electrolux-API-Tokens sind abgelaufen und die automatische Aktualisierung ist fehlgeschlagen. Bitte geben Sie neue Anmeldeinformationen vom Electrolux Developer Portal ein, um die Funktionalität wiederherzustellen.\n\n**So generieren Sie neue Anmeldeinformationen:**\n1. Besuchen Sie {url}\n2. Generieren Sie einen neuen API-Schlüssel, ein neues Zugriffstoken und ein neues Aktualisierungstoken\n3. Geben Sie sie unten ein",
+                        "data": {
+                            "api_key": "API-Schlüssel",
+                            "access_token": "Zugriffstoken",
+                            "refresh_token": "Aktualisierungstoken"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Ungültige API-Anmeldeinformationen. Bitte überprüfen Sie Ihren API-Schlüssel, Zugriffstoken und Aktualisierungstoken.",
+                    "invalid_format": "Ungültiges Anmeldeinformationsformat. Bitte stellen Sie sicher, dass alle Felder korrekt ausgefüllt sind.",
+                    "entry_not_found": "Konfigurationseintrag nicht gefunden."
+                },
+                "abort": {
+                    "entry_not_found": "Der Konfigurationseintrag konnte nicht gefunden werden."
+                }
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Todenna Electrolux uudelleen",
-                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheellisiä. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
+                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electroluxin todennusongelma",
-            "description": "Electroluxin integraatio ei onnistunut päivittämään API-tunnuksia: {message}. Todenna uudelleen integrointivaihtoehtojen kautta toiminnan palauttamiseksi."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Päivitä Electrolux API -tunnistetiedot",
+                        "description": "Electrolux API -tunnuksesi ovat vanhentuneet ja automaattinen päivitys epäonnistui. Anna uudet kirjautumistiedot Electroluxin kehittäjäportaalista toiminnan palauttamiseksi.\n\n**Uusien tunnistetietojen luominen:**\n1. Käy osoitteessa {url}\n2. Luo uusi API-avain, käyttöoikeustunnus ja päivitystunnus\n3. Kirjoita ne alle",
+                        "data": {
+                            "api_key": "API-avain",
+                            "access_token": "Käyttöoikeustunnus",
+                            "refresh_token": "Päivitä Token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Virheelliset API-tunnistetiedot. Tarkista API-avain, käyttöoikeus ja päivitystunnus.",
+                    "invalid_format": "Virheellinen tunnistemuoto. Varmista, että kaikki kentät on täytetty oikein.",
+                    "entry_not_found": "Asetusmerkintää ei löydy."
+                },
+                "abort": {
+                    "entry_not_found": "Määritystietoa ei löytynyt."
+                }
+            }
         }
     }
 }

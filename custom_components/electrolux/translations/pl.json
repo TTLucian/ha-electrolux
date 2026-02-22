@@ -28,7 +28,7 @@
         },
         "abort": {
             "single_instance_allowed": "Dozwolona jest tylko jedna konfiguracja firmy Electrolux.",
-            "already_configured": "To urządzenie jest już skonfigurowane.",
+            "already_configured": "This device is already configured.",
             "already_configured_account": "Ten klucz API jest już skonfigurowany.",
             "reconfigure_successful": "Ponowna konfiguracja przebiegła pomyślnie."
         }
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Problem z uwierzytelnianiem firmy Electrolux",
-            "description": "Integracja Electrolux nie mogła odświeżyć tokenów API: {wiadomość}. Aby przywrócić funkcjonalność, prosimy o ponowne uwierzytelnienie za pomocą opcji integracji."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Zaktualizuj poświadczenia API Electrolux",
+                        "description": "Twoje tokeny API Electrolux wygasły i automatyczne odświeżanie nie powiodło się. Aby przywrócić funkcjonalność, wprowadź nowe dane uwierzytelniające z portalu programistów Electrolux.\n\n**Aby wygenerować nowe dane uwierzytelniające:**\n1. Odwiedź {url}\n2. Wygeneruj nowy klucz API, token dostępu i token odświeżenia\n3. Wpisz je poniżej",
+                        "data": {
+                            "api_key": "Klucz API",
+                            "access_token": "Token dostępu",
+                            "refresh_token": "Odśwież token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Nieprawidłowe dane uwierzytelniające interfejsu API. Sprawdź swój klucz API, token dostępu i token odświeżenia.",
+                    "invalid_format": "Nieprawidłowy format danych logowania. Upewnij się, że wszystkie pola są wypełnione poprawnie.",
+                    "entry_not_found": "Nie znaleziono wpisu konfiguracji."
+                },
+                "abort": {
+                    "entry_not_found": "Nie można znaleźć wpisu konfiguracji."
+                }
+            }
         }
     }
 }

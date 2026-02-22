@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Problema de autenticación de Electrolux",
-            "description": "La integración de Electrolux no pudo actualizar los tokens de API: {mensaje}. Vuelva a autenticarse a través de las opciones de integración para restaurar la funcionalidad."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Actualizar las credenciales API de Electrolux",
+                        "description": "Sus tokens API de Electrolux han caducado y la actualización automática falló. Ingrese nuevas credenciales del Portal de desarrolladores de Electrolux para restaurar la funcionalidad.\n\n**Para generar nuevas credenciales:**\n1. Visita {url}\n2. Genere una nueva clave API, token de acceso y token de actualización\n3. Introdúcelos a continuación",
+                        "data": {
+                            "api_key": "Clave API",
+                            "access_token": "Token de acceso",
+                            "refresh_token": "Actualizar ficha"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Credenciales de API no válidas. Verifique su clave API, token de acceso y token de actualización.",
+                    "invalid_format": "Formato de credencial no válido. Asegúrese de que todos los campos estén completados correctamente.",
+                    "entry_not_found": "Entrada de configuración no encontrada."
+                },
+                "abort": {
+                    "entry_not_found": "No se pudo encontrar la entrada de configuración."
+                }
+            }
         }
     }
 }

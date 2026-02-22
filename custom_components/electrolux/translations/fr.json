@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Problème d'authentification Electrolux",
-            "description": "L'intégration Electrolux n'a pas réussi à actualiser les jetons API : {message}. Veuillez vous réauthentifier via les options d'intégration pour restaurer la fonctionnalité."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Mettre à jour les informations d'identification de l'API Electrolux",
+                        "description": "Vos jetons API Electrolux ont expiré et l'actualisation automatique a échoué. Veuillez saisir de nouvelles informations d'identification à partir du portail des développeurs Electrolux pour restaurer la fonctionnalité.\n\n**Pour générer de nouveaux identifiants :**\n1. Visitez {url}\n2. Générez une nouvelle clé API, un jeton d'accès et un jeton d'actualisation\n3. Saisissez-les ci-dessous",
+                        "data": {
+                            "api_key": "Clé API",
+                            "access_token": "Jeton d'accès",
+                            "refresh_token": "Actualiser le jeton"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Informations d'identification API non valides. Veuillez vérifier votre clé API, votre jeton d'accès et votre jeton d'actualisation.",
+                    "invalid_format": "Format d'identifiant non valide. Veuillez vous assurer que tous les champs sont remplis correctement.",
+                    "entry_not_found": "Entrée de configuration introuvable."
+                },
+                "abort": {
+                    "entry_not_found": "L'entrée de configuration est introuvable."
+                }
+            }
         }
     }
 }

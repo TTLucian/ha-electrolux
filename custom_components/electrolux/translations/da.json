@@ -8,7 +8,7 @@
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
                     "refresh_token": "Opdater token",
-                    "notifications": "Aktiver meddelelser for kritiske advarsler",
+                    "notifications": "Aktiver notifikationer for kritiske advarsler",
                     "notifications_warning": "Aktiver meddelelser for advarsler",
                     "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
                 }
@@ -30,19 +30,19 @@
             "single_instance_allowed": "Kun en enkelt Electrolux-konfiguration er tilladt.",
             "already_configured": "Denne enhed er allerede konfigureret.",
             "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
-            "reconfigure_successful": "Genkonfigurationen lykkedes."
+            "reconfigure_successful": "Omkonfigurationen lykkedes."
         }
     },
     "options": {
         "step": {
             "user": {
                 "title": "Electrolux optioner",
-                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsnote:** Felterne Adgangstoken og Opdater Token efterlades med vilje tomme. Generer altid friske tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
+                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsbemærkning:** Felterne Adgangstoken og Opdater token efterlades med vilje tomme. Generer altid nye tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
                 "data": {
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
                     "refresh_token": "Opdater token",
-                    "notifications": "Aktiver meddelelser for kritiske advarsler",
+                    "notifications": "Aktiver notifikationer for kritiske advarsler",
                     "notifications_warning": "Aktiver meddelelser for advarsler",
                     "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
                 }
@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux-godkendelsesproblem",
-            "description": "Electrolux-integrationen kunne ikke opdatere API-tokens: {message}. Genautentificer venligst via integrationsmulighederne for at gendanne funktionaliteten."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Opdater Electrolux API-legitimationsoplysninger",
+                        "description": "Dine Electrolux API-tokens er udløbet, og automatisk opdatering mislykkedes. Indtast venligst nye legitimationsoplysninger fra Electrolux Developer Portal for at gendanne funktionaliteten.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Indtast dem nedenfor",
+                        "data": {
+                            "api_key": "API nøgle",
+                            "access_token": "Adgangstoken",
+                            "refresh_token": "Opdater token"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken.",
+                    "invalid_format": "Ugyldigt legitimationsformat. Sørg for, at alle felter er udfyldt korrekt.",
+                    "entry_not_found": "Konfigurationsindgang blev ikke fundet."
+                },
+                "abort": {
+                    "entry_not_found": "Konfigurationsindgangen kunne ikke findes."
+                }
+            }
         }
     }
 }

@@ -3,28 +3,28 @@
         "step": {
             "user": {
                 "title": "Configurare Electrolux",
-                "description": "Conectați-vă aparatele Electrolux utilizând acreditările API din Portalul pentru dezvoltatori Electrolux.\n\n**Pentru a obține acreditările API:**\n1. Accesați {url}\n2. Înregistrați-vă și creați o aplicație\n3. Obțineți cheia API, Tokenul de acces și Tokenul de reîmprospătare\n\nDacă aveți nevoie de ajutor, vizitați documentația de integrare.",
+                "description": "Conectați-vă aparatele Electrolux utilizând acreditările API din Portalul pentru dezvoltatori Electrolux.\n\n**Pentru a obține acreditările API:**\n1. Vizitați {url}\n2. Înregistrați-vă și creați o aplicație\n3. Obțineți cheia API, Tokenul de acces și Tokenul de reîmprospătare\n\nDacă aveți nevoie de ajutor, vizitați documentația de integrare.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
-                    "refresh_token": "Token de reîmprospătare",
-                    "notifications": "Activați notificările pentru alertele critice",
+                    "refresh_token": "Jeton de reîmprospătare",
+                    "notifications": "Enable notifications for critical alerts",
                     "notifications_warning": "Activați notificările pentru avertismente",
                     "notifications_diagnostic": "Activați notificările pentru mesajele de diagnosticare"
                 }
             },
             "reauth_validate": {
                 "title": "Re-autentificați Electrolux",
-                "description": "Tokenurile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu token-uri noi de pe Portalul pentru dezvoltatori Electrolux.\n\nAccesați {url} pentru a genera noi token-uri.",
+                "description": "Tokenurile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu jetoane noi de pe Portalul pentru dezvoltatori Electrolux.\n\nAccesați {url} pentru a genera noi token-uri.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
-                    "refresh_token": "Token de reîmprospătare"
+                    "refresh_token": "Jeton de reîmprospătare"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Tokenul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Este permisă doar o singură configurație Electrolux.",
@@ -37,11 +37,11 @@
         "step": {
             "user": {
                 "title": "Opțiuni Electrolux",
-                "description": "Actualizați-vă acreditările Electrolux API dacă acestea au expirat.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Actualizați câmpurile de mai jos\n\n**Notă de securitate:** Câmpurile Token de acces și Token de reîmprospătare sunt lăsate goale în mod intenționat. Generați întotdeauna token-uri noi de pe portal - nu reutilizați și nu partajați niciodată token-uri existente.",
+                "description": "Actualizați-vă acreditările Electrolux API dacă acestea au expirat.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o cheie API nouă, un token de acces și un token de reîmprospătare\n3. Actualizați câmpurile de mai jos\n\n**Notă de securitate:** Câmpurile Token de acces și Refresh Token sunt lăsate goale în mod intenționat. Generați întotdeauna jetoane noi de pe portal - nu reutilizați și nu partajați niciodată jetoane existente.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
-                    "refresh_token": "Token de reîmprospătare",
+                    "refresh_token": "Jeton de reîmprospătare",
                     "notifications": "Activați notificările pentru alertele critice",
                     "notifications_warning": "Activați notificările pentru avertismente",
                     "notifications_diagnostic": "Activați notificările pentru mesajele de diagnosticare"
@@ -49,13 +49,33 @@
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare."
         }
     },
     "issues": {
         "invalid_refresh_token": {
             "title": "Problemă de autentificare Electrolux",
-            "description": "Integrarea Electrolux nu a reușit să reîmprospăteze indicatoarele API: {mesaj}. Vă rugăm să reautentificați prin opțiunile de integrare pentru a restabili funcționalitatea."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Actualizați acreditările API Electrolux",
+                        "description": "Tokenurile tale Electrolux API au expirat și reîmprospătarea automată a eșuat. Vă rugăm să introduceți noi acreditări de pe Portalul pentru dezvoltatori Electrolux pentru a restabili funcționalitatea.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o cheie API nouă, un token de acces și un token de reîmprospătare\n3. Introduceți-le mai jos",
+                        "data": {
+                            "api_key": "Cheia API",
+                            "access_token": "Token de acces",
+                            "refresh_token": "Jeton de reîmprospătare"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare.",
+                    "invalid_format": "Format de autentificare nevalid. Vă rugăm să vă asigurați că toate câmpurile sunt completate corect.",
+                    "entry_not_found": "Intrarea de configurare nu a fost găsită."
+                },
+                "abort": {
+                    "entry_not_found": "Intrarea de configurare nu a putut fi găsită."
+                }
+            }
         }
     }
 }

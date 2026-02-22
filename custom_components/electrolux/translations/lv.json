@@ -55,7 +55,27 @@
     "issues": {
         "invalid_refresh_token": {
             "title": "Electrolux autentifikācijas problēma",
-            "description": "Electrolux integrācijai neizdevās atsvaidzināt API pilnvaras: {message}. Lai atjaunotu funkcionalitāti, lūdzu, veiciet atkārtotu autentifikāciju, izmantojot integrācijas opcijas."
+            "fix_flow": {
+                "step": {
+                    "confirm_repair": {
+                        "title": "Atjauniniet Electrolux API akreditācijas datus",
+                        "description": "Jūsu Electrolux API marķieriem ir beidzies derīguma termiņš, un automātiskā atsvaidzināšana neizdevās. Lūdzu, ievadiet jaunus akreditācijas datus no Electrolux izstrādātāju portāla, lai atjaunotu funkcionalitāti.\n\n**Lai ģenerētu jaunus akreditācijas datus:**\n1. Apmeklējiet vietni {url}\n2. Ģenerējiet jaunu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n3. Ievadiet tos zemāk",
+                        "data": {
+                            "api_key": "API atslēga",
+                            "access_token": "Piekļuves marķieris",
+                            "refresh_token": "Atsvaidzināt marķieri"
+                        }
+                    }
+                },
+                "error": {
+                    "invalid_auth": "Nederīgi API akreditācijas dati. Lūdzu, pārbaudiet savu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru.",
+                    "invalid_format": "Nederīgs akreditācijas datu formāts. Lūdzu, pārliecinieties, ka visi lauki ir pareizi aizpildīti.",
+                    "entry_not_found": "Konfigurācijas ieraksts nav atrasts."
+                },
+                "abort": {
+                    "entry_not_found": "Konfigurācijas ierakstu nevarēja atrast."
+                }
+            }
         }
     }
 }

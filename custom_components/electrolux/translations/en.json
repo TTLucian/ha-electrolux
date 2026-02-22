@@ -55,7 +55,27 @@
   "issues": {
     "invalid_refresh_token": {
       "title": "Electrolux authentication problem",
-      "description": "The Electrolux integration failed to refresh API tokens: {message}. Please reauthenticate via the integration options to restore functionality."
+      "fix_flow": {
+        "step": {
+          "confirm_repair": {
+            "title": "Update Electrolux API Credentials",
+            "description": "Your Electrolux API tokens have expired and automatic refresh failed. Please enter new credentials from the Electrolux Developer Portal to restore functionality.\n\n**To generate new credentials:**\n1. Visit {url}\n2. Generate new API Key, Access Token, and Refresh Token\n3. Enter them below",
+            "data": {
+              "api_key": "API Key",
+              "access_token": "Access Token",
+              "refresh_token": "Refresh Token"
+            }
+          }
+        },
+        "error": {
+          "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token.",
+          "invalid_format": "Invalid credential format. Please ensure all fields are filled correctly.",
+          "entry_not_found": "Configuration entry not found."
+        },
+        "abort": {
+          "entry_not_found": "The configuration entry could not be found."
+        }
+      }
     }
   }
 }
