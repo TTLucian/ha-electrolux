@@ -13,6 +13,6 @@
     "electrolux-group-developer-sdk>=0.2.0"
   ],
   "ssdp": [],
-  "version": "3.2.9",
+  "version": "3.3.0",
   "zeroconf": []
 }

@@ -30,32 +30,54 @@ Users can now unplug appliances for energy saving without losing entities or req
 For dryer appliances, program-dependent entities (like `antiCreaseValue`, temperature controls, etc.) would show as "unsupported" or fail to lock/unlock correctly when switching between programs. Controls that should be locked on certain programs remained editable, and constraints (min/max/step) wouldn't update when changing programs.
 
 **Root Cause:**
-The `_is_supported_by_program()` method was looking for the current program using only `reported_state.get("program")`, which works for ovens and dishwashers but not for dryers. Dryers store the program in `userSelections/programUID` instead of a top-level `program` key. When the code couldn't find the program, it would default to assuming everything is supported, breaking program-specific locking and constraint logic.
+Two related bugs affected dryer program detection:
+
+1. **Program Detection Bug:** The `_is_supported_by_program()` method was looking for the current program using only `reported_state.get("program")`, which works for ovens and dishwashers but not for dryers. Dryers store the program in `userSelections/programUID` instead of a top-level `program` key.
+
+2. **Program Capabilities Lookup Bug:** The code that retrieves program-specific capabilities was hardcoded to look only at `capabilities["program"]["values"]`, but dryers store their program capabilities under `capabilities["userSelections/programUID"]["values"]`. This caused the code to never find program-specific constraints or disabled states for dryer entities.
 
 **Example from Sample Data:**
 ```json
+# Reported state (where program is stored):
 "reported": {
   "userSelections": {
     "programUID": "COTTON_PR_COTTONSECO",
     "antiCreaseValue": 30
-  },
-  "cyclePhase": "ANTICREASE"
+  }
+}
+
+# Capabilities (where program constraints are stored):
+"capabilities": {
+  "userSelections/programUID": {
+    "values": {
+      "COTTON_PR_COTTONSECO": {
+        "userSelections/antiCreaseValue": {
+          "min": 30,
+          "max": 120,
+          "step": 30,
+          "disabled": false
+        }
+      }
+    }
+  }
 }
 ```
 
-The code was looking for `reported["program"]` (doesn't exist) instead of `reported["userSelections"]["programUID"]`.
+The code was looking in the wrong locations:
+- ❌ Looking for `reported["program"]` (doesn't exist for dryers)
+- ❌ Looking for `capabilities["program"]["values"]` (doesn't exist for dryers)
 
 **Fix:**
-Updated 4 locations in `entity.py` to check multiple locations for the current program:
-1. Entity initialization (`__init__`)
-2. State update handler (`_handle_coordinator_update`)
-3. Program support validation (`_is_supported_by_program`)
-4. Program constraint lookups (`_get_program_constraint`)
+1. **Program Detection:** Updated 4 locations in `entity.py` to check multiple locations for the current program:
+   - Entity initialization (`__init__`)
+   - State update handler (`_handle_coordinator_update`)
+   - Program support validation (`_is_supported_by_program`)
+   - Program constraint lookups (`_get_program_constraint`)
 
-Each location now checks:
-- `reported_state["program"]` (ovens, dishwashers, washers)
-- `reported_state["userSelections"]["programUID"]` (dryers, some washers)
-- `reported_state["cyclePersonalization"]["programUID"]` (alternative location)
+2. **Program Capabilities Lookup:** Created new helper method `_get_program_capabilities()` that checks multiple capability locations:
+   - `capabilities["program"]["values"][program_name]` (ovens, dishwashers, washers)
+   - `capabilities["userSelections/programUID"]["values"][program_name]` (dryers)
+   - `capabilities["cyclePersonalization/programUID"]["values"][program_name]` (fallback)
 
 **Impact:**
 - ✅ Program-dependent entity locking now works correctly for all appliance types
@@ -85,10 +107,11 @@ return dt_util.now() + timedelta(seconds=value)  # Returns datetime
 This caused Home Assistant to render it as an absolute timestamp rather than a duration.
 
 **Fix:**
-Changed the sensor implementation to use `SensorDeviceClass.DURATION` and return raw seconds:
+Changed the sensor implementation to use `SensorDeviceClass.DURATION` with `UnitOfTime.SECONDS`:
 
 **In `catalog_core.py`:**
 - Changed `device_class=SensorDeviceClass.TIMESTAMP` to `device_class=SensorDeviceClass.DURATION`
+- Changed `unit=None` to `unit=UnitOfTime.SECONDS` to enable proper duration formatting
 
 **In `sensor.py`:**
 - Changed from returning `dt_util.now() + timedelta(seconds=value)` to returning `int(value)`
@@ -98,7 +121,7 @@ Changed the sensor implementation to use `SensorDeviceClass.DURATION` and return
 - Updated 6 test cases to expect `int` values instead of `datetime` objects
 
 **Impact:**
-The Time to End sensor now displays as an intuitive countdown timer showing hours, minutes, and seconds remaining (e.g., "3h 19m 0s"). This is:
+The Time to End sensor now displays as an intuitive countdown timer in `hh:mm:ss` format (e.g., "03:19:00" for 3 hours 19 minutes). This is:
 - ✅ More intuitive for users to understand at a glance
 - ✅ Consistent with how other duration values are displayed
 - ✅ Easier to use in automations and templates

@@ -684,6 +684,81 @@ class ElectroluxEntity(CoordinatorEntity):
         """
         pass
 
+    def _get_program_capabilities(self, current_program: str) -> dict:
+        """Get program-specific capabilities from the correct location.
+
+        Different appliance types store program capabilities in different places:
+        - Ovens/Dishwashers: capabilities["program"]["values"][program_name]
+        - Dryers: capabilities["userSelections/programUID"]["values"][program_name]
+        - Alternative: capabilities["cyclePersonalization/programUID"]["values"][program_name]
+        """
+        if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
+            return {}
+
+        appliance_data = self.get_appliance.data
+        if not (
+            hasattr(appliance_data, "capabilities") and appliance_data.capabilities
+        ):
+            return {}
+
+        capabilities = appliance_data.capabilities
+
+        # Try "program" location first (ovens, dishwashers, washers)
+        program_caps = (
+            capabilities.get("program", {}).get("values", {}).get(current_program, {})
+        )
+        if program_caps:
+            return program_caps
+
+        # Try "userSelections/programUID" location (dryers)
+        program_caps = (
+            capabilities.get("userSelections/programUID", {})
+            .get("values", {})
+            .get(current_program, {})
+        )
+        if program_caps:
+            return program_caps
+
+        # Try "cyclePersonalization/programUID" location (alternative)
+        program_caps = (
+            capabilities.get("cyclePersonalization/programUID", {})
+            .get("values", {})
+            .get(current_program, {})
+        )
+        return program_caps
+
+    def _get_current_program_name(self) -> str | None:
+        """Get the current program name from reported state.
+
+        Different appliance types store the program name in different locations:
+        - Ovens/Dishwashers: reported["program"]
+        - Dryers: reported["userSelections"]["programUID"]
+        - Alternative: reported["cyclePersonalization"]["programUID"]
+
+        Returns:
+            str | None: The current program name, or None if not found
+        """
+        # Try "program" location first (ovens, dishwashers)
+        current_program = self.reported_state.get("program")
+        if current_program:
+            return current_program
+
+        # Try "userSelections/programUID" location (dryers)
+        user_selections = self.reported_state.get("userSelections", {})
+        if isinstance(user_selections, dict):
+            current_program = user_selections.get("programUID")
+            if current_program:
+                return current_program
+
+        # Try "cyclePersonalization/programUID" location (alternative)
+        cycle_personalization = self.reported_state.get("cyclePersonalization", {})
+        if isinstance(cycle_personalization, dict):
+            current_program = cycle_personalization.get("programUID")
+            if current_program:
+                return current_program
+
+        return None
+
     def _is_supported_by_program(self) -> bool:
         """Check if the entity is supported by the current program.
 
@@ -720,23 +795,11 @@ class ElectroluxEntity(CoordinatorEntity):
             self._is_supported_cache = True
             return True  # If no program found, assume supported
 
-        # Check if the appliance has program-specific capabilities
-        if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
+        # Get program-specific capabilities from the correct location
+        program_caps = self._get_program_capabilities(current_program)
+        if not program_caps:
             self._is_supported_cache = True
-            return True
-
-        appliance_data = self.get_appliance.data
-        if not (
-            hasattr(appliance_data, "capabilities") and appliance_data.capabilities
-        ):
-            self._is_supported_cache = True
-            return True
-
-        program_caps = (
-            appliance_data.capabilities.get("program", {})
-            .get("values", {})
-            .get(current_program, {})
-        )
+            return True  # If no program caps found, assume supported
 
         # If the entity is not in the program capabilities, it's not supported
         if self.entity_attr not in program_caps:
@@ -754,7 +817,17 @@ class ElectroluxEntity(CoordinatorEntity):
             disabled = entity_cap.get("disabled", False)
 
         # Process triggers that affect this entity
-        all_capabilities = appliance_data.capabilities
+        if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
+            self._is_supported_cache = not disabled
+            return not disabled
+        if not (
+            hasattr(self.get_appliance.data, "capabilities")
+            and self.get_appliance.data.capabilities
+        ):
+            self._is_supported_cache = not disabled
+            return not disabled
+
+        all_capabilities = self.get_appliance.data.capabilities
         for cap_name, cap_def in all_capabilities.items():
             if isinstance(cap_def, dict) and "triggers" in cap_def:
                 for trigger in cap_def["triggers"]:
@@ -822,16 +895,16 @@ class ElectroluxEntity(CoordinatorEntity):
             if isinstance(cycle_personalization, dict):
                 current_program = cycle_personalization.get("programUID")
 
-        if not current_program or not self.get_appliance.data:
+        if not current_program:
             return None
+
         try:
-            value = (
-                self.get_appliance.data.capabilities.get("program", {})
-                .get("values", {})
-                .get(current_program, {})
-                .get(self.entity_attr, {})
-                .get(key)
-            )
+            # Get program-specific capabilities from the correct location
+            program_caps = self._get_program_capabilities(current_program)
+            if not program_caps:
+                return None
+
+            value = program_caps.get(self.entity_attr, {}).get(key)
             # Cache the result (cleared on program change)
             self._constraints_cache[key] = value
             return value

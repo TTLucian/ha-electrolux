@@ -465,7 +465,7 @@ def _get_catalog_base():
         "timeToEnd": ElectroluxDevice(
             capability_info={"access": "read", "type": "number"},
             device_class=SensorDeviceClass.DURATION,
-            unit=None,
+            unit=UnitOfTime.SECONDS,
             entity_category=None,
             entity_icon="mdi:timer-outline",
             friendly_name="Time to End",

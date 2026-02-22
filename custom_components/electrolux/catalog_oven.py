@@ -168,8 +168,8 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
             "type": "number",
             "values": {"INVALID_OR_NOT_SET_TIME": {"disabled": True}},
         },
-        device_class=None,
-        unit=UnitOfTime.SECONDS,  # Changed from MINUTES
+        device_class=NumberDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:clock-start",
     ),
@@ -182,8 +182,8 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
             "step": 60,  # 1 minute in seconds
             "type": "number",
         },
-        device_class=None,
-        unit=UnitOfTime.SECONDS,  # Changed from MINUTES
+        device_class=NumberDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:timelapse",
     ),

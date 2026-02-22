@@ -380,7 +380,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         """Update the current value."""
         # Check if entity is locked by program (min=max, step=0, or not supported)
         if self._is_locked_by_program():
-            current_program = self.reported_state.get("program", "unknown")
+            current_program = self._get_current_program_name() or "unknown"
             locked_value = self._get_locked_value()
 
             # Provide specific error message based on lock reason

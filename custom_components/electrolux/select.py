@@ -173,7 +173,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 self.pnc_id,
             )
             raise HomeAssistantError(
-                f"Cannot change '{self.entity_attr}': not supported by current program '{self.reported_state.get('program', 'unknown')}'"
+                f"Cannot change '{self.entity_attr}': not supported by current program '{self._get_current_program_name() or 'unknown'}'"
             )
 
         # Check if appliance is connected before sending command
