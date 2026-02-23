@@ -235,15 +235,16 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
             # Handle config entry update failures with retry
             try:
-                # Update config entry data - update_listener will check timestamp to prevent reload
-                self.hass.config_entries.async_update_entry(config_entry, data=new_data)
-
-                # Mark timestamp of token update AFTER successful update to prevent race condition
-                # This ensures update_listener sees the timestamp only after config entry is fully updated
+                # Mark timestamp BEFORE async_update_entry to prevent reload
+                # The update_listener is triggered synchronously by async_update_entry,
+                # so it needs to see this timestamp immediately
                 self._last_token_update = time.time()
                 _LOGGER.debug(
                     f"[TOKEN-CALLBACK] Marked token update timestamp: {self._last_token_update}"
                 )
+
+                # Update config entry data - update_listener will check timestamp to prevent reload
+                self.hass.config_entries.async_update_entry(config_entry, data=new_data)
 
                 _LOGGER.info(
                     f"[TOKEN-CALLBACK] Config entry updated successfully - tokens persisted (valid for {time_until_expiry/3600:.1f}h)"
@@ -640,20 +641,58 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         if self._should_defer_update(appliance_data):
-            # Limit deferred tasks to prevent pile-up (max 5 concurrent)
-            if len(self._deferred_tasks) < DEFERRED_TASK_LIMIT:
-                task = self.hass.async_create_task(
-                    self.deferred_update(appliance_id, DEFERRED_UPDATE_DELAY)
+            _LOGGER.warning(
+                f"[DEFERRED-DEBUG] Bulk update trigger for {appliance_id}! "
+                f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s."
+            )
+            self._schedule_deferred_update(appliance_id)
+
+    async def _refresh_all_appliances(self) -> None:
+        """Refresh state for all appliances (used after SSE reconnection)."""
+        if self.data is None:
+            _LOGGER.warning("Coordinator data not initialized, skipping refresh")
+            return
+
+        appliances: Appliances = self.data.get("appliances")  # type: ignore[assignment,union-attr]
+        app_dict = appliances.get_appliances()
+
+        if not app_dict:
+            _LOGGER.debug("No appliances to refresh")
+            return
+
+        async def _update_single(app_id: str, app_obj) -> bool:
+            """Update single appliance. Returns success status."""
+            try:
+                status = await asyncio.wait_for(
+                    self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT
                 )
-                self._deferred_tasks.add(task)
-                task.add_done_callback(self._deferred_tasks.discard)
-            else:
-                _LOGGER.debug(
-                    "Deferred task limit reached (%d/%d), skipping deferred update for %s",
-                    len(self._deferred_tasks),
-                    DEFERRED_TASK_LIMIT,
-                    appliance_id,
-                )
+                app_obj.update(status)
+
+                # Update connectivity state
+                new_state = status.get("connectivityState", "connected")
+                app_obj.state["connectivityState"] = new_state
+                self._last_known_connectivity[app_id] = new_state
+
+                # Update last seen time
+                self._last_update_times[app_id] = self.hass.loop.time()
+                return True
+            except Exception as ex:
+                _LOGGER.debug(f"Failed to refresh {app_id}: {ex}")
+                return False
+
+        # Run all updates concurrently
+        results = await asyncio.gather(
+            *(_update_single(aid, aobj) for aid, aobj in app_dict.items()),
+            return_exceptions=True,
+        )
+
+        successful = sum(1 for r in results if r is True)
+        _LOGGER.info(
+            f"Refreshed {successful}/{len(app_dict)} appliances after SSE reconnection"
+        )
+
+        # Notify HA of state changes
+        self.async_set_updated_data(self.data)
 
     async def listen_websocket(self) -> None:
         """Listen for state changes."""
@@ -680,6 +719,20 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
+
+            # Trigger full state refresh after SSE (re)connects
+            # This ensures we catch any state changes that occurred during disconnection
+            _LOGGER.info(
+                "SSE connected - refreshing all appliance states to sync after reconnection"
+            )
+            try:
+                await self._refresh_all_appliances()
+            except Exception as ex:
+                _LOGGER.warning(
+                    f"Failed to refresh appliance states after SSE reconnection: {ex}"
+                )
+                # Don't raise - SSE is connected and working, refresh failure is not critical
+
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
@@ -1584,6 +1637,23 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                                     f"Removed appliance {appliance_id} from tracking"
                                 )
 
+                    # Clean up tracking dictionaries to prevent memory leaks
+                    for appliance_id in truly_removed_ids:
+                        # Clean up update time tracking
+                        self._last_update_times.pop(appliance_id, None)
+                        # Clean up connectivity tracking
+                        self._last_known_connectivity.pop(appliance_id, None)
+                        # Clean up time tracking
+                        self._last_time_to_end.pop(appliance_id, None)
+                        # Cancel and clean up any deferred tasks
+                        if appliance_id in self._deferred_tasks_by_appliance:
+                            task = self._deferred_tasks_by_appliance.pop(appliance_id)
+                            if not task.done():
+                                task.cancel()
+                        _LOGGER.debug(
+                            f"Cleaned up tracking dictionaries for removed appliance {appliance_id}"
+                        )
+
                     # Trigger entity registry cleanup
                     self.async_set_updated_data(self.data)
                 else:
@@ -1611,6 +1681,42 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 appliance_name,
                 appliance_id,
             )
+
+            # Check if appliance has minimal data (no capabilities = needs full reload)
+            appliance_data = self.data.get(appliance_id, {})
+            has_capabilities = bool(appliance_data.get("capabilities"))
+
+            if not has_capabilities:
+                _LOGGER.warning(
+                    "Appliance %s (%s) has minimal data (no capabilities). "
+                    "Manual sync will trigger full integration reload to recreate entities.",
+                    appliance_name,
+                    appliance_id,
+                )
+                _LOGGER.info(
+                    "Triggering integration reload to recover entities for appliance %s (%s)",
+                    appliance_name,
+                    appliance_id,
+                )
+                try:
+                    await self.hass.config_entries.async_reload(
+                        self.config_entry.entry_id
+                    )
+                    _LOGGER.info(
+                        "Integration reload initiated successfully for appliance %s (%s)",
+                        appliance_name,
+                        appliance_id,
+                    )
+                    return  # Reload will recreate everything, no need to continue
+                except Exception as ex:
+                    error_msg = f"Failed to reload integration: {ex}"
+                    _LOGGER.error(
+                        "Integration reload failed for appliance %s (%s): %s",
+                        appliance_name,
+                        appliance_id,
+                        ex,
+                    )
+                    raise HomeAssistantError(error_msg) from ex
 
             # Check if we're within the manual sync cooldown period (1 minute)
             current_time = self.hass.loop.time()

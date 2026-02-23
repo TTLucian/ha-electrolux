@@ -125,6 +125,22 @@ ICON_CHEF_HAT = "mdi:chef-hat"
 ICON_REMOTE = "mdi:remote"
 ICON_TIMELAPSE = "mdi:timelapse"
 
+# Temperature fallback constants (when API doesn't provide values)
+# Oven temperature fallbacks
+TEMP_OVEN_MAX_C = 230.0  # Typical oven maximum temperature in Celsius
+TEMP_OVEN_MAX_F = 446.0  # Typical oven maximum temperature in Fahrenheit (~230°C)
+TEMP_OVEN_MIN_C = 35.0  # Typical oven minimum temperature in Celsius
+TEMP_OVEN_STEP = 5.0  # Typical oven temperature step increment
+
+# Food probe temperature fallbacks
+TEMP_PROBE_MAX_C = 99.0  # Typical food probe maximum in Celsius
+TEMP_PROBE_MAX_F = 210.0  # Typical food probe maximum in Fahrenheit (~99°C)
+
+# Default number entity fallbacks (for non-temperature entities)
+DEFAULT_NUMBER_MAX = 100.0
+DEFAULT_NUMBER_MIN = 0.0
+DEFAULT_NUMBER_STEP = 1.0
+
 # Type definitions
 AlertType = Literal[
     "CHECK_DOOR",

@@ -99,7 +99,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 
 ### 🏷️ Device Types
 
-**🍳 Ovens** - tested
+**🍳 Ovens and Steam Ovens** - tested
 - Electrolux SteamBake series
 - AEG SteamBake and AssistedCooking series
 - Real-time temperature monitoring
@@ -423,6 +423,84 @@ For device-specific issues or when certain features aren't working as expected, 
 - Feature requests for specific appliance capabilities
 
 Include this file when reporting issues - it helps identify device-specific problems quickly!
+
+## 🔧 Troubleshooting
+
+### Missing Entities / "No Entities After Reinstall"
+
+**Symptoms:**
+- Appliance shows only 7 basic entities (network command buttons, connectivity sensor, manual sync button)
+- Missing functional entities (applianceState, doorState, program selects, temperature controls, etc.)
+- Previously working appliance suddenly has minimal entities
+- Reinstalling integration doesn't help
+
+**Root Cause:**
+This occurs when the integration creates a "minimal appliance" due to API communication issues during setup:
+
+1. **When It Happens:** During Home Assistant startup/restart, integration reload, or token refresh, if the Electrolux API times out or token refresh fails
+2. **Safety Mechanism:** Instead of losing the appliance entirely, the integration creates a minimal entry with basic catalog entities
+3. **The Problem:** Regular update cycles (every 6 hours) only refresh existing entity *state* - they don't check for or create missing entities
+4. **Result:** The appliance stays "minimal" with only 7 entities until manual intervention
+
+**Why Reinstalling Doesn't Help:**
+Reinstalling the integration doesn't fix the issue because:
+- The problem is in the integration's recovery logic (fixed in v3.3.1+), not your configuration
+- If you reinstall during an API timeout or token issue, you'll get another minimal appliance
+- Entity creation happens only once during setup; reinstalling under the same conditions recreates the same problem
+
+**Solution - Upgrade to v3.3.1+ (Recommended):**
+
+Versions 3.3.1 and later include automatic recovery for this issue:
+
+1. **Upgrade** to the latest version via HACS
+2. **Restart Home Assistant**
+3. **Press the "Manual Sync" button** on the affected appliance device
+4. The integration will automatically:
+   - Detect the minimal appliance condition (no capabilities data)
+   - Trigger a full integration reload
+   - Recreate all missing entities properly
+
+**Manual Workaround (for v3.3.0 and earlier):**
+
+If you cannot upgrade immediately:
+
+1. **Wait for API Stability:** Ensure your network connection is stable and working
+2. **Remove Integration:**
+   - Go to Settings → Devices & Services → Electrolux
+   - Click the three dots → "Delete"
+3. **Restart Home Assistant** (ensures clean state)
+4. **Re-add Integration:**
+   - Add the Electrolux integration again
+   - Enter your API credentials
+   - Integration will fetch full appliance data and create all entities
+
+**Prevention:**
+- Keep your integration updated to the latest version
+- Ensure stable network connection during Home Assistant restarts
+- The fix in v3.3.1+ includes:
+  - Token refresh race condition fix (prevents entity recreation during problematic moments)
+  - Automatic minimal appliance detection and recovery via Manual Sync button
+
+**How to Verify You're Affected:**
+
+For dishwashers, you should have 20+ entities including:
+- `sensor.{name}_appliance_state` (RUNNING/IDLE/PAUSED)
+- `binary_sensor.{name}_door_state` (OPEN/CLOSED)
+- `sensor.{name}_cycle_phase` (MAINWASH/RINSE/DRYING)
+- `sensor.{name}_time_to_end`
+- `select.{name}_program` (ECO/INTENSIVE/QUICK)
+- `switch.{name}_extra_power_option`
+- `number.{name}_rinse_aid_level`
+- And more...
+
+If you only see network command buttons and a connectivity sensor, you have a minimal appliance.
+
+**Still Having Issues?**
+
+If the above solutions don't resolve your issue:
+1. [Download diagnostics](#-json-diagnostics-for-device-issues) from your integration
+2. Check the diagnostic JSON for `"capabilities": {}` or missing capabilities data
+3. Report the issue on [GitHub Issues](https://github.com/TTLucian/ha-electrolux/issues) with your diagnostic file
 
 ## 🧪 Testing Scripts
 

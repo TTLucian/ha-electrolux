@@ -121,7 +121,8 @@ def _get_catalog_by_type():
     the base catalog with features unique to each appliance type.
 
     Supported appliance types:
-    - OV: Oven - includes temperature, program, and timing controls
+    - OV: Oven - includes temperature, program, timing controls, and steam features
+    - SO: Steam Oven - uses same catalog as OV (steam entities auto-created from capabilities)
     - RF: Refrigerator - includes temperature zones and alerts
     - WM: Washing Machine - includes cycle programs and options
     - WD: Washer-Dryer - combines washing and drying functionality
@@ -135,6 +136,7 @@ def _get_catalog_by_type():
     """
     return {
         "OV": _get_catalog_oven(),  # Oven
+        "SO": _get_catalog_oven(),  # Steam Oven (uses oven catalog, steam entities created from API)
         "RF": _get_catalog_refrigerator()[0],  # Refrigerator
         "WM": _get_catalog_washer(),  # Washing Machine
         "WD": _get_catalog_washer_dryer(),  # Washer-Dryer

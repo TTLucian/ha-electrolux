@@ -263,7 +263,7 @@ class TestElectroluxNumber:
         assert entity.native_max_value == 120  # 7200 seconds = 120 minutes
 
     def test_native_max_value_temperature_fallback_celsius(self, mock_coordinator):
-        """Test targetTemperatureC gets proper fallback max (250°C)."""
+        """Test targetTemperatureC gets proper fallback max (230°C)."""
         capability = {"access": "readwrite", "type": "temperature"}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -282,10 +282,10 @@ class TestElectroluxNumber:
         )
         entity._get_program_constraint = MagicMock(return_value=None)
         entity._is_locked_by_program = MagicMock(return_value=False)
-        assert entity.native_max_value == 250.0
+        assert entity.native_max_value == 230.0
 
     def test_native_max_value_temperature_fallback_fahrenheit(self, mock_coordinator):
-        """Test targetTemperatureF gets proper fallback max (500°F)."""
+        """Test targetTemperatureF gets proper fallback max (446°F)."""
         capability = {"access": "readwrite", "type": "temperature"}
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -304,7 +304,7 @@ class TestElectroluxNumber:
         )
         entity._get_program_constraint = MagicMock(return_value=None)
         entity._is_locked_by_program = MagicMock(return_value=False)
-        assert entity.native_max_value == 500.0
+        assert entity.native_max_value == 446.0
 
     def test_native_max_value_food_probe_fallback_celsius(self, mock_coordinator):
         """Test targetFoodProbeTemperatureC gets proper fallback max (99°C)."""

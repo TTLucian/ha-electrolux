@@ -9,7 +9,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, NUMBER
+from .const import (
+    DEFAULT_NUMBER_MAX,
+    DEFAULT_NUMBER_MIN,
+    DEFAULT_NUMBER_STEP,
+    DOMAIN,
+    NUMBER,
+    TEMP_OVEN_MAX_C,
+    TEMP_OVEN_MAX_F,
+    TEMP_OVEN_MIN_C,
+    TEMP_OVEN_STEP,
+    TEMP_PROBE_MAX_C,
+    TEMP_PROBE_MAX_F,
+)
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .util import (
@@ -363,27 +375,30 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if key == "max":
             # Temperature entities need proper fallback max values
             if self.entity_attr == "targetTemperatureC":
-                return float(val or 250.0)  # Typical oven max temp
+                return float(val or TEMP_OVEN_MAX_C)
             elif self.entity_attr == "targetTemperatureF":
-                return float(val or 500.0)  # ~260°C equivalent
+                return float(val or TEMP_OVEN_MAX_F)
             elif self.entity_attr == "targetFoodProbeTemperatureC":
-                return float(val or 99.0)  # Typical probe max
+                return float(val or TEMP_PROBE_MAX_C)
             elif self.entity_attr == "targetFoodProbeTemperatureF":
-                return float(val or 210.0)  # ~99°C equivalent
-            return float(val or 100.0)
+                return float(val or TEMP_PROBE_MAX_F)
+            return float(val or DEFAULT_NUMBER_MAX)
         elif key == "min":
             if self.entity_attr == "targetTemperatureC":
-                return float(val or 30.0)
-            return float(val or 0.0)
+                return float(val or TEMP_OVEN_MIN_C)
+            return float(val or DEFAULT_NUMBER_MIN)
         elif key == "step":
             # Never return 0 for step to prevent schema validation errors
             # Entity locking is enforced by min=max, not step=0
             if val is not None and val != 0:
                 return float(val)
-            return 1.0
+            # Use oven-specific step for temperature controls
+            if self.entity_attr in ["targetTemperatureC", "targetTemperatureF"]:
+                return TEMP_OVEN_STEP
+            return DEFAULT_NUMBER_STEP
         if val is None and self.capability:
             val = self.capability.get(key)
-        return float(val or 1.0)
+        return float(val or DEFAULT_NUMBER_STEP)
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
