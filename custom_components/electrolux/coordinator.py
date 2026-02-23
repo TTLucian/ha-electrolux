@@ -1699,6 +1699,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     appliance_id,
                 )
                 try:
+                    if self.config_entry is None:
+                        raise HomeAssistantError("Config entry is not available")
+
                     await self.hass.config_entries.async_reload(
                         self.config_entry.entry_id
                     )
