@@ -165,38 +165,6 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
         # that only the API can accurately validate. Error handling in util.py displays friendly messages.
 
-        # Validate command based on appliance state for executeCommand
-        if self.entity_attr == "executeCommand":
-            current_state = None
-            if self.appliance_status:
-                reported = self.appliance_status.get("properties", {}).get(
-                    "reported", {}
-                )
-                # Check for applianceState first, then executionState for dishwashers
-                current_state = reported.get("applianceState") or reported.get(
-                    "executionState"
-                )
-            if self.val_to_send == "STOPRESET":
-                if current_state not in ["RUNNING", "PAUSED", "DELAYED_START"]:
-                    _LOGGER.warning(
-                        "Cannot send STOPRESET command to appliance %s in state %s",
-                        self.pnc_id,
-                        current_state,
-                    )
-                    raise HomeAssistantError(
-                        f"Cannot stop appliance in current state ({current_state}). Appliance must be running, paused, or have a delayed start."
-                    )
-            elif self.val_to_send == "START":
-                if current_state not in ["READY_TO_START", "END_OF_CYCLE"]:
-                    _LOGGER.warning(
-                        "Cannot send START command to appliance %s in state %s",
-                        self.pnc_id,
-                        current_state,
-                    )
-                    raise HomeAssistantError(
-                        f"Cannot start appliance in current state ({current_state}). Appliance must be ready to start or at end of cycle."
-                    )
-
         client: ElectroluxApiClient = self.api
         value = self.val_to_send
         command: dict[str, Any]

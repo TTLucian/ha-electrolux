@@ -722,9 +722,16 @@ def map_command_error_to_home_assistant_error(
                     )
                     if detail:
                         detail_lower = str(detail).lower()
+                        # Try pattern-based parsing first
                         detail_message = _parse_error_detail_for_user_message(
                             detail_lower, capability
                         )
+                        # If no pattern matched but we have a detail, use the raw API response
+                        if (
+                            not detail_message
+                            and str(detail) != "Command validation failed"
+                        ):
+                            detail_message = f"Command not accepted: {detail}"
 
             except Exception:
                 # If detail parsing fails, continue with generic message
@@ -797,9 +804,16 @@ def map_command_error_to_home_assistant_error(
                         )
                         if detail:
                             detail_lower = str(detail).lower()
+                            # Try pattern-based parsing first
                             detail_message = _parse_error_detail_for_user_message(
                                 detail_lower, capability
                             )
+                            # If no pattern matched but we have a detail, use the raw API response
+                            if (
+                                not detail_message
+                                and str(detail) != "Command validation failed"
+                            ):
+                                detail_message = f"Command not accepted: {detail}"
                 # If detail parsing fails, continue with generic message
                 except Exception:
                     pass  # Detail parsing failed, use generic message
@@ -891,8 +905,15 @@ def map_command_error_to_home_assistant_error(
         detail_msg = None
         if error_data and isinstance(error_data, dict):
             detail = error_data.get("detail") or error_data.get("message")
-            if detail and detail != "Command validation failed":
-                detail_msg = f"Command not accepted: {detail}"
+            if detail:
+                detail_lower = str(detail).lower()
+                # Try pattern-based parsing first
+                detail_msg = _parse_error_detail_for_user_message(
+                    detail_lower, capability
+                )
+                # If no pattern matched but we have a detail, use the raw API response
+                if not detail_msg and str(detail) != "Command validation failed":
+                    detail_msg = f"Command not accepted: {detail}"
 
         if not detail_msg:
             # Fallback: try to extract useful info from exception string

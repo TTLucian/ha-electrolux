@@ -86,6 +86,25 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         """Return the state of the sensor."""
         value = self.extract_value()
 
+        # Special handling for load weight sensors: filter out error codes
+        if self.entity_attr == "fcOptisenseLoadWeight":
+            if value is not None and isinstance(value, (int, float)):
+                # Values 65408-65532 are error/status codes, not actual weights
+                # Valid weight range is 0-20000 grams per API specification
+                if 65408 <= value <= 65532:
+                    _LOGGER.debug(
+                        "Load weight sensor %s has error/status code: %s (hiding value)",
+                        self.entity_attr,
+                        value,
+                    )
+                    return None
+                # Also filter out string error codes
+            elif isinstance(value, str) and value in [
+                "NOT_AVAILABLE",
+                "OVERLOAD",
+            ]:
+                return None
+
         # Special handling for timeToEnd sensors: return seconds for countdown display
         if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
             if value is None or not isinstance(value, (int, float)):

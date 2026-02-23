@@ -330,7 +330,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:help-circle",
-        friendly_name="Program",
+        friendly_name="Program (Active)",
     ),
     # User Selections - Number controls
     "userSelections/antiCreaseValue": ElectroluxDevice(
@@ -346,7 +346,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:hanger",
-        friendly_name="Anti-Crease Duration",
+        friendly_name="Anti-Crease (Active)",
     ),
     "userSelections/dryingTime": ElectroluxDevice(
         capability_info={
@@ -361,7 +361,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:clock-outline",
-        friendly_name="Timed Drying",
+        friendly_name="Timed Drying (Active)",
     ),
     # User Selections - Select controls
     "userSelections/humidityTarget": ElectroluxDevice(
@@ -380,7 +380,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:water-percent",
-        friendly_name="Dryness Level (Humidity Target)",
+        friendly_name="Humidity Target (Active)",
     ),
     "userSelections/drynessValue": ElectroluxDevice(
         capability_info={
@@ -397,7 +397,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:water-percent",
-        friendly_name="Dryness Intensity",
+        friendly_name="Dryness Level (Active)",
     ),
     "userSelections/steamValue": ElectroluxDevice(
         capability_info={
@@ -525,7 +525,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:cog",
-        friendly_name="Cycle Personalization Program",
+        friendly_name="Default: Program",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/antiCreaseValue": ElectroluxDevice(
@@ -541,7 +541,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:hanger",
-        friendly_name="Cycle Personalization Anti-Crease",
+        friendly_name="Default: Anti-Crease",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/dryingTime": ElectroluxDevice(
@@ -557,7 +557,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:clock-outline",
-        friendly_name="Cycle Personalization Drying Time",
+        friendly_name="Default: Timed Drying",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/humidityTarget": ElectroluxDevice(
@@ -576,7 +576,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:water-percent",
-        friendly_name="Cycle Personalization Humidity Target",
+        friendly_name="Default: Humidity Target",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/drynessValue": ElectroluxDevice(
@@ -594,7 +594,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:water-percent",
-        friendly_name="Cycle Personalization Dryness",
+        friendly_name="Default: Dryness Level",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/reversePlus": ElectroluxDevice(
@@ -607,7 +607,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:rotate-3d-variant",
-        friendly_name="Cycle Personalization Reverse Plus",
+        friendly_name="Default: Reverse Plus",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/tDEconomy_Eco": ElectroluxDevice(
@@ -620,7 +620,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:leaf",
-        friendly_name="Cycle Personalization Eco",
+        friendly_name="Default: Eco Mode",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/tDEconomy_Night": ElectroluxDevice(
@@ -633,7 +633,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:weather-night",
-        friendly_name="Cycle Personalization Night",
+        friendly_name="Default: Night Mode",
         entity_registry_enabled_default=False,
     ),
     "cyclePersonalization/tDEconomy_Quick": ElectroluxDevice(
@@ -646,7 +646,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:lightning-bolt",
-        friendly_name="Cycle Personalization Quick",
+        friendly_name="Default: Quick Mode",
         entity_registry_enabled_default=False,
     ),
     # Software versions (diagnostic)

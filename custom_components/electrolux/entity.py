@@ -473,6 +473,17 @@ class ElectroluxEntity(CoordinatorEntity):
         # Use catalog entry value if available, otherwise default to True
         if self._catalog_entry:
             return self._catalog_entry.entity_registry_enabled_default
+
+        # Hide DWYW (Dry-What-You-Wash) entities by default - they're only relevant
+        # when a washer is communicating with a dryer, not for standalone appliances
+        entity_path = (
+            f"{self.entity_source}/{self.entity_attr}"
+            if self.entity_source
+            else self.entity_attr
+        )
+        if "dwyw" in entity_path.lower():
+            return False
+
         return True
 
     # @property
@@ -772,6 +783,7 @@ class ElectroluxEntity(CoordinatorEntity):
         # Compute support status
         if self.entity_attr in [
             "program",
+            "programUID",  # Always support programUID (entity_attr without source prefix)
             "userSelections/programUID",
         ]:
             self._is_supported_cache = True
@@ -801,8 +813,19 @@ class ElectroluxEntity(CoordinatorEntity):
             self._is_supported_cache = True
             return True  # If no program caps found, assume supported
 
+        # Build the full capability path (entity_source/entity_attr)
+        # Program capabilities use full paths like "userSelections/humidityTarget"
+        full_entity_path = (
+            f"{self.entity_source}/{self.entity_attr}"
+            if self.entity_source
+            else self.entity_attr
+        )
+
         # If the entity is not in the program capabilities, it's not supported
-        if self.entity_attr not in program_caps:
+        if (
+            full_entity_path not in program_caps
+            and self.entity_attr not in program_caps
+        ):
             # Special check for targetDuration: always available regardless of program
             if self.entity_attr == "targetDuration":
                 self._is_supported_cache = True
@@ -810,8 +833,10 @@ class ElectroluxEntity(CoordinatorEntity):
             self._is_supported_cache = False
             return False
 
-        # Start with the base disabled state from program capabilities
-        entity_cap = program_caps[self.entity_attr]
+        # Get the entity capability definition (try full path first, then just attr)
+        entity_cap = program_caps.get(full_entity_path) or program_caps.get(
+            self.entity_attr
+        )
         disabled = False
         if isinstance(entity_cap, dict):
             disabled = entity_cap.get("disabled", False)
