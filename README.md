@@ -376,8 +376,8 @@ Choose one of the two methods below:
 Best for capturing issues happening right now without a restart.
 
 - Go to Settings > Devices & Services.
-- Locate the Electrolux card.
-- Click the three dots (⋮) and select Enable debug logging.
+- Click the Electrolux card.
+- Click the three dots (⋮) in the upper right of the page and select Enable debug logging.
 - Reproduce the issue (e.g., try to trigger a device command).
 - Go back to the card and click Disable debug logging.
 - The log file will automatically download to your computer.
