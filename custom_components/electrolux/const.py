@@ -39,9 +39,9 @@ DEFAULT_WEBSOCKET_RENEWAL_DELAY = (
 
 # these are attributes that appear in the state file but not in the capabilities.
 # defining them here and in the catalog will allow these devices to be added dynamically
+# NOTE: networkInterface/linkQualityIndicator is now discovered via API capabilities (no longer needs to be here)
 STATIC_ATTRIBUTES = [
     "connectivityState",  # Appliance connectivity status
-    "networkInterface/linkQualityIndicator",
     "applianceMode",
     "applianceState",  # Appliance operational state
 ]
@@ -57,18 +57,24 @@ icon_mapping = {
 }
 
 # List of attributes to ignore and that won't be added as entities (regex format)
+# NOTE: networkInterface parent is NOT blocked here - safe children (linkQualityIndicator, swVersion, otaState)
+# are allowed through catalog, while dangerous ones (command, startUpCommand) are blocked by DANGEROUS_ENTITIES_BLACKLIST
 ATTRIBUTES_BLACKLIST: list[str] = [
-    "^fCMiscellaneous.+",
-    "fcOptisenseLoadWeight.*",
-    "applianceCareAndMaintenance.*",
-    "applianceMainBoardSwVersion",
-    "coolingValveState",
-    "networkInterface",
-    "temperatureRepresentation",
-    "^fPPN_OV.+",
+    "^fCMiscellaneous.+",  # Block fCMiscellaneous from API; whitelist allows specific children (waterUsage, tankAReserve, tankBReserve)
+    "fcOptisenseLoadWeight.*",  # Catalog-only with special error code filtering in sensor.py
+    "applianceMainBoardSwVersion",  # Catalog-only diagnostic info (disabled by default)
+    "coolingValveState",  # Catalog-only exposure for refrigerators
 ]
 
 ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBReserve"]
+
+# Dangerous entities that should NEVER be created (even if in catalog or API)
+# These control low-level system functions that can permanently damage appliance functionality
+# Pattern matching is case-sensitive and uses regex format
+DANGEROUS_ENTITIES_BLACKLIST: list[str] = [
+    r"^networkInterface/startUpCommand$",  # Contains UNINSTALL - can factory reset network module
+    r"^networkInterface/command$",  # Contains APPLIANCE_AUTHORIZE, USER_*AUTHORIZE - can unpair appliance
+]
 
 # Rules to simplify the naming of entities
 RENAME_RULES: list[str] = [

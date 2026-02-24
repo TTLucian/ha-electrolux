@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature, UnitOfTime
+from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -243,9 +243,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         - Program has step=0 (indicating no adjustment allowed)
         - Program doesn't include this entity in its capabilities (not supported)
 
+        Configuration entities (EntityCategory.CONFIG) are NEVER locked - they're appliance
+        settings that persist across programs and don't depend on cycle state.
+
         Returns:
             bool: True if entity should be locked (read-only), False if adjustable
         """
+        # Configuration entities are never locked by program state
+        # These are appliance settings (rinseAidLevel, waterHardness, etc.) that should
+        # always be accessible regardless of what program is running or if appliance is OFF
+        if self._entity_category == EntityCategory.CONFIG:
+            return False
+
         # Program and global duration/time entities are never locked
         if self.entity_attr in ["program", "targetDuration", "startTime"]:
             return False

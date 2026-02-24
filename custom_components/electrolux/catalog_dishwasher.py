@@ -94,7 +94,7 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.CONFIG,  # Configuration entity, not cycle-dependent
         entity_icon="mdi:cup-water",
     ),
     # Water hardness
@@ -142,6 +142,8 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
             "values": {
                 "OFF": {},
                 "ON": {},
+                "GREEN": {},  # GlassCare 700 and similar models
+                "RED": {},  # Additional color option
             },
         },
         device_class=None,

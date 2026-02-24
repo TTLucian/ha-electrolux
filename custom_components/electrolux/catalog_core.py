@@ -263,7 +263,7 @@ def _get_catalog_base():
             },
             device_class=None,
             unit=None,
-            entity_category=EntityCategory.DIAGNOSTIC,  # DIAGNOSTIC for read-only sensors, CONFIG when readwrite
+            entity_category=EntityCategory.CONFIG,  # User-configurable temperature display preference
             entity_icon="mdi:thermometer-lines",
             friendly_name="Temperature Unit",
         ),
@@ -283,6 +283,8 @@ def _get_catalog_base():
             friendly_name="Link Quality",
             icon="mdi:wifi",
         ),
+        # SECURITY: This entity is blocked by DANGEROUS_ENTITIES_BLACKLIST for safety
+        # Contains authorization commands that can unpair appliances
         "networkInterface/command": ElectroluxDevice(
             capability_info={
                 "access": "write",
@@ -329,6 +331,8 @@ def _get_catalog_base():
             friendly_name="OTA State",
             icon="mdi:update",
         ),
+        # SECURITY: This entity is blocked by DANGEROUS_ENTITIES_BLACKLIST for safety
+        # Contains UNINSTALL command that can factory reset the network module
         "networkInterface/startUpCommand": create_config_entity(
             capability_info={
                 "access": "write",

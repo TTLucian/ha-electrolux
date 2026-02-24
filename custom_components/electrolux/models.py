@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import re
 from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
@@ -21,6 +22,7 @@ from .const import (
     BINARY_SENSOR,
     BUTTON,
     CLIMATE,
+    DANGEROUS_ENTITIES_BLACKLIST,
     NUMBER,
     PLATFORMS,
     SELECT,
@@ -567,13 +569,27 @@ class Appliance:
         # Add catalog entities that have capability_info defined, even if not in API capabilities
         # This ensures entities like targetDuration are always created for applicable appliance types
         for catalog_key, catalog_item in self.catalog.items():
+            # SECURITY: Skip dangerous entities that could damage appliance functionality
+            # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
+            is_dangerous = any(
+                re.match(pattern, catalog_key)
+                for pattern in DANGEROUS_ENTITIES_BLACKLIST
+            )
+            if is_dangerous:
+                _LOGGER.info(
+                    "Skipping dangerous entity %s - blocked by DANGEROUS_ENTITIES_BLACKLIST for safety",
+                    catalog_key,
+                )
+                continue
+
             if catalog_item.capability_info and catalog_key not in capabilities_names:
                 # Special case: manualSync button should always be created for all appliances
                 # It's a local operation that doesn't depend on API capabilities
                 is_always_created_entity = catalog_key in ["manualSync"]
 
                 # Check if entity is in appliance state
-                attr_in_reported = catalog_key in self.reported_state
+                # Use get_state() to properly handle nested paths with slashes (e.g., "networkInterface/linkQualityIndicator")
+                attr_in_reported = self.get_state(catalog_key) is not None
                 attr_at_top_level = (
                     self.state.get(catalog_key) is not None if self.state else False
                 )
@@ -622,6 +638,19 @@ class Appliance:
         # For each capability src
         if capabilities_names:
             for capability in capabilities_names:
+                # SECURITY: Skip dangerous entities that could damage appliance functionality
+                # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
+                is_dangerous = any(
+                    re.match(pattern, capability)
+                    for pattern in DANGEROUS_ENTITIES_BLACKLIST
+                )
+                if is_dangerous:
+                    _LOGGER.info(
+                        "Skipping dangerous entity %s from API capabilities - blocked by DANGEROUS_ENTITIES_BLACKLIST for safety",
+                        capability,
+                    )
+                    continue
+
                 if entity := self.get_entity(capability):
                     entities.extend(list(entity))
                 else:

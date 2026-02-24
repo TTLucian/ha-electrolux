@@ -88,6 +88,60 @@ All appliances must be:
    - Refresh Token
 5. The integration will automatically discover and add your appliances
 
+## ⚠️ Important: Entity Management
+
+**The integration creates ALL entities reported by the Electrolux API, even if they are not useful or not implemented in your appliance's firmware.**
+
+### What This Means For You
+
+After setup, you may see many entities that:
+- Have no value or show "unknown" status
+- Are not actually implemented in your appliance's firmware
+- Are for diagnostic or maintenance purposes that you don't need
+
+**This is intentional behavior.** The integration gives you full visibility into everything the API reports, allowing you to decide what's useful for your needs.
+
+### � Automatic Security Protection
+
+**The integration automatically blocks dangerous entities that could damage your appliances.**
+
+Certain API-reported entities control low-level system functions that can permanently damage appliance functionality. These are **automatically blocked** and will never be created:
+
+- **Network Interface Commands**: Authorization commands that can unpair your appliance from your account
+- **Start Up Commands**: Commands like UNINSTALL that can factory reset the network module
+
+**Examples of blocked entities:**
+- `button.oven_network_interface_start_up_command_uninstall`
+- `button.[appliance]_network_interface_command_appliance_authorize`
+- `button.[appliance]_network_interface_command_user_authorize`
+
+**You won't see these entities** - they are filtered at the code level for your protection. This prevents accidental activation through dashboards, automations, or voice assistants that could:
+- Factory reset your appliance
+- Break network connectivity permanently
+- Unpair the appliance from your account
+- Require professional service to restore functionality
+
+The security blacklist is maintained in the codebase and updated as new dangerous entities are discovered.
+
+### Recommended Actions for Other Entities
+
+While dangerous entities are automatically blocked, you may still want to clean up other unnecessary entities:
+
+1. **After initial setup**, review all entities for your appliances
+2. **Disable any entities** that:
+   - Show "unknown" or empty values consistently
+   - Are not relevant to your daily use (diagnostic sensors you don't need)
+3. **Keep only the entities you actually need** for monitoring and control
+
+**How to disable entities:**
+1. Go to **Settings** → **Devices & Services** → **Entities**
+2. Search for your appliance name
+3. Click on the entity you want to disable
+4. Click the **Disable** button
+5. Confirm the action
+
+**Note:** Disabled entities remain in Home Assistant's database but won't be updated or visible in your dashboards. You can re-enable them later if needed.
+
 ## 🔌 Supported Appliances
 
 This integration works with Electrolux and Electrolux-owned brands (AEG, Frigidaire, +home) across multiple regions:

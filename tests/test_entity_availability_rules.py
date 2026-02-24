@@ -102,7 +102,7 @@ class TestEntityAvailabilityRules:
             capability=mock_capability_temperature,
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass
@@ -140,7 +140,7 @@ class TestEntityAvailabilityRules:
             capability=capability_no_min,
             unit=None,
             device_class=None,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:counter",
         )
         entity.hass = mock_coordinator.hass
@@ -172,7 +172,7 @@ class TestEntityAvailabilityRules:
             capability=mock_capability_temperature,
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass
@@ -211,7 +211,7 @@ class TestEntityAvailabilityRules:
             },
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass
@@ -391,7 +391,7 @@ class TestEntityAvailabilityRules:
             },
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer",
         )
         temp_entity.hass = mock_coordinator.hass
@@ -419,7 +419,7 @@ class TestEntityAvailabilityRules:
             },
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer-probe",
         )
         probe_entity.hass = mock_coordinator.hass
@@ -453,7 +453,7 @@ class TestEntityAvailabilityRules:
             capability=mock_capability_temperature,
             unit=UnitOfTemperature.CELSIUS,
             device_class=NumberDeviceClass.TEMPERATURE,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer",
         )
         temp_entity.hass = mock_coordinator.hass

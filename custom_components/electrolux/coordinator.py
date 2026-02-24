@@ -386,7 +386,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             new_value = data[VALUE_KEY]
             old_value = self._last_time_to_end.get(appliance_id)
 
-            _LOGGER.info(
+            _LOGGER.debug(
                 f"[DEFERRED-DEBUG] SSE timeToEnd update for {appliance_id}: "
                 f"{old_value} -> {new_value}s (type: {type(new_value)})"
             )

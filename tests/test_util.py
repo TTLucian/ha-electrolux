@@ -278,6 +278,35 @@ class TestFormatCommandForAppliance:
             format_command_for_appliance(capability, "targetTemperatureC", 150) == 150
         )
 
+    def test_numeric_capability_misaligned_min_with_step(self):
+        """Test formatting numeric values when min is not aligned with step boundaries.
+        
+        Real-world case: AC unit with min=15.56°C (60°F), max=32.22°C (90°F), step=1.0
+        Valid values should be 16, 17, 18... not 15.56, 16.56, 17.56...
+        Fixes issue where setting 24°C was incorrectly calculated as 23.56°C.
+        """
+        capability = {"type": "temperature", "min": 15.56, "max": 32.22, "step": 1.0}
+
+        # Test value that should stay as-is (aligned with rounded min)
+        assert (
+            format_command_for_appliance(capability, "targetTemperatureC", 24) == 24.0
+        )
+        # Test another aligned value
+        assert (
+            format_command_for_appliance(capability, "targetTemperatureC", 20) == 20.0
+        )
+        # Test value at rounded min boundary
+        assert (
+            format_command_for_appliance(capability, "targetTemperatureC", 16) == 16.0
+        )
+        # Test value near max
+        assert (
+            format_command_for_appliance(capability, "targetTemperatureC", 30) == 30.0
+        )
+        # Test rounding behavior (24.5 should round to nearest step: 24.0 or 25.0)
+        result = format_command_for_appliance(capability, "targetTemperatureC", 24.5)
+        assert result in [24.0, 25.0]  # Either is acceptable depending on rounding
+
     def test_string_capability_with_values(self):
         """Test formatting string/enum values."""
         capability = {

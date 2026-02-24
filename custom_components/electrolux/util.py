@@ -1021,9 +1021,11 @@ def format_command_for_appliance(
             if step is not None:
                 step = float(step)
                 if step > 0:
-                    # For sliders, we still want to ensure step compliance
-                    # Calculate from a reasonable minimum (0 for most cases if min not specified)
+                    # Calculate step base, aligning min to nearest step boundary if needed
+                    # Example: min=15.56, step=1.0 -> step_base=16.0 (prevents calculating 23.56 from 24.0)
                     step_base = min_val if min_val is not None else 0
+                    # Align step_base to step boundaries (fixes misaligned API values like 15.56 with step 1.0)
+                    step_base = round(step_base / step) * step
                     steps_from_base = (numeric_value - step_base) / step
                     # Round to nearest valid step
                     numeric_value = step_base + round(steps_from_base) * step

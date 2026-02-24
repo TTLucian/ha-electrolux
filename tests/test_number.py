@@ -52,7 +52,7 @@ class TestElectroluxNumber:
             capability=mock_capability,
             unit=None,
             device_class=None,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:test",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
@@ -279,7 +279,7 @@ class TestElectroluxNumber:
             capability=capability,
             unit=UnitOfTemperature.CELSIUS,
             device_class="temperature",
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,  # Food probe is not a CONFIG entity
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
@@ -522,7 +522,7 @@ class TestElectroluxNumber:
             capability=capability,
             unit=UnitOfTemperature.CELSIUS,
             device_class="temperature",
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
@@ -558,7 +558,7 @@ class TestElectroluxNumber:
             capability=capability,
             unit=UnitOfTemperature.CELSIUS,
             device_class="temperature",
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
@@ -586,7 +586,7 @@ class TestElectroluxNumber:
             capability=capability,
             unit=UnitOfTemperature.CELSIUS,
             device_class="temperature",
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
