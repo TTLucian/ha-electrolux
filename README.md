@@ -396,9 +396,11 @@ logger:
 #### 2. Viewing and Filtering Raw Logs
 If you want to inspect the logs manually or copy specific lines:
 - Navigate to Settings > System > Logs.
-- Click the Load Full Logs button at the bottom of the page.
-- Use the search/filter bar in the top right corner and type electrolux.
+- Click the 3 dots in the upper right corner, click Show Raw Logs button.
+- Scroll the logs upwards a few times so that more log entries get loaded
+- Use the search/filter bar at the top and type electrolux.
 - This will hide all unrelated system noise, leaving only the Electrolux-specific entries.
+- Select, copy and paste in your issue editor the full text that is showing.
 
 #### 3. Sharing Logs on GitHub
 ##### How to Download
