@@ -1136,14 +1136,12 @@ class ElectroluxTokenManager(TokenManager):
         self._refresh_lock = asyncio.Lock()
         self._last_failed_refresh = 0  # Track failed refresh attempts
         self._consecutive_failures = 0  # Track consecutive refresh failures for backoff
-        self._last_check_time = time.time()  # Track for clock skew detection
         self._last_server_time: float | None = (
             None  # Server time from last successful API call
         )
         self._marked_needs_refresh = False  # Flag to bypass cooldown if refresh needed
         self._last_log_time = 0.0  # Cache timestamp for log throttling
         self._last_log_status = ""  # Cache last logged status
-        self._last_time_jump_log = 0.0  # Track last time jump warning
 
     def is_token_valid(self) -> bool:
         """Check token validity with 15-minute proactive refresh buffer.
@@ -1174,19 +1172,6 @@ class ElectroluxTokenManager(TokenManager):
                 return False
 
             current_time = time.time()
-
-            # Clock skew detection - throttle to once per hour
-            time_jump = abs(current_time - self._last_check_time)
-            if time_jump > 3600:  # More than 1 hour jump
-                # Only log if we haven't logged a time jump in the last hour
-                time_since_last_jump_log = current_time - self._last_time_jump_log
-                if time_since_last_jump_log > 3600 or self._last_time_jump_log == 0.0:
-                    _LOGGER.warning(
-                        f"[TOKEN-CHECK] Large time jump detected ({time_jump:.0f}s), "
-                        f"possible clock adjustment or system sleep - token validity may be affected"
-                    )
-                    self._last_time_jump_log = current_time
-            self._last_check_time = current_time
 
             # 900 seconds = 15 minutes proactive refresh buffer
             # (vs SDK's default 60 seconds)

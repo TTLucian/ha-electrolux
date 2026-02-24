@@ -87,6 +87,14 @@ def _get_catalog_microwave():
     return CATALOG_MICROWAVE
 
 
+@lru_cache(maxsize=None)
+def _get_catalog_steam_oven():
+    """Lazy load steam oven catalog."""
+    from .catalog_steam_oven import CATALOG_STEAM_OVEN
+
+    return CATALOG_STEAM_OVEN
+
+
 # definitions of model explicit overrides. These will be used to
 # create a new catalog with a merged definition of properties
 @lru_cache(maxsize=1)
@@ -121,8 +129,8 @@ def _get_catalog_by_type():
     the base catalog with features unique to each appliance type.
 
     Supported appliance types:
-    - OV: Oven - includes temperature, program, timing controls, and steam features
-    - SO: Steam Oven - uses same catalog as OV (steam entities auto-created from capabilities)
+    - OV: Oven - includes temperature, program, timing controls
+    - SO: Steam Oven - includes upperOven nested capabilities and steam-specific features
     - RF: Refrigerator - includes temperature zones and alerts
     - WM: Washing Machine - includes cycle programs and options
     - WD: Washer-Dryer - combines washing and drying functionality
@@ -136,7 +144,7 @@ def _get_catalog_by_type():
     """
     return {
         "OV": _get_catalog_oven(),  # Oven
-        "SO": _get_catalog_oven(),  # Steam Oven (uses oven catalog, steam entities created from API)
+        "SO": _get_catalog_steam_oven(),  # Steam Oven (dedicated catalog for upperOven nesting)
         "RF": _get_catalog_refrigerator()[0],  # Refrigerator
         "WM": _get_catalog_washer(),  # Washing Machine
         "WD": _get_catalog_washer_dryer(),  # Washer-Dryer
@@ -255,7 +263,7 @@ def _get_catalog_base():
             },
             device_class=None,
             unit=None,
-            entity_category=EntityCategory.CONFIG,
+            entity_category=EntityCategory.DIAGNOSTIC,  # DIAGNOSTIC for read-only sensors, CONFIG when readwrite
             entity_icon="mdi:thermometer-lines",
             friendly_name="Temperature Unit",
         ),

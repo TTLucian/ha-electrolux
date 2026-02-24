@@ -99,12 +99,33 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 
 ### 🏷️ Device Types
 
-**🍳 Ovens and Steam Ovens** - tested
-- Electrolux SteamBake series
-- AEG SteamBake and AssistedCooking series
+**🍳 Ovens**
+- AEG AssistedCooking series
 - Real-time temperature monitoring
 - Program control and status
 - Safety lock validation
+- Multiple cooking programs (Bake, Broil, Convection)
+- Food probe monitoring and control
+- Delayed start and timers
+
+**🍲 Steam Ovens** ✨ NEW v3.3.4
+- AEG Steam Ovens
+- Electrolux Steam Ovens
+- **Full dedicated implementation with 40+ entities**
+- All standard oven features plus steam-specific controls:
+  - Water tank level monitoring
+  - Descaling reminders and maintenance alerts
+  - Steam programs (FULL_STEAM, STEAM_HIGH, STEAMIFY, MOIST_FAN_BAKING)
+  - Water hardness configuration
+  - Drip tray detection
+- Enhanced UI configuration:
+  - Display brightness control (5 levels)
+  - Sound volume and key tone settings
+  - Language selection (26 languages)
+  - Clock display format
+- Nested capability structure with upperOven controls
+- Real-time temperature and probe monitoring
+- Program-specific constraints and safety validation
 
 **❄️ Refrigerators**
 - Electrolux UltimateTaste series
