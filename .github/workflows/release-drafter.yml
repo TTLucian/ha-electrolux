@@ -31,7 +31,7 @@ jobs:
       - name: Read release notes
         id: release_notes
         run: |
-          RELEASE_FILE="RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md"
+          RELEASE_FILE="release_notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md"
           if [ -f "$RELEASE_FILE" ]; then
             echo "title=Version ${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "found=true" >> $GITHUB_OUTPUT
@@ -57,13 +57,13 @@ jobs:
             gh release edit "v${VERSION}" \
               --draft \
               --title "$TITLE" \
-              --notes-file "RELEASE_NOTES_v${VERSION}.md"
+              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md"
           else
             echo "Creating new draft release v${VERSION}"
             gh release create "v${VERSION}" \
               --draft \
               --title "$TITLE" \
-              --notes-file "RELEASE_NOTES_v${VERSION}.md"
+              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md"
           fi
 
       - name: Skip Release Creation
