@@ -566,7 +566,8 @@ class ElectroluxEntity(CoordinatorEntity):
         # - DIAGNOSTIC entities: useful for troubleshooting even when offline
         if (
             self.entity_attr != "connectivityState"
-            and self._entity_category not in [EntityCategory.CONFIG, EntityCategory.DIAGNOSTIC]
+            and self._entity_category
+            not in [EntityCategory.CONFIG, EntityCategory.DIAGNOSTIC]
             and not self.is_connected()
         ):
             return None

@@ -280,7 +280,7 @@ class TestFormatCommandForAppliance:
 
     def test_numeric_capability_misaligned_min_with_step(self):
         """Test formatting numeric values when min is not aligned with step boundaries.
-        
+
         Real-world case: AC unit with min=15.56°C (60°F), max=32.22°C (90°F), step=1.0
         Valid values should be 16, 17, 18... not 15.56, 16.56, 17.56...
         Fixes issue where setting 24°C was incorrectly calculated as 23.56°C.
