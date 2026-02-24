@@ -36,6 +36,8 @@ from .const import (
     CONF_NOTIFICATION_WARNING,
     DOMAIN,
     NAME,
+    SECONDS_PER_MINUTE,
+    TIME_INVALID_SENTINEL,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -166,18 +168,18 @@ def time_seconds_to_minutes(seconds: float | None) -> int | None:
     """Convert seconds to minutes."""
     if seconds is None:
         return None
-    if seconds == -1:
-        return -1
-    return round(seconds / 60)
+    if seconds == TIME_INVALID_SENTINEL:
+        return TIME_INVALID_SENTINEL
+    return round(seconds / SECONDS_PER_MINUTE)
 
 
 def time_minutes_to_seconds(minutes: float | None) -> int | None:
     """Convert minutes to seconds."""
     if minutes is None:
         return None
-    if minutes == -1:
-        return -1
-    return int(minutes) * 60
+    if minutes == TIME_INVALID_SENTINEL:
+        return TIME_INVALID_SENTINEL
+    return int(minutes) * SECONDS_PER_MINUTE
 
 
 async def retry_with_backoff(

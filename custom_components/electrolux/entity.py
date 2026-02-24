@@ -14,7 +14,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
-from .const import CONF_API_KEY, DOMAIN
+from .const import (
+    CONF_API_KEY,
+    DOMAIN,
+    FOOD_PROBE_STATE_NOT_INSERTED,
+    REMOTE_CONTROL_DISABLED,
+    REMOTE_CONTROL_ENABLED,
+    REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED,
+)
 from .coordinator import ElectroluxCoordinator
 from .model import ElectroluxDevice
 from .models import Appliance, Appliances, ApplianceState
@@ -633,8 +640,14 @@ class ElectroluxEntity(CoordinatorEntity):
     def is_remote_control_enabled(self) -> bool:
         """Check if remote control is enabled for this appliance.
 
-        Returns True if remote control status contains 'ENABLED'
-        (including 'NOT_SAFETY_RELEVANT_ENABLED') or is None.
+        Returns True if remote control status is any enabled variant:
+        - ENABLED: Standard remote control enabled
+        - NOT_SAFETY_RELEVANT_ENABLED: Remote control enabled for non-safety features
+        - persistentRemoteControl: Always-on remote control
+        - None: Some appliances don't report status (assume enabled)
+
+        Returns False if:
+        - DISABLED: Remote control explicitly disabled
         """
         if not hasattr(self, "appliance_status") or not self.appliance_status:
             return False
@@ -657,9 +670,12 @@ class ElectroluxEntity(CoordinatorEntity):
             return True
 
         if remote_control_status:
-            result = "ENABLED" in str(remote_control_status) and "DISABLED" not in str(
-                remote_control_status
-            )
+            status_str = str(remote_control_status)
+            # Check for any enabled variant
+            result = (
+                REMOTE_CONTROL_ENABLED in status_str
+                or REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED in status_str
+            ) and REMOTE_CONTROL_DISABLED not in status_str
             _LOGGER.debug(
                 "Remote control enabled check for %s: %s -> %s",
                 self.pnc_id,
@@ -886,7 +902,7 @@ class ElectroluxEntity(CoordinatorEntity):
         # Special check for food probe temperature: only available if probe is inserted
         if self.entity_attr == "targetFoodProbeTemperatureC":
             food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
+            if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:
                 self._is_supported_cache = False
                 return False
 

@@ -10,7 +10,7 @@ from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SENSOR
+from .const import DOMAIN, SENSOR, TIME_INVALID_SENTINEL
 from .entity import ElectroluxEntity
 from .util import create_notification, get_capability, time_seconds_to_minutes
 
@@ -109,7 +109,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
             if value is None or not isinstance(value, (int, float)):
                 return None
-            if value == -1 or value <= 0:
+            if value == TIME_INVALID_SENTINEL or value <= 0:
                 return None
 
             # Check if appliance is in a state where timer is relevant
@@ -139,7 +139,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if self.entity_attr == "runningTime":
             if value is None or not isinstance(value, (int, float)):
                 return None
-            if value == -1:  # Invalid/not set
+            if value == TIME_INVALID_SENTINEL:  # Invalid/not set
                 return None
 
             # Check if appliance is in a state where elapsed time is relevant
@@ -188,8 +188,8 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         elif value is not None and self.unit == UnitOfTime.MINUTES:
             # Handle timer/duration sensors
             if isinstance(value, (int, float)):
-                # Return None for invalid/unset timers (-1 or 0)
-                if value == -1 or value == 0:
+                # Return None for invalid/unset timers (TIME_INVALID_SENTINEL or 0)
+                if value == TIME_INVALID_SENTINEL or value == 0:
                     return None
                 # Convert to native units (minutes for time)
                 converted = time_seconds_to_minutes(value)

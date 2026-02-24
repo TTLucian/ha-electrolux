@@ -141,6 +141,40 @@ DEFAULT_NUMBER_MAX = 100.0
 DEFAULT_NUMBER_MIN = 0.0
 DEFAULT_NUMBER_STEP = 1.0
 
+# Number entity UI mode selection threshold
+# Controls when to use SLIDER (≤threshold steps) vs BOX (>threshold steps)
+# SLIDER: Better for small ranges with visual feedback (e.g., temperature 30-230°C in 5° steps = 41 steps)
+# BOX: Better for large ranges where typing is faster (e.g., time 0-1440 min in 1 min steps = 1440 steps)
+NUMBER_MODE_SLIDER_MAX_STEPS = 100
+
+# Time conversion constants
+TIME_INVALID_SENTINEL = -1  # Indicates invalid/unset time value
+SECONDS_PER_MINUTE = 60
+SECONDS_PER_HOUR = 3600
+SECONDS_PER_DAY = 86400
+
+# Appliance state constants
+# Food probe states
+FOOD_PROBE_STATE_INSERTED = "INSERTED"
+FOOD_PROBE_STATE_NOT_INSERTED = "NOT_INSERTED"
+
+# Remote control states
+# Different appliances report different remote control states:
+# - ENABLED: Standard remote control enabled
+# - NOT_SAFETY_RELEVANT_ENABLED: Remote control enabled for non-safety features
+# - persistentRemoteControl: Always-on remote control
+# - DISABLED: Remote control disabled by user or safety lock
+REMOTE_CONTROL_ENABLED = "ENABLED"
+REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED = "NOT_SAFETY_RELEVANT_ENABLED"
+REMOTE_CONTROL_DISABLED = "DISABLED"
+
+# Time value sentinels
+TIME_INVALID_OR_NOT_SET = "INVALID_OR_NOT_SET_TIME"
+
+# Connectivity states
+CONNECTIVITY_STATE_CONNECTED = "connected"
+CONNECTIVITY_STATE_DISCONNECTED = "disconnected"
+
 # Type definitions
 AlertType = Literal[
     "CHECK_DOOR",

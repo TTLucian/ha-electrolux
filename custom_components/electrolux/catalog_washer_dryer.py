@@ -2,7 +2,6 @@
 
 from homeassistant.components.button import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
-from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfMass, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
@@ -137,7 +136,7 @@ CATALOG_WASHER_DRYER: dict[str, ElectroluxDevice] = {
             "step": 1800,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:camera-timer",

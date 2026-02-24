@@ -14,13 +14,17 @@ from .const import (
     DEFAULT_NUMBER_MIN,
     DEFAULT_NUMBER_STEP,
     DOMAIN,
+    FOOD_PROBE_STATE_NOT_INSERTED,
     NUMBER,
+    NUMBER_MODE_SLIDER_MAX_STEPS,
     TEMP_OVEN_MAX_C,
     TEMP_OVEN_MAX_F,
     TEMP_OVEN_MIN_C,
     TEMP_OVEN_STEP,
     TEMP_PROBE_MAX_C,
     TEMP_PROBE_MAX_F,
+    TIME_INVALID_OR_NOT_SET,
+    TIME_INVALID_SENTINEL,
 )
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
@@ -77,12 +81,43 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
     @property
     def mode(self) -> NumberMode:
-        """Return the mode for the number entity."""
-        # Use box input for time-based entities to allow free minute input
-        if self.entity_attr in ["startTime", "targetDuration"]:
-            return NumberMode.BOX
-        # Use slider for other controls with step constraints
-        return NumberMode.SLIDER
+        """Return the mode for the number entity.
+
+        BOX mode: Best for large ranges where typing is faster (e.g., 1-1440 minutes)
+        SLIDER mode: Best for small ranges with visual feedback (e.g., 30-230°C in 5° steps)
+
+        Decision is based on number of possible values:
+        - Few values (≤50 steps): SLIDER provides good visual feedback
+        - Many values (>50 steps): BOX allows direct input, faster than sliding
+        """
+        # Calculate the number of possible values based on min/max/step
+        min_val = self.native_min_value
+        max_val = self.native_max_value
+        step_val = self.native_step
+
+        # Safety checks
+        if min_val is None or max_val is None or step_val is None or step_val == 0:
+            # Default to slider if we can't determine range
+            return NumberMode.SLIDER
+
+        # Calculate number of steps: (max - min) / step + 1
+        num_steps = ((max_val - min_val) / step_val) + 1
+
+        # Use SLIDER for reasonable number of steps (≤NUMBER_MODE_SLIDER_MAX_STEPS provides good UX)
+        # Examples with SLIDER:
+        #   - antiCreaseValue: 4 steps (30/60/90/120) → intuitive selection
+        #   - dryingTime: 31 steps (0-300 min, 10 min step) → manageable
+        #   - oven temp: ~41 steps (30-230°C, 5° step) → natural for temperature
+        #   - food probe: 70 steps (30-99°C, 1° step) → natural for temperature
+        #   - stopTime: 25 steps (0-24 hours, 1 hour step) → easy to slide
+        # Examples with BOX:
+        #   - targetDuration: 1440 steps (0-1439 min, 1 min step) → typing is faster
+        #   - startTime: 1440 steps (0-1439 min, 1 min step) → typing is faster
+        if num_steps <= NUMBER_MODE_SLIDER_MAX_STEPS:
+            return NumberMode.SLIDER
+
+        # Use BOX for large ranges where typing is more efficient
+        return NumberMode.BOX
 
     @property
     def device_class(self) -> NumberDeviceClass | None:
@@ -129,7 +164,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         value = self.extract_value()
 
-        if self.entity_attr == "startTime" and value == -1:
+        if self.entity_attr == "startTime" and value == TIME_INVALID_SENTINEL:
             return None
 
         if value is None:
@@ -150,7 +185,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             # Fall back to base capability default
             if value is None:
                 value = self.capability.get("default", None)
-                if value == "INVALID_OR_NOT_SET_TIME":
+                if value == TIME_INVALID_OR_NOT_SET:
                     value = self.capability.get("min", None)
                 if value is None and self.entity_attr == "targetDuration":
                     value = 0
@@ -218,7 +253,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # Food probe temperature locked when probe not inserted
         if self.entity_attr == "targetFoodProbeTemperatureC":
             food_probe_state = self.reported_state.get("foodProbeInsertionState")
-            if food_probe_state == "NOT_INSERTED":
+            if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:
                 return True
 
         # Get program-specific constraints
@@ -410,7 +445,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             # Provide specific error message based on lock reason
             if self.entity_attr == "targetFoodProbeTemperatureC":
                 food_probe_state = self.reported_state.get("foodProbeInsertionState")
-                if food_probe_state == "NOT_INSERTED":
+                if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:
                     raise HomeAssistantError(
                         "Food probe must be inserted to set target temperature."
                     )

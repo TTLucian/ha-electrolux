@@ -66,29 +66,92 @@ class TestElectroluxNumber:
         """Test entity domain property."""
         assert number_entity.entity_domain == "number"
 
-    def test_mode_box_for_time_entities(self, mock_coordinator, mock_capability):
-        """Test that time entities use BOX mode."""
+    def test_mode_box_for_many_steps(self, mock_coordinator):
+        """Test that entities with >100 steps use BOX mode (e.g., time inputs with 1-min steps)."""
+        # Create entity with many steps: 1440 steps (0-1439, step=1)
+        capability = {
+            "access": "readwrite",
+            "type": "number",
+            "min": 0,
+            "max": 1439,
+            "step": 1,
+        }
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
-            name="Start Time",
+            name="Target Duration",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
             entity_type=NUMBER,
-            entity_name="start_time",
-            entity_attr="startTime",
+            entity_name="target_duration",
+            entity_attr="targetDuration",
             entity_source=None,
-            capability=mock_capability,
+            capability=capability,
             unit=UnitOfTime.MINUTES,
-            device_class=None,
+            device_class=NumberDeviceClass.DURATION,
             entity_category=EntityCategory.CONFIG,
-            icon="mdi:clock-start",
+            icon="mdi:timelapse",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity._get_program_constraint = lambda key: None
+        entity._is_locked_by_program = lambda: False
         assert entity.mode == NumberMode.BOX
 
-    def test_mode_slider_for_non_time_entities(self, number_entity):
-        """Test that non-time entities use SLIDER mode."""
-        assert number_entity.mode == NumberMode.SLIDER
+    def test_mode_slider_for_few_steps(self, mock_coordinator):
+        """Test that entities with ≤100 steps use SLIDER mode (e.g., temperature, small time ranges)."""
+        # Create entity with few steps: 41 steps (30-230, step=5)
+        capability = {
+            "access": "readwrite",
+            "type": "temperature",
+            "min": 30,
+            "max": 230,
+            "step": 5,
+        }
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temperature",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="target_temperature",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability=capability,
+            unit=UnitOfTemperature.CELSIUS,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            entity_category=None,
+            icon="mdi:thermometer",
+        )
+        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity._get_program_constraint = lambda key: None
+        entity._is_locked_by_program = lambda: False
+        assert entity.mode == NumberMode.SLIDER
+
+    def test_mode_box_with_default_fallback_constraints(self, mock_coordinator):
+        """Test mode with fallback constraints (0-100, step=1 → 101 steps → BOX)."""
+        # Create entity without constraints - will use fallback values
+        # DEFAULT_NUMBER_MIN=0, DEFAULT_NUMBER_MAX=100, DEFAULT_NUMBER_STEP=1
+        # This gives 101 steps, which is > threshold of 100, so BOX mode
+        capability = {"access": "readwrite", "type": "number"}
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Test Number",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="test_number",
+            entity_attr="testAttr",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+        )
+        entity.hass = mock_coordinator.hass
+        entity._get_program_constraint = lambda key: None
+        entity._is_locked_by_program = lambda: False
+        # Fallback constraints: 0-100, step=1 → 101 steps → BOX
+        assert entity.mode == NumberMode.BOX
 
     def test_device_class_temperature(self, mock_coordinator):
         """Test temperature device class mapping."""

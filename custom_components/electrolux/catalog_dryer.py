@@ -2,6 +2,7 @@
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfMass, UnitOfTime
@@ -89,7 +90,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "step": 3600,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:clock-end",
@@ -342,7 +343,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "step": 30,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:hanger",
@@ -357,7 +358,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "step": 10,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:clock-outline",
@@ -537,7 +538,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "step": 30,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:hanger",
@@ -553,7 +554,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "step": 10,
             "type": "number",
         },
-        device_class=SensorDeviceClass.DURATION,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         entity_category=None,
         entity_icon="mdi:clock-outline",
