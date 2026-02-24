@@ -71,9 +71,11 @@ ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBRes
 # Dangerous entities that should NEVER be created (even if in catalog or API)
 # These control low-level system functions that can permanently damage appliance functionality
 # Pattern matching is case-sensitive and uses regex format
+# Patterns match the entity attribute path (e.g., "networkInterface/command")
+# Note: Removing $ anchor to catch any potential child paths or variations
 DANGEROUS_ENTITIES_BLACKLIST: list[str] = [
-    r"^networkInterface/startUpCommand$",  # Contains UNINSTALL - can factory reset network module
-    r"^networkInterface/command$",  # Contains APPLIANCE_AUTHORIZE, USER_*AUTHORIZE - can unpair appliance
+    r"^networkInterface/startUpCommand",  # Contains UNINSTALL - can factory reset network module
+    r"^networkInterface/command",  # Contains APPLIANCE_AUTHORIZE, USER_*AUTHORIZE - can unpair appliance
 ]
 
 # Rules to simplify the naming of entities
