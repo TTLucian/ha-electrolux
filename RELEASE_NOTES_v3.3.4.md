@@ -180,43 +180,14 @@ If appliances with both `upperOven` and `lowerOven` containers are encountered, 
 ### DAM Appliances
 Future support for DAM_* appliance types will follow similar nested structure patterns established in this release.
 
-## Critical Bug Fixes
+## Other Fixes
 
 During comprehensive verification against real steam oven sample data (AEG BS7800B PROFISTEAM_2), several value inconsistencies were identified and corrected:
 
-### 1. Fixed End Action Values
-**Issues Corrected:**
-- `upperOven/targetDurationEndAction` - Had incorrect values (KEEP_HEATING, KEEP_HEATING_AND_ALERT, NO_ACTION, OFF, OFF_AND_ALERT)
-- `upperOven/targetFoodProbeTemperatureEndAction` - Same incorrect values
-
-**Actual Values (per API specification):**
-- `END_ACTION_JUST_SHOW_TEMP` - Display target temperature reached
-- `END_ACTION_NONE` - No action
-- `END_ACTION_SILENT_NOTIFICATION` - Silent notification only
-- `END_ACTION_SOUND_ALARM` - Sound alert
-- `END_ACTION_SOUND_ALARM_STOP_COOKING` - Sound alert and stop
-- `END_ACTION_SOUND_ALARM_WARM_HOLD` - Sound alert and keep warm
-- `END_ACTION_START_COOKING` - Begin cooking automatically
-- `END_ACTION_STOP_COOKING` - Stop cooking automatically
-
-**Impact:** Without this fix, users would be unable to select proper end actions from the Home Assistant UI, as the integration would reject the incorrect values.
-
-### 2. Fixed Process Phase Values
-**Issue:** The `upperOven/processPhase` entity did not define available values in the capability_info.
-
-**Correct Values (per API specification):**
-- `FAST_HEAT_UP` - Rapid preheating phase
-- `HEAT_AND_HOLD` - Maintain temperature phase
-- `NONE` - No active phase
-- `NORMAL_HEATING` - Standard heating phase
-- `TIME_EXTENSION` - Extended cooking time phase
-
-**Impact:** Proper enum values ensure accurate state representation in Home Assistant UI and enable proper automations based on cooking phase.
-
-### 3. Verification Process
+### 1. Verification Process
 All entity values were cross-referenced against actual steam oven capabilities data (SO-944035035.json, 7561 lines) to ensure 100% accuracy with API specifications.
 
-### 4. Removed False Positive Time Jump Warnings
+### 2. Removed False Positive Time Jump Warnings
 **Issue:** Users reported frequent warnings about "Large time jump detected" that occurred during normal operation:
 - After system sleep/suspend/hibernate
 - During SSE connection reconnections (every ~2 hours)
@@ -258,7 +229,6 @@ For users with steam ovens:
 - `custom_components/electrolux/catalog_core.py` - Added steam oven support
 - `custom_components/electrolux/util.py` - Removed time jump detection logic
 - `tests/test_token_manager.py` - Removed obsolete time jump test
-- `STEAM_OVEN_FIX.md` - Technical documentation
 - `README.md` - Updated device types section
 - `RELEASE_NOTES_v3.3.4.md` - This file
 
