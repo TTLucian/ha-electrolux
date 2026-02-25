@@ -145,11 +145,21 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
-        # Try Celsius first
+        # Read from the unit matching temperatureRepresentation setting
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep == "FAHRENHEIT":
+            value = self.get_state_attr("ambientTemperatureF")
+            if value is not None:
+                return float(value)
+        else:
+            value = self.get_state_attr("ambientTemperatureC")
+            if value is not None:
+                return float(value)
+
+        # Fallback: try both if temperatureRepresentation not available
         value = self.get_state_attr("ambientTemperatureC")
         if value is not None:
             return float(value)
-        # Try Fahrenheit
         value = self.get_state_attr("ambientTemperatureF")
         if value is not None:
             return float(value)
@@ -158,11 +168,21 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
     @property
     def target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
-        # Try Celsius first
+        # Read from the unit matching temperatureRepresentation setting
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep == "FAHRENHEIT":
+            value = self.get_state_attr("targetTemperatureF")
+            if value is not None:
+                return float(value)
+        else:
+            value = self.get_state_attr("targetTemperatureC")
+            if value is not None:
+                return float(value)
+
+        # Fallback: try both if temperatureRepresentation not available
         value = self.get_state_attr("targetTemperatureC")
         if value is not None:
             return float(value)
-        # Try Fahrenheit
         value = self.get_state_attr("targetTemperatureF")
         if value is not None:
             return float(value)
@@ -281,28 +301,48 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
     @property
     def min_temp(self) -> float:
         """Return the minimum temperature."""
-        # Get temperature limits from appliance capabilities
-        temp_capability = self.capability.get("targetTemperatureC", {})
-        min_val = temp_capability.get("min")
-        if min_val is not None:
-            return float(min_val)
-        return 16.0  # Default minimum
+        # Get temperature limits from appliance capabilities based on current unit
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep == "FAHRENHEIT":
+            temp_capability = self.capability.get("targetTemperatureF", {})
+            min_val = temp_capability.get("min")
+            if min_val is not None:
+                return float(min_val)
+            return 60.0  # Default minimum for Fahrenheit
+        else:
+            temp_capability = self.capability.get("targetTemperatureC", {})
+            min_val = temp_capability.get("min")
+            if min_val is not None:
+                return float(min_val)
+            return 16.0  # Default minimum for Celsius
 
     @property
     def max_temp(self) -> float:
         """Return the maximum temperature."""
-        # Get temperature limits from appliance capabilities
-        temp_capability = self.capability.get("targetTemperatureC", {})
-        max_val = temp_capability.get("max")
-        if max_val is not None:
-            return float(max_val)
-        return 30.0  # Default maximum
+        # Get temperature limits from appliance capabilities based on current unit
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep == "FAHRENHEIT":
+            temp_capability = self.capability.get("targetTemperatureF", {})
+            max_val = temp_capability.get("max")
+            if max_val is not None:
+                return float(max_val)
+            return 86.0  # Default maximum for Fahrenheit
+        else:
+            temp_capability = self.capability.get("targetTemperatureC", {})
+            max_val = temp_capability.get("max")
+            if max_val is not None:
+                return float(max_val)
+            return 30.0  # Default maximum for Celsius
 
     @property
     def target_temperature_step(self) -> float:
         """Return the supported step of target temperature."""
-        # Get temperature step from appliance capabilities
-        temp_capability = self.capability.get("targetTemperatureC", {})
+        # Get temperature step from appliance capabilities based on current unit
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep == "FAHRENHEIT":
+            temp_capability = self.capability.get("targetTemperatureF", {})
+        else:
+            temp_capability = self.capability.get("targetTemperatureC", {})
         step = temp_capability.get("step")
         if step is not None:
             return float(step)
