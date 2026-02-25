@@ -181,7 +181,8 @@ class TestElectroluxClimate:
         """Test target temperature from Fahrenheit value."""
         mock_appliance.reported_state.pop("targetTemperatureC", None)
         mock_appliance.reported_state["targetTemperatureF"] = 71.6
-        assert climate_entity.target_temperature == 71.6
+        # Temperature should be rounded to nearest integer for display
+        assert climate_entity.target_temperature == 72
 
     def test_target_temperature_none(self, climate_entity, mock_appliance):
         """Test target temperature returns None when missing."""

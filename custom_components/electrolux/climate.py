@@ -150,19 +150,21 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
         if temp_rep == "FAHRENHEIT":
             value = self.get_state_attr("ambientTemperatureF")
             if value is not None:
-                return float(value)
+                # Round to nearest integer for display (API reports decimals like 78.8)
+                return round(float(value))
         else:
             value = self.get_state_attr("ambientTemperatureC")
             if value is not None:
-                return float(value)
+                # Round to nearest integer for display (API reports decimals like 26.0)
+                return round(float(value))
 
         # Fallback: try both if temperatureRepresentation not available
         value = self.get_state_attr("ambientTemperatureC")
         if value is not None:
-            return float(value)
+            return round(float(value))
         value = self.get_state_attr("ambientTemperatureF")
         if value is not None:
-            return float(value)
+            return round(float(value))
         return None
 
     @property
@@ -173,19 +175,21 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
         if temp_rep == "FAHRENHEIT":
             value = self.get_state_attr("targetTemperatureF")
             if value is not None:
-                return float(value)
+                # Round to nearest integer for display (API may return decimals like 73.0 or 22.78)
+                return round(float(value))
         else:
             value = self.get_state_attr("targetTemperatureC")
             if value is not None:
-                return float(value)
+                # Round to nearest integer for display (API may return decimals like 22.78)
+                return round(float(value))
 
         # Fallback: try both if temperatureRepresentation not available
         value = self.get_state_attr("targetTemperatureC")
         if value is not None:
-            return float(value)
+            return round(float(value))
         value = self.get_state_attr("targetTemperatureF")
         if value is not None:
-            return float(value)
+            return round(float(value))
         return None
 
     @property
