@@ -636,13 +636,14 @@ class TestConstantAccessSensors:
         self, basic_sensor_entity: ElectroluxSensor
     ):
         """Test special sensors use live data even with constant access."""
-        basic_sensor_entity.entity_key = "ovwater_tank_empty"
+        # Test the live waterTankEmpty sensor (not the fppn notification ID)
+        basic_sensor_entity.entity_key = "watertankempty"
         basic_sensor_entity.entity_attr = "waterTankEmpty"
         basic_sensor_entity.reported_state = {"waterTankEmpty": "STEAM_TANK_EMPTY"}
         basic_sensor_entity.capability = {
-            "access": "constant",
-            "type": "boolean",
-            "default": False,
+            "access": "read",
+            "type": "string",
+            "values": {"STEAM_TANK_EMPTY": {}, "STEAM_TANK_FULL": {}},
         }
-        # When waterTankEmpty is not STEAM_TANK_FULL, tank is empty (True)
-        assert basic_sensor_entity.native_value is True
+        # Value gets title-cased: "STEAM_TANK_EMPTY" -> "Steam Tank Empty"
+        assert basic_sensor_entity.native_value == "Steam Tank Empty"

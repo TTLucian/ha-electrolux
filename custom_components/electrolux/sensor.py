@@ -84,7 +84,24 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
     @property
     def native_value(self) -> datetime | str | int | float | None:
         """Return the state of the sensor."""
+        # When offline, return None to show "unknown" (avoid showing stale data)
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         value = self.extract_value()
+
+        # Debug logging for water tank sensor
+        if self.entity_key == "watertankempty":
+            live_value = self.reported_state.get("waterTankEmpty")
+            _LOGGER.warning(
+                "DEBUG Water tank sensor: entity_attr=%s, entity_key=%s, extract_value=%s, waterTankEmpty in reported=%s, waterTankEmpty value=%s, capability_type=%s",
+                self.entity_attr,
+                self.entity_key,
+                value,
+                "waterTankEmpty" in self.reported_state,
+                live_value,
+                get_capability(self.capability, "type"),
+            )
 
         # Special handling for load weight sensors: filter out error codes
         if self.entity_attr == "fcOptisenseLoadWeight":
@@ -153,16 +170,33 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             return value if value >= 0 else None
 
         # Special handling for sensors that should get live data instead of constants
+        # NOTE: entity_key is normalized (lowercase, fPPN stripped) - camelCase loses underscores!
+        # "fPPN_OVWaterTankEmpty" -> "ovwatertankempty" but this is just a notification ID, not live data
+        # Only handle sensors that have actual live values
         if self.entity_key in [
-            "ovwater_tank_empty",
+            "watertankempty",  # waterTankEmpty - live steam tank status
             "foodProbeSupported",
+            "foodprobesupported",  # normalized version
             "display_food_probe_temperature_c",
         ]:
-            if self.entity_key == "ovwater_tank_empty":
+            if self.entity_key == "watertankempty":
+                # waterTankEmpty is the actual live sensor showing steam tank status
                 live_value = self.reported_state.get("waterTankEmpty")
                 if live_value is not None:
-                    # If value is STEAM_TANK_FULL, tank is not empty (Off)
-                    value = live_value != "STEAM_TANK_FULL"
+                    # If capability type is boolean, convert string to boolean
+                    if get_capability(self.capability, "type") == "boolean":
+                        value = live_value != "STEAM_TANK_FULL"
+                    else:
+                        # Otherwise return the string value
+                        value = str(live_value)
+            elif self.entity_key in ["foodProbeSupported", "foodprobesupported"]:
+                # foodProbeSupported is a constant capability indicating if the oven hardware supports food probe
+                # We infer this by checking if foodProbeInsertionState exists in the appliance state
+                # If the oven has a probe insertion sensor, then it supports food probe
+                if "foodProbeInsertionState" in self.reported_state:
+                    value = "SUPPORTED"
+                else:
+                    value = "NOT_SUPPORTED"
             elif self.entity_key == "display_food_probe_temperature_c":
                 # Point to targetFoodProbeTemperatureC from reported properties
                 live_value = self.reported_state.get("targetFoodProbeTemperatureC")

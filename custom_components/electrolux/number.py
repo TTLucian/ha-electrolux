@@ -154,6 +154,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Return the value reported by the number."""
+        # When offline, return None to show "unknown" (avoid showing stale data)
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         # If entity is locked, return the locked value
         if self._is_locked_by_program():
             locked_value = self._get_locked_value()
@@ -518,7 +522,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in and has network connectivity."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
             )
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.

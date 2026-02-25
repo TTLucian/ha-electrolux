@@ -560,16 +560,10 @@ class ElectroluxEntity(CoordinatorEntity):
 
     def extract_value(self) -> int | float | str | bool | None:
         """Return the appliance attributes of the entity with program constraint handling."""
-        # Special cases that should always show values even when disconnected:
-        # - connectivityState: needs to show connection status
-        # - CONFIG entities: appliance settings that persist across power cycles
-        # - DIAGNOSTIC entities: useful for troubleshooting even when offline
-        if (
-            self.entity_attr != "connectivityState"
-            and self._entity_category
-            not in [EntityCategory.CONFIG, EntityCategory.DIAGNOSTIC]
-            and not self.is_connected()
-        ):
+        # When appliance is offline, only connectivityState should show its value
+        # All other entities return None (displayed as "unknown") to avoid showing stale data
+        # that may have been changed manually on the appliance while disconnected
+        if self.entity_attr != "connectivityState" and not self.is_connected():
             return None
 
         # 1. Constant access check

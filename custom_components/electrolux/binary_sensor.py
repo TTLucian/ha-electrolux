@@ -125,16 +125,21 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
         return False
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """Return true if the binary_sensor is on."""
+        # When offline, return None to show "unknown" (avoid showing stale data)
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         value = self.extract_value()
 
-        # Special handling for cleaning and probe end sensors
-        if self.entity_name in ["ovcleaning_ended", "ovfood_probe_end_of_cooking"]:
-            # Check processPhase - return On if STOPPED (process completed)
-            process_phase = self.reported_state.get("processPhase")
-            if process_phase == "STOPPED":
-                value = True  # On when process has stopped/completed
+        # Special handling for water tank empty sensor
+        # Only handle the actual live waterTankEmpty sensor, not the fPPN notification ID
+        if self.entity_key == "watertankempty":
+            live_value = self.reported_state.get("waterTankEmpty")
+            if live_value is not None:
+                # For binary sensor, convert to boolean: empty when NOT full
+                value = live_value != "STEAM_TANK_FULL"
             else:
                 value = False  # Off otherwise
 

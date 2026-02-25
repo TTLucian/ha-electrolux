@@ -131,7 +131,7 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:lightbulb",
     ),
     # Display on floor
@@ -148,7 +148,7 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:projector-screen",
     ),
     # Key tone

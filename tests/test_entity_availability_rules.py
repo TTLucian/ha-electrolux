@@ -313,7 +313,7 @@ class TestEntityAvailabilityRules:
             capability=mock_capability_select,
             unit=None,
             device_class="",
-            entity_category=EntityCategory.CONFIG,
+            entity_category=None,  # Not CONFIG - program-dependent entity
             icon="mdi:menu",
         )
         entity.hass = mock_coordinator.hass
@@ -330,6 +330,46 @@ class TestEntityAvailabilityRules:
             HomeAssistantError, match="not supported by current program"
         ):
             await entity.async_select_option("Option 1")
+
+    def test_select_config_entity_bypasses_program_support_check(
+        self, mock_coordinator, mock_capability_select
+    ):
+        """Test that CONFIG select entities bypass program support checking (persistent settings)."""
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            name="Test Select Config",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="test_select_config",
+            entity_attr="testSelectConfig",
+            entity_source=None,
+            capability=mock_capability_select,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,  # CONFIG entity
+            icon="mdi:menu",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "program": "unsupported_program",
+                    "testSelectConfig": "option2",
+                }
+            }
+        }
+        entity.reported_state = {
+            "program": "unsupported_program",
+            "testSelectConfig": "option2",
+        }
+
+        # Mock _is_supported_by_program to return False
+        entity._is_supported_by_program = MagicMock(return_value=False)
+
+        # CONFIG entities should show value even when not supported by program
+        current = entity.current_option
+        assert current == "Option 2"  # Should read the value, not return empty
 
     def test_select_entity_shows_filtered_options_based_on_program_constraints(
         self, mock_coordinator, mock_capability_select

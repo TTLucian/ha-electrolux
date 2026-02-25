@@ -123,6 +123,18 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
         return CLIMATE
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available.
+
+        Climate entity becomes unavailable when disconnected because hvac_mode
+        cannot return None (HA platform requirement), and we cannot determine
+        the actual mode without connectivity.
+        """
+        if not self.is_connected():
+            return False
+        return super().available
+
+    @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
         # For air conditioners, assume these features are supported

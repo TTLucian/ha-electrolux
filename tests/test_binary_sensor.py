@@ -274,54 +274,8 @@ class TestElectroluxBinarySensor:
         entity.extract_value = MagicMock(return_value="NOT_INSERTED")
         assert entity.is_on is False
 
-    def test_is_on_cleaning_ended(self, mock_coordinator, mock_capability):
-        """Test special handling for cleaning ended sensor."""
-        entity = ElectroluxBinarySensor(
-            coordinator=mock_coordinator,
-            name="Cleaning Status",
-            config_entry=mock_coordinator.config_entry,
-            pnc_id="TEST_PNC",
-            entity_type=BINARY_SENSOR,
-            entity_name="ovcleaning_ended",
-            entity_attr="cleaningEnded",
-            entity_source=None,
-            capability=mock_capability,
-            unit=None,
-            device_class=None,
-            entity_category=EntityCategory.DIAGNOSTIC,
-            icon="mdi:test",
-        )
-        entity.reported_state = {"processPhase": "STOPPED"}
-        assert entity.is_on is True
-
-        entity.reported_state = {"processPhase": "RUNNING"}
-        assert entity.is_on is False
-
-    def test_is_on_probe_end_of_cooking(self, mock_coordinator, mock_capability):
-        """Test special handling for probe end of cooking sensor."""
-        entity = ElectroluxBinarySensor(
-            coordinator=mock_coordinator,
-            name="Probe End of Cooking",
-            config_entry=mock_coordinator.config_entry,
-            pnc_id="TEST_PNC",
-            entity_type=BINARY_SENSOR,
-            entity_name="ovfood_probe_end_of_cooking",
-            entity_attr="foodProbeEndOfCooking",
-            entity_source=None,
-            capability=mock_capability,
-            unit=None,
-            device_class=None,
-            entity_category=EntityCategory.DIAGNOSTIC,
-            icon="mdi:test",
-        )
-        entity.reported_state = {"processPhase": "STOPPED"}
-        assert entity.is_on is True
-
-        entity.reported_state = {"processPhase": "RUNNING"}
-        assert entity.is_on is False
-
     def test_is_on_water_tank_empty(self, mock_coordinator, mock_capability):
-        """Test generic enum handling for water tank empty sensor."""
+        """Test special handling for water tank empty sensor."""
         entity = ElectroluxBinarySensor(
             coordinator=mock_coordinator,
             name="Water Tank Status",
@@ -337,13 +291,16 @@ class TestElectroluxBinarySensor:
             entity_category=EntityCategory.DIAGNOSTIC,
             icon="mdi:test",
         )
-        # Tank is empty - should be Off (empty is "negative")
-        entity.extract_value = MagicMock(return_value="STEAM_TANK_EMPTY")
-        assert entity.is_on is False
+        # Set entity_key for special handling check
+        entity.entity_key = "watertankempty"
 
-        # Tank is full - should be On (full is "positive")
-        entity.extract_value = MagicMock(return_value="STEAM_TANK_FULL")
+        # Tank is empty - should be True (tank IS empty)
+        entity.reported_state = {"waterTankEmpty": "STEAM_TANK_EMPTY"}
         assert entity.is_on is True
+
+        # Tank is full - should be False (tank is NOT empty)
+        entity.reported_state = {"waterTankEmpty": "STEAM_TANK_FULL"}
+        assert entity.is_on is False
 
     def test_is_on_water_tray_insertion_state(self, mock_coordinator, mock_capability):
         """Test generic enum handling for water tray insertion state sensor."""

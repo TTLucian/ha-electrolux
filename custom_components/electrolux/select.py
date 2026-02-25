@@ -62,7 +62,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         capability: dict[str, Any],
         unit,
         device_class: str,
-        entity_category: EntityCategory,
+        entity_category: EntityCategory | None,
         icon: str,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
@@ -126,9 +126,12 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
     @property
     def current_option(self) -> str:
         """Return the current option."""
-        # If not supported by current program, show no selection
-        if not self._is_supported_by_program():
-            return ""
+        # CONFIG entities (persistent settings) are not program-dependent, always check value
+        # Other entities need program support check
+        if self._entity_category != EntityCategory.CONFIG:
+            # If not supported by current program, show no selection
+            if not self._is_supported_by_program():
+                return ""
 
         value = self.extract_value()
 
@@ -165,16 +168,19 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        # Check if supported by current program
-        if not self._is_supported_by_program():
-            _LOGGER.warning(
-                "Cannot select option %s for appliance %s: not supported by current program",
-                option,
-                self.pnc_id,
-            )
-            raise HomeAssistantError(
-                f"Cannot change '{self.entity_attr}': not supported by current program '{self._get_current_program_name() or 'unknown'}'"
-            )
+        # CONFIG entities (persistent settings) are not program-dependent, skip check
+        # Other entities need program support check
+        if self._entity_category != EntityCategory.CONFIG:
+            # Check if supported by current program
+            if not self._is_supported_by_program():
+                _LOGGER.warning(
+                    "Cannot select option %s for appliance %s: not supported by current program",
+                    option,
+                    self.pnc_id,
+                )
+                raise HomeAssistantError(
+                    f"Cannot change '{self.entity_attr}': not supported by current program '{self._get_current_program_name() or 'unknown'}'"
+                )
 
         # Check if appliance is connected before sending command
         if not self.is_connected():
@@ -187,7 +193,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in and has network connectivity."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
             )
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.

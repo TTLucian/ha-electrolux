@@ -135,7 +135,7 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in and has network connectivity."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
             )
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.
