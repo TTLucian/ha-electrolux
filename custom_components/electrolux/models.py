@@ -215,7 +215,7 @@ class Appliance:
         self._catalog_cache = new_catalog
         return new_catalog
 
-    def get_state(self, attr_name: str) -> dict[str, Any] | None:
+    def get_state(self, attr_name: str) -> Any:
         """Retrieve the start from self.reported_state using the attribute name.
 
         May contain slashes for nested keys.
@@ -246,7 +246,7 @@ class Appliance:
             if result is None:
                 return None
 
-        return result if isinstance(result, dict) else None
+        return result
 
     def update_reported_data(self, reported_data: dict[str, Any]) -> None:
         """Update the reported data."""
@@ -589,9 +589,17 @@ class Appliance:
                 continue
 
             if catalog_item.capability_info and catalog_key not in capabilities_names:
-                # Special case: manualSync button should always be created for all appliances
-                # It's a local operation that doesn't depend on API capabilities
-                is_always_created_entity = catalog_key in ["manualSync"]
+                # Special cases: entities that should always be created even if not in capabilities or reported state
+                # - manualSync: Local operation that doesn't depend on API capabilities
+                # - Fahrenheit display temperatures: Not in capabilities but should persist (show "unknown" vs disappearing)
+                #   These are conversion values that disappear from reported state when probe is unplugged or temp unavailable
+                is_always_created_entity = catalog_key in [
+                    "manualSync",
+                    "displayTemperatureF",
+                    "displayFoodProbeTemperatureF",
+                    "targetTemperatureF",
+                    "targetFoodProbeTemperatureF",
+                ]
 
                 # Check if entity is in appliance state
                 # Use get_state() to properly handle nested paths with slashes (e.g., "networkInterface/linkQualityIndicator")

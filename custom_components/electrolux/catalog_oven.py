@@ -201,8 +201,8 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:thermometer-probe",
     ),
     "targetFoodProbeTemperatureF": ElectroluxDevice(
-        capability_info={"access": "readwrite", "step": 1.0, "type": "temperature"},
-        device_class=NumberDeviceClass.TEMPERATURE,
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
@@ -215,8 +215,8 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:thermometer",
     ),
     "targetTemperatureF": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "temperature"},
-        device_class=NumberDeviceClass.TEMPERATURE,
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",

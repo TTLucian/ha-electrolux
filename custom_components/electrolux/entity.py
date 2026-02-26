@@ -840,10 +840,40 @@ class ElectroluxEntity(CoordinatorEntity):
         )
 
         # If the entity is not in the program capabilities, it's not supported
-        if (
-            full_entity_path not in program_caps
-            and self.entity_attr not in program_caps
-        ):
+        # For temperature entities, also check the other unit since API may only have C or F constraints
+        entity_found = (
+            full_entity_path in program_caps or self.entity_attr in program_caps
+        )
+
+        if not entity_found:
+            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith(
+                "FoodProbeTemperatureF"
+            ):
+                # F entity: check for C counterpart
+                counterpart_attr = self.entity_attr[:-1] + "C"
+                entity_found = counterpart_attr in program_caps
+                if entity_found:
+                    _LOGGER.debug(
+                        "F entity %s supported via C counterpart %s in program %s",
+                        self.entity_attr,
+                        counterpart_attr,
+                        current_program,
+                    )
+            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith(
+                "FoodProbeTemperatureC"
+            ):
+                # C entity: check for F counterpart
+                counterpart_attr = self.entity_attr[:-1] + "F"
+                entity_found = counterpart_attr in program_caps
+                if entity_found:
+                    _LOGGER.debug(
+                        "C entity %s supported via F counterpart %s in program %s",
+                        self.entity_attr,
+                        counterpart_attr,
+                        current_program,
+                    )
+
+        if not entity_found:
             # Special check for targetDuration: always available regardless of program
             if self.entity_attr == "targetDuration":
                 self._is_supported_cache = True
@@ -855,6 +885,21 @@ class ElectroluxEntity(CoordinatorEntity):
         entity_cap = program_caps.get(full_entity_path) or program_caps.get(
             self.entity_attr
         )
+
+        # For temperature entities, also try the other unit if not found
+        if not entity_cap:
+            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith(
+                "FoodProbeTemperatureF"
+            ):
+                # F entity: try C counterpart
+                counterpart_attr = self.entity_attr[:-1] + "C"
+                entity_cap = program_caps.get(counterpart_attr)
+            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith(
+                "FoodProbeTemperatureC"
+            ):
+                # C entity: try F counterpart
+                counterpart_attr = self.entity_attr[:-1] + "F"
+                entity_cap = program_caps.get(counterpart_attr)
         disabled = False
         if isinstance(entity_cap, dict):
             disabled = entity_cap.get("disabled", False)
@@ -902,7 +947,10 @@ class ElectroluxEntity(CoordinatorEntity):
             return False
 
         # Special check for food probe temperature: only available if probe is inserted
-        if self.entity_attr == "targetFoodProbeTemperatureC":
+        if self.entity_attr in [
+            "targetFoodProbeTemperatureC",
+            "targetFoodProbeTemperatureF",
+        ]:
             food_probe_state = self.reported_state.get("foodProbeInsertionState")
             if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:
                 self._is_supported_cache = False
@@ -918,6 +966,9 @@ class ElectroluxEntity(CoordinatorEntity):
 
     def _get_program_constraint(self, key: str) -> int | float | str | bool | None:
         """Get a specific constraint (min/max/step) for the current program.
+
+        For F temperature entities, automatically looks up the C counterpart's constraints
+        since the API only provides program constraints in Celsius.
 
         Performance: Cache constraints since this is called 4+ times per render
         (min, max, step, default). Invalidated when program changes.
@@ -947,7 +998,45 @@ class ElectroluxEntity(CoordinatorEntity):
             if not program_caps:
                 return None
 
+            # Try to get constraint for the entity's attribute
             value = program_caps.get(self.entity_attr, {}).get(key)
+
+            # If not found and this is a temperature entity, try the other unit
+            # API may provide constraints in only C or only F depending on appliance region
+            if value is None:
+                if self.entity_attr.endswith(
+                    "TemperatureF"
+                ) or self.entity_attr.endswith("FoodProbeTemperatureF"):
+                    # F entity: try C counterpart
+                    counterpart_attr = (
+                        self.entity_attr[:-1] + "C"
+                    )  # temperatureF -> temperatureC
+                    value = program_caps.get(counterpart_attr, {}).get(key)
+                    if value is not None:
+                        _LOGGER.debug(
+                            "Using C constraint for F entity %s: %s=%s (from %s)",
+                            self.entity_attr,
+                            key,
+                            value,
+                            counterpart_attr,
+                        )
+                elif self.entity_attr.endswith(
+                    "TemperatureC"
+                ) or self.entity_attr.endswith("FoodProbeTemperatureC"):
+                    # C entity: try F counterpart
+                    counterpart_attr = (
+                        self.entity_attr[:-1] + "F"
+                    )  # temperatureC -> temperatureF
+                    value = program_caps.get(counterpart_attr, {}).get(key)
+                    if value is not None:
+                        _LOGGER.debug(
+                            "Using F constraint for C entity %s: %s=%s (from %s)",
+                            self.entity_attr,
+                            key,
+                            value,
+                            counterpart_attr,
+                        )
+
             # Cache the result (cleared on program change)
             self._constraints_cache[key] = value
             return value
