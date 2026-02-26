@@ -589,6 +589,8 @@ This repository includes comprehensive testing scripts to help you verify applia
 
 Contributions are welcome! This integration is actively maintained and improved.
 
+## 🤝 Special **Thank You!** to all users who helped fund this project!!!
+
 ### 👨‍💻 Development Setup
 1. Fork the repository
 2. Clone your fork
@@ -609,5 +611,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Issues**: [GitHub Issues](https://github.com/TTLucian/ha-electrolux/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/TTLucian/ha-electrolux/discussions)
 - **Documentation**: [Electrolux Developer Portal](https://developer.electrolux.one/)
-
-## Special **Thank You!** to users who helped fund this project:
