@@ -152,6 +152,7 @@ def _get_catalog_by_type():
         "AC": _get_catalog_air_conditioner(),  # Air Conditioner
         "DW": _get_catalog_dishwasher(),  # Dishwasher
         "MW": _get_catalog_microwave(),  # Microwave (in preparation)
+        "Muju": _get_catalog_purifier(),  # Air Purifier (Muju brand)
     }
 
 

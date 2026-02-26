@@ -182,6 +182,20 @@ def time_minutes_to_seconds(minutes: float | None) -> int | None:
     return int(minutes) * SECONDS_PER_MINUTE
 
 
+def celsius_to_fahrenheit(celsius: float | None) -> float | None:
+    """Convert Celsius to Fahrenheit."""
+    if celsius is None:
+        return None
+    return round((celsius * 9 / 5) + 32, 2)
+
+
+def fahrenheit_to_celsius(fahrenheit: float | None) -> float | None:
+    """Convert Fahrenheit to Celsius."""
+    if fahrenheit is None:
+        return None
+    return round((fahrenheit - 32) * 5 / 9, 2)
+
+
 async def retry_with_backoff(
     coro,
     max_retries: int = 3,
@@ -1049,6 +1063,20 @@ def format_command_for_appliance(
         values_dict = capability.get("values", {})
 
         if isinstance(values_dict, dict) and values_dict:
+            # Special case: boolean input for string-based ON/OFF switches
+            if isinstance(value, bool):
+                # Check if this is an ON/OFF switch (case-insensitive)
+                upper_values = {str(k).upper() for k in values_dict.keys()}
+                if upper_values == {"ON", "OFF"}:
+                    # Convert boolean to appropriate string value
+                    target_value = "ON" if value else "OFF"
+                    # Find the exact key with matching case
+                    for key in values_dict.keys():
+                        if key.upper() == target_value:
+                            return key
+                    # Fallback to uppercase if exact match not found
+                    return target_value
+
             # Check if the value is a valid key in the values dict
             if str(value) in values_dict:
                 return str(value)

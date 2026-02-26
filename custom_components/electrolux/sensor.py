@@ -214,6 +214,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if default_value is not None and not isinstance(default_value, dict):
                 value = default_value
 
+        # Temperature sensors: Read directly from API without conversion
+        # If API provides targetTemperatureC, we expose a C sensor
+        # If API provides targetTemperatureF, we expose an F sensor
+        # If API provides both, we expose both - users can choose which to use
+        # No automatic conversion or companion entity creation
+
         if self.entity_attr == "alerts":
             if isinstance(value, list):
                 value = len(value)

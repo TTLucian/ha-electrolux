@@ -338,6 +338,92 @@ class TestFormatCommandForAppliance:
         result = format_command_for_appliance(capability, "mode", "INVALID")
         assert result == "INVALID"
 
+    def test_string_capability_boolean_to_on_off(self):
+        """Test boolean values with string-based ON/OFF switches."""
+        capability = {
+            "type": "string",
+            "values": {
+                "OFF": {},
+                "ON": {},
+            },
+        }
+
+        # Test boolean True converts to "ON"
+        result = format_command_for_appliance(capability, "UVState", True)
+        assert result == "ON"
+
+        # Test boolean False converts to "OFF"
+        result = format_command_for_appliance(capability, "UVState", False)
+        assert result == "OFF"
+
+        # Test string values still work
+        result = format_command_for_appliance(capability, "UVState", "ON")
+        assert result == "ON"
+
+        result = format_command_for_appliance(capability, "UVState", "OFF")
+        assert result == "OFF"
+
+        # Test case-insensitive string values
+        result = format_command_for_appliance(capability, "UVState", "on")
+        assert result == "ON"
+
+        result = format_command_for_appliance(capability, "UVState", "off")
+        assert result == "OFF"
+
+    def test_boolean_vs_string_on_off_switches(self):
+        """Verify boolean-type switches are NOT affected by string ON/OFF conversion."""
+        # Boolean-type capability (like cavityLight in ovens)
+        boolean_capability = {"type": "boolean"}
+
+        # Boolean input should return Python bool, NOT "ON"/"OFF" string
+        result = format_command_for_appliance(boolean_capability, "cavityLight", True)
+        assert result is True
+        assert isinstance(result, bool)
+
+        result = format_command_for_appliance(boolean_capability, "cavityLight", False)
+        assert result is False
+        assert isinstance(result, bool)
+
+        # String-type ON/OFF capability (like UVState in air purifiers)
+        string_on_off_capability = {"type": "string", "values": {"ON": {}, "OFF": {}}}
+
+        # Boolean input should be converted to "ON"/"OFF" string
+        result = format_command_for_appliance(string_on_off_capability, "UVState", True)
+        assert result == "ON"
+        assert isinstance(result, str)
+
+        result = format_command_for_appliance(
+            string_on_off_capability, "UVState", False
+        )
+        assert result == "OFF"
+        assert isinstance(result, str)
+
+    def test_string_capability_with_non_on_off_values(self):
+        """Verify string switches with other values don't trigger boolean conversion."""
+        # String capability with values other than ON/OFF (like Workmode)
+        capability = {
+            "type": "string",
+            "values": {
+                "Auto": {},
+                "Manual": {},
+                "Quiet": {},
+                "PowerOff": {},
+            },
+        }
+
+        # Boolean input should NOT be converted to ON/OFF for non-ON/OFF switches
+        # It should fall through to normal string handling (which will warn and pass through)
+        result = format_command_for_appliance(capability, "Workmode", True)
+        # Should return the original boolean since "True" is not in values
+        assert result is True
+
+        # String values should work normally
+        result = format_command_for_appliance(capability, "Workmode", "Auto")
+        assert result == "Auto"
+
+        result = format_command_for_appliance(capability, "Workmode", "manual")
+        assert result == "Manual"  # Case-insensitive match
+
     def test_temperature_attribute_auto_detection(self):
         """Test that temperature attributes are detected by name."""
         capability = {"type": "number", "min": 15, "max": 30}

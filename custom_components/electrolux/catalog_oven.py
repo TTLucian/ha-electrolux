@@ -88,7 +88,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "displayTemperature": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
@@ -110,7 +109,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "executeCommand": ElectroluxDevice(
         capability_info={
@@ -208,7 +206,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "targetTemperatureC": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "temperature"},
@@ -223,7 +220,6 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "networkInterface/linkQualityIndicator": ElectroluxDevice(
         capability_info={

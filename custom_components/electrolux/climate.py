@@ -117,6 +117,9 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
         )
         self._enable_turn_on_off_backwards_compatibility = False
 
+        # Initialize temperature unit attribute (will be set properly when first accessed)
+        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
+
     @property
     def entity_domain(self):
         """Entity domain for the entry. Used for consistent entity_id."""
@@ -134,6 +137,22 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
             return False
         return super().available
 
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        # Check if temperature unit changed and update attribute for HA to detect
+        new_unit = self._get_temperature_unit()
+        if new_unit != self._attr_temperature_unit:
+            _LOGGER.debug(
+                "Temperature unit changed from %s to %s for %s",
+                self._attr_temperature_unit,
+                new_unit,
+                self.pnc_id,
+            )
+            self._attr_temperature_unit = new_unit
+
+        # Call parent to handle the update
+        super()._handle_coordinator_update()
+
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
@@ -145,14 +164,34 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
             | ClimateEntityFeature.SWING_MODE
         )
 
+    def _get_temperature_unit(self) -> str:
+        """Get the temperature unit from appliance settings.
+
+        First checks if appliance has temperatureRepresentation setting.
+        If not available, falls back to Home Assistant's global temperature unit.
+        """
+        temp_rep = self.get_state_attr("temperatureRepresentation")
+        if temp_rep is not None:
+            # Appliance has temperature representation setting, use it
+            if temp_rep == "FAHRENHEIT":
+                return UnitOfTemperature.FAHRENHEIT
+            return UnitOfTemperature.CELSIUS
+
+        # Fallback to HA's global temperature unit for older appliances
+        return self.hass.config.units.temperature_unit
+
     @property
     def temperature_unit(self) -> str:
-        """Return the unit of measurement."""
-        # Check temperature representation setting
-        temp_rep = self.get_state_attr("temperatureRepresentation")
-        if temp_rep == "FAHRENHEIT":
-            return UnitOfTemperature.FAHRENHEIT
-        return UnitOfTemperature.CELSIUS
+        """Return the unit of measurement.
+
+        This property also updates _attr_temperature_unit to ensure
+        Home Assistant detects unit changes when the appliance's
+        temperatureRepresentation setting changes.
+        """
+        current_unit = self._get_temperature_unit()
+        if current_unit != self._attr_temperature_unit:
+            self._attr_temperature_unit = current_unit
+        return self._attr_temperature_unit
 
     @property
     def current_temperature(self) -> float | None:
@@ -403,11 +442,11 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set new target fan mode."""
-        await self._send_command("fanMode", fan_mode.upper())
+        await self._send_command("fanSpeedSetting", fan_mode.upper())
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         """Set new target swing mode."""
-        await self._send_command("swingMode", swing_mode.upper())
+        await self._send_command("verticalSwing", swing_mode.upper())
 
     async def _send_command(self, attr: str, value: Any) -> None:
         """Send a command to the appliance."""

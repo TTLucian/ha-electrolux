@@ -209,6 +209,12 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if isinstance(self.unit, UnitOfTemperature):
             value = round(value, 2)
 
+        # Temperature controls: Read/write directly to API without conversion
+        # If API provides targetTemperatureC, we expose a C control
+        # If API provides targetTemperatureF, we expose an F control
+        # If API provides both, we expose both - users can choose which to use
+        # No automatic conversion or companion entity creation
+
         # Convert to native units (minutes for time entities)
         if self.unit == UnitOfTime.SECONDS:
             # Convert seconds from API to minutes for UI

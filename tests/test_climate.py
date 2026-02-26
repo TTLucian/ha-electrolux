@@ -150,10 +150,35 @@ class TestElectroluxClimate:
         mock_appliance.reported_state["temperatureRepresentation"] = "FAHRENHEIT"
         assert climate_entity.temperature_unit == UnitOfTemperature.FAHRENHEIT
 
-    def test_temperature_unit_default(self, climate_entity, mock_appliance):
-        """Test temperature unit defaults to Celsius."""
+    def test_temperature_unit_default(
+        self, climate_entity, mock_appliance, mock_coordinator
+    ):
+        """Test temperature unit defaults to HA's global setting when appliance doesn't provide it."""
+        # Remove temperatureRepresentation from appliance
         mock_appliance.reported_state.pop("temperatureRepresentation", None)
+
+        # Mock HA global temperature unit to Celsius
+        mock_coordinator.hass.config.units.temperature_unit = UnitOfTemperature.CELSIUS
+
+        # Should fallback to HA's global unit
         assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+
+    def test_temperature_unit_change_detection(self, climate_entity, mock_appliance):
+        """Test temperature unit attribute updates when temperatureRepresentation changes."""
+        # Start with Celsius
+        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
+        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
+
+        # Change to Fahrenheit - the property should detect this and update the attribute
+        mock_appliance.reported_state["temperatureRepresentation"] = "FAHRENHEIT"
+        assert climate_entity.temperature_unit == UnitOfTemperature.FAHRENHEIT
+        assert climate_entity._attr_temperature_unit == UnitOfTemperature.FAHRENHEIT
+
+        # Change back to Celsius
+        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
+        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
 
     def test_current_temperature_celsius(self, climate_entity, mock_appliance):
         """Test current temperature from Celsius value."""
@@ -435,7 +460,7 @@ class TestElectroluxClimate:
 
         await climate_entity.async_set_fan_mode("low")
 
-        climate_entity._send_command.assert_called_once_with("fanMode", "LOW")
+        climate_entity._send_command.assert_called_once_with("fanSpeedSetting", "LOW")
 
     @pytest.mark.asyncio
     async def test_async_set_swing_mode(self, climate_entity):
@@ -444,7 +469,7 @@ class TestElectroluxClimate:
 
         await climate_entity.async_set_swing_mode("on")
 
-        climate_entity._send_command.assert_called_once_with("swingMode", "ON")
+        climate_entity._send_command.assert_called_once_with("verticalSwing", "ON")
 
     @pytest.mark.asyncio
     async def test_send_command_legacy_appliance(self, climate_entity, mock_appliance):

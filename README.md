@@ -609,3 +609,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Issues**: [GitHub Issues](https://github.com/TTLucian/ha-electrolux/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/TTLucian/ha-electrolux/discussions)
 - **Documentation**: [Electrolux Developer Portal](https://developer.electrolux.one/)
+
+## Special **Thank You!** to users who helped fund this project:
+<!--START_SECTION:buy-me-a-coffee-->
+<!--END_SECTION:buy-me-a-coffe-->

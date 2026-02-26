@@ -8,6 +8,7 @@ from homeassistant.const import (
     CONCENTRATION_PARTS_PER_BILLION,
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
+    Platform,
     UnitOfTemperature,
 )
 from homeassistant.helpers.entity import EntityCategory
@@ -103,12 +104,16 @@ A9 = {
         friendly_name="Filter Life",
     ),
     # Air purifier controls
+    # Note: These definitions represent the superset of capabilities across different models.
+    # Actual values are determined by appliance API responses:
+    # - A9 (PUREA9): Fanspeed 1-9, Workmode: Manual/Auto/PowerOff (no Quiet)
+    # - Muju (UltimateHome 500): Fanspeed 1-5, Workmode: Manual/Auto/Quiet/PowerOff
     "Fanspeed": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "number",
             "min": 1,
-            "max": 9,
+            "max": 9,  # A9 max, Muju uses max=5 (overridden by API)
             "step": 1,
         },
         device_class=None,
@@ -124,6 +129,7 @@ A9 = {
             "values": {
                 "Manual": {"icon": "mdi:hand-back-right"},
                 "Auto": {"icon": "mdi:refresh-auto"},
+                "Quiet": {"icon": "mdi:volume-off"},  # Muju only
                 "PowerOff": {"icon": "mdi:power-off"},
             },
         },
@@ -132,6 +138,30 @@ A9 = {
         entity_category=None,
         entity_icon="mdi:cog",
         friendly_name="Work Mode",
+    ),
+    # Air Purifier Fan Entity - combines Workmode and Fanspeed into unified fan control
+    # This creates a fan entity that provides on/off, speed percentage, and preset modes
+    # The fan entity dynamically adapts to each model's actual capabilities from the API:
+    # - Speed range: A9 (1-9) vs Muju (1-5) automatically detected
+    # - Preset modes: Extracted from available Workmode values (excluding PowerOff)
+    # Keep the Workmode select entity above for users who prefer separate controls
+    "Workmode/fan": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "Manual": {"icon": "mdi:hand-back-right"},
+                "Auto": {"icon": "mdi:refresh-auto"},
+                "Quiet": {"icon": "mdi:volume-off"},  # Muju only
+                "PowerOff": {"icon": "mdi:power-off"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan",
+        friendly_name="Air Purifier",
+        entity_platform=Platform.FAN,
     ),
     "UILight": ElectroluxDevice(
         capability_info={
@@ -167,5 +197,156 @@ A9 = {
         entity_category=None,
         entity_icon="mdi:atom",
         friendly_name="Ionizer",
+    ),
+    #  UltimateHome 500 air purifier specific entities
+    "FilterLife_1": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int", "min": 0, "max": 100},
+        device_class=None,
+        unit=PERCENTAGE,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+        friendly_name="Filter Life",
+    ),
+    "FilterType_1": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        value_mapping={
+            1: "Standard filter",
+            48: "BREEZE Complete air filter",
+            49: "CLEAN Ultrafine particle filter",
+            51: "CARE Ultimate protect filter",
+            64: "Breeze 360 filter",
+            65: "Clean 360 Ultrafine particle filter",
+            66: "Protect 360 filter",
+            67: "Breathe 360 filter",
+            68: "Fresh 360 filter",
+            96: "Breeze 360 filter",
+            99: "Breeze 360 filter",
+            100: "Fresh 360 filter",
+            192: "FRESH Odour protect filter",
+            0: "Filter",
+        },
+        friendly_name="Filter Type",
+    ),
+    "PM2_5_approximate": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "number",
+            "min": 0,
+            "max": 65535,
+            "step": 1,
+        },
+        device_class=SensorDeviceClass.PM25,
+        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        entity_category=None,
+        friendly_name="PM2.5 (Approximate)",
+    ),
+    "UVState": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "OFF": {},
+                "ON": {},
+            },
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:sun-wireless",
+        friendly_name="UV Light",
+    ),
+    "UVRuntime": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.DURATION,
+        unit="s",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:timer",
+        friendly_name="UV Runtime",
+    ),
+    "SchedulingState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "not set": {},
+                "ongoing": {},
+                "done": {},
+                "aborted": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:calendar-clock",
+        friendly_name="Scheduling State",
+    ),
+    # Error sensors
+    "ErrImpellerStuck": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "not active": {},
+                "active": {},
+                "was active": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan-alert",
+        friendly_name="Error: Impeller Stuck",
+    ),
+    "ErrPmNotResp": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "not active": {},
+                "active": {},
+                "was active": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: PM Sensor Not Responding",
+    ),
+    "ErrCommSensorDisplayBrd": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "not active": {},
+                "active": {},
+                "was active": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: Display Board Communication",
+    ),
+    "ErrCommSensorUIBrd": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "not active": {},
+                "active": {},
+                "was active": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: UI Board Communication",
     ),
 }

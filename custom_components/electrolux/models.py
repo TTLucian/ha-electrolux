@@ -23,12 +23,14 @@ from .const import (
     BUTTON,
     CLIMATE,
     DANGEROUS_ENTITIES_BLACKLIST,
+    FAN,
     NUMBER,
     PLATFORMS,
     SELECT,
     SENSOR,
     STATIC_ATTRIBUTES,
     SWITCH,
+    TEXT,
 )
 from .model import ElectroluxDevice
 
@@ -441,19 +443,23 @@ class Appliance:
             from .binary_sensor import ElectroluxBinarySensor
             from .button import ElectroluxButton
             from .climate import ElectroluxClimate
+            from .fan import ElectroluxFan
             from .number import ElectroluxNumber
             from .select import ElectroluxSelect
             from .sensor import ElectroluxSensor
             from .switch import ElectroluxSwitch
+            from .text import ElectroluxText
 
             entity_classes = {
                 BINARY_SENSOR: ElectroluxBinarySensor,
                 BUTTON: ElectroluxButton,
                 CLIMATE: ElectroluxClimate,
+                FAN: ElectroluxFan,
                 NUMBER: ElectroluxNumber,
                 SELECT: ElectroluxSelect,
                 SENSOR: ElectroluxSensor,
                 SWITCH: ElectroluxSwitch,
+                TEXT: ElectroluxText,
             }
 
             entity_class = entity_classes.get(entity_type) if entity_type else None
