@@ -24,6 +24,7 @@ def test_platforms_defined():
         "button",
         "text",
         "climate",
+        "fan",
     ]
     # Convert Platform enums to strings for comparison
     platform_strings = [str(p).split(".")[-1] for p in PLATFORMS]
