@@ -611,5 +611,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Documentation**: [Electrolux Developer Portal](https://developer.electrolux.one/)
 
 ## Special **Thank You!** to users who helped fund this project:
-<!--START_SECTION:buy-me-a-coffee-->
-<!--END_SECTION:buy-me-a-coffe-->
