@@ -30,7 +30,7 @@ Features:
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.config_entries import ConfigEntry
@@ -142,10 +142,12 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
     def get_capability(self, attr_name: str) -> dict[str, Any] | None:
         """Get capability definition for an attribute from appliance."""
-        if not self.appliance_status:
+        if not self.appliance_status or not isinstance(self.appliance_status, dict):
             return None
 
-        capabilities: dict[str, Any] = self.appliance_status.get("capabilities", {})
+        capabilities = cast(
+            dict[str, Any], self.appliance_status.get("capabilities", {})
+        )
         return capabilities.get(attr_name)
 
     @property

@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import Any
+from typing import Any, cast
 
 import jwt
 import voluptuous as vol
@@ -568,7 +568,7 @@ class ElectroluxRepairFlow(FlowHandler):
 
         if user_input is not None:
             # Extract entry_id from the issue_id
-            issue_id = self.context.get("issue_id", "")
+            issue_id = cast(str, self.context.get("issue_id", ""))
             entry_id = issue_id.replace("invalid_refresh_token_", "")
 
             # Get the config entry
@@ -626,7 +626,7 @@ class ElectroluxRepairFlow(FlowHandler):
                 _LOGGER.warning("Invalid credentials provided during repair")
 
         # Show the form with current values as defaults (entry_id in issue_id)
-        issue_id = self.context.get("issue_id", "")
+        issue_id = cast(str, self.context.get("issue_id", ""))
         entry_id = issue_id.replace("invalid_refresh_token_", "")
         entry = self.hass.config_entries.async_get_entry(entry_id)
 
