@@ -145,7 +145,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         if not self.appliance_status:
             return None
 
-        capabilities = self.appliance_status.get("capabilities", {})
+        capabilities: dict[str, Any] = self.appliance_status.get("capabilities", {})
         return capabilities.get(attr_name)
 
     @property
