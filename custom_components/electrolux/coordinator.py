@@ -407,10 +407,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Track this value for next comparison
             self._last_time_to_end[appliance_id] = new_value
 
-        _LOGGER.debug(
-            f"Electrolux appliance state updated for {appliance_id} "
-            f"(incremental: {data[PROPERTY_KEY]} = {data[VALUE_KEY]})"
-        )
+        _LOGGER.debug(f"SSE update received for {appliance_id}: {json.dumps(data)}")
 
         # Log info message when appliance becomes offline
         if (
@@ -433,8 +430,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         if not value_changed:
             _LOGGER.debug(
-                f"Skipping duplicate SSE update for {appliance_id}: "
-                f"{data[PROPERTY_KEY]} = {new_value} (unchanged)"
+                f"SSE duplicate (unchanged) for {appliance_id}: {json.dumps(data)}"
             )
             # Still update last seen time even if value unchanged (keeps appliance alive)
             self._last_update_times[appliance_id] = self.hass.loop.time()

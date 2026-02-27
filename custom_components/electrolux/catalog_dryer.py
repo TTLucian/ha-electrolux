@@ -75,10 +75,9 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
             "type": "string",
             "values": {"CLOSED": {}, "OPEN": {}},
         },
-        device_class=BinarySensorDeviceClass.DOOR,
+        device_class=BinarySensorDeviceClass.OPENING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:door",
     ),
     # Time and duration controls
     "stopTime": ElectroluxDevice(

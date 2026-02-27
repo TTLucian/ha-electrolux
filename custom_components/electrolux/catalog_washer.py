@@ -20,46 +20,13 @@ from .const import (
 from .model import ElectroluxDevice
 
 CATALOG_WASHER: dict[str, ElectroluxDevice] = {
-    # Legacy/basic controls for backward compatibility with older models
-    "preWashPhase": ElectroluxDevice(
-        capability_info={"access": "read", "type": "boolean"},
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:washing-machine",
-    ),
-    "reminderTime": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-            "default": 1200,
-            "max": 2700,
-            "min": 1200,
-            "step": 60,
-            "type": "number",
-        },
-        device_class=NumberDeviceClass.DURATION,
-        unit=UnitOfTime.SECONDS,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:timelapse",
-        entity_registry_enabled_default=False,
-    ),
-    "ui2LockMode": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-        },
+    "userSelections/EWX1493A_preWashPhase": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:lock",
-    ),
-    "vacationHolidayMode": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:airplane",
+        entity_icon="mdi:water-plus",
+        friendly_name="Pre-Wash",
     ),
     # Basic controls
     "defaultExtraRinse": ElectroluxDevice(
@@ -164,10 +131,9 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
             "type": "string",
             "values": {"CLOSED": {}, "OPEN": {}},
         },
-        device_class=BinarySensorDeviceClass.DOOR,
+        device_class=BinarySensorDeviceClass.OPENING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:door",
     ),
     "doorLock": ElectroluxDevice(
         capability_info={
@@ -471,7 +437,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:washing-machine",
         friendly_name="Extra Rinse Number",
     ),
-    "userSelections/anticreaseNoSteam": ElectroluxDevice(
+    "userSelections/EWX1493A_anticreaseNoSteam": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -479,7 +445,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:hanger",
         friendly_name="Anti-Crease No Steam",
     ),
-    "userSelections/anticreaseWSteam": ElectroluxDevice(
+    "userSelections/EWX1493A_anticreaseWSteam": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -487,7 +453,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:hanger",
         friendly_name="Anti-Crease With Steam",
     ),
-    "userSelections/nightCycle": ElectroluxDevice(
+    "userSelections/EWX1493A_nightCycle": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -495,7 +461,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:moon-waning-crescent",
         friendly_name="Night Cycle",
     ),
-    "userSelections/wmEconomy": ElectroluxDevice(
+    "userSelections/EWX1493A_wmEconomy": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -503,7 +469,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:cash",
         friendly_name="Economy Mode",
     ),
-    "userSelections/rinseHold": ElectroluxDevice(
+    "userSelections/EWX1493A_rinseHold": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -511,7 +477,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:water-pause",
         friendly_name="Rinse Hold",
     ),
-    "userSelections/intensive": ElectroluxDevice(
+    "userSelections/EWX1493A_intensive": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
@@ -519,7 +485,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:power-high",
         friendly_name="Intensive Wash",
     ),
-    "userSelections/tcSensor": ElectroluxDevice(
+    "userSelections/EWX1493A_tcSensor": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,

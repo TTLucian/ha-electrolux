@@ -9,13 +9,13 @@ body:
       value: |
         Thanks for taking the time to report a bug! 
         
-        **📝 Quick tip:** The more details you provide, the faster we can help you. But don't worry - only the description is required. Fill out what you can!
+        **📝 Quick tip:** The more details you provide, the faster we can help you. Fill out what you can!
 
   - type: textarea
     id: description
     attributes:
       label: What happened?
-      description: A brief description of the issue. This is the only required field - everything else is optional but helpful!
+      description: A brief description of the issue.
       placeholder: Tell us what happened...
     validations:
       required: true
@@ -76,31 +76,31 @@ body:
   - type: input
     id: device-model
     attributes:
-      label: Device Model (Optional)
+      label: Device Type/Model from ID
       description: Which Electrolux device(s) are affected?
       placeholder: "e.g., Washer-Dryer EW9W161B, Air Conditioner EACS-09HG"
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: diagnostics
     attributes:
-      label: Diagnostics File (Very Helpful!)
+      label: Diagnostics File (Very Helpful!). It's now required because none of you are uploading diagnostics, and it's really hard to fix bugs without them.
       description: |
         **This really helps us fix bugs faster!** Download diagnostics:
         Settings → Devices & Services → Electrolux → Select Device → Download Diagnostics
         
         **Privacy:** Sensitive data (API keys, tokens) is automatically redacted, but please double-check before uploading.
-      placeholder: Drag and drop the diagnostics JSON file here (or leave empty)
+      placeholder: Drag and drop the diagnostics JSON file here
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Debug Logs (Optional but Very Helpful)
+      label: Debug Logs (Very Helpful). It's now required because none of you are uploading debug logs, and it's really hard to fix bugs without them.
       description: |
-        If you can, enable debug logging and paste relevant logs:
+        Enable debug logging and paste relevant logs:
         
         Add to configuration.yaml:
         ```yaml
@@ -110,11 +110,11 @@ body:
             custom_components.electrolux: debug
         ```
         
-        Then restart HA, reproduce the issue, and paste logs below.
-      placeholder: Paste logs here (or leave empty)
+        Then restart HA, reproduce the issue, filter by "electrolux" keyword and paste logs below.
+      placeholder: Paste logs here
       render: text
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: additional

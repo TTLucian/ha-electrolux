@@ -10,6 +10,7 @@ from homeassistant.const import (
     PERCENTAGE,
     Platform,
     UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.helpers.entity import EntityCategory
 
@@ -67,10 +68,9 @@ A9 = {
     ),
     "DoorOpen": ElectroluxDevice(
         capability_info={"access": "read", "type": "boolean"},
-        device_class=BinarySensorDeviceClass.DOOR,
+        device_class=BinarySensorDeviceClass.OPENING,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        # entity_icon="mdi:cup-outline",
         friendly_name="Door Open",
     ),
     "FilterType": ElectroluxDevice(
@@ -262,7 +262,7 @@ A9 = {
     "UVRuntime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.DURATION,
-        unit="s",
+        unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timer",
         friendly_name="UV Runtime",

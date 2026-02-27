@@ -15,14 +15,11 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
             "values": {
                 "CLOSED": {},
                 "OPEN": {},
-                "OPENING": {},
-                "CLOSING": {},
             },
         },
-        device_class=None,
+        device_class=BinarySensorDeviceClass.OPENING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:door-closed",
     ),
     # Appliance state
     "applianceState": ElectroluxDevice(
@@ -386,21 +383,22 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         friendly_name="Eco Mode",
     ),
     # Appliance care and maintenance
-    "applianceCareAndMaintenance0/1/occured": ElectroluxDevice(
+    "applianceCareAndMaintenance0/maint1_occured": ElectroluxDevice(
         capability_info={
             "access": "read",
             "type": "boolean",
+            "values": {},
         },
         device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:wrench",
         friendly_name="Maintenance Required",
     ),
-    "applianceCareAndMaintenance0/1/threshold": ElectroluxDevice(
+    "applianceCareAndMaintenance0/maint1_threshold": ElectroluxDevice(
         capability_info={
             "access": "read",
-            "type": "number",
+            "type": "int",
+            "values": {},
         },
         device_class=None,
         unit=None,

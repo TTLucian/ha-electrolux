@@ -1,9 +1,10 @@
 """Defined catalog of entities for air conditioner type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .model import ElectroluxDevice
@@ -141,7 +142,7 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
             "step": 5,
             "unit": "%",
         },
-        device_class=None,
+        device_class=NumberDeviceClass.HUMIDITY,
         unit="%",
         entity_category=None,
         entity_icon="mdi:water-percent",
@@ -152,21 +153,10 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
             "type": "number",
             "unit": "%",
         },
-        device_class=None,
+        device_class=SensorDeviceClass.HUMIDITY,
         unit="%",
         entity_category=None,
         entity_icon="mdi:water-percent",
-    ),
-    # Power state
-    "powerState": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-            "type": "boolean",
-        },
-        device_class=SwitchDeviceClass.SWITCH,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:power",
     ),
     # Filter status
     "filterStatus": ElectroluxDevice(
@@ -175,21 +165,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
-    ),
-    # Door/window sensors
-    "doorState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "boolean"},
-        device_class=BinarySensorDeviceClass.DOOR,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:door",
-    ),
-    "windowState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "boolean"},
-        device_class=BinarySensorDeviceClass.WINDOW,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:window-open",
     ),
     # Timer controls
     "startTime": ElectroluxDevice(
@@ -317,15 +292,15 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
     ),
     "airFilterLifeTime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
-        unit=None,
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
     ),
     "hepaFilterLifeTime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
-        unit=None,
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
         entity_registry_enabled_default=False,
@@ -432,7 +407,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:air-filter",
         entity_registry_enabled_default=True,
         friendly_name="Air Filter Clean Required",
     ),
@@ -445,7 +419,6 @@ CATALOG_AIR_CONDITIONER: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:alert",
         entity_registry_enabled_default=True,
         friendly_name="AC Alerts Supported",
     ),

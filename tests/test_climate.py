@@ -127,6 +127,37 @@ class TestElectroluxClimate:
         entity.get_state_attr = lambda path: mock_appliance.reported_state.get(path)
         return entity
 
+    @pytest.fixture
+    def climate_entity_f(self, mock_appliance, mock_coordinator):
+        """Create a test climate entity with F-only capabilities (e.g. US market)."""
+        capability = {
+            "targetTemperatureF": {
+                "min": 60,
+                "max": 86,
+            },
+        }
+        entity = ElectroluxClimate(
+            coordinator=mock_coordinator,
+            name="Test AC F",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id=mock_appliance.pnc_id,
+            entity_type=CLIMATE,
+            entity_name="climate",
+            entity_attr="climate",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:air-conditioner",
+            catalog_entry=None,
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = mock_appliance.state
+        entity._reported_state_cache = mock_appliance.reported_state
+        entity.get_state_attr = lambda path: mock_appliance.reported_state.get(path)
+        return entity
+
     def test_entity_domain(self, climate_entity):
         """Test entity domain property."""
         assert climate_entity.entity_domain == CLIMATE
@@ -140,56 +171,59 @@ class TestElectroluxClimate:
         assert features & ClimateEntityFeature.FAN_MODE
         assert features & ClimateEntityFeature.SWING_MODE
 
-    def test_temperature_unit_celsius(self, climate_entity, mock_appliance):
-        """Test temperature unit returns Celsius."""
-        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
-        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
-
-    def test_temperature_unit_fahrenheit(self, climate_entity, mock_appliance):
-        """Test temperature unit returns Fahrenheit."""
-        mock_appliance.reported_state["temperatureRepresentation"] = "FAHRENHEIT"
-        assert climate_entity.temperature_unit == UnitOfTemperature.FAHRENHEIT
-
-    def test_temperature_unit_default(
-        self, climate_entity, mock_appliance, mock_coordinator
-    ):
-        """Test temperature unit defaults to HA's global setting when appliance doesn't provide it."""
-        # Remove temperatureRepresentation from appliance
-        mock_appliance.reported_state.pop("temperatureRepresentation", None)
-
-        # Mock HA global temperature unit to Celsius
-        mock_coordinator.hass.config.units.temperature_unit = UnitOfTemperature.CELSIUS
-
-        # Should fallback to HA's global unit
-        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
-
-    def test_temperature_unit_change_detection(self, climate_entity, mock_appliance):
-        """Test temperature unit attribute updates when temperatureRepresentation changes."""
-        # Start with Celsius
-        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
+    def test_temperature_unit_celsius(self, climate_entity):
+        """Test temperature unit is Celsius when targetTemperatureC is in capabilities."""
+        # The climate_entity fixture has targetTemperatureC in capabilities
         assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
         assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
 
-        # Change to Fahrenheit - the property should detect this and update the attribute
-        mock_appliance.reported_state["temperatureRepresentation"] = "FAHRENHEIT"
-        assert climate_entity.temperature_unit == UnitOfTemperature.FAHRENHEIT
-        assert climate_entity._attr_temperature_unit == UnitOfTemperature.FAHRENHEIT
+    def test_temperature_unit_fahrenheit(self, climate_entity_f):
+        """Test temperature unit is Fahrenheit for F-only capabilities (e.g. US market)."""
+        # climate_entity_f has only targetTemperatureF in capabilities
+        assert climate_entity_f.temperature_unit == UnitOfTemperature.FAHRENHEIT
+        assert climate_entity_f._attr_temperature_unit == UnitOfTemperature.FAHRENHEIT
 
-        # Change back to Celsius
-        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
+    def test_temperature_unit_default_empty_capabilities(self, mock_coordinator):
+        """Test temperature unit defaults to Celsius when capabilities have no temperature entry."""
+        entity = ElectroluxClimate(
+            coordinator=mock_coordinator,
+            name="Test AC",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=CLIMATE,
+            entity_name="climate",
+            entity_attr="climate",
+            entity_source=None,
+            capability={},  # No temperature capability
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:air-conditioner",
+            catalog_entry=None,
+        )
+        assert entity.temperature_unit == UnitOfTemperature.CELSIUS
+
+    def test_temperature_unit_stable_at_runtime(self, climate_entity):
+        """Test that temperature unit does not change when temperatureRepresentation state changes.
+
+        The unit is determined once from capabilities at init — the device's panel
+        display preference (temperatureRepresentation) does not affect the climate entity.
+        """
+        # Unit was set to CELSIUS at init from capabilities
         assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+        # Changing the state attribute has no effect
         assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity._temp_suffix == "C"
 
     def test_current_temperature_celsius(self, climate_entity, mock_appliance):
         """Test current temperature from Celsius value."""
         mock_appliance.reported_state["ambientTemperatureC"] = 25.0
         assert climate_entity.current_temperature == 25.0
 
-    def test_current_temperature_fahrenheit(self, climate_entity, mock_appliance):
-        """Test current temperature from Fahrenheit value."""
-        mock_appliance.reported_state.pop("ambientTemperatureC", None)
+    def test_current_temperature_fahrenheit(self, climate_entity_f, mock_appliance):
+        """Test current temperature from Fahrenheit value on an F-only entity."""
         mock_appliance.reported_state["ambientTemperatureF"] = 77.0
-        assert climate_entity.current_temperature == 77.0
+        assert climate_entity_f.current_temperature == 77.0
 
     def test_current_temperature_none(self, climate_entity, mock_appliance):
         """Test current temperature returns None when missing."""
@@ -202,12 +236,11 @@ class TestElectroluxClimate:
         mock_appliance.reported_state["targetTemperatureC"] = 22.0
         assert climate_entity.target_temperature == 22.0
 
-    def test_target_temperature_fahrenheit(self, climate_entity, mock_appliance):
-        """Test target temperature from Fahrenheit value."""
-        mock_appliance.reported_state.pop("targetTemperatureC", None)
+    def test_target_temperature_fahrenheit(self, climate_entity_f, mock_appliance):
+        """Test target temperature from Fahrenheit value on an F-only entity."""
         mock_appliance.reported_state["targetTemperatureF"] = 71.6
         # Temperature should be rounded to nearest integer for display
-        assert climate_entity.target_temperature == 72
+        assert climate_entity_f.target_temperature == 72
 
     def test_target_temperature_none(self, climate_entity, mock_appliance):
         """Test target temperature returns None when missing."""
@@ -354,26 +387,24 @@ class TestElectroluxClimate:
         assert entity.max_temp == 30.0
 
     @pytest.mark.asyncio
-    async def test_async_set_temperature_celsius(self, climate_entity, mock_appliance):
-        """Test setting temperature in Celsius."""
+    async def test_async_set_temperature_celsius(self, climate_entity):
+        """Test setting temperature on a C-only entity sends to targetTemperatureC."""
         climate_entity._send_command = AsyncMock()
-        mock_appliance.reported_state["temperatureRepresentation"] = "CELSIUS"
 
         await climate_entity.async_set_temperature(temperature=24.0)
 
         climate_entity._send_command.assert_called_once_with("targetTemperatureC", 24.0)
 
     @pytest.mark.asyncio
-    async def test_async_set_temperature_fahrenheit(
-        self, climate_entity, mock_appliance
-    ):
-        """Test setting temperature in Fahrenheit."""
-        climate_entity._send_command = AsyncMock()
-        mock_appliance.reported_state["temperatureRepresentation"] = "FAHRENHEIT"
+    async def test_async_set_temperature_fahrenheit(self, climate_entity_f):
+        """Test setting temperature on an F-only entity sends to targetTemperatureF."""
+        climate_entity_f._send_command = AsyncMock()
 
-        await climate_entity.async_set_temperature(temperature=75.0)
+        await climate_entity_f.async_set_temperature(temperature=75.0)
 
-        climate_entity._send_command.assert_called_once_with("targetTemperatureF", 75.0)
+        climate_entity_f._send_command.assert_called_once_with(
+            "targetTemperatureF", 75.0
+        )
 
     @pytest.mark.asyncio
     async def test_async_set_temperature_no_value(self, climate_entity):

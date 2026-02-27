@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfTime
@@ -381,10 +382,9 @@ def _get_catalog_base():
                     "disconnected": {},
                 },
             },
-            device_class=None,
+            device_class=BinarySensorDeviceClass.CONNECTIVITY,
             unit=None,
             entity_category=EntityCategory.DIAGNOSTIC,
-            entity_icon="mdi:lan-connect",
             friendly_name="Connectivity State",
         ),
         "manualSync": ElectroluxDevice(

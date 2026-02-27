@@ -82,10 +82,9 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
             "type": "string",
             "values": {"CLOSED": {}, "OPEN": {}},
         },
-        device_class=BinarySensorDeviceClass.DOOR,
+        device_class=BinarySensorDeviceClass.OPENING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:fridge-variant",
     ),
     "upperOven/executeCommand": ElectroluxDevice(
         capability_info={
@@ -118,7 +117,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PLUG,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:thermometer-probe",
     ),
     "upperOven/preheatComplete": ElectroluxDevice(
         capability_info={
@@ -224,6 +222,13 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
     ),
+    "upperOven/targetFoodProbeTemperatureF": ElectroluxDevice(
+        capability_info={"access": "readwrite", "step": 1.0, "type": "temperature"},
+        device_class=NumberDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.FAHRENHEIT,
+        entity_category=None,
+        entity_icon="mdi:thermometer-probe",
+    ),
     "upperOven/targetFoodProbeTemperatureEndAction": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -244,14 +249,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:thermometer-alert",
     ),
-    "upperOven/targetFoodProbeTemperatureF": ElectroluxDevice(
-        capability_info={"access": "readwrite", "step": 1.0, "type": "temperature"},
-        device_class=NumberDeviceClass.TEMPERATURE,
-        unit=UnitOfTemperature.FAHRENHEIT,
-        entity_category=None,
-        entity_icon="mdi:thermometer-probe",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
-    ),
     "upperOven/targetTemperatureC": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "temperature"},
         device_class=NumberDeviceClass.TEMPERATURE,
@@ -265,7 +262,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         unit=UnitOfTemperature.FAHRENHEIT,
         entity_category=None,
         entity_icon="mdi:thermometer",
-        entity_registry_enabled_default=False,  # Disabled: API reports Celsius values in F fields
     ),
     "upperOven/timeToEnd": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
@@ -301,7 +297,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PLUG,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:tray",
     ),
     "upperOven/reminderTime": ElectroluxDevice(
         capability_info={
@@ -346,7 +341,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:water-alert",
     ),
     "cleaningReminder": ElectroluxDevice(
         capability_info={
@@ -357,7 +351,6 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         device_class=BinarySensorDeviceClass.PROBLEM,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:broom",
     ),
     "childLock": ElectroluxDevice(
         capability_info={

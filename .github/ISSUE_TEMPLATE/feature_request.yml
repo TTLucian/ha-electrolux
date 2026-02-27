@@ -41,11 +41,11 @@ body:
   - type: input
     id: device-model
     attributes:
-      label: Device Model (Optional)
+      label: Device Type/Model from ID
       description: Which devices would this apply to?
       placeholder: "e.g., All devices, Air Conditioners, Ovens, etc."
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: use-case

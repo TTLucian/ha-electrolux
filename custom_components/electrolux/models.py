@@ -574,6 +574,27 @@ class Appliance:
 
         # Add catalog entities that have capability_info defined, even if not in API capabilities
         # This ensures entities like targetDuration are always created for applicable appliance types
+
+        # Detect food probe support once before the catalog loop so we can decide whether
+        # to persist food probe display entities when the probe is disconnected.
+        # Primary signal: foodProbeInsertionState is only advertised by ovens that physically
+        # have a food probe slot — it is the definitive hardware-presence indicator.
+        # Fallback: any food-probe-related capability in the capabilities list (covers edge
+        # cases where the hardware sensor key name may differ across appliance generations).
+        _food_probe_fallback_keys = {
+            "targetFoodProbeTemperatureC",
+            "targetFoodProbeTemperatureF",
+            "displayFoodProbeTemperatureC",
+            "displayFoodProbeTemperatureF",
+        }
+        has_food_probe = bool(
+            capabilities_names
+            and (
+                "foodProbeInsertionState" in capabilities_names
+                or any(k in capabilities_names for k in _food_probe_fallback_keys)
+            )
+        )
+
         for catalog_key, catalog_item in self.catalog.items():
             # SECURITY: Skip dangerous entities that could damage appliance functionality
             # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
@@ -591,15 +612,15 @@ class Appliance:
             if catalog_item.capability_info and catalog_key not in capabilities_names:
                 # Special cases: entities that should always be created even if not in capabilities or reported state
                 # - manualSync: Local operation that doesn't depend on API capabilities
-                # - Fahrenheit display temperatures: Not in capabilities but should persist (show "unknown" vs disappearing)
-                #   These are conversion values that disappear from reported state when probe is unplugged or temp unavailable
-                is_always_created_entity = catalog_key in [
-                    "manualSync",
-                    "displayTemperatureF",
-                    "displayFoodProbeTemperatureF",
-                    "targetTemperatureF",
-                    "targetFoodProbeTemperatureF",
-                ]
+                # - displayFoodProbeTemperatureF/C: These sensors vanish from reported state when the food probe
+                #   is physically disconnected. We keep them alive (showing "unknown") so they don't disappear
+                #   entirely from the UI — but ONLY on devices that actually advertise food probe capabilities.
+                #   displayTemperatureF is a normal capability and does NOT belong here.
+                is_always_created_entity = catalog_key == "manualSync" or (
+                    has_food_probe
+                    and catalog_key
+                    in {"displayFoodProbeTemperatureF", "displayFoodProbeTemperatureC"}
+                )
 
                 # Check if entity is in appliance state
                 # Use get_state() to properly handle nested paths with slashes (e.g., "networkInterface/linkQualityIndicator")
