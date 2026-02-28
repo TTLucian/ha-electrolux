@@ -51,9 +51,9 @@ def _get_catalog_purifier():
 @lru_cache(maxsize=None)
 def _get_catalog_refrigerator():
     """Lazy load refrigerator catalog."""
-    from .catalog_refrigerator import CATALOG_REFRIGERATOR, EHE6899SA
+    from .catalog_refrigerator import CATALOG_REFRIGERATOR
 
-    return CATALOG_REFRIGERATOR, EHE6899SA
+    return CATALOG_REFRIGERATOR
 
 
 @lru_cache(maxsize=None)
@@ -107,18 +107,13 @@ def _get_catalog_model():
     standard appliance-type definitions.
 
     Currently supports:
-    - EHE6899SA: Refrigerator model with specific overrides
-    - 925060324 (EHE6899BA): French door fridge with same overrides as EHE6899SA
     - A9: Air purifier model with specific overrides
 
     Returns:
         dict: Mapping of model names to their override configurations
     """
-    _, EHE6899SA = _get_catalog_refrigerator()
     A9 = _get_catalog_purifier()
     return {
-        "EHE6899SA": EHE6899SA,
-        "925060324": EHE6899SA,  # EHE6899BA French door fridge (same overrides)
         "A9": A9,
     }
 
@@ -149,8 +144,8 @@ def _get_catalog_by_type():
     return {
         "OV": _get_catalog_oven(),  # Oven
         "SO": _get_catalog_steam_oven(),  # Steam Oven (dedicated catalog for upperOven nesting)
-        "RF": _get_catalog_refrigerator()[0],  # Refrigerator
-        "CR": _get_catalog_refrigerator()[0],  # Combined Refrigerator (French door)
+        "RF": _get_catalog_refrigerator(),  # Refrigerator
+        "CR": _get_catalog_refrigerator(),  # Combined Refrigerator (French door)
         "WM": _get_catalog_washer(),  # Washing Machine
         "WD": _get_catalog_washer_dryer(),  # Washer-Dryer
         "TD": _get_catalog_dryer(),  # Tumble Dryer

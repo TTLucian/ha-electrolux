@@ -581,9 +581,8 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
         friendly_name="Appliance Mode",
     ),
-}
-
-EHE6899SA = {
+    # Dual child lock controls — models with two separate door locks (e.g. EHE6899SA/BA)
+    # report both keys; single-lock models only report uiLockMode and ignore ui2LockMode.
     "uiLockMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -601,7 +600,7 @@ EHE6899SA = {
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:lock",
+        entity_icon="mdi:lock-outline",
         friendly_name="Child Lock External",
     ),
 }
