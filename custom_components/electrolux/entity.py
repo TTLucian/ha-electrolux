@@ -574,16 +574,6 @@ class ElectroluxEntity(CoordinatorEntity):
             type_part = f"{type_display}-" if type_display else ""
             display_model = f"Model: {type_part}{short_id}"
 
-        _LOGGER.debug(
-            "Device info for %s: name='%s', type='%s', short_id='%s', mac='%s', display='%s'",
-            self.pnc_id,
-            name,
-            appliance_type,
-            short_id,
-            mac_address,
-            display_model,
-        )
-
         device_info: DeviceInfo = {
             "identifiers": {(DOMAIN, self.pnc_id)},
             "name": name or model,
