@@ -1120,6 +1120,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             brand = appliance_info.get("brand") if appliance_info else ""
             if not brand:
                 brand = "Electrolux"
+            serial_number = (
+                appliance_info.get("serial_number") if appliance_info else None
+            )
 
             # Create appliance object
             if not appliance_id:
@@ -1133,6 +1136,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 brand=brand,
                 model=appliance_model,
                 state=cast(ApplianceState, appliance_state),
+                serial_number=serial_number,
             )
 
             # Thread-safe addition to appliances dict

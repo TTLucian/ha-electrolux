@@ -40,6 +40,56 @@ from .util import (
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
+def _get_capability_constraint(capability: dict, key: str) -> float | None:
+    """Extract min/max/step from a capability dict, supporting standard and DAM range formats.
+
+    Standard format (legacy appliances): {"min": 16, "max": 32, "step": 1}
+    DAM single-range format: {"range": [min, max, step]}
+    DAM multi-range format: {"ranges": [[min, max, step], [min2, max2, step2], ...]}
+      - "min": smallest min across all ranges
+      - "max": largest max across all ranges
+      - "step": smallest non-zero step across all ranges
+
+    Args:
+        capability: The capability dict from the API/catalog.
+        key: One of "min", "max", or "step".
+
+    Returns:
+        The numeric constraint value, or None if not available.
+    """
+    # Standard format takes precedence (also used by catalog overrides)
+    val = capability.get(key)
+    if val is not None:
+        return float(val)
+
+    index = {"min": 0, "max": 1, "step": 2}.get(key)
+    if index is None:
+        return None
+
+    # DAM single-range format: range: [min, max, step]
+    range_arr = capability.get("range")
+    if isinstance(range_arr, list) and len(range_arr) > index:
+        raw = range_arr[index]
+        if raw is not None:
+            return float(raw)
+
+    # DAM multi-range format: ranges: [[min, max, step], ...]
+    ranges = capability.get("ranges")
+    if isinstance(ranges, list) and ranges:
+        valid = [r for r in ranges if isinstance(r, list) and len(r) > index]
+        if valid:
+            if key == "min":
+                return float(min(r[0] for r in valid))
+            elif key == "max":
+                vals = [r[1] for r in valid if len(r) > 1]
+                return float(max(vals)) if vals else None
+            elif key == "step":
+                steps = [r[2] for r in valid if len(r) > 2 and r[2] > 0]
+                return float(min(steps)) if steps else None
+
+    return None
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -323,8 +373,8 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if global_default is not None and isinstance(global_default, (int, float)):
             return float(global_default)
 
-        # Fall back to global capability min
-        global_min = self.capability.get("min")
+        # Fall back to global capability min (also handles DAM range format)
+        global_min = _get_capability_constraint(self.capability, "min")
         if global_min is not None and isinstance(global_min, (int, float)):
             return float(global_min)
 
@@ -395,7 +445,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # 2. Fallback to API/Program logic
         val = self._get_program_constraint(key)
         if val is None:
-            val = self.capability.get(key)
+            val = _get_capability_constraint(self.capability, key)
 
         # Ensure val is numeric or None before proceeding
         if val is not None and not isinstance(val, (int, float)):
@@ -408,9 +458,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
             val = None
 
-        # Final fallback to capability if program constraint was invalid
+        # Final fallback to capability if program constraint was invalid (also handles DAM range)
         if val is None:
-            val = self.capability.get(key)
+            val = _get_capability_constraint(self.capability, key)
 
         # For
         # C and targetFoodProbeTemperatureC, use 0.0 as last resort if no API values
@@ -451,7 +501,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 return TEMP_OVEN_STEP
             return DEFAULT_NUMBER_STEP
         if val is None and self.capability:
-            val = self.capability.get(key)
+            val = _get_capability_constraint(self.capability, key)
         return float(val or DEFAULT_NUMBER_STEP)
 
     async def async_set_native_value(self, value: float) -> None:
@@ -554,7 +604,8 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 command_value,
             )
 
-        if self.capability.get("step", 1) == 1:
+        cap_step = _get_capability_constraint(self.capability, "step")
+        if cap_step is None or cap_step == 1:
             command_value = int(command_value)
 
         client: ElectroluxApiClient = self.api

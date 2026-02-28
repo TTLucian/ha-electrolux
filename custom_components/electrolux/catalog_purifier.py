@@ -349,4 +349,21 @@ A9 = {
         entity_icon="mdi:alert-circle",
         friendly_name="Error: UI Board Communication",
     ),
+    "SignalStrength": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "EXCELLENT": {},
+                "GOOD": {},
+                "FAIR": {},
+                "WEAK": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:wifi-strength-3",
+        friendly_name="Signal Strength",
+    ),
 }

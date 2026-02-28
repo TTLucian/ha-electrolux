@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
@@ -509,43 +509,91 @@ class ElectroluxEntity(CoordinatorEntity):
         model = appliance.model
         brand = appliance.brand or "Electrolux"
         name = appliance.name
+        appliance_type = appliance.appliance_type
 
-        # Debug logging to see what information we have
-        _LOGGER.debug(
-            "Device info for appliance %s: name='%s', model='%s', brand='%s', appliance_type='%s'",
-            self.pnc_id,
-            name,
-            model,
-            brand,
-            appliance.appliance_type,
-        )
-
-        # If model is "Unknown" or empty, try to get better info
+        # Fallback model when API returns nothing useful
         if not model or model == "Unknown":
-            # Try to get appliance type from state
-            appliance_type = appliance.appliance_type
             if appliance_type and appliance_type != "Unknown":
                 model = str(appliance_type)
-                _LOGGER.debug(
-                    "Using appliance_type '%s' as model for %s",
-                    appliance_type,
-                    self.pnc_id,
-                )
             else:
-                # Use appliance name as last resort
                 model = name or "Unknown Appliance"
-                _LOGGER.debug(
-                    "Using appliance name '%s' as model for %s", model, self.pnc_id
-                )
+
+        # ----------------------------------------------------------------
+        # Build a descriptive model string for the HA device info panel.
+        #
+        # Device IDs come in two formats:
+        #   Standard:  "{pnc}_{suffix}:{mac}"  e.g. "916099949_00:50712918-443E075944BD"
+        #   Long/Muju: plain numeric string     e.g. "956006959323006505087076"
+        #
+        # We extract the human-readable part (before the MAC address colon)
+        # and prefix it with the appliance type code from the reported state.
+        # Format: "Model: TD-916099949_00"
+        # ----------------------------------------------------------------
+        raw_pnc = self.pnc_id
+        # DAM devices have a "1:" prefix e.g. "1:950022200_00:34509998-443E074D965A"
+        # Strip it so the rest of the parsing logic is identical
+        effective_pnc = raw_pnc[2:] if raw_pnc.startswith("1:") else raw_pnc
+        # Split MAC address from device ID on ':'
+        pnc_parts = effective_pnc.split(":", 1)
+        short_id = pnc_parts[0]
+        # The suffix after ':' is "{8-char-id}-{12-char-MAC}" e.g. "31862190-443E07363DAB"
+        # Extract and format the MAC part as "44:3E:07:36:3D:AB"
+        mac_address: str | None = None
+        if len(pnc_parts) > 1:
+            raw_suffix = pnc_parts[1]
+            # MAC is the 12-char hex string after the '-'
+            dash_pos = raw_suffix.rfind("-")
+            if dash_pos != -1:
+                mac_raw = raw_suffix[dash_pos + 1 :]
+                if len(mac_raw) == 12 and all(
+                    c in "0123456789ABCDEFabcdef" for c in mac_raw
+                ):
+                    mac_address = ":".join(
+                        mac_raw[i : i + 2].upper() for i in range(0, 12, 2)
+                    )
+                else:
+                    mac_address = raw_suffix
+            else:
+                mac_address = raw_suffix
+
+        # Standard format has an underscore-separated suffix and a numeric PNC
+        is_standard = "_" in short_id and short_id.split("_")[0].isdigit()
+
+        if is_standard:
+            # e.g. "Model: TD-916099949_00" or "Model: AC-950022200_00" (DAM prefix stripped)
+            type_display = (
+                appliance_type.replace("DAM_", "") if appliance_type else None
+            )
+            type_part = f"{type_display}-" if type_display else ""
+            display_model = f"Model: {type_part}{short_id}"
+        else:
+            # Long/Muju IDs – show as-is with type prefix when known
+            type_display = (
+                appliance_type.replace("DAM_", "") if appliance_type else None
+            )
+            type_part = f"{type_display}-" if type_display else ""
+            display_model = f"Model: {type_part}{short_id}"
+
+        _LOGGER.debug(
+            "Device info for %s: name='%s', type='%s', short_id='%s', mac='%s', display='%s'",
+            self.pnc_id,
+            name,
+            appliance_type,
+            short_id,
+            mac_address,
+            display_model,
+        )
 
         device_info: DeviceInfo = {
             "identifiers": {(DOMAIN, self.pnc_id)},
             "name": name or model,
-            "model": model,
+            "model": display_model,
             "manufacturer": brand,
+            "serial_number": appliance.serial_number or None,
         }
+        if mac_address:
+            device_info["connections"] = {(CONNECTION_NETWORK_MAC, mac_address)}
 
-        _LOGGER.debug("Final device_info for %s: %s", self.pnc_id, device_info)
         return device_info
 
     @property
@@ -568,7 +616,11 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # 1. Constant access check
         if self.capability.get("access") == "constant":
-            return self.capability.get("default")
+            # Standard format uses "default"; DAM format uses "value"
+            val = self.capability.get("default")
+            if val is None:
+                val = self.capability.get("value")
+            return val
 
         # 2. Support/Constraint Check (The "Lock" logic)
         # If the program or hardware (probe not inserted) doesn't support the entity:

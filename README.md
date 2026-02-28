@@ -22,6 +22,60 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 
 **⚠️ Disclaimer:** This Home Assistant integration was not made by Electrolux. It is not official, not developed, and not supported by Electrolux.
 
+## 🔌 Supported Devices
+
+**All Electrolux Group appliances connected via the official app should work with this integration.** Every connected appliance will have entities created dynamically from whatever the API reports — at minimum including connectivity state, software version, and network interface.
+
+Full catalog support means the integration has been tested against real diagnostic data for that model — providing correct `device_class`, units, icons, and entity categories for all available entities. Without a catalog entry, entities are still created for everything the API reports but appear as generic sensors with no device class, unit, icon, or friendly name.
+
+> 📎 **Help improve support for your appliance** — download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
+
+### ✅ Fully Catalog-Supported Models (verified from diagnostic samples)
+
+The table below lists all appliance types and the known-tested diagnostic samples that have shaped the catalog. All appliance types in the **Full** column receive entity enrichment (device class, unit, icon, entity category). Types marked **Partial** have a catalog but may be missing entries for some models — submit your diagnostics to help close the gaps. **Stub** means the type code is registered but the catalog has no entries yet (requires user diagnostic samples to build from).
+
+| Type | Appliance | Status | Known-Tested Samples / Models |
+|------|-----------|--------|-------------------------------|
+| `OV` | Oven | Full | Based on model `OV-944188772` |
+| `SO` | Steam Oven | Full | Based on model `SO-944035035` |
+| `RF` | Refrigerator | Partial | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `CR` | Combined Refrigerator | Full ✨ *new* | Based on model `CR-925060324` |
+| `WM` | Washing Machine | Full | Based on models `WM-EW7F3816DB`, `WM-914501128`, `WM-914915144` |
+| `WD` | Washer-Dryer | Full | Based on models `WD-914611000`, `WD-914611500` |
+| `TD` | Tumble Dryer | Full | Based on models `TD-916099949`, `TD-916098401`, `TD-916098618`, `TD-916099548` |
+| `AC` | Air Conditioner | Full | Based on model `AC-910280820` |
+| `DW` | Dishwasher | Full | Based on models `DW-911434654`, `DW-911434834` |
+| `A9` / `Muju` | Air Purifier | Full | A9 series; UltimateHome 500 (EP53) |
+| `MW` | Microwave | Stub | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| Newer `DAM` Apliances | Partial support | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+
+> Appliance types not listed above still have all their entities created dynamically from whatever the API reports in the device capabilities — no entities are suppressed. However, without a catalog entry they appear as generic sensors and controls with no device class, unit, icon, or friendly name. The base catalog (connectivity state, software version, network interface) applies to all appliance types regardless.
+
+### � Diagnostics Wanted
+
+The following appliance types need real diagnostic JSON samples before full support can be built. If you own one of these devices, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
+
+| Appliance | Issue title | Why it's needed |
+|-----------|-------------|----------------|
+| 🤖 **Robot Vacuum** (Pure i8, Pure i9, Gordias, Cybele, or any RVC) | `RVC diagnostics — [your model]` | Appliance type code unknown; no capability keys; room-cleaning support blocked entirely |
+| 🍽️ **Microwave Oven** (any `MW` model) | `MW diagnostics — [your model]` | Type code registered but catalog is empty — all entities appear as generic sensors |
+| ⚡ **DAM Appliance** (appliance ID starts with `1:` or type starts with `DAM_`) | `DAM diagnostics — [your model]` | DAM connectivity fixed in v3.4.1 but catalog enrichment requires per-type samples |
+
+### �🔍 Finding Your Model Number
+
+The model number (PNC — Product Number Code) is the key used to identify your appliance in the catalog. It appears in the HA device info panel as **`Model: {type}-{PNC}_{suffix}`** (e.g. ` Model: TD-916099949_00`).
+
+**How to find it:**
+1. Go to **Settings → Devices & Services → Electrolux**
+2. Click on your appliance device
+3. The **Model** field in the device info card shows `Model: {type}-{PNC}_{suffix}` — the number before the `_` is your PNC (e.g. `916099949` from `Model: TD-916099949_00`)
+
+Alternatively, the PNC is visible on the appliance's rating plate (usually inside the door or on the back) and in the official Electrolux app under appliance details.
+
+If your model number appears in the table above, your appliance has been verified against real diagnostic data and will have full entity enrichment. If it does not appear, basic entities will still be created — [submit your diagnostics](https://github.com/TTLucian/ha-electrolux/issues) to add full support.
+
+---
+
 ## 🌟 Credits
 
 **Maintained by [TTLucian](https://github.com/TTLucian)**

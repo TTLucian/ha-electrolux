@@ -106,6 +106,7 @@ class Appliance:
         brand: str,
         model: str,
         state: ApplianceState,
+        serial_number: str | None = None,
     ) -> None:
         """Initialize the appliance."""
         self.data = None
@@ -115,6 +116,7 @@ class Appliance:
         self.name = name
         self.brand = brand
         self.state: ApplianceState = state
+        self.serial_number: str | None = serial_number
         self.entities: list[Any] = []
         self._catalog_cache: dict[str, Any] | None = None
 
@@ -198,9 +200,13 @@ class Appliance:
 
         # Merge with appliance-type specific catalog if available
         appliance_type = self.appliance_type
+        # DAM devices use types like "DAM_AC" - strip the prefix for catalog lookup
+        catalog_lookup_type = (
+            appliance_type.replace("DAM_", "") if appliance_type else appliance_type
+        )
         catalog_by_type = _get_catalog_by_type()
-        if appliance_type in catalog_by_type:
-            type_catalog = catalog_by_type[appliance_type]
+        if catalog_lookup_type in catalog_by_type:
+            type_catalog = catalog_by_type[catalog_lookup_type]
             for key, device in type_catalog.items():
                 new_catalog[key] = device
 

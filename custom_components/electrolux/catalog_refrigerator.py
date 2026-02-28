@@ -18,11 +18,15 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:alert",
     ),
     "freezer/applianceState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"OFF": {}, "RUNNING": {}},
+        },
+        device_class=BinarySensorDeviceClass.RUNNING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:fridge-variant",
+        friendly_name="Freezer State",
     ),
     "freezer/doorState": ElectroluxDevice(
         capability_info={
@@ -50,6 +54,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timer-outline",
     ),
+    "freezer/sensorTemperatureC": ElectroluxDevice(
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.CELSIUS,
+        entity_category=None,
+        entity_icon="mdi:thermometer",
+        friendly_name="Freezer Temperature",
+    ),
     "freezer/targetTemperatureC": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -72,11 +84,15 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:alert",
     ),
     "fridge/applianceState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=None,
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"OFF": {}, "RUNNING": {}},
+        },
+        device_class=BinarySensorDeviceClass.RUNNING,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:fridge-variant",
+        friendly_name="Fridge State",
     ),
     "fridge/doorState": ElectroluxDevice(
         capability_info={
@@ -103,6 +119,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timer-outline",
+    ),
+    "fridge/sensorTemperatureC": ElectroluxDevice(
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.CELSIUS,
+        entity_category=None,
+        entity_icon="mdi:thermometer",
+        friendly_name="Fridge Temperature",
     ),
     "fridge/targetTemperatureC": ElectroluxDevice(
         capability_info={
@@ -236,6 +260,43 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:snowflake-melt",
         friendly_name="Defrost Routine State",
     ),
+    "compressorState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=BinarySensorDeviceClass.RUNNING,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        friendly_name="Compressor State",
+    ),
+    "compressorSpeed": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit="rpm",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan",
+        friendly_name="Compressor Speed",
+    ),
+    "compressorSpeed/coefficient": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan",
+        friendly_name="Compressor Speed Coefficient",
+        entity_registry_enabled_default=False,
+    ),
+    "compressorSpeed/exponent": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan",
+        friendly_name="Compressor Speed Exponent",
+        entity_registry_enabled_default=False,
+    ),
     "reminderTime": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -317,6 +378,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:thermometer",
         friendly_name="Extra Cavity Temperature",
     ),
+    "extraCavity/sensorTemperatureC": ElectroluxDevice(
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.CELSIUS,
+        entity_category=None,
+        entity_icon="mdi:thermometer",
+        friendly_name="Extra Cavity Sensor Temperature",
+    ),
     "extraCavity/temperatureAdjustingState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -368,6 +437,14 @@ CATALOG_REFRIGERATOR: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:snowflake-thermometer",
         friendly_name="Ice Maker Defrost Temperature",
+    ),
+    "iceMaker/sensorTemperatureC": ElectroluxDevice(
+        capability_info={"access": "read", "type": "temperature"},
+        device_class=SensorDeviceClass.TEMPERATURE,
+        unit=UnitOfTemperature.CELSIUS,
+        entity_category=None,
+        entity_icon="mdi:thermometer",
+        friendly_name="Ice Maker Temperature",
     ),
     "iceMaker/evaporatorFanState": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},

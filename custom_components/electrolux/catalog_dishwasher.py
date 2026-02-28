@@ -1,6 +1,7 @@
 """Defined catalog of entities for dishwasher type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
@@ -405,6 +406,36 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:counter",
         friendly_name="Maintenance Threshold",
+        entity_registry_enabled_default=False,
+    ),
+    "applianceMode": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "DEMO": {},
+                "DIAGNOSTIC": {},
+                "NORMAL": {},
+                "SERVICE": {},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:cog",
+        friendly_name="Appliance Mode",
+        entity_registry_enabled_default=False,
+    ),
+    "miscellaneousState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "complex",
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:information",
+        friendly_name="Miscellaneous State",
         entity_registry_enabled_default=False,
     ),
 }

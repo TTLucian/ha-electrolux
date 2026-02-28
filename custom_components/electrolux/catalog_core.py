@@ -108,6 +108,7 @@ def _get_catalog_model():
 
     Currently supports:
     - EHE6899SA: Refrigerator model with specific overrides
+    - 925060324 (EHE6899BA): French door fridge with same overrides as EHE6899SA
     - A9: Air purifier model with specific overrides
 
     Returns:
@@ -117,6 +118,7 @@ def _get_catalog_model():
     A9 = _get_catalog_purifier()
     return {
         "EHE6899SA": EHE6899SA,
+        "925060324": EHE6899SA,  # EHE6899BA French door fridge (same overrides)
         "A9": A9,
     }
 
@@ -133,6 +135,7 @@ def _get_catalog_by_type():
     - OV: Oven - includes temperature, program, timing controls
     - SO: Steam Oven - includes upperOven nested capabilities and steam-specific features
     - RF: Refrigerator - includes temperature zones and alerts
+    - CR: Combined Refrigerator (French door fridge) - same catalog as RF
     - WM: Washing Machine - includes cycle programs and options
     - WD: Washer-Dryer - combines washing and drying functionality
     - TD: Tumble Dryer - includes drying programs and controls
@@ -147,6 +150,7 @@ def _get_catalog_by_type():
         "OV": _get_catalog_oven(),  # Oven
         "SO": _get_catalog_steam_oven(),  # Steam Oven (dedicated catalog for upperOven nesting)
         "RF": _get_catalog_refrigerator()[0],  # Refrigerator
+        "CR": _get_catalog_refrigerator()[0],  # Combined Refrigerator (French door)
         "WM": _get_catalog_washer(),  # Washing Machine
         "WD": _get_catalog_washer_dryer(),  # Washer-Dryer
         "TD": _get_catalog_dryer(),  # Tumble Dryer
