@@ -1,8 +1,6 @@
 """Tests for models.py — Appliance, Appliances, deep_merge_dicts."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from custom_components.electrolux.models import (
     Appliance,
@@ -99,7 +97,7 @@ def _make_appliance(state=None):
         pnc_id="PNC123",
         brand="Electrolux",
         model="EOH8854AAX",
-        state=state,
+        state=state,  # type: ignore[arg-type]
     )
 
 
