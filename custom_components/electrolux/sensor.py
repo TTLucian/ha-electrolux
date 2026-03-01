@@ -18,7 +18,6 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 FRIENDLY_NAMES = {
     "ovwater_tank_empty": "Water Tank Status",
-    "foodProbeSupported": "Food Probe Support",
     "foodProbeInsertionState": "Food Probe",
     "ovcleaning_ended": "Cleaning Status",
     "ovfood_probe_end_of_cooking": "Probe End of Cooking",
@@ -175,8 +174,6 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         # Only handle sensors that have actual live values
         if self.entity_key in [
             "watertankempty",  # waterTankEmpty - live steam tank status
-            "foodProbeSupported",
-            "foodprobesupported",  # normalized version
             "display_food_probe_temperature_c",
         ]:
             if self.entity_key == "watertankempty":
@@ -189,14 +186,6 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                     else:
                         # Otherwise return the string value
                         value = str(live_value)
-            elif self.entity_key in ["foodProbeSupported", "foodprobesupported"]:
-                # foodProbeSupported is a constant capability indicating if the oven hardware supports food probe
-                # We infer this by checking if foodProbeInsertionState exists in the appliance state
-                # If the oven has a probe insertion sensor, then it supports food probe
-                if "foodProbeInsertionState" in self.reported_state:
-                    value = "SUPPORTED"
-                else:
-                    value = "NOT_SUPPORTED"
             elif self.entity_key == "display_food_probe_temperature_c":
                 # Point to targetFoodProbeTemperatureC from reported properties
                 live_value = self.reported_state.get("targetFoodProbeTemperatureC")

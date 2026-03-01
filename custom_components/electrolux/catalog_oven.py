@@ -127,6 +127,16 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
     ),
+    "foodProbeSupported": ElectroluxDevice(
+        capability_info={
+            "access": "constant",
+            "type": "enum",
+            "values": {"SUPPORTED": {}, "NOT_SUPPORTED": {}},
+        },
+        entity_platform=Platform.BINARY_SENSOR,
+        entity_icon="mdi:thermometer-probe",
+        friendly_name="Food Probe Support",
+    ),
     "waterTrayInsertionState": ElectroluxDevice(
         capability_info={
             "access": "read",

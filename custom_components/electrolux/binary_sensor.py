@@ -69,6 +69,7 @@ def infer_boolean_from_enum(value: str) -> bool:
 FRIENDLY_NAMES = {
     "ovwater_tank_empty": "Water Tank Status",
     "foodProbeInsertionState": "Food Probe",
+    "foodProbeSupported": "Food Probe Support",
     "ovcleaning_ended": "Cleaning Status",
     "ovfood_probe_end_of_cooking": "Probe End of Cooking",
 }
@@ -132,6 +133,12 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
             return None
 
         value = self.extract_value()
+
+        # foodProbeSupported: infer from whether foodProbeInsertionState is reported.
+        # The API never puts this constant key in the reported state; hardware support
+        # is indicated by the presence of the foodProbeInsertionState sensor itself.
+        if self.entity_attr == "foodProbeSupported":
+            return "foodProbeInsertionState" in self.reported_state
 
         # Special handling for water tank empty sensor
         # Only handle the actual live waterTankEmpty sensor, not the fPPN notification ID
