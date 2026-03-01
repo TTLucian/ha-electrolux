@@ -257,7 +257,7 @@ rules:
   async-dependency:
     status: done
     comment: >-
-      pyelectroluxopenapi is a fully async library built on aiohttp; no
+      electrolux-group-developer-sdk is a fully async library built on aiohttp; no
       synchronous I/O is performed in the event loop.
   inject-websession:
     status: done

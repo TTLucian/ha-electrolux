@@ -1,7 +1,7 @@
 """Tests for ElectroluxCoordinator methods - increasing coordinator coverage."""
 
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -9,12 +9,10 @@ from custom_components.electrolux.coordinator import (
     APPLIANCE_ID_ALT_KEY,
     APPLIANCE_ID_KEY,
     DEFERRED_TASK_LIMIT,
-    DEFERRED_UPDATE_DELAY,
     PROPERTY_KEY,
     VALUE_KEY,
     ElectroluxCoordinator,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -1132,7 +1130,6 @@ class TestProcessIncrementalUpdateTimeToEnd:
 
     def test_time_to_end_skip_detected(self, coordinator):
         """When old_value > 1 and new_value == 0 → skip detection log branch."""
-        from custom_components.electrolux.const import TIME_ENTITIES_TO_UPDATE
 
         # timeToEnd is the key we need
         ap = _make_appliance("app1")

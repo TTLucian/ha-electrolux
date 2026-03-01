@@ -1153,8 +1153,8 @@ class TestNumberMissingCoverage:
         capability=None,
         unit=None,
     ):
-        from custom_components.electrolux.number import ElectroluxNumber
         from custom_components.electrolux.const import NUMBER
+        from custom_components.electrolux.number import ElectroluxNumber
 
         if capability is None:
             capability = {
@@ -1196,10 +1196,8 @@ class TestNumberMissingCoverage:
     def test_device_class_catalog_entry_number_device_class(self, mock_coordinator):
         """When catalog_entry.device_class is a NumberDeviceClass instance, it's returned (line 152)."""
         from custom_components.electrolux.number import (
-            ElectroluxNumber,
             NumberDeviceClass,
         )
-        from custom_components.electrolux.const import NUMBER
 
         entity = self._make_entity(mock_coordinator)
         mock_catalog = MagicMock()
@@ -1327,7 +1325,6 @@ class TestNumberMissingCoverage:
         self, mock_coordinator
     ):
         """When value is None (non-temp control), falls back to capability.get('default') (lines 227-228)."""
-        from custom_components.electrolux.const import TIME_INVALID_OR_NOT_SET
 
         entity = self._make_entity(
             mock_coordinator,
@@ -1811,6 +1808,7 @@ class TestNumberMissingCoverage:
     def test_available_delegates_to_super(self, mock_coordinator):
         """available property delegates to super().available (line 780)."""
         from unittest.mock import PropertyMock
+
         from custom_components.electrolux.entity import ElectroluxEntity
 
         entity = self._make_entity(mock_coordinator)
@@ -1828,8 +1826,9 @@ class TestNumberMissingCoverage:
 
     def test_mode_slider_when_step_is_zero(self, mock_coordinator):
         """When native_step returns 0, mode is SLIDER (line 152)."""
-        from homeassistant.components.number import NumberMode
         from unittest.mock import PropertyMock
+
+        from homeassistant.components.number import NumberMode
 
         entity = self._make_entity(mock_coordinator)
         with patch.object(
@@ -1839,8 +1838,9 @@ class TestNumberMissingCoverage:
 
     def test_mode_slider_when_max_is_none(self, mock_coordinator):
         """When native_max_value returns None, mode is SLIDER (line 152)."""
-        from homeassistant.components.number import NumberMode
         from unittest.mock import PropertyMock
+
+        from homeassistant.components.number import NumberMode
 
         entity = self._make_entity(mock_coordinator)
         with patch.object(
@@ -1857,8 +1857,9 @@ class TestNumberMissingCoverage:
 
     def test_mode_box_when_many_steps(self, mock_coordinator):
         """When num_steps > slider max, mode is BOX (lines 185-186)."""
-        from homeassistant.components.number import NumberMode
         from unittest.mock import PropertyMock
+
+        from homeassistant.components.number import NumberMode
 
         entity = self._make_entity(mock_coordinator)
         # 0-1439 min with step 1 = 1440 steps → BOX
@@ -1889,7 +1890,6 @@ class TestNumberMissingCoverage:
         self, mock_coordinator
     ):
         """Device class is None when capability type isn't temperature (line 202+217)."""
-        from homeassistant.components.number import NumberDeviceClass
 
         entity = self._make_entity(
             mock_coordinator,
@@ -2072,6 +2072,7 @@ class TestNumberMissingCoverage:
     def test_available_property_returns_super_result_false(self, mock_coordinator):
         """available delegates to super and can return False too (line 798)."""
         from unittest.mock import PropertyMock
+
         from custom_components.electrolux.entity import ElectroluxEntity
 
         entity = self._make_entity(mock_coordinator)
@@ -2226,6 +2227,7 @@ class TestNumberMissingCoverage:
     def test_available_delegates_to_entity_super_true(self, mock_coordinator):
         """available delegates to super().available (line 798) — returns True case."""
         from unittest.mock import PropertyMock
+
         from custom_components.electrolux.entity import ElectroluxEntity
 
         entity = self._make_entity(mock_coordinator)

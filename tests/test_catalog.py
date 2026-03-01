@@ -7,8 +7,6 @@ coverage on catalog files (which are pure data modules).
 
 from __future__ import annotations
 
-import pytest
-
 from custom_components.electrolux.model import ElectroluxDevice
 
 
