@@ -14,18 +14,17 @@ from .const import (
     CONF_NOTIFICATION_DEFAULT,
     CONF_NOTIFICATION_DIAG,
     CONF_NOTIFICATION_WARNING,
-    DOMAIN,
     NAME,
     SECONDS_PER_MINUTE,
     TIME_INVALID_SENTINEL,
 )
 from .exceptions import (  # noqa: F401
+    REMOTE_CONTROL_ERROR_PHRASES,
     ApplianceOfflineError,
     AuthenticationError,
     CommandError,
     CommandValidationError,
     NetworkError,
-    REMOTE_CONTROL_ERROR_PHRASES,
     RateLimitError,
     RemoteControlDisabledError,
 )
