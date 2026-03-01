@@ -13,9 +13,11 @@ rules:
       DataUpdateCoordinator polling interval serves only as a health-check
       fallback; it does not drive entity updates during normal operation.
   brands:
-    status: todo
+    status: done
     comment: >-
-      Custom HACS integration — not yet submitted to the HA brands repository.
+      Brand assets live in .github/brand/ — icon.png, icon@2x.png, logo.png,
+      logo@2x.png and dark variants are all present. Satisfies the HA 2026.3
+      requirement for self-contained brand folders.
   common-modules:
     status: done
     comment: >-
@@ -132,10 +134,12 @@ rules:
   test-coverage:
     status: todo
     comment: >-
-      Overall test coverage is ~73% (770 tests). button.py 98%, select.py
-      96%, switch.py 96%, util.py 93%, number.py 79%, all catalog files
-      100%. Remaining gaps: models.py 39%, api_client.py 31%, api.py 37%,
-      entity.py 49%, coordinator.py 70%. The 95% Silver target not yet met.
+      Overall test coverage is 85% (979 tests). All catalog files 100%,
+      config_flow.py 100%, diagnostics.py 100%, fan.py 100%, select.py 100%,
+      sensor.py 100%, token_manager.py 100%, models.py 99%, switch.py 99%,
+      util.py 99%, number.py 98%. Remaining gaps: entity.py 54% (237 missed),
+      coordinator.py 70% (234 missed), api.py ~37%, api_client.py ~31%.
+      The 95% Silver target not yet met.
 
   # GOLD
   devices:
