@@ -537,7 +537,10 @@ def map_command_error_to_home_assistant_error(
             ex,
         )
         return HomeAssistantError(
-            f"Integration Error: Data type mismatch for {entity_attr}. Expected Boolean."
+            f"Integration Error: Data type mismatch for {entity_attr}. Expected Boolean.",
+            translation_domain=DOMAIN,
+            translation_key="type_mismatch",
+            translation_placeholders={"attr": entity_attr},
         )
 
     # Method 2: Check HTTP status codes (already extracted above)
@@ -620,7 +623,9 @@ def map_command_error_to_home_assistant_error(
         )
         return HomeAssistantError(
             "Remote control is disabled for this appliance. "
-            "Please enable it on the appliance's control panel."
+            "Please enable it on the appliance's control panel.",
+            translation_domain=DOMAIN,
+            translation_key="remote_control_disabled",
         )
 
     elif any(
@@ -643,7 +648,9 @@ def map_command_error_to_home_assistant_error(
         )
         return HomeAssistantError(
             "Appliance is disconnected or not available. "
-            "Check the appliance's network connection."
+            "Check the appliance's network connection.",
+            translation_domain=DOMAIN,
+            translation_key="appliance_disconnected",
         )
 
     elif any(
@@ -664,7 +671,9 @@ def map_command_error_to_home_assistant_error(
             ex,
         )
         return HomeAssistantError(
-            "Too many commands sent. Please wait a moment and try again."
+            "Too many commands sent. Please wait a moment and try again.",
+            translation_domain=DOMAIN,
+            translation_key="command_rate_limited",
         )
 
     elif any(

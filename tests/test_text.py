@@ -115,6 +115,11 @@ class TestElectroluxText:
         """Test native_value returns value from reported state."""
         assert text_entity.native_value == "test value"
 
+    def test_native_value_converts_non_string_to_str(self, text_entity):
+        """Test native_value converts non-string values (e.g., int) to str."""
+        text_entity.extract_value = MagicMock(return_value=42)
+        assert text_entity.native_value == "42"
+
     def test_native_value_none_when_no_data(self, mock_coordinator, mock_capability):
         """Test native_value returns None when no data available."""
         entity = ElectroluxText(
@@ -430,3 +435,139 @@ class TestElectroluxText:
             catalog_entry=catalog_entry,
         )
         assert entity.native_mode == "password"
+
+
+class TestTextSetValueAdvancedPaths:
+    """Tests for previously uncovered async_set_value paths in ElectroluxText."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator.api = AsyncMock()
+        coordinator._last_update_times = {}
+        return coordinator
+
+    @pytest.fixture
+    def mock_capability(self):
+        return {"access": "readwrite", "type": "string", "maxLength": 50}
+
+    def _make_text(
+        self, coordinator, capability, pnc_id="TEST_PNC", entity_source=None
+    ):
+        entity = ElectroluxText(
+            coordinator=coordinator,
+            capability=capability,
+            name="Test",
+            config_entry=coordinator.config_entry,
+            pnc_id=pnc_id,
+            entity_type=TEXT,
+            entity_name="test",
+            entity_attr="testAttr",
+            entity_source=entity_source,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=None,
+        )
+        entity.hass = coordinator.hass
+        entity._reported_state_cache = {"connectivityState": "connected"}
+        entity.appliance_status = {
+            "properties": {"reported": {"connectivityState": "connected"}}
+        }
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=True)
+        return entity
+
+    @pytest.mark.asyncio
+    async def test_offline_raises_home_assistant_error(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test async_set_value raises HomeAssistantError when appliance is offline."""
+        from homeassistant.exceptions import HomeAssistantError
+
+        entity = self._make_text(mock_coordinator, mock_capability)
+        entity._reported_state_cache = {"connectivityState": "disconnected"}
+
+        with pytest.raises(HomeAssistantError, match="offline"):
+            await entity.async_set_value("hello")
+
+    @pytest.mark.asyncio
+    async def test_dam_user_selections_wraps_command(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test DAM appliance with userSelections entity_source builds correct command."""
+        entity = self._make_text(
+            mock_coordinator,
+            mock_capability,
+            pnc_id="1:TEST_PNC",
+            entity_source="userSelections",
+        )
+        entity._reported_state_cache = {
+            "connectivityState": "connected",
+            "userSelections": {"programUID": "MY_PROGRAM"},
+        }
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "connectivityState": "connected",
+                    "userSelections": {"programUID": "MY_PROGRAM"},
+                }
+            }
+        }
+
+        await entity.async_set_value("hello")
+
+        entity.api.execute_appliance_command.assert_called_once_with(
+            "1:TEST_PNC",
+            {
+                "commands": [
+                    {
+                        "userSelections": {
+                            "programUID": "MY_PROGRAM",
+                            "testAttr": "hello",
+                        }
+                    }
+                ]
+            },
+        )
+
+    @pytest.mark.asyncio
+    async def test_dam_no_entity_source_wraps_command(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test DAM appliance with no entity_source wraps command in commands list."""
+        entity = self._make_text(mock_coordinator, mock_capability, pnc_id="1:TEST_PNC")
+
+        await entity.async_set_value("hello")
+
+        entity.api.execute_appliance_command.assert_called_once_with(
+            "1:TEST_PNC",
+            {"commands": [{"testAttr": "hello"}]},
+        )
+
+    @pytest.mark.asyncio
+    async def test_auth_error_handled_then_reraised(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test AuthenticationError triggers coordinator.handle_authentication_error then is re-raised."""
+        from unittest.mock import patch
+
+        from custom_components.electrolux.util import AuthenticationError
+
+        entity = self._make_text(mock_coordinator, mock_capability)
+        mock_coordinator.handle_authentication_error = AsyncMock()
+        auth_ex = AuthenticationError("token expired")
+
+        with patch(
+            "custom_components.electrolux.text.execute_command_with_error_handling",
+            side_effect=auth_ex,
+        ):
+            with pytest.raises(AuthenticationError):
+                await entity.async_set_value("hello")
+
+        mock_coordinator.handle_authentication_error.assert_called_once_with(auth_ex)

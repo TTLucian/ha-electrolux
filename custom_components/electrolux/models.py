@@ -572,9 +572,10 @@ class Appliance:
                 # add to the capability dict
                 keys = static_attribute.split("/")
                 capabilities = self.data.capabilities
-                for key in keys[:-1]:
-                    capabilities = capabilities.setdefault(key, {})
-                capabilities[keys[-1]] = catalog_item.capability_info
+                if capabilities is not None:
+                    for key in keys[:-1]:
+                        capabilities = capabilities.setdefault(key, {})
+                    capabilities[keys[-1]] = catalog_item.capability_info
                 _LOGGER.debug("Electrolux adding static_attribute %s", static_attribute)
                 entities.extend(entity)
 
@@ -615,7 +616,9 @@ class Appliance:
                 )
                 continue
 
-            if catalog_item.capability_info and catalog_key not in capabilities_names:
+            if catalog_item.capability_info and (
+                capabilities_names is None or catalog_key not in capabilities_names
+            ):
                 # Special cases: entities that should always be created even if not in capabilities or reported state
                 # - manualSync: Local operation that doesn't depend on API capabilities
                 # - displayFoodProbeTemperatureF/C: These sensors vanish from reported state when the food probe

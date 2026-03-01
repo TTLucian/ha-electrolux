@@ -281,6 +281,51 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         )
         return await self._show_config_form(defaults, "reauth_validate")
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of an existing entry."""
+        self._errors = {}
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        if entry is None:
+            return self.async_abort(reason="entry_not_found")
+
+        if user_input is not None:
+            validation_errors = _validate_credentials(
+                user_input.get("api_key"),
+                user_input.get("access_token"),
+                user_input.get("refresh_token"),
+            )
+            if validation_errors:
+                self._errors["base"] = "invalid_format"
+                _LOGGER.warning(
+                    "Reconfigure credential validation failed: %s",
+                    "; ".join(validation_errors),
+                )
+            else:
+                valid = await self._test_credentials(
+                    user_input.get("api_key"),
+                    user_input.get("access_token"),
+                    user_input.get("refresh_token"),
+                )
+                if valid:
+                    access_token = user_input.get("access_token")
+                    token_expiry = _extract_token_expiry(access_token)
+                    new_data = dict(entry.data)
+                    new_data.update(user_input)
+                    if token_expiry:
+                        new_data["token_expires_at"] = token_expiry
+                    return self.async_update_reload_and_abort(entry, data=new_data)
+                self._errors["base"] = "invalid_auth"
+
+        defaults = dict(entry.data) if user_input is None else user_input
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self._get_config_schema(defaults),
+            errors=self._errors,
+            description_placeholders={"url": "https://developer.electrolux.one/"},
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:

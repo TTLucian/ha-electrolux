@@ -572,6 +572,123 @@ class TestElectroluxClimate:
                     await climate_entity._send_command("targetTemperatureC", 24.0)
 
 
+class TestElectroluxClimateMissingCoverage:
+    """Tests targeting the missed lines in climate.py."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        """Create a mock coordinator."""
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator._last_update_times = {}
+        return coordinator
+
+    def _make_entity(self, mock_coordinator, capability=None):
+        """Helper to build a minimal climate entity."""
+        capability = capability or {}
+        entity = ElectroluxClimate(
+            coordinator=mock_coordinator,
+            name="Test AC",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=CLIMATE,
+            entity_name="climate",
+            entity_attr="climate",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:air-conditioner",
+            catalog_entry=None,
+        )
+        entity.hass = mock_coordinator.hass
+        return entity
+
+    def test_target_temperature_high_is_none(self, mock_coordinator):
+        """Line 191 — target_temperature_high always returns None."""
+        entity = self._make_entity(mock_coordinator)
+        assert entity.target_temperature_high is None
+
+    def test_target_temperature_low_is_none(self, mock_coordinator):
+        """Line 196 — target_temperature_low always returns None."""
+        entity = self._make_entity(mock_coordinator)
+        assert entity.target_temperature_low is None
+
+    def test_hvac_mode_auto_fallback_when_no_mode(self, mock_coordinator):
+        """Line 218 — hvac_mode returns AUTO when applianceState is not OFF and mode is absent."""
+        entity = self._make_entity(mock_coordinator)
+        entity.get_state_attr = lambda path: {"applianceState": "RUNNING"}.get(path)
+        assert entity.hvac_mode == HVACMode.AUTO
+
+    def test_hvac_action_none_when_no_state(self, mock_coordinator):
+        """Line 260 — hvac_action returns None when applianceState is absent."""
+        entity = self._make_entity(mock_coordinator)
+        entity.get_state_attr = lambda path: None
+        assert entity.hvac_action is None
+
+    def test_fan_mode_none_when_no_value(self, mock_coordinator):
+        """Line 268 — fan_mode returns None when fanSpeedSetting is absent."""
+        entity = self._make_entity(mock_coordinator)
+        entity.get_state_attr = lambda path: None
+        assert entity.fan_mode is None
+
+    def test_fan_modes_none_when_no_capability(self, mock_coordinator):
+        """Line 278 — fan_modes returns None when fanSpeedSetting not in capability."""
+        entity = self._make_entity(mock_coordinator, capability={})
+        assert entity.fan_modes is None
+
+    def test_swing_mode_none_when_no_value(self, mock_coordinator):
+        """Line 286 — swing_mode returns None when verticalSwing is absent."""
+        entity = self._make_entity(mock_coordinator)
+        entity.get_state_attr = lambda path: None
+        assert entity.swing_mode is None
+
+    def test_swing_modes_none_when_no_capability(self, mock_coordinator):
+        """Line 296 — swing_modes returns None when verticalSwing not in capability."""
+        entity = self._make_entity(mock_coordinator, capability={})
+        assert entity.swing_modes is None
+
+    def test_target_temperature_step_with_step_in_capability(self, mock_coordinator):
+        """Lines 323-328 — target_temperature_step reads step from capability."""
+        entity = self._make_entity(
+            mock_coordinator,
+            capability={"targetTemperatureC": {"min": 16, "max": 30, "step": 0.5}},
+        )
+        assert entity.target_temperature_step == 0.5
+
+    def test_target_temperature_step_default_when_no_step(self, mock_coordinator):
+        """Line 329 — target_temperature_step defaults to 1.0."""
+        entity = self._make_entity(
+            mock_coordinator,
+            capability={"targetTemperatureC": {"min": 16, "max": 30}},
+        )
+        assert entity.target_temperature_step == 1.0
+
+    def test_available_false_when_not_connected(self, mock_coordinator):
+        """Lines 146-148 — available returns False when is_connected() is False."""
+        from unittest.mock import patch
+
+        entity = self._make_entity(mock_coordinator)
+        with patch.object(entity, "is_connected", return_value=False):
+            assert entity.available is False
+
+    def test_available_delegates_to_super_when_connected(self, mock_coordinator):
+        """Line 148 — available calls super().available when is_connected() is True."""
+        from unittest.mock import PropertyMock, patch
+
+        from custom_components.electrolux.entity import ElectroluxEntity
+
+        entity = self._make_entity(mock_coordinator)
+        with patch.object(entity, "is_connected", return_value=True), patch.object(
+            ElectroluxEntity, "available", new_callable=PropertyMock, return_value=True
+        ):
+            assert entity.available is True
+
+
 # Appliance Type Detection Tests (Bug Fix Verification)
 
 

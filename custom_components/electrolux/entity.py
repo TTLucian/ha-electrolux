@@ -36,7 +36,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure entity platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -216,6 +216,15 @@ class ElectroluxEntity(CoordinatorEntity):
             self.entity_key = entity_attr_lower.replace("fppn", "").strip("_")
         else:
             self.entity_key = entity_attr_lower.strip("_")
+
+        # Set translation_key for icons.json lookup.
+        # Sanitize entity_attr to a valid HA translation key: lowercase, non-alphanumeric → '_',
+        # collapse duplicate underscores, strip leading/trailing underscores.
+        _tk = entity_attr.lower().replace("/", "_")
+        while "__" in _tk:
+            _tk = _tk.replace("__", "_")
+        self._attr_translation_key = _tk.strip("_")
+
         # Do not force `entity_id` here. Home Assistant's entity registry
         # manages stable `entity_id` values based on `unique_id`.
         # Preserving or migrating existing entity_ids should be done

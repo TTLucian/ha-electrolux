@@ -275,7 +275,6 @@ class TestAsyncUnloadEntry:
         from unittest.mock import AsyncMock
 
         from custom_components.electrolux import async_unload_entry
-        from custom_components.electrolux.const import DOMAIN
 
         mock_hass = MagicMock()
         mock_hass.config_entries.async_unload_platforms = AsyncMock(return_value=True)
@@ -287,7 +286,7 @@ class TestAsyncUnloadEntry:
         mock_coordinator.api = mock_client
 
         mock_entry = _make_mock_entry()
-        mock_hass.data = {DOMAIN: {mock_entry.entry_id: mock_coordinator}}
+        mock_entry.runtime_data = mock_coordinator
 
         result = await async_unload_entry(mock_hass, mock_entry)
 
@@ -308,14 +307,13 @@ class TestUpdateListener:
         import time
 
         from custom_components.electrolux import update_listener
-        from custom_components.electrolux.const import DOMAIN
 
         mock_hass = MagicMock()
         mock_coordinator = MagicMock()
         mock_coordinator._last_token_update = time.time()  # just now
 
         mock_entry = _make_mock_entry()
-        mock_hass.data = {DOMAIN: {mock_entry.entry_id: mock_coordinator}}
+        mock_entry.runtime_data = mock_coordinator
 
         await update_listener(mock_hass, mock_entry)
 
@@ -327,7 +325,6 @@ class TestUpdateListener:
         from unittest.mock import AsyncMock
 
         from custom_components.electrolux import update_listener
-        from custom_components.electrolux.const import DOMAIN
 
         mock_hass = MagicMock()
         mock_hass.config_entries.async_reload = AsyncMock()
@@ -336,10 +333,392 @@ class TestUpdateListener:
         mock_coordinator._last_token_update = 0.0  # very old
 
         mock_entry = _make_mock_entry()
-        mock_hass.data = {DOMAIN: {mock_entry.entry_id: mock_coordinator}}
+        mock_entry.runtime_data = mock_coordinator
 
         await update_listener(mock_hass, mock_entry)
 
         mock_hass.config_entries.async_reload.assert_awaited_once_with(
             mock_entry.entry_id
         )
+
+
+class TestAsyncSetupEntryAdditional:
+    """Tests for additional async_setup_entry paths (missed lines)."""
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_with_token_expires_at(self):
+        """Lines 90-96: when token_expires_at is set, expiry info is logged."""
+        import asyncio
+        import time
+        from unittest.mock import AsyncMock, patch
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock()
+
+        mock_entry = _make_mock_entry(
+            data={
+                "api_key": "test_api_key_12345",
+                "access_token": "test_access_token_long",
+                "refresh_token": "test_refresh_token_long",
+                "token_expires_at": time.time() + 3600,
+            }
+        )
+        mock_coordinator = _make_mock_coordinator()
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            result = await async_setup_entry(mock_hass, mock_entry)
+
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_login_returns_false_raises_not_ready(self):
+        """Lines 130-133: async_login returns False → ConfigEntryNotReady."""
+        from unittest.mock import AsyncMock, patch
+
+        from homeassistant.exceptions import ConfigEntryNotReady
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = False
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_coordinator.async_login = AsyncMock(return_value=False)
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+            pytest.raises(ConfigEntryNotReady),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_first_refresh_timeout_continues(self):
+        """Lines 177-183: TimeoutError from first refresh is caught → setup continues."""
+        import asyncio
+        from unittest.mock import AsyncMock, patch
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock()
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock(
+            side_effect=asyncio.TimeoutError()
+        )
+        mock_coordinator.last_update_success = True
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            result = await async_setup_entry(mock_hass, mock_entry)
+
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_last_update_failure_raises_not_ready(self):
+        """Lines 186-189: last_update_success=False → ConfigEntryNotReady."""
+        from unittest.mock import AsyncMock, patch
+
+        from homeassistant.exceptions import ConfigEntryNotReady
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = False
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_coordinator.last_update_success = False
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+            pytest.raises(ConfigEntryNotReady),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_ha_not_running_registers_started_listener(self):
+        """Lines 261-264: hass.is_running=False → registers EVENT_HOMEASSISTANT_STARTED listener."""
+        from unittest.mock import AsyncMock, patch
+
+        from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = False
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            result = await async_setup_entry(mock_hass, mock_entry)
+
+        assert result is True
+        # Check that async_listen_once was called with EVENT_HOMEASSISTANT_STARTED
+        started_calls = [
+            call
+            for call in mock_hass.bus.async_listen_once.call_args_list
+            if call[0][0] == EVENT_HOMEASSISTANT_STARTED
+        ]
+        assert len(started_calls) == 1
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_cleanup_tasks_cancels_listen_and_renew(self):
+        """Lines 236-247: cleanup_tasks() cancels listen_task and renew_task."""
+        from unittest.mock import AsyncMock, patch
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock()
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_listen_task = MagicMock()
+        mock_renew_task = MagicMock()
+        mock_coordinator.listen_task = mock_listen_task
+        mock_coordinator.renew_task = mock_renew_task
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+        # Find and invoke the cleanup_tasks function (synchronous callable registered with async_on_unload)
+        import asyncio as _asyncio
+
+        cleanup_fn = None
+        for call in mock_entry.async_on_unload.call_args_list:
+            fn = call[0][0]
+            if callable(fn) and not _asyncio.iscoroutinefunction(fn):
+                cleanup_fn = fn
+                break
+
+        assert (
+            cleanup_fn is not None
+        ), "cleanup_tasks not found in async_on_unload calls"
+        cleanup_fn()
+
+        mock_coordinator.listen_task.cancel.assert_called()
+        mock_coordinator.renew_task.cancel.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_close_coordinator_on_stop_event(self):
+        """Lines 268-275: _close_coordinator closes websocket on HA stop."""
+        from unittest.mock import AsyncMock, patch
+
+        from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock()
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_coordinator.close_websocket = AsyncMock()
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+        # Find _close_coordinator callback registered for EVENT_HOMEASSISTANT_STOP
+        stop_callback = None
+        for call in mock_hass.bus.async_listen_once.call_args_list:
+            if call[0][0] == EVENT_HOMEASSISTANT_STOP:
+                stop_callback = call[0][1]
+                break
+
+        assert (
+            stop_callback is not None
+        ), "_close_coordinator not registered for STOP event"
+        await stop_callback(None)
+        mock_coordinator.close_websocket.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_close_coordinator_exception_swallowed(self):
+        """Lines 274-275: exception in close_websocket is caught silently."""
+        from unittest.mock import AsyncMock, patch
+
+        from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock()
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+        mock_coordinator.close_websocket = AsyncMock(
+            side_effect=Exception("websocket close failed")
+        )
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+        stop_callback = None
+        for call in mock_hass.bus.async_listen_once.call_args_list:
+            if call[0][0] == EVENT_HOMEASSISTANT_STOP:
+                stop_callback = call[0][1]
+                break
+
+        assert stop_callback is not None
+        # Should NOT raise
+        await stop_callback(None)
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_background_task_creation_failure(self):
+        """Lines 249-251: when async_create_task raises, exception re-raises."""
+        from unittest.mock import AsyncMock, patch
+
+        from custom_components.electrolux import async_setup_entry
+
+        mock_hass = MagicMock()
+        mock_hass.data = {}
+        mock_hass.is_running = True
+        mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=RuntimeError("task creation failed")
+        )
+
+        mock_entry = _make_mock_entry()
+        mock_coordinator = _make_mock_coordinator()
+
+        with (
+            patch("custom_components.electrolux.async_get_clientsession"),
+            patch(
+                "custom_components.electrolux.get_electrolux_session",
+                return_value=MagicMock(),
+            ),
+            patch(
+                "custom_components.electrolux.ElectroluxCoordinator",
+                return_value=mock_coordinator,
+            ),
+            pytest.raises(RuntimeError, match="task creation failed"),
+        ):
+            await async_setup_entry(mock_hass, mock_entry)
+
+
+class TestAsyncReloadEntry:
+    """Tests for async_reload_entry."""
+
+    @pytest.mark.asyncio
+    async def test_async_reload_entry_calls_unload_then_setup(self):
+        """Lines 334-336: async_reload_entry calls unload then setup."""
+        from unittest.mock import AsyncMock, patch
+
+        from custom_components.electrolux import async_reload_entry
+
+        mock_hass = MagicMock()
+        mock_entry = _make_mock_entry()
+
+        with (
+            patch(
+                "custom_components.electrolux.async_unload_entry",
+                new_callable=AsyncMock,
+            ) as mock_unload,
+            patch(
+                "custom_components.electrolux.async_setup_entry",
+                new_callable=AsyncMock,
+            ) as mock_setup,
+        ):
+            await async_reload_entry(mock_hass, mock_entry)
+
+        mock_unload.assert_awaited_once_with(mock_hass, mock_entry)
+        mock_setup.assert_awaited_once_with(mock_hass, mock_entry)

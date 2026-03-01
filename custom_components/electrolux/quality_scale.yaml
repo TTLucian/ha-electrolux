@@ -1,0 +1,272 @@
+rules:
+  # BRONZE
+  action-setup:
+    status: exempt
+    comment: >-
+      Integration does not register any custom actions (hass.services.async_register).
+      All entity interactions occur through standard entity platform services
+      (button.press, switch.turn_on, number.set_value, etc.).
+  appropriate-polling:
+    status: done
+    comment: >-
+      Uses SSE (Server-Sent Events) for real-time push updates. A 6-hour
+      DataUpdateCoordinator polling interval serves only as a health-check
+      fallback; it does not drive entity updates during normal operation.
+  brands:
+    status: todo
+    comment: >-
+      Custom HACS integration — not yet submitted to the HA brands repository.
+  common-modules:
+    status: done
+    comment: >-
+      Coordinator logic in coordinator.py, shared entity base in entity.py,
+      shared utilities in util.py, and data models in model.py / models.py.
+  config-flow:
+    status: done
+    comment: >-
+      Full UI config flow implemented in config_flow.py (user step, reauth
+      step, reconfigure step).
+  config-flow-test-coverage:
+    status: done
+    comment: "Config flow tests in tests/test_config_flow.py with 89% coverage."
+  dependency-transparency:
+    status: done
+    comment: "All Python dependencies declared in manifest.json with version constraints."
+  docs-actions:
+    status: exempt
+    comment: "No custom integration actions to document."
+  docs-high-level-description:
+    status: done
+    comment: "README.md provides a high-level description of the integration."
+  docs-installation-instructions:
+    status: done
+    comment: "README.md includes HACS and manual installation instructions."
+  docs-removal-instructions:
+    status: done
+    comment: "README.md describes how to remove the integration."
+  entity-event-setup:
+    status: done
+    comment: >-
+      SSE subscriptions are managed in the coordinator lifecycle
+      (listen_websocket / renew_websocket), not inside entity setup methods.
+      Entities subscribe to coordinator updates via the standard
+      DataUpdateCoordinator listener pattern.
+  entity-unique-id:
+    status: done
+    comment: >-
+      Every entity is assigned a unique_id derived from the appliance serial
+      number and the capability key.
+  has-entity-name:
+    status: done
+    comment: >-
+      _attr_has_entity_name = True set on ElectroluxEntity base class
+      (entity.py). Device name comes from the appliance's friendly name;
+      entity names describe the specific capability.
+  runtime-data:
+    status: done
+    comment: >-
+      Coordinator stored as entry.runtime_data in async_setup_entry.
+      All platform modules and diagnostics read from entry.runtime_data.
+      hass.data[DOMAIN] no longer used for runtime storage.
+  test-before-configure:
+    status: done
+    comment: >-
+      _validate_credentials() is called inside the config flow user step to
+      verify credentials before the entry is created.
+  test-before-setup:
+    status: done
+    comment: >-
+      async_login() is called in async_setup_entry; raises ConfigEntryNotReady
+      when authentication fails, preventing a broken entry from going active.
+  unique-config-entry:
+    status: done
+    comment: >-
+      Config flow calls _async_abort_entries_match() to prevent duplicate
+      entries for the same Electrolux account.
+
+  # SILVER
+  action-exceptions:
+    status: exempt
+    comment: "No custom integration actions; entity platform actions use standard HA error handling."
+  config-entry-unloading:
+    status: done
+    comment: >-
+      async_unload_entry() cancels SSE listen/renewal tasks, unloads all
+      platforms, and removes the entry from hass.data.
+  docs-configuration-parameters:
+    status: done
+    comment: "README.md documents all configuration parameters exposed in the UI."
+  docs-installation-parameters:
+    status: done
+    comment: "README.md documents installation prerequisites and setup parameters."
+  entity-unavailable:
+    status: done
+    comment: >-
+      Entities are never marked unavailable due to unsupported capabilities.
+      Unsupported controls are locked at safe fallback values so that UI cards
+      continue to render. Connectivity state is reflected via
+      connectivityState sensor/binary sensor entities.
+  integration-owner:
+    status: done
+    comment: >-
+      CODEOWNERS file added at repo root listing @TTLucian as owner of
+      /custom_components/electrolux/. The codeowners field in manifest.json
+      also references @TTLucian.
+  log-when-unavailable:
+    status: done
+    comment: >-
+      Coordinator logs at INFO/WARNING level when an appliance goes offline or
+      comes back online based on incoming SSE connectivityState changes.
+  parallel-updates:
+    status: done
+    comment: >-
+      PARALLEL_UPDATES = 0 defined in all platform modules (sensor.py,
+      binary_sensor.py, switch.py, number.py, select.py, button.py, text.py).
+      Set to 0 because all entity updates are coordinator-driven.
+  reauthentication-flow:
+    status: done
+    comment: >-
+      async_step_reauth() and async_step_reauth_confirm() implemented in
+      config_flow.py. Creates a repair issue on auth failure and clears it on
+      successful reauth.
+  test-coverage:
+    status: todo
+    comment: >-
+      Overall test coverage is ~73% (770 tests). button.py 98%, select.py
+      96%, switch.py 96%, util.py 93%, number.py 79%, all catalog files
+      100%. Remaining gaps: models.py 39%, api_client.py 31%, api.py 37%,
+      entity.py 49%, coordinator.py 70%. The 95% Silver target not yet met.
+
+  # GOLD
+  devices:
+    status: done
+    comment: >-
+      Each appliance is registered as a DeviceInfo with manufacturer
+      (Electrolux), model (appliance type), and serial number (identifier).
+  diagnostics:
+    status: done
+    comment: >-
+      diagnostics.py implemented with async_get_config_entry_diagnostics()
+      returning sanitised appliance state. Tests at 100% coverage.
+  discovery:
+    status: exempt
+    comment: >-
+      Electrolux appliances communicate exclusively through the Electrolux
+      cloud API; local network discovery is not supported.
+  discovery-update-info:
+    status: exempt
+    comment: "No discovery support."
+  docs-data-update:
+    status: done
+    comment: >-
+      README.md and RELEASE_NOTES describe the SSE real-time update mechanism
+      and the polling fallback. Coordinator strategy is documented inline.
+  docs-examples:
+    status: done
+    comment: >-
+      README.md contains example automation YAML and lovelace card
+      configurations demonstrating integration usage.
+  docs-known-limitations:
+    status: done
+    comment: >-
+      README.md documents known limitations (e.g. cloud-only, command
+      validation by Electrolux API, limited appliance model coverage).
+  docs-supported-devices:
+    status: done
+    comment: >-
+      README.md lists supported appliance categories (washers, dryers, ovens,
+      refrigerators, air purifiers, air conditioners, etc.).
+  docs-supported-functions:
+    status: done
+    comment: >-
+      README.md describes the entities and capabilities exposed per appliance
+      category (sensors, controls, programs, etc.).
+  docs-troubleshooting:
+    status: done
+    comment: >-
+      README.md includes a troubleshooting section covering common issues such
+      as authentication failures, missing entities, and diagnostic download.
+  docs-use-cases:
+    status: done
+    comment: >-
+      README.md contains example automations and use-case descriptions for
+      typical smart home scenarios.
+  dynamic-devices:
+    status: done
+    comment: >-
+      cleanup_removed_appliances() detects appliances that are no longer
+      present in the account and removes their device/entity registry entries.
+      New appliances trigger a full reload on the next coordinator refresh.
+  entity-category:
+    status: done
+    comment: >-
+      Raw/debug sensor entities use EntityCategory.DIAGNOSTIC. Control
+      entities (sensors, switches, numbers, selects) are uncategorised so
+      they appear in the default device view.
+  entity-device-class:
+    status: done
+    comment: >-
+      Sensors use SensorDeviceClass (temperature, humidity, energy, etc.).
+      Binary sensors use BinarySensorDeviceClass (door, running, problem,
+      etc.) where applicable.
+  entity-disabled-by-default:
+    status: done
+    comment: >-
+      Entities with EntityCategory.DIAGNOSTIC are disabled by default,
+      reducing clutter for typical users.
+  entity-translations:
+    status: done
+    comment: >-
+      Full translation support via strings.json and translations/en.json.
+      27 language translation files present. Entity names and state
+      translations follow the HA translation schema.
+  exception-translations:
+    status: done
+    comment: >-
+      HomeAssistantError calls in select.py, switch.py, number.py, fan.py,
+      and util.py now include translation_domain, translation_key, and
+      translation_placeholders. Exception keys defined in strings.json and
+      translations/en.json under the "exceptions" section.
+  icon-translations:
+    status: done
+    comment: >-
+      icons.json created with 305 entity icon entries mapped from all catalog
+      files (binary_sensor, button, fan, number, sensor, switch platforms).
+      ElectroluxEntity sets _attr_translation_key = sanitized(entity_attr) so
+      HA frontend can use icons.json for icon resolution. Python catalog icons
+      serve as fallback for any entity_attr not in icons.json.
+  reconfiguration-flow:
+    status: done
+    comment: >-
+      async_step_reconfigure() and async_step_reconfigure_confirm() allow
+      updating credentials without removing and re-adding the integration.
+      Strings are defined in strings.json / translations/en.json.
+  repair-issues:
+    status: done
+    comment: >-
+      issue_registry.async_create_issue() is called when authentication
+      fails. issue_registry.async_delete_issue() clears the repair issue on
+      successful reauth or reconfigure.
+  stale-devices:
+    status: done
+    comment: >-
+      cleanup_removed_appliances() compares the current account appliance
+      list against the HA device registry and removes stale device entries.
+
+  # PLATINUM
+  async-dependency:
+    status: done
+    comment: >-
+      pyelectroluxopenapi is a fully async library built on aiohttp; no
+      synchronous I/O is performed in the event loop.
+  inject-websession:
+    status: done
+    comment: >-
+      async_get_clientsession(hass) is passed to the API client so HA manages
+      the aiohttp ClientSession lifecycle.
+  strict-typing:
+    status: todo
+    comment: >-
+      mypy is used for type checking but not in strict mode. Several
+      type:ignore comments are present. Full strict typing compliance
+      (strict=true in mypy config) is a future goal.

@@ -21,6 +21,7 @@ from .util import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
@@ -29,7 +30,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure switch platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -92,11 +93,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
-
-        # Remote control validation removed - API handles this with precise appliance-specific rules.
-        # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
         # that only the API can accurately validate. Error handling in util.py displays friendly messages.
 
         client: ElectroluxApiClient = self.api

@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.const import EntityCategory
+from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import SWITCH
 from custom_components.electrolux.switch import ElectroluxSwitch
@@ -318,3 +319,187 @@ class TestElectroluxSwitch:
         """Test availability when remote control is enabled."""
         switch_entity.is_remote_control_enabled = MagicMock(return_value=True)
         assert switch_entity.available
+
+    @pytest.mark.asyncio
+    async def test_switch_when_appliance_offline_raises(self, switch_entity):
+        """switch() raises HomeAssistantError when appliance is not connected."""
+        switch_entity.is_connected = MagicMock(return_value=False)
+        switch_entity.reported_state = {"connectivityState": "disconnected"}
+
+        with pytest.raises(HomeAssistantError, match="offline"):
+            await switch_entity.switch(True)
+
+    @pytest.mark.asyncio
+    async def test_switch_dam_appliance_with_entity_source(
+        self, mock_coordinator, mock_capability
+    ):
+        """DAM appliance switch wraps command in 'commands' list."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="1:TEST_PNC",  # DAM appliance
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source="oven",
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+
+        with patch(
+            "custom_components.electrolux.switch.format_command_for_appliance",
+            return_value="ON",
+        ):
+            await entity.switch(True)
+
+        call_args = entity.api.execute_appliance_command.call_args[0]
+        assert "commands" in call_args[1]
+
+    @pytest.mark.asyncio
+    async def test_switch_dam_appliance_without_entity_source(
+        self, mock_coordinator, mock_capability
+    ):
+        """DAM appliance switch without entity_source uses plain attr command."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="1:TEST_PNC",  # DAM appliance
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source=None,
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+
+        with patch(
+            "custom_components.electrolux.switch.format_command_for_appliance",
+            return_value="ON",
+        ):
+            await entity.switch(True)
+
+        call_args = entity.api.execute_appliance_command.call_args[0]
+        assert "commands" in call_args[1]
+
+    @pytest.mark.asyncio
+    async def test_switch_authentication_error_triggers_reauth(self, switch_entity):
+        """AuthenticationError from API triggers coordinator.handle_authentication_error."""
+        from custom_components.electrolux.util import AuthenticationError
+
+        switch_entity.api = MagicMock()
+        switch_entity.api.execute_appliance_command = AsyncMock(
+            side_effect=AuthenticationError("token expired")
+        )
+        switch_entity.appliance_status = {
+            "properties": {"reported": {"remoteControl": "ENABLED"}}
+        }
+
+        mock_coord = MagicMock()
+        mock_coord.handle_authentication_error = AsyncMock()
+
+        with patch(
+            "custom_components.electrolux.switch.execute_command_with_error_handling",
+            side_effect=AuthenticationError("token expired"),
+        ), patch(
+            "custom_components.electrolux.switch.format_command_for_appliance",
+            return_value="ON",
+        ), patch.object(
+            switch_entity, "coordinator", mock_coord
+        ):
+            with pytest.raises(AuthenticationError):
+                await switch_entity.switch(True)
+
+        mock_coord.handle_authentication_error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_switch_dam_user_selections_wraps_command(
+        self, mock_coordinator, mock_capability
+    ):
+        """DAM appliance with userSelections source wraps with programUID."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="1:TEST_PNC",  # DAM appliance
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source="userSelections",
+            capability=mock_capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "COTTON"},
+                }
+            }
+        }
+
+        with patch(
+            "custom_components.electrolux.switch.format_command_for_appliance",
+            return_value="ON",
+        ):
+            await entity.switch(True)
+
+        call_args = entity.api.execute_appliance_command.call_args[0]
+        assert "commands" in call_args[1]
+
+    @pytest.mark.asyncio
+    async def test_switch_generic_exception_reraised(
+        self, mock_coordinator, mock_capability
+    ):
+        """Generic (non-auth) exceptions from execute_command_with_error_handling are re-raised."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source=None,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=None)
+
+        generic_err = HomeAssistantError("remote control disabled")
+        with patch(
+            "custom_components.electrolux.switch.execute_command_with_error_handling",
+            side_effect=generic_err,
+        ), patch(
+            "custom_components.electrolux.switch.format_command_for_appliance",
+            return_value="OFF",
+        ):
+            with pytest.raises(HomeAssistantError, match="remote control disabled"):
+                await entity.switch(True)

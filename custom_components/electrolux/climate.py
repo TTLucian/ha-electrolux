@@ -14,7 +14,7 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CLIMATE, DOMAIN
+from .const import CLIMATE
 from .entity import ElectroluxEntity
 from .util import execute_command_with_error_handling, format_command_for_appliance
 
@@ -27,7 +27,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure climate platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         entities = []
         for appliance_id, appliance in appliances.appliances.items():

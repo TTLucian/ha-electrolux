@@ -7,11 +7,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import BINARY_SENSOR, DOMAIN
+from .const import BINARY_SENSOR
 from .entity import ElectroluxEntity
 from .util import get_capability, string_to_boolean
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 
 def infer_boolean_from_enum(value: str) -> bool:
@@ -81,7 +82,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure binary sensor platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [

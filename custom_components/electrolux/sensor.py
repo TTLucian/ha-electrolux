@@ -10,11 +10,12 @@ from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SENSOR, TIME_INVALID_SENTINEL
+from .const import SENSOR, TIME_INVALID_SENTINEL
 from .entity import ElectroluxEntity
 from .util import create_notification, get_capability, time_seconds_to_minutes
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 FRIENDLY_NAMES = {
     "ovwater_tank_empty": "Water Tank Status",
@@ -33,7 +34,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure sensor platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [

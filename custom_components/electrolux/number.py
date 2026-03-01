@@ -38,6 +38,7 @@ from .util import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 
 def _get_capability_constraint(capability: dict, key: str) -> float | None:
@@ -96,7 +97,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure number platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -516,24 +517,48 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 food_probe_state = self.reported_state.get("foodProbeInsertionState")
                 if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:
                     raise HomeAssistantError(
-                        "Food probe must be inserted to set target temperature."
+                        "Food probe must be inserted to set target temperature.",
+                        translation_domain=DOMAIN,
+                        translation_key="food_probe_not_inserted",
                     )
                 elif not self._is_supported_by_program():
                     raise HomeAssistantError(
-                        f"Food probe temperature not supported by program '{current_program}'"
+                        f"Food probe temperature not supported by program '{current_program}'",
+                        translation_domain=DOMAIN,
+                        translation_key="food_probe_not_supported_by_program",
+                        translation_placeholders={"program": current_program},
                     )
                 else:
                     raise HomeAssistantError(
-                        f"Food probe temperature locked at {locked_value}°C for program '{current_program}'"
+                        f"Food probe temperature locked at {locked_value}\u00b0C for program '{current_program}'",
+                        translation_domain=DOMAIN,
+                        translation_key="food_probe_locked_by_program",
+                        translation_placeholders={
+                            "value": str(locked_value),
+                            "program": current_program,
+                        },
                     )
             elif not self._is_supported_by_program():
                 raise HomeAssistantError(
-                    f"'{self.entity_attr}' not supported by program '{current_program}'"
+                    f"'{self.entity_attr}' not supported by program '{current_program}'",
+                    translation_domain=DOMAIN,
+                    translation_key="not_supported_by_program",
+                    translation_placeholders={
+                        "attr": self.entity_attr,
+                        "program": current_program,
+                    },
                 )
             else:
                 # Locked due to min=max or step=0
                 raise HomeAssistantError(
-                    f"'{self.entity_attr}' locked at {locked_value} for program '{current_program}'"
+                    f"'{self.entity_attr}' locked at {locked_value} for program '{current_program}'",
+                    translation_domain=DOMAIN,
+                    translation_key="control_locked",
+                    translation_placeholders={
+                        "attr": self.entity_attr,
+                        "value": str(locked_value),
+                        "program": current_program,
+                    },
                 )
 
         # ADD RANGE VALIDATION HERE
@@ -542,11 +567,25 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         if min_val is not None and value < min_val:
             raise HomeAssistantError(
-                f"Value {value} is below minimum {min_val} for {self.entity_attr}"
+                f"Value {value} is below minimum {min_val} for {self.entity_attr}",
+                translation_domain=DOMAIN,
+                translation_key="value_below_minimum",
+                translation_placeholders={
+                    "value": str(value),
+                    "min_val": str(min_val),
+                    "attr": self.entity_attr,
+                },
             )
         if max_val is not None and value > max_val:
             raise HomeAssistantError(
-                f"Value {value} is above maximum {max_val} for {self.entity_attr}"
+                f"Value {value} is above maximum {max_val} for {self.entity_attr}",
+                translation_domain=DOMAIN,
+                translation_key="value_above_maximum",
+                translation_placeholders={
+                    "value": str(value),
+                    "max_val": str(max_val),
+                    "attr": self.entity_attr,
+                },
             )
 
         _LOGGER.debug(
@@ -578,7 +617,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.
@@ -605,7 +647,16 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             )
 
         cap_step = _get_capability_constraint(self.capability, "step")
-        if cap_step is None or cap_step == 1:
+        # Convert to int whenever the value is a whole number and the step itself
+        # has no fractional part (step=None, 1, 30, etc.).  This avoids sending
+        # 90.0 to the API for integer-stepped controls like antiCreaseValue,
+        # which returns HTTP 500 when it receives a float.
+        step_has_fraction = cap_step is not None and cap_step != int(cap_step)
+        if (
+            not step_has_fraction
+            and isinstance(command_value, float)
+            and command_value.is_integer()
+        ):
             command_value = int(command_value)
 
         client: ElectroluxApiClient = self.api
@@ -674,7 +725,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 )
                 raise HomeAssistantError(
                     "Cannot change setting: appliance state is incomplete. "
-                    "Please wait for the appliance to initialize."
+                    "Please wait for the appliance to initialize.",
+                    translation_domain=DOMAIN,
+                    translation_key="appliance_state_incomplete",
                 )
 
             command = {

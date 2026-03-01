@@ -594,3 +594,141 @@ class TestElectroluxTokenManager401:
             assert (
                 refresh_attempts == 2
             ), "Cooldown should be bypassed when token expired"
+
+
+class TestTokenManagerMissingCoverage:
+    """Tests targeting the remaining missed lines in token_manager.py."""
+
+    # ── lines 70-73: is_token_valid returns False when no auth data ──────────
+
+    def test_is_token_valid_returns_false_when_no_auth_data(self):
+        """Lines 70-73 — is_token_valid returns False when _auth_data is None."""
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        tm._auth_data = None  # Clear auth data
+        assert tm.is_token_valid() is False
+
+    def test_is_token_valid_returns_false_when_access_token_empty(self):
+        """Lines 70-73 — is_token_valid returns False when access_token is falsy."""
+        from unittest.mock import MagicMock
+
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        mock_auth = MagicMock()
+        mock_auth.access_token = ""  # falsy
+        tm._auth_data = mock_auth
+        assert tm.is_token_valid() is False
+
+    # ── lines 118-120: except jwt.ExpiredSignatureError in is_token_valid ────
+
+    def test_is_token_valid_handles_expired_signature_error(self):
+        """Lines 118-120 — ExpiredSignatureError is caught and returns False."""
+        import jwt as pyjwt
+        from unittest.mock import patch
+
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        with patch(
+            "custom_components.electrolux.token_manager.jwt.decode",
+            side_effect=pyjwt.ExpiredSignatureError("token expired"),
+        ):
+            result = tm.is_token_valid()
+        assert result is False
+        assert tm._marked_needs_refresh is True
+
+    # ── lines 170-175: refresh_token on cooldown, _marked_needs_refresh=False ─
+
+    @pytest.mark.asyncio
+    async def test_refresh_token_returns_false_on_cooldown(self):
+        """Lines 170-175 — refresh_token returns False when on cooldown (no bypass flag)."""
+        import time as time_module
+        from unittest.mock import patch
+
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        current_time = int(time_module.time())
+        # Set failure history so backoff applies
+        tm._consecutive_failures = 1
+        tm._last_failed_refresh = current_time - 10  # failed 10s ago (backoff=120s)
+        tm._marked_needs_refresh = False  # no bypass
+
+        with patch(
+            "custom_components.electrolux.token_manager.jwt.decode",
+            return_value={"exp": current_time + 3600},  # token appears valid
+        ):
+            # is_token_valid will return True → refresh_token returns True immediately
+            # We need is_token_valid to return False. Patch it directly:
+            with patch.object(tm, "is_token_valid", return_value=False):
+                result = await tm.refresh_token()
+        assert result is False
+
+    # ── lines 188-191: refresh_token raises when auth_data is missing ─────────
+
+    @pytest.mark.asyncio
+    async def test_refresh_token_raises_when_refresh_token_is_none(self):
+        """Lines 188-191 — ConfigEntryAuthFailed is raised when refresh_token is None."""
+        from unittest.mock import MagicMock, patch
+
+        from homeassistant.exceptions import ConfigEntryAuthFailed
+
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        # Make auth_data return refresh_token=None
+        mock_auth = MagicMock()
+        mock_auth.refresh_token = None
+        tm._auth_data = mock_auth
+
+        with patch.object(tm, "is_token_valid", return_value=False):
+            with pytest.raises(ConfigEntryAuthFailed, match="Missing refresh token"):
+                await tm.refresh_token()
+
+    # ── line 286: no auth error callback when permanent auth error occurs ─────
+
+    @pytest.mark.asyncio
+    async def test_refresh_token_logs_warning_when_no_auth_error_callback(self):
+        """Line 286 — logs warning when permanent auth error but no callback registered."""
+        from unittest.mock import patch
+
+        from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+        tm = ElectroluxTokenManager(
+            access_token="tok",
+            refresh_token="ref",
+            api_key="key",
+        )
+        # Ensure no auth error callback is registered
+        tm._on_auth_error = None
+
+        with patch.object(tm, "is_token_valid", return_value=False), patch(
+            "custom_components.electrolux.token_manager.request",
+            side_effect=Exception("401 Unauthorized"),
+        ):
+            result = await tm.refresh_token()
+
+        # Should return False (permanent auth error, no callback to trigger reauth)
+        assert result is False

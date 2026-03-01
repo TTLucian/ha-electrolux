@@ -611,3 +611,210 @@ class TestSendCommand:
             await fan._send_command("Workmode", "Auto", cap)
 
         fan._apply_optimistic_update.assert_called_once_with("Workmode", "Auto")
+
+
+# ---------------------------------------------------------------------------
+# Missing coverage: async_setup_entry, __init__ caps, percentage clamp,
+#                  preset_mode workmode=None, _set_percentage ValueError,
+#                  _send_command userSelections & except Exception paths
+# ---------------------------------------------------------------------------
+
+
+class TestFanMissingCoverage:
+    """Targets the remaining missed lines in fan.py."""
+
+    # ── lines 64-76: async_setup_entry ──────────────────────────────────────
+
+    @pytest.mark.asyncio
+    async def test_async_setup_entry_creates_fan_entities(self):
+        """Lines 64-76 — async_setup_entry iterates appliances and adds FAN entities."""
+        from unittest.mock import AsyncMock, MagicMock
+
+        from custom_components.electrolux.fan import async_setup_entry
+
+        fan_entity = MagicMock()
+        fan_entity.entity_type = FAN
+
+        mock_appliance = MagicMock()
+        mock_appliance.entities = [fan_entity]
+
+        mock_coordinator = MagicMock()
+        mock_coordinator.data = {
+            "appliances": MagicMock(appliances={"app_1": mock_appliance})
+        }
+
+        mock_config_entry = MagicMock()
+        mock_config_entry.runtime_data = mock_coordinator
+
+        mock_add_entities = AsyncMock()
+        await async_setup_entry(MagicMock(), mock_config_entry, mock_add_entities)
+
+        mock_add_entities.assert_called_once_with([fan_entity])
+
+    # ── lines 127-129 & 134-136: __init__ reads Fanspeed/Workmode cap ────────
+
+    def test_init_reads_speed_range_from_fanspeed_capability(self):
+        """Lines 127-129 — __init__ sets _speed_range from Fanspeed capability."""
+        mock_caps = {
+            "Fanspeed": {"min": 2, "max": 7},
+        }
+        coord = _make_coordinator()
+        with patch.object(
+            ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)
+        ):
+            fan = ElectroluxFan(
+                coordinator=coord,
+                name="Test Fan",
+                config_entry=coord.config_entry,
+                pnc_id="FAN_PNC",
+                entity_type=FAN,
+                entity_name="fan_entity",
+                entity_attr="Fanspeed",
+                entity_source=None,
+                capability={},
+                unit=None,
+                device_class="",
+                entity_category=None,
+                icon="mdi:fan",
+            )
+        assert fan._speed_range == (2, 7)
+
+    def test_init_reads_preset_modes_from_workmode_capability(self):
+        """Lines 134-136 — __init__ builds _preset_modes from Workmode capability."""
+        mock_caps = {
+            "Workmode": {
+                "values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}}
+            },
+        }
+        coord = _make_coordinator()
+        with patch.object(
+            ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)
+        ):
+            fan = ElectroluxFan(
+                coordinator=coord,
+                name="Test Fan",
+                config_entry=coord.config_entry,
+                pnc_id="FAN_PNC",
+                entity_type=FAN,
+                entity_name="fan_entity",
+                entity_attr="Fanspeed",
+                entity_source=None,
+                capability={},
+                unit=None,
+                device_class="",
+                entity_category=None,
+                icon="mdi:fan",
+            )
+        assert "Auto" in fan._preset_modes
+        assert "Manual" in fan._preset_modes
+        assert "Quiet" in fan._preset_modes
+        assert "PowerOff" not in fan._preset_modes
+
+    # ── lines 183, 185: percentage clamps speed to valid range ───────────────
+
+    def test_percentage_clamps_fanspeed_below_min(self):
+        """Line 183 — fanspeed < min_speed is clamped to min_speed."""
+        fan = _make_fan(fanspeed=0)
+        fan._speed_range = (1, 9)
+        fan.get_state_attr = MagicMock(
+            side_effect=lambda k: "Manual" if k == "Workmode" else 0
+        )
+        pct = fan.percentage
+        # speed 0 clamped to 1, percentage of 1 in [1..9] = ~11%
+        assert pct is not None
+        assert pct > 0
+
+    def test_percentage_clamps_fanspeed_above_max(self):
+        """Line 185 — fanspeed > max_speed is clamped to max_speed."""
+        fan = _make_fan(fanspeed=15)
+        fan._speed_range = (1, 9)
+        fan.get_state_attr = MagicMock(
+            side_effect=lambda k: "Manual" if k == "Workmode" else 15
+        )
+        pct = fan.percentage
+        # speed 15 clamped to 9 → 100%
+        assert pct == 100
+
+    # ── line 206: preset_mode returns None when workmode is None (but is_on=True) ──
+
+    def test_preset_mode_none_when_workmode_switches_to_none(self):
+        """Line 206 — preset_mode returns None when second get_state_attr call returns None."""
+        fan = _make_fan()
+        call_count = [0]
+
+        def mock_get_state_attr(k):
+            if k == "Workmode":
+                call_count[0] += 1
+                if call_count[0] <= 1:
+                    return "Auto"  # is_on sees valid mode → True
+                return None  # preset_mode sees None → returns None
+            return 5
+
+        fan.get_state_attr = MagicMock(side_effect=mock_get_state_attr)
+        assert fan.preset_mode is None
+
+    # ── lines 314-318: _set_percentage ValueError from invalid percentage ─────
+
+    @pytest.mark.asyncio
+    async def test_set_percentage_handles_value_error_from_converter(self):
+        """Lines 314-318 — ValueError from percentage_to_ordered_list_item is caught."""
+        fan = _make_fan()
+        fan._send_command = AsyncMock()
+        with patch(
+            "custom_components.electrolux.fan.percentage_to_ordered_list_item",
+            side_effect=ValueError("invalid percentage"),
+        ):
+            # Should NOT raise — catches ValueError and returns
+            await fan._set_percentage(50)
+        fan._send_command.assert_not_called()
+
+    # ── lines 387-393: _send_command with userSelections entity_source ────────
+
+    @pytest.mark.asyncio
+    async def test_send_command_dam_user_selections_path(self):
+        """Lines 387-393 — DAM appliance with userSelections entity_source wraps command."""
+        fan = _make_fan(is_dam=True, entity_source="userSelections")
+        fan.appliance_status["properties"]["reported"]["userSelections"] = {  # type: ignore[index]
+            "programUID": "PROG_001"
+        }
+        fan.api = MagicMock()
+        fan._apply_optimistic_update = MagicMock()
+
+        cap = {"access": "readwrite", "type": "string"}
+        with patch(
+            "custom_components.electrolux.fan.format_command_for_appliance",
+            return_value="Auto",
+        ), patch(
+            "custom_components.electrolux.fan.execute_command_with_error_handling",
+            new_callable=AsyncMock,
+        ) as mock_exec:
+            await fan._send_command("Workmode", "Auto", cap)
+
+        cmd_arg = mock_exec.call_args[0][2]
+        assert "commands" in cmd_arg
+        inner = cmd_arg["commands"][0]
+        assert "userSelections" in inner
+        assert inner["userSelections"]["programUID"] == "PROG_001"
+        assert inner["userSelections"]["Workmode"] == "Auto"
+
+    # ── lines 421-423: _send_command re-raises non-auth exceptions ────────────
+
+    @pytest.mark.asyncio
+    async def test_send_command_reraises_non_auth_exception(self):
+        """Lines 421-423 — non-AuthenticationError from execute_command is re-raised."""
+        from homeassistant.exceptions import HomeAssistantError
+
+        fan = _make_fan(is_dam=False)
+        fan.api = MagicMock()
+        fan._apply_optimistic_update = MagicMock()
+
+        cap = {"access": "readwrite", "type": "string"}
+        with patch(
+            "custom_components.electrolux.fan.format_command_for_appliance",
+            return_value="Auto",
+        ), patch(
+            "custom_components.electrolux.fan.execute_command_with_error_handling",
+            AsyncMock(side_effect=HomeAssistantError("command rejected")),
+        ):
+            with pytest.raises(HomeAssistantError, match="command rejected"):
+                await fan._send_command("Workmode", "Auto", cap)

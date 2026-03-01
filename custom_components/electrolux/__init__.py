@@ -71,9 +71,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     _validate_config(entry)
 
-    if hass.data.get(DOMAIN) is None:
-        hass.data.setdefault(DOMAIN, {})
-
     # Always create new coordinator for clean, predictable behavior
     _LOGGER.debug("[AUTH-DEBUG] Creating coordinator instance")
     renew_interval = DEFAULT_WEBSOCKET_RENEWAL_DELAY
@@ -157,7 +154,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("[INIT] Electrolux authentication completed successfully")
 
     # Store coordinator
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    entry.runtime_data = coordinator
 
     # Initialize entities
     _LOGGER.debug("[INIT] async_setup_entry setup_entities")
@@ -296,9 +293,7 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
     Token updates call async_update_entry, which triggers this listener.
     We detect token-only changes by checking the timestamp and skip reload.
     """
-    coordinator: ElectroluxCoordinator | None = hass.data[DOMAIN].get(
-        config_entry.entry_id
-    )
+    coordinator: ElectroluxCoordinator | None = config_entry.runtime_data
 
     if coordinator and hasattr(coordinator, "_last_token_update"):
         # Check if this update happened very recently (within last 2 seconds)
@@ -321,7 +316,7 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
     # 1. Retrieve the client before data is cleared
-    coordinator: ElectroluxCoordinator = hass.data[DOMAIN].get(entry.entry_id)
+    coordinator: ElectroluxCoordinator = entry.runtime_data
     client = coordinator.api if coordinator else None
 
     # 2. Trigger the decisive cleanup in util.py
@@ -330,8 +325,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # 3. Proceed with standard HA unloading
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id, None)
 
     return unload_ok
 

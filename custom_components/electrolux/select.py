@@ -23,6 +23,7 @@ from .util import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
@@ -31,7 +32,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure select platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -179,7 +180,13 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     self.pnc_id,
                 )
                 raise HomeAssistantError(
-                    f"Cannot change '{self.entity_attr}': not supported by current program '{self._get_current_program_name() or 'unknown'}'"
+                    f"Cannot change '{self.entity_attr}': not supported by current program '{self._get_current_program_name() or 'unknown'}'",
+                    translation_domain=DOMAIN,
+                    translation_key="not_supported_by_program",
+                    translation_placeholders={
+                        "attr": self.entity_attr,
+                        "program": self._get_current_program_name() or "unknown",
+                    },
                 )
 
         # Check if appliance is connected before sending command
@@ -193,7 +200,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.
@@ -202,7 +212,11 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         value: Any = self.options_list.get(option, None)
         if value is None:
-            raise HomeAssistantError("Invalid option")
+            raise HomeAssistantError(
+                "Invalid option",
+                translation_domain=DOMAIN,
+                translation_key="invalid_option",
+            )
 
         # Rate limit commands
         await self._rate_limit_command()
@@ -257,7 +271,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     )
                     raise HomeAssistantError(
                         "Cannot change setting: appliance state is incomplete. "
-                        "Please wait for the appliance to initialize."
+                        "Please wait for the appliance to initialize.",
+                        translation_domain=DOMAIN,
+                        translation_key="appliance_state_incomplete",
                     )
 
                 command = {

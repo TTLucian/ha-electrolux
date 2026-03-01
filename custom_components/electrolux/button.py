@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import BUTTON, CONF_API_KEY, DOMAIN, icon_mapping
+from .const import BUTTON, CONF_API_KEY, icon_mapping
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .model import ElectroluxDevice
@@ -22,6 +22,7 @@ from .util import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
@@ -30,7 +31,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure button platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -218,6 +219,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
             await coordinator.handle_authentication_error(auth_ex)
+            return True
         except Exception:
             # Re-raise any errors from execute_command_with_error_handling
             raise

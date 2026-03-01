@@ -1,10 +1,10 @@
 """Tests for the Electrolux sensor platform."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import UnitOfTemperature, UnitOfTime
+from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 
 from custom_components.electrolux.const import SENSOR
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -647,3 +647,172 @@ class TestConstantAccessSensors:
         }
         # Value gets title-cased: "STEAM_TANK_EMPTY" -> "Steam Tank Empty"
         assert basic_sensor_entity.native_value == "Steam Tank Empty"
+
+
+class TestSensorMissingCoverage:
+    """Tests targeting the remaining missed lines in sensor.py."""
+
+    # ── suggested_display_precision ──────────────────────────────────────────
+
+    def test_precision_fahrenheit_returns_2(self, basic_sensor_entity):
+        """Line 77 — Fahrenheit precision is 2."""
+        basic_sensor_entity.unit = UnitOfTemperature.FAHRENHEIT
+        assert basic_sensor_entity.suggested_display_precision == 2
+
+    def test_precision_liters_returns_0(self, basic_sensor_entity):
+        """Line 79 — Liters precision is 0."""
+        basic_sensor_entity.unit = UnitOfVolume.LITERS
+        assert basic_sensor_entity.suggested_display_precision == 0
+
+    # ── native_value: offline path ────────────────────────────────────────────
+
+    def test_native_value_none_when_offline_non_connectivity_sensor(
+        self, basic_sensor_entity
+    ):
+        """Line 89 — return None when disconnected for non-connectivityState entity."""
+        with patch.object(basic_sensor_entity, "is_connected", return_value=False):
+            assert basic_sensor_entity.native_value is None
+
+    # ── fcOptisenseLoadWeight ─────────────────────────────────────────────────
+
+    def test_load_weight_filters_error_code_in_range(self, basic_sensor_entity):
+        """Lines 108-117 — numeric values 65408-65532 are filtered (return None)."""
+        basic_sensor_entity.entity_attr = "fcOptisenseLoadWeight"
+        basic_sensor_entity.reported_state = {"fcOptisenseLoadWeight": 65408}
+        assert basic_sensor_entity.native_value is None
+
+    def test_load_weight_filters_string_not_available(self, basic_sensor_entity):
+        """Lines 119-123 — string error codes NOT_AVAILABLE and OVERLOAD return None."""
+        basic_sensor_entity.entity_attr = "fcOptisenseLoadWeight"
+        basic_sensor_entity.reported_state = {"fcOptisenseLoadWeight": "NOT_AVAILABLE"}
+        assert basic_sensor_entity.native_value is None
+
+    def test_load_weight_filters_string_overload(self, basic_sensor_entity):
+        """Lines 119-123 — string OVERLOAD also filtered."""
+        basic_sensor_entity.entity_attr = "fcOptisenseLoadWeight"
+        basic_sensor_entity.reported_state = {"fcOptisenseLoadWeight": "OVERLOAD"}
+        assert basic_sensor_entity.native_value is None
+
+    # ── watertankempty boolean type ───────────────────────────────────────────
+
+    def test_watertankempty_boolean_capability_type_not_full(self, basic_sensor_entity):
+        """Line 186 — boolean capability converts live_value to bool (not STEAM_TANK_FULL → True)."""
+        basic_sensor_entity.entity_key = "watertankempty"
+        basic_sensor_entity.entity_attr = "waterTankEmpty"
+        basic_sensor_entity.reported_state = {"waterTankEmpty": "STEAM_TANK_EMPTY"}
+        basic_sensor_entity.capability = {"access": "read", "type": "boolean"}
+        result = basic_sensor_entity.native_value
+        assert result is True  # "STEAM_TANK_EMPTY" != "STEAM_TANK_FULL"
+
+    def test_watertankempty_boolean_capability_type_when_full(
+        self, basic_sensor_entity
+    ):
+        """Line 186 — boolean capability: STEAM_TANK_FULL → False."""
+        basic_sensor_entity.entity_key = "watertankempty"
+        basic_sensor_entity.entity_attr = "waterTankEmpty"
+        basic_sensor_entity.reported_state = {"waterTankEmpty": "STEAM_TANK_FULL"}
+        basic_sensor_entity.capability = {"access": "read", "type": "boolean"}
+        result = basic_sensor_entity.native_value
+        assert result is False  # "STEAM_TANK_FULL" == "STEAM_TANK_FULL"
+
+    # ── display_food_probe_temperature_c ──────────────────────────────────────
+
+    def test_food_probe_temp_entity_uses_live_value(self, basic_sensor_entity):
+        """Lines 190-194 — display_food_probe_temperature_c reads targetFoodProbeTemperatureC."""
+        basic_sensor_entity.entity_key = "display_food_probe_temperature_c"
+        basic_sensor_entity.entity_attr = "displayFoodProbeTempC"
+        basic_sensor_entity.reported_state = {
+            "displayFoodProbeTempC": None,
+            "targetFoodProbeTemperatureC": 65.0,
+        }
+        basic_sensor_entity.capability = {"access": "read", "type": "number"}
+        assert basic_sensor_entity.native_value == 65.0
+
+    # ── UnitOfTime.MINUTES error paths ────────────────────────────────────────
+
+    def test_minutes_unit_returns_none_when_converter_returns_none(
+        self, mock_coordinator
+    ):
+        """Lines 227-230 — when time_seconds_to_minutes returns None, error is logged and None returned."""
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Time Sensor",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="testAttribute",
+            entity_attr="testAttribute",
+            entity_source=None,
+            capability={"access": "read"},
+            unit=UnitOfTime.MINUTES,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:timer",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.reported_state = {
+            "testAttribute": 300
+        }  # valid value (not 0 or sentinel)
+        with patch(
+            "custom_components.electrolux.sensor.time_seconds_to_minutes",
+            return_value=None,
+        ):
+            result = entity.native_value
+        assert result is None
+
+    def test_minutes_unit_logs_warning_for_non_numeric_value(self, mock_coordinator):
+        """Line 233 — non-numeric value with MINUTES unit logs warning and falls through."""
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Time Sensor",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="testAttribute",
+            entity_attr="testAttribute",
+            entity_source=None,
+            capability={"access": "read"},
+            unit=UnitOfTime.MINUTES,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:timer",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.reported_state = {"testAttribute": "not_a_number"}
+        # Should not raise — logs a warning and returns title-cased string
+        result = entity.native_value
+        assert result == "Not A Number"
+
+    # ── non-str/int/float type coercion ───────────────────────────────────────
+
+    def test_non_primitive_value_converted_to_str(self, basic_sensor_entity):
+        """Line 253 — value that is not str/int/float is coerced with str()."""
+        # Put a list into reported state; no branch converts list to primitives
+        basic_sensor_entity.reported_state = {"testAttribute": [10, 20, 30]}
+        result = basic_sensor_entity.native_value
+        assert isinstance(result, str)  # str([10, 20, 30]) = "[10, 20, 30]"
+
+    # ── unit of measurement properties ───────────────────────────────────────
+
+    def test_native_unit_of_measurement(self, basic_sensor_entity):
+        """Line 260 — native_unit_of_measurement returns self.unit."""
+        basic_sensor_entity.unit = UnitOfTemperature.CELSIUS
+        assert (
+            basic_sensor_entity.native_unit_of_measurement == UnitOfTemperature.CELSIUS
+        )
+
+    def test_suggested_unit_of_measurement(self, basic_sensor_entity):
+        """Line 265 — suggested_unit_of_measurement returns self.unit."""
+        basic_sensor_entity.unit = UnitOfTemperature.CELSIUS
+        assert (
+            basic_sensor_entity.suggested_unit_of_measurement
+            == UnitOfTemperature.CELSIUS
+        )
+
+    # ── extra_state_attributes non-alerts ─────────────────────────────────────
+
+    def test_extra_state_attributes_empty_for_non_alerts_sensor(
+        self, basic_sensor_entity
+    ):
+        """Line 291 — extra_state_attributes returns {} for non-alerts sensors."""
+        assert basic_sensor_entity.extra_state_attributes == {}

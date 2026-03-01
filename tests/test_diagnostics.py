@@ -47,9 +47,9 @@ class TestRedactConstants:
 # ---------------------------------------------------------------------------
 
 
-def _make_hass(entry_id: str, coordinator) -> MagicMock:
+def _make_hass(entry_id: str) -> MagicMock:
     hass = MagicMock()
-    hass.data = {DOMAIN: {entry_id: coordinator}}
+    hass.data = {}
     hass.states.get = MagicMock(return_value=None)
     return hass
 
@@ -58,6 +58,7 @@ def _make_entry(
     entry_id: str = "test_entry",
     data: dict | None = None,
     options: dict | None = None,
+    coordinator=None,
 ):
     entry = MagicMock()
     entry.entry_id = entry_id
@@ -67,6 +68,7 @@ def _make_entry(
     entry.options = options or {}
     entry.unique_id = "unique-1"
     entry.disabled_by = None
+    entry.runtime_data = coordinator
     return entry
 
 
@@ -154,8 +156,8 @@ class TestAsyncGetDiagnostics:
             state={"properties": {"reported": {}}},
             health_status="healthy",
         )
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -172,8 +174,8 @@ class TestAsyncGetDiagnostics:
     async def test_user_metadata_failure_continues(self):
         """Failure on get_user_metadata is collected in errors and run continues."""
         coord = _make_coordinator(fail_user_meta=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -186,8 +188,8 @@ class TestAsyncGetDiagnostics:
     async def test_appliances_list_failure_returns_early(self):
         """Failure on get_appliances_list causes early return with partial data."""
         coord = _make_coordinator(fail_appliances_list=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -199,8 +201,8 @@ class TestAsyncGetDiagnostics:
     async def test_appliances_info_failure_continues(self):
         """Failure on get_appliances_info is logged but per-appliance detail continues."""
         coord = _make_coordinator(fail_appliances_info=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -213,8 +215,8 @@ class TestAsyncGetDiagnostics:
     async def test_capabilities_failure_stored_in_detail(self):
         """Failure on get_appliance_capabilities is stored under capabilities_error."""
         coord = _make_coordinator(fail_capabilities=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -226,8 +228,8 @@ class TestAsyncGetDiagnostics:
     async def test_state_failure_stored_in_detail(self):
         """Failure on get_appliance_state is stored under state_error."""
         coord = _make_coordinator(fail_state=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -239,8 +241,8 @@ class TestAsyncGetDiagnostics:
     async def test_health_status_failure_continues(self):
         """Failure on get_health_status is logged but run still returns data."""
         coord = _make_coordinator(fail_health=True)
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -251,8 +253,8 @@ class TestAsyncGetDiagnostics:
     async def test_empty_appliances_list_skips_detail(self):
         """Empty appliances list means no per-appliance fetching."""
         coord = _make_coordinator(appliances_list=[])
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1")
+        hass = _make_hass("e1")
+        entry = _make_entry("e1", coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -270,8 +272,10 @@ class TestAsyncGetDiagnostics:
                 "macAddress": "AA:BB:CC:DD:EE:FF",
             }
         )
-        hass = _make_hass("e1", coord)
-        entry = _make_entry("e1", data={"api_key": "secret", "access_token": "tok"})
+        hass = _make_hass("e1")
+        entry = _make_entry(
+            "e1", data={"api_key": "secret", "access_token": "tok"}, coordinator=coord
+        )
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -292,8 +296,8 @@ class TestAsyncGetConfigEntryDiagnostics:
     async def test_includes_config_entry_block(self):
         """Result contains a config_entry key with entry metadata."""
         coord = _make_coordinator()
-        entry = _make_entry("e2", data={"api_key": "mykey"})
-        hass = _make_hass("e2", coord)
+        entry = _make_entry("e2", data={"api_key": "mykey"}, coordinator=coord)
+        hass = _make_hass("e2")
 
         with (
             patch(
@@ -316,8 +320,8 @@ class TestAsyncGetConfigEntryDiagnostics:
     async def test_includes_device_info_list(self):
         """device_info key is a list (even if empty)."""
         coord = _make_coordinator()
-        entry = _make_entry("e3")
-        hass = _make_hass("e3", coord)
+        entry = _make_entry("e3", coordinator=coord)
+        hass = _make_hass("e3")
 
         with (
             patch(
@@ -345,8 +349,8 @@ class TestAsyncGetDeviceDiagnostics:
     async def test_includes_device_info_dict(self):
         """device_info key is a dict (single device) not a list."""
         coord = _make_coordinator()
-        entry = _make_entry("e4")
-        hass = _make_hass("e4", coord)
+        entry = _make_entry("e4", coordinator=coord)
+        hass = _make_hass("e4")
 
         mock_device = MagicMock()
         mock_device.id = "dev1"
@@ -382,8 +386,9 @@ class TestAsyncGetDeviceDiagnostics:
                 "access_token": "secret_access",
                 "refresh_token": "secret_refresh",
             },
+            coordinator=coord,
         )
-        hass = _make_hass("e5", coord)
+        hass = _make_hass("e5")
         mock_device = MagicMock()
         mock_device.id = "dev2"
 

@@ -1,0 +1,931 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "foodprobesupported": {
+        "default": "mdi:thermometer-probe"
+      }
+    },
+    "button": {
+      "saveappfavorite": {
+        "default": "mdi:star"
+      }
+    },
+    "fan": {
+      "workmode_fan": {
+        "default": "mdi:fan"
+      }
+    },
+    "number": {
+      "cyclepersonalization_anticreasevalue": {
+        "default": "mdi:hanger"
+      },
+      "cyclepersonalization_dryingtime": {
+        "default": "mdi:clock-outline"
+      },
+      "extracavity_targettemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "freezer_targettemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "fridge_targettemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "remindertime": {
+        "default": "mdi:clock"
+      },
+      "targetduration": {
+        "default": "mdi:timelapse"
+      },
+      "targetfoodprobetemperaturec": {
+        "default": "mdi:thermometer-probe"
+      },
+      "targetfoodprobetemperaturef": {
+        "default": "mdi:thermometer-probe"
+      },
+      "targethumidity": {
+        "default": "mdi:water-percent"
+      },
+      "upperoven_remindertime": {
+        "default": "mdi:alarm"
+      },
+      "upperoven_starttime": {
+        "default": "mdi:clock-start"
+      },
+      "upperoven_targetduration": {
+        "default": "mdi:timelapse"
+      },
+      "upperoven_targetfoodprobetemperaturec": {
+        "default": "mdi:thermometer-probe"
+      },
+      "upperoven_targetfoodprobetemperaturef": {
+        "default": "mdi:thermometer-probe"
+      },
+      "upperoven_targettemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "upperoven_targettemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "userselections_anticreasevalue": {
+        "default": "mdi:hanger"
+      },
+      "userselections_dryingtime": {
+        "default": "mdi:clock-outline"
+      }
+    },
+    "sensor": {
+      "airfilterlifetime": {
+        "default": "mdi:air-filter"
+      },
+      "airfilterlifetimebuythreshold": {
+        "default": "mdi:air-filter"
+      },
+      "airfilterlifetimechangethreshold": {
+        "default": "mdi:air-filter"
+      },
+      "airfilterstate": {
+        "default": "mdi:air-filter"
+      },
+      "airfilterstatereset": {
+        "default": "mdi:air-filter"
+      },
+      "alerts": {
+        "default": "mdi:alert"
+      },
+      "ambienthumidity": {
+        "default": "mdi:water-percent"
+      },
+      "ambienttemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "ambienttemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "appliancecareandmaintenance0_maint1_id": {
+        "default": "mdi:wrench"
+      },
+      "appliancecareandmaintenance0_maint1_occured": {
+        "default": "mdi:alert-circle"
+      },
+      "appliancecareandmaintenance0_maint1_threshold": {
+        "default": "mdi:counter"
+      },
+      "appliancecategory": {
+        "default": "mdi:tag"
+      },
+      "appliancelocaltimeoffset": {
+        "default": "mdi:clock-edit"
+      },
+      "appliancemainboardswversion": {
+        "default": "mdi:chip"
+      },
+      "appliancemode": {
+        "default": "mdi:cog"
+      },
+      "appliancestate": {
+        "default": "mdi:state-machine"
+      },
+      "appliancetotalworkingtime": {
+        "default": "mdi:timelapse"
+      },
+      "appliancetype": {
+        "default": "mdi:information-outline"
+      },
+      "applianceuiswversion": {
+        "default": "mdi:information"
+      },
+      "autodosing_adtankaconfiguration": {
+        "default": "mdi:flask"
+      },
+      "autodosing_adtankadetstandarddose": {
+        "default": "mdi:cup-water"
+      },
+      "autodosing_adtankbconfiguration": {
+        "default": "mdi:flask"
+      },
+      "autodosing_adtankbdetstandarddose": {
+        "default": "mdi:cup-water"
+      },
+      "autodosing_adtankbsoftstandarddose": {
+        "default": "mdi:cup-water"
+      },
+      "autolocaltimeoffset": {
+        "default": "mdi:clock-auto"
+      },
+      "capabilityhash": {
+        "default": "mdi:lock"
+      },
+      "clearcyclepersonalizationcmd": {
+        "default": "mdi:restore"
+      },
+      "clockstyle": {
+        "default": "mdi:clock-outline"
+      },
+      "compressorspeed": {
+        "default": "mdi:fan"
+      },
+      "compressorspeed_coefficient": {
+        "default": "mdi:fan"
+      },
+      "compressorspeed_exponent": {
+        "default": "mdi:fan"
+      },
+      "coolingvalvestate": {
+        "default": "mdi:valve"
+      },
+      "cpv": {
+        "default": "mdi:numeric"
+      },
+      "cyclepersonalization_adfinetunedetlevel": {
+        "default": "mdi:tune"
+      },
+      "cyclepersonalization_adfinetunesoftlevel": {
+        "default": "mdi:tune"
+      },
+      "cyclepersonalization_adtankasel": {
+        "default": "mdi:flask-empty"
+      },
+      "cyclepersonalization_adtankbsel": {
+        "default": "mdi:flask"
+      },
+      "cyclepersonalization_analogspinspeed": {
+        "default": "mdi:rotate-orbit"
+      },
+      "cyclepersonalization_analogtemperature": {
+        "default": "mdi:thermometer"
+      },
+      "cyclepersonalization_drynessvalue": {
+        "default": "mdi:water-percent"
+      },
+      "cyclepersonalization_ewx1493a_wmeconomy": {
+        "default": "mdi:leaf"
+      },
+      "cyclepersonalization_extrarinsenumber": {
+        "default": "mdi:water-plus"
+      },
+      "cyclepersonalization_humiditytarget": {
+        "default": "mdi:water-percent"
+      },
+      "cyclepersonalization_programuid": {
+        "default": "mdi:cog"
+      },
+      "cyclepersonalization_steamvalue": {
+        "default": "mdi:weather-fog"
+      },
+      "cyclepersonalization_timemanagerlevel": {
+        "default": "mdi:speedometer"
+      },
+      "cyclephase": {
+        "default": "mdi:rotate-right"
+      },
+      "cyclesubphase": {
+        "default": "mdi:washing-machine"
+      },
+      "defaultextrarinse": {
+        "default": "mdi:washing-machine"
+      },
+      "defrostroutinestate": {
+        "default": "mdi:snowflake-melt"
+      },
+      "descalingreminderstate": {
+        "default": "mdi:water-alert"
+      },
+      "displayfoodprobetemperature": {
+        "default": "mdi:thermometer-probe"
+      },
+      "displayfoodprobetemperaturec": {
+        "default": "mdi:thermometer-probe"
+      },
+      "displayfoodprobetemperaturef": {
+        "default": "mdi:thermometer-probe"
+      },
+      "displaylight": {
+        "default": "mdi:lightbulb"
+      },
+      "displayonfloor": {
+        "default": "mdi:projector-screen"
+      },
+      "displaytemperature": {
+        "default": "mdi:thermometer"
+      },
+      "displaytemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "displaytemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "doorlock": {
+        "default": "mdi:lock"
+      },
+      "dryingnominalloadweight": {
+        "default": "mdi:weight"
+      },
+      "dwywdatatodryer_programuid": {
+        "default": "mdi:washing-machine-alert"
+      },
+      "dwywdatatodryer_tdcloudtte": {
+        "default": "mdi:timer-outline"
+      },
+      "dwywdatatodryer_tdecpoverload": {
+        "default": "mdi:alert-circle-outline"
+      },
+      "dwywdatatodryer_wmloaderror": {
+        "default": "mdi:alert-outline"
+      },
+      "dwywdatatodryer_wmloadmoisture": {
+        "default": "mdi:water-percent"
+      },
+      "dwywdatatodryer_wmloadweight": {
+        "default": "mdi:weight"
+      },
+      "dwywselect_command": {
+        "default": "mdi:connection"
+      },
+      "dwywselect_wmsn": {
+        "default": "mdi:washing-machine"
+      },
+      "endofcyclesound": {
+        "default": "mdi:volume-high"
+      },
+      "energyconsumption": {
+        "default": "mdi:lightning-bolt"
+      },
+      "errcommsensordisplaybrd": {
+        "default": "mdi:alert-circle"
+      },
+      "errcommsensoruibrd": {
+        "default": "mdi:alert-circle"
+      },
+      "errimpellerstuck": {
+        "default": "mdi:fan-alert"
+      },
+      "errpmnotresp": {
+        "default": "mdi:alert-circle"
+      },
+      "executecommand": {
+        "default": "mdi:power"
+      },
+      "extracavity_alerts": {
+        "default": "mdi:alert"
+      },
+      "extracavity_clonetargettemperaturemode": {
+        "default": "mdi:thermometer"
+      },
+      "extracavity_sensortemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "extracavity_temperatureadjustingstate": {
+        "default": "mdi:thermometer"
+      },
+      "fanmode": {
+        "default": "mdi:fan-speed-1"
+      },
+      "fanspeed": {
+        "default": "mdi:fan"
+      },
+      "fanspeedsetting": {
+        "default": "mdi:fan"
+      },
+      "fanspeedstate": {
+        "default": "mdi:fan"
+      },
+      "favoriteorder": {
+        "default": "mdi:star-circle"
+      },
+      "favoriteorder_number": {
+        "default": "mdi:star-circle"
+      },
+      "favoriteselect": {
+        "default": "mdi:star"
+      },
+      "favoritestatus": {
+        "default": "mdi:star-check"
+      },
+      "favoritestatus_number": {
+        "default": "mdi:star-check"
+      },
+      "fcmiscellaneousstate_adtankadetloaded": {
+        "default": "mdi:flask"
+      },
+      "fcmiscellaneousstate_adtankbdetloaded": {
+        "default": "mdi:flask"
+      },
+      "fcmiscellaneousstate_adtankbsoftloaded": {
+        "default": "mdi:flask-outline"
+      },
+      "fcmiscellaneousstate_carelevel": {
+        "default": "mdi:heart-pulse"
+      },
+      "fcmiscellaneousstate_detergentextradosage": {
+        "default": "mdi:cup-water"
+      },
+      "fcmiscellaneousstate_ecolevel": {
+        "default": "mdi:leaf"
+      },
+      "fcmiscellaneousstate_optisenseresult": {
+        "default": "mdi:eye"
+      },
+      "fcmiscellaneousstate_softenerextradosage": {
+        "default": "mdi:cup-water"
+      },
+      "fcmiscellaneousstate_tankadetloadfornominalweight": {
+        "default": "mdi:flask"
+      },
+      "fcmiscellaneousstate_tankareserve": {
+        "default": "mdi:flask-outline"
+      },
+      "fcmiscellaneousstate_tankbdetloadfornominalweight": {
+        "default": "mdi:flask"
+      },
+      "fcmiscellaneousstate_tankbreserve": {
+        "default": "mdi:flask-outline"
+      },
+      "fcmiscellaneousstate_waterusage": {
+        "default": "mdi:water"
+      },
+      "fcoptisenseloadweight": {
+        "default": "mdi:weight"
+      },
+      "filterlife": {
+        "default": "mdi:air-filter"
+      },
+      "filterlife_1": {
+        "default": "mdi:air-filter"
+      },
+      "filterstate": {
+        "default": "mdi:air-filter"
+      },
+      "filterstatus": {
+        "default": "mdi:air-filter"
+      },
+      "filtertype": {
+        "default": "mdi:air-filter"
+      },
+      "filtertype_1": {
+        "default": "mdi:air-filter"
+      },
+      "freezer_alerts": {
+        "default": "mdi:alert"
+      },
+      "freezer_fastmodetimetoend": {
+        "default": "mdi:timer-outline"
+      },
+      "freezer_sensortemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "fridge_alerts": {
+        "default": "mdi:alert"
+      },
+      "fridge_fastmodetimetoend": {
+        "default": "mdi:timer-outline"
+      },
+      "fridge_sensortemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "hepafilterlifetime": {
+        "default": "mdi:air-filter"
+      },
+      "icemaker_alerts": {
+        "default": "mdi:alert"
+      },
+      "icemaker_defrosttemperaturec": {
+        "default": "mdi:snowflake-thermometer"
+      },
+      "icemaker_evaporatorfanstate": {
+        "default": "mdi:fan"
+      },
+      "icemaker_executecommand": {
+        "default": "mdi:power"
+      },
+      "icemaker_icedispenserstate": {
+        "default": "mdi:cup-water"
+      },
+      "icemaker_icetraywaterfillsetting": {
+        "default": "mdi:tray"
+      },
+      "icemaker_sensortemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "keysoundtone": {
+        "default": "mdi:music-note"
+      },
+      "language": {
+        "default": "mdi:translate"
+      },
+      "localtimeautomaticmode": {
+        "default": "mdi:clock-check"
+      },
+      "manualsync": {
+        "default": "mdi:sync"
+      },
+      "measuredloadweight": {
+        "default": "mdi:weight"
+      },
+      "messagequeuesync_activemessageindex": {
+        "default": "mdi:message-badge"
+      },
+      "minfinishintime": {
+        "default": "mdi:clock-start"
+      },
+      "miscellaneousstate": {
+        "default": "mdi:information"
+      },
+      "mode": {
+        "default": "mdi:fan"
+      },
+      "networkinterface_command": {
+        "default": "mdi:console-network"
+      },
+      "networkinterface_linkqualityindicator": {
+        "default": "mdi:wifi"
+      },
+      "networkinterface_otastate": {
+        "default": "mdi:update"
+      },
+      "networkinterface_startupcommand": {
+        "default": "mdi:restart"
+      },
+      "networkinterface_swversion": {
+        "default": "mdi:chip"
+      },
+      "powerconsumption": {
+        "default": "mdi:flash"
+      },
+      "prewashphase": {
+        "default": "mdi:washing-machine"
+      },
+      "processphase": {
+        "default": "mdi:state-machine"
+      },
+      "program": {
+        "default": "mdi:chef-hat"
+      },
+      "remotecontrol": {
+        "default": "mdi:remote"
+      },
+      "remotenotificationpending": {
+        "default": "mdi:bell"
+      },
+      "rinseaidlevel": {
+        "default": "mdi:cup-water"
+      },
+      "runningtime": {
+        "default": "mdi:timer"
+      },
+      "schedulingstate": {
+        "default": "mdi:calendar-clock"
+      },
+      "sensorhumidity": {
+        "default": "mdi:water-percent"
+      },
+      "shortcutproglistcmd": {
+        "default": "mdi:format-list-bulleted"
+      },
+      "signalstrength": {
+        "default": "mdi:wifi-strength-3"
+      },
+      "soundvolume": {
+        "default": "mdi:volume-high"
+      },
+      "starttime": {
+        "default": "mdi:timer"
+      },
+      "stoptime": {
+        "default": "mdi:timer-off"
+      },
+      "swingmode": {
+        "default": "mdi:arrow-up-down"
+      },
+      "tankadetloadfornominalweight": {
+        "default": "mdi:flask"
+      },
+      "tankalevel": {
+        "default": "mdi:flask"
+      },
+      "tankbdetloadfornominalweight": {
+        "default": "mdi:flask"
+      },
+      "tankblevel": {
+        "default": "mdi:flask"
+      },
+      "targetmicrowavepower": {
+        "default": "mdi:microwave"
+      },
+      "targettemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "targettemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "temperaturerepresentation": {
+        "default": "mdi:thermometer-lines"
+      },
+      "timetoend": {
+        "default": "mdi:timer-outline"
+      },
+      "totalcyclecounter": {
+        "default": "mdi:counter"
+      },
+      "totaldrycyclescount": {
+        "default": "mdi:counter"
+      },
+      "totaldryingtime": {
+        "default": "mdi:timelapse"
+      },
+      "totalsteamcyclecounter": {
+        "default": "mdi:counter"
+      },
+      "totalwashcyclescount": {
+        "default": "mdi:counter"
+      },
+      "totalwashdrycyclescount": {
+        "default": "mdi:counter"
+      },
+      "totalwashingtime": {
+        "default": "mdi:timelapse"
+      },
+      "upperoven_appliancestate": {
+        "default": "mdi:state-machine"
+      },
+      "upperoven_displayfoodprobetemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "upperoven_displayfoodprobetemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "upperoven_displaytemperaturec": {
+        "default": "mdi:thermometer"
+      },
+      "upperoven_displaytemperaturef": {
+        "default": "mdi:thermometer"
+      },
+      "upperoven_executecommand": {
+        "default": "mdi:play-pause"
+      },
+      "upperoven_fastheatupfeature": {
+        "default": "mdi:fire-circle"
+      },
+      "upperoven_preheatcomplete": {
+        "default": "mdi:progress-check"
+      },
+      "upperoven_processphase": {
+        "default": "mdi:state-machine"
+      },
+      "upperoven_program": {
+        "default": "mdi:chef-hat"
+      },
+      "upperoven_runningtime": {
+        "default": "mdi:timer"
+      },
+      "upperoven_targetdurationendaction": {
+        "default": "mdi:timer-stop"
+      },
+      "upperoven_targetfoodprobetemperatureendaction": {
+        "default": "mdi:thermometer-alert"
+      },
+      "upperoven_timetoend": {
+        "default": "mdi:timer-sand"
+      },
+      "upperoven_watertanklevel": {
+        "default": "mdi:cup-water"
+      },
+      "userselections_adfinetunedetlevel": {
+        "default": "mdi:tune"
+      },
+      "userselections_adfinetunesoftlevel": {
+        "default": "mdi:tune"
+      },
+      "userselections_adtankasel": {
+        "default": "mdi:flask"
+      },
+      "userselections_adtankbsel": {
+        "default": "mdi:flask"
+      },
+      "userselections_analogspinspeed": {
+        "default": "mdi:rotate-right"
+      },
+      "userselections_analogtemperature": {
+        "default": "mdi:thermometer"
+      },
+      "userselections_drynessvalue": {
+        "default": "mdi:water-percent"
+      },
+      "userselections_ecoscore": {
+        "default": "mdi:recycle"
+      },
+      "userselections_energyscore": {
+        "default": "mdi:leaf"
+      },
+      "userselections_extrarinsenumber": {
+        "default": "mdi:washing-machine"
+      },
+      "userselections_humiditytarget": {
+        "default": "mdi:water-percent"
+      },
+      "userselections_memoryid": {
+        "default": "mdi:memory"
+      },
+      "userselections_programuid": {
+        "default": "mdi:play-circle"
+      },
+      "userselections_steamvalue": {
+        "default": "mdi:weather-partly-cloudy"
+      },
+      "userselections_timemanagerlevel": {
+        "default": "mdi:speedometer"
+      },
+      "userselections_waterscore": {
+        "default": "mdi:water-percent"
+      },
+      "uvruntime": {
+        "default": "mdi:timer"
+      },
+      "washingnominalloadweight": {
+        "default": "mdi:weight"
+      },
+      "waterfilterflow": {
+        "default": "mdi:water"
+      },
+      "waterfilterflowbuythreshold": {
+        "default": "mdi:water-pump"
+      },
+      "waterfilterflowchangethreshold": {
+        "default": "mdi:water-pump"
+      },
+      "waterfilterlifetime": {
+        "default": "mdi:water"
+      },
+      "waterfilterlifetimebuythreshold": {
+        "default": "mdi:water-pump"
+      },
+      "waterfilterlifetimechangethreshold": {
+        "default": "mdi:water-pump"
+      },
+      "waterfilterstate": {
+        "default": "mdi:water"
+      },
+      "waterfilterstatereset": {
+        "default": "mdi:water"
+      },
+      "waterhardness": {
+        "default": "mdi:water-percent"
+      },
+      "watersoftenermode": {
+        "default": "mdi:water-softener"
+      },
+      "workmode": {
+        "default": "mdi:cog"
+      }
+    },
+    "switch": {
+      "autodosing_adlocalfinetuning": {
+        "default": "mdi:tune"
+      },
+      "batchschedulermode": {
+        "default": "mdi:calendar-clock"
+      },
+      "cavitylight": {
+        "default": "mdi:lightbulb"
+      },
+      "childlock": {
+        "default": "mdi:lock"
+      },
+      "cleanairmode": {
+        "default": "mdi:air-filter"
+      },
+      "cyclepersonalization_ewx1493a_anticreasenosteam": {
+        "default": "mdi:iron"
+      },
+      "cyclepersonalization_ewx1493a_anticreasewsteam": {
+        "default": "mdi:iron-outline"
+      },
+      "cyclepersonalization_ewx1493a_drymode": {
+        "default": "mdi:tumble-dryer"
+      },
+      "cyclepersonalization_ewx1493a_nightcycle": {
+        "default": "mdi:weather-night"
+      },
+      "cyclepersonalization_ewx1493a_pod": {
+        "default": "mdi:package-variant"
+      },
+      "cyclepersonalization_ewx1493a_prewashphase": {
+        "default": "mdi:water-sync"
+      },
+      "cyclepersonalization_ewx1493a_rinsehold": {
+        "default": "mdi:water-pause"
+      },
+      "cyclepersonalization_ewx1493a_stain": {
+        "default": "mdi:sticker-alert"
+      },
+      "cyclepersonalization_ewx1493a_steammode": {
+        "default": "mdi:weather-fog"
+      },
+      "cyclepersonalization_ewx1493a_tcsensor": {
+        "default": "mdi:thermometer-water"
+      },
+      "cyclepersonalization_ewx1493a_wetmode": {
+        "default": "mdi:water"
+      },
+      "cyclepersonalization_reverseplus": {
+        "default": "mdi:rotate-3d-variant"
+      },
+      "cyclepersonalization_tdeconomy_eco": {
+        "default": "mdi:leaf"
+      },
+      "cyclepersonalization_tdeconomy_night": {
+        "default": "mdi:weather-night"
+      },
+      "cyclepersonalization_tdeconomy_quick": {
+        "default": "mdi:lightning-bolt"
+      },
+      "freezer_fastmode": {
+        "default": "mdi:fridge-variant"
+      },
+      "fridge_fastmode": {
+        "default": "mdi:fridge-variant"
+      },
+      "ionizer": {
+        "default": "mdi:atom"
+      },
+      "keytone": {
+        "default": "mdi:volume-high"
+      },
+      "miscellaneousstate_ecomode": {
+        "default": "mdi:leaf"
+      },
+      "networkinterfacealwayson": {
+        "default": "mdi:wifi"
+      },
+      "preselectlast": {
+        "default": "mdi:refresh"
+      },
+      "sabbathmode": {
+        "default": "mdi:star-david"
+      },
+      "safetylock": {
+        "default": "mdi:lock"
+      },
+      "sleepmode": {
+        "default": "mdi:sleep"
+      },
+      "ui2lockmode": {
+        "default": "mdi:lock-outline"
+      },
+      "uilight": {
+        "default": "mdi:lightbulb"
+      },
+      "uilockmode": {
+        "default": "mdi:lock"
+      },
+      "upperoven_cavitylight": {
+        "default": "mdi:lightbulb"
+      },
+      "userselections_autodooropener": {
+        "default": "mdi:door-open"
+      },
+      "userselections_ewx1493a_anticreasenosteam": {
+        "default": "mdi:hanger"
+      },
+      "userselections_ewx1493a_anticreasewsteam": {
+        "default": "mdi:hanger"
+      },
+      "userselections_ewx1493a_drymode": {
+        "default": "mdi:tumble-dryer"
+      },
+      "userselections_ewx1493a_easyiron": {
+        "default": "mdi:iron"
+      },
+      "userselections_ewx1493a_intensive": {
+        "default": "mdi:power-high"
+      },
+      "userselections_ewx1493a_nightcycle": {
+        "default": "mdi:moon-waning-crescent"
+      },
+      "userselections_ewx1493a_pod": {
+        "default": "mdi:cube-outline"
+      },
+      "userselections_ewx1493a_prewashphase": {
+        "default": "mdi:water-plus"
+      },
+      "userselections_ewx1493a_rinsehold": {
+        "default": "mdi:water-pause"
+      },
+      "userselections_ewx1493a_stain": {
+        "default": "mdi:sticker-remove"
+      },
+      "userselections_ewx1493a_steammode": {
+        "default": "mdi:weather-partly-cloudy"
+      },
+      "userselections_ewx1493a_tcsensor": {
+        "default": "mdi:thermometer"
+      },
+      "userselections_ewx1493a_ultramix": {
+        "default": "mdi:rotate-3d-variant"
+      },
+      "userselections_ewx1493a_wetmode": {
+        "default": "mdi:water"
+      },
+      "userselections_ewx1493a_wmeconomy": {
+        "default": "mdi:cash"
+      },
+      "userselections_extrapoweroption": {
+        "default": "mdi:flash"
+      },
+      "userselections_extrasilentoption": {
+        "default": "mdi:volume-off"
+      },
+      "userselections_glasscareoption": {
+        "default": "mdi:glass-wine"
+      },
+      "userselections_intensive": {
+        "default": "mdi:power-high"
+      },
+      "userselections_onerackoption": {
+        "default": "mdi:silverware-variant"
+      },
+      "userselections_refresh": {
+        "default": "mdi:refresh"
+      },
+      "userselections_reverseplus": {
+        "default": "mdi:rotate-3d-variant"
+      },
+      "userselections_sanitizeoption": {
+        "default": "mdi:shield-check"
+      },
+      "userselections_sprayzoneoption": {
+        "default": "mdi:spray"
+      },
+      "userselections_tcsensor": {
+        "default": "mdi:thermometer"
+      },
+      "userselections_tdeconomy_eco": {
+        "default": "mdi:leaf"
+      },
+      "userselections_tdeconomy_night": {
+        "default": "mdi:weather-night"
+      },
+      "userselections_tdeconomy_quick": {
+        "default": "mdi:lightning-bolt"
+      },
+      "userselections_wmeconomy": {
+        "default": "mdi:cash"
+      },
+      "userselections_xtradryoption": {
+        "default": "mdi:hair-dryer"
+      },
+      "userselections_zonecleanoption": {
+        "default": "mdi:target"
+      },
+      "uvstate": {
+        "default": "mdi:sun-wireless"
+      },
+      "vacationholidaymode": {
+        "default": "mdi:beach"
+      },
+      "verticalswing": {
+        "default": "mdi:arrow-up-down"
+      }
+    }
+  }
+}

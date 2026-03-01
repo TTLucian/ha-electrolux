@@ -5,14 +5,12 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from homeassistant.const import Platform
 
-from custom_components.electrolux.const import DOMAIN
-
 
 @pytest.fixture
 def mock_hass():
     """Create a mock Home Assistant instance."""
     hass = MagicMock()
-    hass.data = {DOMAIN: {}}
+    hass.data = {}
     return hass
 
 
@@ -65,7 +63,7 @@ class TestSensorPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -88,7 +86,7 @@ class TestSensorPlatformSetup:
 
         mock_coordinator = MagicMock()
         mock_coordinator.data = {}  # No appliances
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -116,7 +114,7 @@ class TestNumberPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -143,7 +141,7 @@ class TestSelectPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -170,7 +168,7 @@ class TestSwitchPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -197,7 +195,7 @@ class TestBinarySensorPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -224,7 +222,7 @@ class TestButtonPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -251,7 +249,7 @@ class TestTextPlatformSetup:
             "test_appliance_123"
         ].entities = [mock_entity]
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -277,7 +275,7 @@ class TestClimatePlatformSetup:
             "test_appliance_123"
         ].appliance_type = "AC"
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -302,7 +300,7 @@ class TestClimatePlatformSetup:
             "test_appliance_123"
         ].appliance_type = "OV"
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -334,7 +332,7 @@ class TestClimatePlatformSetup:
 
         mock_coordinator.data = {"appliances": MagicMock(appliances=mock_appliances)}
 
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(
@@ -347,6 +345,38 @@ class TestClimatePlatformSetup:
         call_args = mock_add_entities.call_args[0][0]
         assert len(call_args) == 3
 
+    @pytest.mark.asyncio
+    async def test_climate_setup_extracts_capabilities_from_appliance_data(
+        self, mock_hass, mock_config_entry, mock_coordinator
+    ):
+        """Test line 53 — capabilities_dict is populated from appliance.data.capabilities."""
+        from custom_components.electrolux.climate import async_setup_entry
+
+        mock_appliance = mock_coordinator.data["appliances"].appliances[
+            "test_appliance_123"
+        ]
+        mock_appliance.appliance_type = "AC"
+        # Give the appliance real data with capabilities
+        mock_appliance.data = MagicMock()
+        mock_appliance.data.capabilities = {
+            "mode": {"values": {"AUTO": {}, "COOL": {}}},
+            "targetTemperatureC": {"min": 16, "max": 30},
+            "unknownAttr": {},  # Not in climate_attrs, should be ignored
+        }
+
+        mock_config_entry.runtime_data = mock_coordinator
+        mock_add_entities = AsyncMock()
+
+        await async_setup_entry(mock_hass, mock_config_entry, mock_add_entities)
+
+        call_args = mock_add_entities.call_args[0][0]
+        assert len(call_args) == 1
+        entity = call_args[0]
+        # Verified climate-relevant attrs were extracted; unknown attr was not
+        assert "mode" in entity.capability
+        assert "targetTemperatureC" in entity.capability
+        assert "unknownAttr" not in entity.capability
+
 
 class TestPlatformSetupErrorHandling:
     """Test error handling in platform setup."""
@@ -355,14 +385,20 @@ class TestPlatformSetupErrorHandling:
     async def test_platform_setup_handles_missing_coordinator(
         self, mock_hass, mock_config_entry
     ):
-        """Test platform setup handles missing coordinator gracefully."""
+        """Test platform setup handles coordinator with empty data gracefully."""
         from custom_components.electrolux.sensor import async_setup_entry
 
-        # Don't set coordinator in hass.data
+        mock_coordinator = MagicMock()
+        mock_coordinator.data = {}  # No appliances key
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
-        with pytest.raises(KeyError):
-            await async_setup_entry(mock_hass, mock_config_entry, mock_add_entities)
+        result = await async_setup_entry(
+            mock_hass, mock_config_entry, mock_add_entities
+        )
+
+        assert result is None
+        mock_add_entities.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_platform_setup_handles_none_appliances(
@@ -373,7 +409,7 @@ class TestPlatformSetupErrorHandling:
 
         mock_coordinator = MagicMock()
         mock_coordinator.data = {"appliances": None}
-        mock_hass.data[DOMAIN][mock_config_entry.entry_id] = mock_coordinator
+        mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = AsyncMock()
 
         result = await async_setup_entry(

@@ -12,7 +12,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntry
 
-from .const import CONF_ACCESS_TOKEN, CONF_API_KEY, CONF_REFRESH_TOKEN, DOMAIN
+from .const import CONF_ACCESS_TOKEN, CONF_API_KEY, CONF_REFRESH_TOKEN
 from .coordinator import ElectroluxCoordinator
 
 REDACT_CONFIG: set[str] = {CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN}
@@ -94,7 +94,7 @@ async def _async_get_diagnostics(
     entry: ConfigEntry,
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    app_entry: ElectroluxCoordinator = hass.data[DOMAIN][entry.entry_id]
+    app_entry: ElectroluxCoordinator = entry.runtime_data
 
     data: dict[str, Any] = {
         "user_metadata": None,

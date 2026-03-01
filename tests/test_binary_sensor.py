@@ -404,3 +404,112 @@ class TestElectroluxBinarySensor:
         binary_sensor_entity.extract_value = MagicMock(return_value=None)
         binary_sensor_entity._cached_value = False
         assert binary_sensor_entity.is_on is False
+
+
+class TestBinarySensorMissingPaths:
+    """Tests for previously uncovered binary sensor paths."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.config_entry = MagicMock()
+        return coordinator
+
+    @pytest.fixture
+    def mock_capability(self):
+        return {"access": "read", "type": "boolean"}
+
+    def _make_entity(
+        self,
+        coordinator,
+        capability,
+        entity_attr,
+        entity_name,
+        catalog_entry=None,
+        name="Test",
+    ):
+        entity = ElectroluxBinarySensor(
+            coordinator=coordinator,
+            name=name,
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BINARY_SENSOR,
+            entity_name=entity_name,
+            entity_attr=entity_attr,
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:test",
+            catalog_entry=catalog_entry,
+        )
+        entity.is_connected = MagicMock(return_value=True)
+        return entity
+
+    def test_name_returns_self_name_when_no_friendly_name_and_no_catalog(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test name returns _name when entity_name not in FRIENDLY_NAMES and no catalog_entry."""
+        entity = self._make_entity(
+            mock_coordinator,
+            mock_capability,
+            "unknownAttr",
+            "unknown_entity",
+            name="My Sensor",
+        )
+        assert entity.name == "My Sensor"
+
+    def test_is_on_returns_none_when_offline(self, mock_coordinator, mock_capability):
+        """Test is_on returns None when appliance is offline (entity_attr != connectivityState)."""
+        entity = self._make_entity(
+            mock_coordinator, mock_capability, "someAttr", "some_entity"
+        )
+        entity.is_connected = MagicMock(return_value=False)
+        assert entity.is_on is None
+
+    def test_is_on_connectivity_state_not_blocked_offline(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test connectivityState sensor is NOT blocked when offline (line 133 bypass)."""
+        entity = self._make_entity(
+            mock_coordinator, mock_capability, "connectivityState", "some_entity"
+        )
+        entity.is_connected = MagicMock(return_value=False)
+        entity.extract_value = MagicMock(return_value="disconnected")
+        # should not return None — connectivityState is special
+        result = entity.is_on
+        assert result is not None
+
+    def test_is_on_food_probe_supported_present(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test is_on for foodProbeSupported when foodProbeInsertionState is in reported state."""
+        entity = self._make_entity(
+            mock_coordinator, mock_capability, "foodProbeSupported", "test"
+        )
+        entity._reported_state_cache = {"foodProbeInsertionState": "INSERTED"}
+        entity.extract_value = MagicMock(return_value=None)
+        assert entity.is_on is True
+
+    def test_is_on_food_probe_supported_absent(self, mock_coordinator, mock_capability):
+        """Test is_on for foodProbeSupported when foodProbeInsertionState is absent."""
+        entity = self._make_entity(
+            mock_coordinator, mock_capability, "foodProbeSupported", "test"
+        )
+        entity._reported_state_cache = {}
+        entity.extract_value = MagicMock(return_value=None)
+        assert entity.is_on is False
+
+    def test_is_on_water_tank_empty_no_live_value(
+        self, mock_coordinator, mock_capability
+    ):
+        """Test is_on for watertankempty returns False when waterTankEmpty not in reported_state."""
+        entity = self._make_entity(
+            mock_coordinator, mock_capability, "waterTankEmpty", "watertankempty"
+        )
+        # entity_key = "watertankempty" (lowercased waterTankEmpty)
+        entity._reported_state_cache = {}  # No waterTankEmpty key
+        entity.extract_value = MagicMock(return_value=None)
+        assert entity.is_on is False

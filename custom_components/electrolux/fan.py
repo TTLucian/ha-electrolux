@@ -61,7 +61,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configure fan platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
             entities = [
@@ -226,7 +226,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         # Determine target mode
@@ -260,7 +263,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         # Set Workmode to PowerOff
@@ -278,7 +284,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         if percentage == 0:
@@ -329,7 +338,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             )
             raise HomeAssistantError(
                 f"Appliance is offline (current state: {connectivity_state}). "
-                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
+                "Please check that the appliance is plugged in, has network connectivity and is connected to cloud services.",
+                translation_domain=DOMAIN,
+                translation_key="appliance_offline",
+                translation_placeholders={"state": str(connectivity_state)},
             )
 
         if preset_mode not in self._preset_modes:
@@ -339,7 +351,13 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                 self._preset_modes,
             )
             raise HomeAssistantError(
-                f"Invalid preset mode '{preset_mode}'. Available modes: {', '.join(self._preset_modes)}"
+                f"Invalid preset mode '{preset_mode}'. Available modes: {', '.join(self._preset_modes)}",
+                translation_domain=DOMAIN,
+                translation_key="invalid_preset_mode",
+                translation_placeholders={
+                    "mode": preset_mode,
+                    "modes": ", ".join(self._preset_modes),
+                },
             )
 
         await self._send_workmode_command(preset_mode)

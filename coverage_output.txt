@@ -1,0 +1,169 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 66%]
+........................................................................ [ 73%]
+........................................................................ [ 80%]
+........................................................................ [ 88%]
+........................................................................ [ 95%]
+...........................................                              [100%]
+============================== warnings summary ===============================
+tests/test_config_flow.py::TestRepairFlow::test_repair_validation
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\config_flow.py:657: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.hass.config_entries.async_update_entry(entry, data=new_data)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_connectivity.py::TestCoordinatorConnectivity::test_sse_stream_recovery_attempts_reconnection
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\coordinator.py:723: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    return False
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_methods.py::TestScheduleDeferredUpdate::test_cancels_existing_task_for_same_appliance
+tests/test_init.py::TestAsyncSetupEntryAdditional::test_setup_entry_close_coordinator_on_stop_event
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:2252: RuntimeWarning: coroutine 'ElectroluxCoordinator.deferred_update' was never awaited
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_methods.py::TestProcessIncrementalUpdate::test_marks_appliance_connected_on_non_disconnect
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:2252: RuntimeWarning: coroutine 'ElectroluxCoordinator._refresh_after_appliance_state_change' was never awaited
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_methods.py::TestCleanupApplianceTasks::test_skips_already_done_tasks
+tests/test_init.py::TestAsyncSetupEntryAdditional::test_setup_entry_close_coordinator_exception_swallowed
+tests/test_number.py::TestNumberMissingCoverage::test_get_converted_constraint_step_for_temp_control_uses_oven_step
+tests/test_number.py::TestNumberMissingCoverage::test_get_converted_constraint_step_default_fallback
+tests/test_number.py::TestNumberMissingCoverage::test_set_value_above_max_raises_error
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:2252: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_methods.py::TestDeferredUpdate::test_success_updates_appliance
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:494: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    __dict__['_mock_call_args_list'] = _CallList()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_coordinator_methods.py::TestProcessBulkUpdateDeferred::test_schedules_deferred_update_when_threshold_met
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:2184: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    if getattr(self, "_mock_methods", None) is not None:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_fan.py::TestFanMissingCoverage::test_async_setup_entry_creates_fan_entities
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\fan.py:75: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_number.py::TestNumberMissingCoverage::test_set_value_below_min_raises_error
+  C:\Users\Lucian\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:805: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    def __setattr__(self, name, value):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestSensorPlatformSetup::test_sensor_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\sensor.py:48: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestNumberPlatformSetup::test_number_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\number.py:111: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestSelectPlatformSetup::test_select_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\select.py:46: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestSwitchPlatformSetup::test_switch_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\switch.py:44: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestBinarySensorPlatformSetup::test_binary_sensor_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\binary_sensor.py:98: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestButtonPlatformSetup::test_button_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\button.py:45: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestTextPlatformSetup::test_text_platform_setup_success
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\text.py:45: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_platform_setup.py::TestClimatePlatformSetup::test_climate_platform_setup_ac_appliance
+tests/test_platform_setup.py::TestClimatePlatformSetup::test_climate_platform_setup_non_ac_appliance
+tests/test_platform_setup.py::TestClimatePlatformSetup::test_climate_platform_setup_multiple_ac_appliances
+tests/test_platform_setup.py::TestClimatePlatformSetup::test_climate_setup_extracts_capabilities_from_appliance_data
+  D:\Lucian\Documents\Github\ha-electrolux\custom_components\electrolux\climate.py:77: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async_add_entities(entities)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.0-final-0 _______________
+
+Name                                                      Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------------
+custom_components\electrolux\__init__.py                    149      2    99%   9-10
+custom_components\electrolux\api.py                         189     24    87%   80, 84, 88-91, 108-110, 123, 177, 211, 229, 237, 261-262, 265, 269, 275, 279, 288, 312, 331-332
+custom_components\electrolux\api_client.py                  255    176    31%   30, 57-93, 117-169, 183-207, 246-247, 251, 255, 278, 324-325, 329-359, 363-392, 396-431, 436-462, 472-489, 494-570, 574-595, 600, 605-612, 617-623
+custom_components\electrolux\binary_sensor.py                75      0   100%
+custom_components\electrolux\button.py                      128      0   100%
+custom_components\electrolux\catalog_air_conditioner.py       8      0   100%
+custom_components\electrolux\catalog_core.py                 76      0   100%
+custom_components\electrolux\catalog_dishwasher.py            7      0   100%
+custom_components\electrolux\catalog_dryer.py                10      0   100%
+custom_components\electrolux\catalog_microwave.py             3      0   100%
+custom_components\electrolux\catalog_oven.py                  9      0   100%
+custom_components\electrolux\catalog_purifier.py              7      0   100%
+custom_components\electrolux\catalog_refrigerator.py          8      0   100%
+custom_components\electrolux\catalog_steam_oven.py            9      0   100%
+custom_components\electrolux\catalog_utils.py                12      0   100%
+custom_components\electrolux\catalog_washer.py               11      0   100%
+custom_components\electrolux\catalog_washer_dryer.py         11      0   100%
+custom_components\electrolux\climate.py                     183      0   100%
+custom_components\electrolux\config_flow.py                 293      0   100%
+custom_components\electrolux\const.py                        93      0   100%
+custom_components\electrolux\coordinator.py                 773    234    70%   742-743, 746-747, 752-753, 778-780, 797-810, 828-833, 837-841, 846-848, 853-891, 895-944, 948-1383, 1433, 1459-1460, 1473-1478, 1503-1504, 1510-1515, 1521-1525, 1529-1544, 1559, 1615-1618, 1668, 1696-1698, 1847-1848, 1854-1873
+custom_components\electrolux\diagnostics.py                  80      0   100%
+custom_components\electrolux\entity.py                      515    237    54%   39-127, 189, 225, 243, 256, 258, 285, 294, 298, 305, 326-328, 337-342, 365, 369, 402, 464-484, 490-503, 517-596, 601, 606, 614, 621, 629-643, 651-654, 661-675, 682, 690, 705-741, 782, 831, 838, 858-859, 882-883, 904-907, 917-920, 930-931, 942-953, 960-961, 966-967, 972-988, 997-998, 1005-1008, 1012-1013, 1050, 1058-1083, 1094-1095, 1101-1122, 1128-1142
+custom_components\electrolux\exceptions.py                   15      0   100%
+custom_components\electrolux\execute_command_states.py        6      0   100%
+custom_components\electrolux\fan.py                         165      0   100%
+custom_components\electrolux\model.py                        28      0   100%
+custom_components\electrolux\models.py                      301      3    99%   474-475, 577
+custom_components\electrolux\number.py                      305      6    98%   217, 390, 504-506, 798
+custom_components\electrolux\select.py                      150      0   100%
+custom_components\electrolux\sensor.py                      153      0   100%
+custom_components\electrolux\switch.py                       77      1    99%   78
+custom_components\electrolux\text.py                         80      0   100%
+custom_components\electrolux\token_manager.py               127      0   100%
+custom_components\electrolux\util.py                        299      1    99%   847
+---------------------------------------------------------------------------------------
+TOTAL                                                      4610    684    85%
+979 passed, 25 warnings in 9.77s

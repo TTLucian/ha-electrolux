@@ -65,6 +65,7 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "fcOptisenseLoadWeight.*",  # Catalog-only with special error code filtering in sensor.py
     "applianceMainBoardSwVersion",  # Catalog-only diagnostic info (disabled by default)
     "coolingValveState",  # Catalog-only exposure for refrigerators
+    "^applianceCareAndMaintenance",  # Internal maintenance counters/thresholds - cryptic names, no user value
 ]
 
 ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBReserve"]
