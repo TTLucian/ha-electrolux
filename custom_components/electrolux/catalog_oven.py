@@ -4,7 +4,7 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import UnitOfTemperature, UnitOfTime
+from homeassistant.const import Platform, UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .execute_command_states import OVEN_EXECUTE_STATES
