@@ -55,6 +55,9 @@ UPDATE_TIMEOUT = 15.0  # seconds
 FIRST_REFRESH_TIMEOUT = 15.0  # seconds for initial setup refresh
 DEFERRED_UPDATE_DELAY = 70  # seconds
 DEFERRED_TASK_LIMIT = 5  # maximum concurrent deferred tasks
+STATE_CHANGE_REFRESH_DELAY = (
+    10  # seconds: delay after applianceState change before re-polling
+)
 CLEANUP_INTERVAL = 3600  # 1 hour in seconds (reduced from 24h for better UX)
 TASK_CANCEL_TIMEOUT = 2.0  # seconds for task cancellation timeouts
 WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
@@ -346,6 +349,35 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
             raise UpdateFailed(f"Unexpected error: {ex}") from ex
 
+    async def _refresh_after_appliance_state_change(self, appliance_id: str) -> None:
+        """Poll fresh appliance state after applianceState changes via SSE.
+
+        The Electrolux API may stop pushing SSE updates for some sensor properties
+        (e.g. displayTemperatureC) after the appliance transitions state (e.g. oven
+        turns off). A short follow-up poll ensures those sensors reflect accurate
+        values without waiting for the 6-hour coordinator refresh cycle.
+        """
+        await asyncio.sleep(STATE_CHANGE_REFRESH_DELAY)
+        if self.data is None:
+            return
+        appliances: Any = self.data.get("appliances")
+        if not appliances:
+            return
+        try:
+            appliance = appliances.get_appliance(appliance_id)
+            if not appliance:
+                return
+            status = await self.api.get_appliance_state(appliance_id)
+            appliance.update(status)
+            self.async_set_updated_data(self.data)
+            _LOGGER.debug("Post-state-change refresh completed for %s", appliance_id)
+        except asyncio.CancelledError:
+            raise
+        except Exception as ex:
+            _LOGGER.debug(
+                "Post-state-change refresh failed for %s: %s", appliance_id, ex
+            )
+
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
         # Update reported data
@@ -407,7 +439,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Track this value for next comparison
             self._last_time_to_end[appliance_id] = new_value
 
-        _LOGGER.debug(f"SSE update received for {appliance_id}: {json.dumps(data)}")
+        _LOGGER.debug(
+            "SSE update received for %s: %s",
+            appliance_id,
+            json.dumps(
+                {k: ("REDACTED" if k == USER_ID_KEY else v) for k, v in data.items()}
+            ),
+        )
 
         # Log info message when appliance becomes offline
         if (
@@ -463,6 +501,14 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         # Update last seen time for this appliance (real-time updates via SSE)
         self._last_update_times[appliance_id] = self.hass.loop.time()
+
+        # When applianceState transitions, schedule a fresh API poll so that sensors
+        # like displayTemperatureC update accurately even if SSE goes silent in the
+        # new state (e.g. the API stops pushing oven temperature when it turns off).
+        if data[PROPERTY_KEY] == "applianceState":
+            self.hass.async_create_task(
+                self._refresh_after_appliance_state_change(appliance_id)
+            )
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         self._check_deferred_update(data, appliance_id)

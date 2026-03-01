@@ -77,6 +77,12 @@ class ElectroluxDevice:
 
     entity_value_named: bool = False
 
+    # Maps each button value to the applianceState values in which it is available.
+    # When the current applianceState is NOT in the list the button will be grayed out.
+    # Leave as None to impose no state restriction (always available when connected).
+    # Example: {"STOPRESET": ["RUNNING", "PAUSED"], "START": ["READY_TO_START"]}
+    available_when_states: dict[str, list[str]] | None = None
+
 
 class ElectroluxTokenStore(TypedDict):
     """Serialized exposed entities storage storage collection."""

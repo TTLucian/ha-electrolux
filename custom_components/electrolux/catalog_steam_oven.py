@@ -12,6 +12,7 @@ from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
+from .execute_command_states import STEAM_OVEN_EXECUTE_STATES
 from .model import ElectroluxDevice
 
 # Steam oven specific catalog with upperOven/ prefixed entities
@@ -96,6 +97,7 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:play-pause",
+        available_when_states=STEAM_OVEN_EXECUTE_STATES,
     ),
     "upperOven/fastHeatUpFeature": ElectroluxDevice(
         capability_info={
@@ -329,18 +331,23 @@ CATALOG_STEAM_OVEN: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:water-opacity",
     ),
     "descalingReminderState": ElectroluxDevice(
+        # API reports type "boolean" but has 3 values — treat as enum sensor
+        # so automations can distinguish ACTIVE_BLOCKING (machine locked) from
+        # ACTIVE_NOT_BLOCKING (warning) from NOT_ACTIVE (no action needed).
         capability_info={
             "access": "read",
-            "type": "boolean",
+            "type": "string",
             "values": {
                 "ACTIVE_BLOCKING": {},
                 "ACTIVE_NOT_BLOCKING": {},
                 "NOT_ACTIVE": {},
             },
         },
-        device_class=BinarySensorDeviceClass.PROBLEM,
+        device_class=SensorDeviceClass.ENUM,
         unit=None,
         entity_category=None,
+        entity_icon="mdi:water-alert",
+        friendly_name="Descaling Reminder",
     ),
     "cleaningReminder": ElectroluxDevice(
         capability_info={

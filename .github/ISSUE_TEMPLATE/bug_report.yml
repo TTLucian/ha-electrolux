@@ -76,9 +76,9 @@ body:
   - type: input
     id: device-model
     attributes:
-      label: Device Type/Model from ID
+      label: Device Type/Model from Device details
       description: Which Electrolux device(s) are affected?
-      placeholder: "e.g., Washer-Dryer EW9W161B, Air Conditioner EACS-09HG"
+      placeholder: "e.g., OV-944188772_00"
     validations:
       required: true
 

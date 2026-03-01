@@ -5,6 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
+from .execute_command_states import DISHWASHER_EXECUTE_STATES
 from .model import ElectroluxDevice
 
 CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
@@ -59,6 +60,7 @@ CATALOG_DISHWASHER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:gesture-tap-button",
+        available_when_states=DISHWASHER_EXECUTE_STATES,
     ),
     # Cycle phase
     "cyclePhase": ElectroluxDevice(

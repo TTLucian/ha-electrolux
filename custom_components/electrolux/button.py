@@ -139,6 +139,20 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         return f"{name} {self.val_to_send}"
 
     @property
+    def available(self) -> bool:
+        """Return True only when the button action is valid in the current appliance state."""
+        # Check catalog-defined state restrictions first
+        if self._catalog_entry and self._catalog_entry.available_when_states:
+            allowed_states = self._catalog_entry.available_when_states.get(
+                self.val_to_send
+            )
+            if allowed_states is not None:
+                current_state = self.reported_state.get("applianceState")
+                if current_state not in allowed_states:
+                    return False
+        return super().available
+
+    @property
     def icon(self) -> str | None:
         """Return the icon of the entity."""
         return self._icon or icon_mapping.get(

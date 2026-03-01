@@ -415,6 +415,33 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
   - Delay start scheduling
   - Extra options (hygiene rinse, extra dry, intensive zones)
 
+### ⏯️ Execute Command Button Availability
+
+`executeCommand` buttons — **START**, **STOPRESET**, **PAUSE**, **RESUME** — are automatically greyed out (unavailable) when the appliance is in a state where the API would reject that command. This is intentional and correct behaviour: pressing the button while the appliance isn't ready would fail with an error anyway.
+
+**This is not a bug.** If a button appears greyed out, it means the appliance is simply not in the right state for that action yet.
+
+| Appliance | Button | Enabled when appliance state is… |
+|-----------|--------|----------------------------------|
+| Oven | START | `READY_TO_START`, `END_OF_CYCLE` |
+| Oven | STOPRESET | `RUNNING`, `PAUSED`, `DELAYED_START` |
+| Steam Oven | START | `OFF` |
+| Steam Oven | STOPRESET | `RUNNING` |
+| Washer / Washer-Dryer | START | `READY_TO_START` |
+| Washer / Washer-Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE` |
+| Washer / Washer-Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
+| Washer / Washer-Dryer | RESUME | `PAUSED` |
+| Dryer | START | `READY_TO_START`, `IDLE` |
+| Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE`, `ANTICREASE` |
+| Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
+| Dryer | RESUME | `PAUSED` |
+| Dishwasher | START | `READY_TO_START`, `IDLE` |
+| Dishwasher | STOPRESET | `PAUSED`, `END_OF_CYCLE`, `DELAYED_START` |
+| Dishwasher | PAUSE | `RUNNING` |
+| Dishwasher | RESUME | `PAUSED` |
+
+AC power and refrigerator ice maker ON/OFF buttons have no state restriction and are always available.
+
 ### 🔴🟢 Binary Sensors
 - Door status
 - Connection state
@@ -444,10 +471,47 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Integration respects all appliance safety features
 - Some controls may be disabled during active cycles
 
+### 🔐 "Remote Control Disabled" Error
+
+If you see an error like:
+```json
+{"error": "COMMAND_VALIDATION_ERROR", "message": "Command validation failed", "detail": "Remote control disabled"}
+```
+
+**This is an API limitation, not an integration bug.**
+
+The integration does **not** pre-block commands based on remote control state — it forwards all commands directly to the Electrolux cloud API, which is the sole authority on whether a command is allowed. If the API rejects the command, there is nothing the integration can do.
+
+**Known case — Oven cavity light with `NOT_SAFETY_RELEVANT_ENABLED`:**
+
+The oven remote control state has three values:
+- `ENABLED` — all commands accepted
+- `NOT_SAFETY_RELEVANT_ENABLED` — only commands the API classifies as non-safety-relevant are accepted
+- `DISABLED` — all commands rejected
+
+The cavity light (`cavityLight`) appears to be classified by the API as a safety-relevant command, so sending it while the appliance reports `NOT_SAFETY_RELEVANT_ENABLED` results in a 406 rejection. This classification is done server-side by Electrolux and cannot be changed or bypassed by this integration.
+
+**To control the cavity light**, enable full remote control on the appliance (the exact setting name and location depends on the appliance model and firmware — check the appliance display menu or the official AEG/Electrolux app).
+
+### ⏯️ Execute Command Button Is Greyed Out
+
+If a **START**, **STOPRESET**, **PAUSE**, or **RESUME** button appears greyed out and unclickable, this is **intentional, not a bug**.
+
+The integration disables each button when the appliance is in a state where the Electrolux API would reject that command. For example:
+- **START** is only enabled once the appliance reports `READY_TO_START`
+- **STOPRESET** is only enabled while a cycle is `RUNNING`, `PAUSED`, or `DELAYED_START`
+- **PAUSE** is only enabled while `RUNNING` (or `DELAYED_START` on applicable types)
+- **RESUME** is only enabled while `PAUSED`
+
+See the [Execute Command Button Availability](#️-execute-command-button-availability) table in the Controls section for the full per-appliance-type breakdown.
+
+If you believe the button should be active but isn't, check the **Appliance State** sensor for your device — it shows the current `applianceState` value the API is reporting.
+
 ### � Stale or Stuck Data
 If sensor values appear outdated or frozen:
 
 **First, check the basics:**
+- Check the documentation and the debug logs for any errors. It might helo to better understand the situation.
 - Verify appliance is powered on and connected to Wi-Fi
 - Check if appliance shows as "connected" in the official Electrolux app
 - Wait 5-10 minutes - data updates automatically via real-time SSE stream
@@ -466,7 +530,7 @@ If sensor values appear outdated or frozen:
 
 **Manual Sync is NOT needed for:**
 - Normal operation - real-time updates work automatically
-- Immediate feedback after commands - state updates happen within seconds via SSE
+- Immediate feedback after commands - controls state updates happen instantly and optimistically and are being validated within seconds via SSE
 - Regular data refreshes - integration polls every 6 hours automatically
 
 ### �🔢 Model Shows as Numbers

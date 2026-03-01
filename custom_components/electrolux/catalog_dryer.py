@@ -8,6 +8,7 @@ from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfMass, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
+from .execute_command_states import DRYER_EXECUTE_STATES
 from .model import ElectroluxDevice
 
 CATALOG_DRYER: dict[str, ElectroluxDevice] = {
@@ -29,6 +30,7 @@ CATALOG_DRYER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:play-pause",
+        available_when_states=DRYER_EXECUTE_STATES,
     ),
     # Appliance state and cycle information
     "applianceState": ElectroluxDevice(

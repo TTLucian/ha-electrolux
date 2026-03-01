@@ -53,9 +53,9 @@ body:
   - type: input
     id: device-model
     attributes:
-      label: Device Model (Optional)
-      description: Which Electrolux device(s)?
-      placeholder: "e.g., Washer-Dryer EW9W161B"
+      label: Device Type/Model from Device details
+      description: Which Electrolux device(s) are affected?
+      placeholder: "e.g., OV-944188772_00"
     validations:
       required: false
 

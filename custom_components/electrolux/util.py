@@ -410,12 +410,15 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
         return None
 
     on_values = {
+        "active blocking",        # descalingReminderState: blocking problem
+        "active not blocking",    # descalingReminderState: non-blocking problem (still a problem)
         "charging",
         "connected",
         "detected",
         "enabled",
         "home",
         "hot",
+        "inserted",
         "light",
         "locked",
         "locking",
@@ -430,6 +433,7 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
         "running",
         "smoke",
         "sound",
+        "steam tank empty",
         "tampering",
         "true",
         "unsafe",
@@ -457,11 +461,14 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
         "no tampering",
         "no vibration",
         "normal",
+        "not active",             # descalingReminderState: no descaling needed
         "not charging",
+        "not inserted",
         "not occupied",
         "not running",
         "off",
         "safe",
+        "steam tank full",
         "stopped",
         "unlocked",
         "unlocking",
@@ -572,6 +579,9 @@ def _parse_error_detail_for_user_message(
         ]
     ):
         return "Controls are locked. Please disable the child lock or safety lock on the appliance."
+
+    if "string value not allowed" in detail_lower:
+        return "Command not available in the appliance's current state."
 
     return None
 
@@ -1732,8 +1742,10 @@ class ElectroluxApiClient:
             await self.disconnect_websocket()
 
         try:
-            # Add listeners for each appliance
+            # Add listeners for each appliance (clear stale registrations first to
+            # prevent double-firing when the SSE stream is restarted/renewed)
             for appliance_id in appliance_ids:
+                self._client.remove_all_listeners_by_appliance_id(appliance_id)
                 self._client.add_listener(appliance_id, callback)
                 _LOGGER.debug("Added SSE listener for appliance %s", appliance_id)
 

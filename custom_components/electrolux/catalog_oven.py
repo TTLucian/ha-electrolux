@@ -7,9 +7,23 @@ from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
+from .execute_command_states import OVEN_EXECUTE_STATES
 from .model import ElectroluxDevice
 
 CATALOG_OVEN: dict[str, ElectroluxDevice] = {
+    "alerts": ElectroluxDevice(
+        # Oven-specific alert codes - overrides base catalog which has refrigerator/AC alerts.
+        # Actual alert values come from the API capability at runtime; we just provide metadata.
+        capability_info={
+            "access": "read",
+            "type": "alert",
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert",
+        friendly_name="Alerts",
+    ),
     "applianceState": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -91,6 +105,7 @@ CATALOG_OVEN: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:play-pause",
+        available_when_states=OVEN_EXECUTE_STATES,
     ),
     "doorState": ElectroluxDevice(
         capability_info={

@@ -17,6 +17,7 @@ from .const import (
     AUTODOSE_SOFTENER_OFF,
     AUTODOSE_SOFTENER_ON,
 )
+from .execute_command_states import WASHER_EXECUTE_STATES
 from .model import ElectroluxDevice
 
 CATALOG_WASHER: dict[str, ElectroluxDevice] = {
@@ -57,6 +58,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:play-pause",
+        available_when_states=WASHER_EXECUTE_STATES,
     ),
     # Appliance state and cycle information
     "applianceState": ElectroluxDevice(
