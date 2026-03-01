@@ -30,7 +30,7 @@ async def test_report_token_refresh_creates_issue(monkeypatch):
         captured["kwargs"] = kwargs
 
     monkeypatch.setattr(
-        "custom_components.electrolux.util.issue_registry.async_create_issue",
+        "custom_components.electrolux.api_client.issue_registry.async_create_issue",
         fake_create_issue,
     )
 
@@ -65,7 +65,7 @@ async def test_report_token_refresh_no_hass_does_not_create_issue(monkeypatch):
         called["called"] = True
 
     monkeypatch.setattr(
-        "custom_components.electrolux.util.issue_registry.async_create_issue",
+        "custom_components.electrolux.api_client.issue_registry.async_create_issue",
         fake_create_issue,
     )
 
