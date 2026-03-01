@@ -135,7 +135,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
         # Wrap DAM commands in the required format
         if self.is_dam_appliance:
-            command = {"commands": [command]}
+            command = {"commands": [command]}  # type: ignore[dict-item]
 
         _LOGGER.debug("Electrolux set value")
         try:
