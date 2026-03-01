@@ -154,7 +154,6 @@ class TestAsyncSetupEntry:
         from unittest.mock import AsyncMock, patch
 
         from custom_components.electrolux import async_setup_entry
-        from custom_components.electrolux.const import DOMAIN
 
         mock_hass = MagicMock()
         mock_hass.data = {}
@@ -273,10 +272,10 @@ class TestAsyncUnloadEntry:
     @pytest.mark.asyncio
     async def test_unload_entry_success(self):
         """async_unload_entry closes client and unloads platforms."""
-        from unittest.mock import AsyncMock, patch
+        from unittest.mock import AsyncMock
 
         from custom_components.electrolux import async_unload_entry
-        from custom_components.electrolux.const import DOMAIN, PLATFORMS
+        from custom_components.electrolux.const import DOMAIN
 
         mock_hass = MagicMock()
         mock_hass.config_entries.async_unload_platforms = AsyncMock(return_value=True)

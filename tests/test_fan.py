@@ -88,7 +88,7 @@ def _make_fan(
         entity_source=entity_source,
         capability=fanspeed_cap,
         unit=None,
-        device_class=None,
+        device_class=None,  # type: ignore[arg-type]
         entity_category=None,
         icon="mdi:fan",
     )
