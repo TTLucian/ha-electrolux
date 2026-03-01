@@ -93,19 +93,19 @@
       "message": "Appliance is offline (current state: {state}). Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
     },
     "not_supported_by_program": {
-      "message": "Cannot change '{attr}': not supported by current program '{program}'."
+      "message": "Cannot change {attr}: not supported by current program {program}."
     },
     "control_locked": {
-      "message": "'{attr}' is locked at {value} for program '{program}'."
+      "message": "{attr} is locked at {value} for program {program}."
     },
     "food_probe_not_inserted": {
       "message": "Food probe must be inserted to set target temperature."
     },
     "food_probe_not_supported_by_program": {
-      "message": "Food probe temperature is not supported by program '{program}'."
+      "message": "Food probe temperature is not supported by program {program}."
     },
     "food_probe_locked_by_program": {
-      "message": "Food probe temperature is locked at {value}\u00b0C for program '{program}'."
+      "message": "Food probe temperature is locked at {value}\u00b0C for program {program}."
     },
     "value_below_minimum": {
       "message": "Value {value} is below the minimum {min_val} for {attr}."
@@ -117,7 +117,7 @@
       "message": "Invalid option selected."
     },
     "invalid_preset_mode": {
-      "message": "Invalid preset mode '{mode}'. Available modes: {modes}."
+      "message": "Invalid preset mode {mode}. Available modes: {modes}."
     },
     "appliance_state_incomplete": {
       "message": "Cannot change setting: the appliance state is incomplete. Please wait for the appliance to initialize."
