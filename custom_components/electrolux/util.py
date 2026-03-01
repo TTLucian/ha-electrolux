@@ -410,8 +410,8 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
         return None
 
     on_values = {
-        "active blocking",        # descalingReminderState: blocking problem
-        "active not blocking",    # descalingReminderState: non-blocking problem (still a problem)
+        "active blocking",  # descalingReminderState: blocking problem
+        "active not blocking",  # descalingReminderState: non-blocking problem (still a problem)
         "charging",
         "connected",
         "detected",
@@ -461,7 +461,7 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
         "no tampering",
         "no vibration",
         "normal",
-        "not active",             # descalingReminderState: no descaling needed
+        "not active",  # descalingReminderState: no descaling needed
         "not charging",
         "not inserted",
         "not occupied",
