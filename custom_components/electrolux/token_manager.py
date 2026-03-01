@@ -52,9 +52,6 @@ class ElectroluxTokenManager(TokenManager):
         self._refresh_lock = asyncio.Lock()
         self._last_failed_refresh = 0  # Track failed refresh attempts
         self._consecutive_failures = 0  # Track consecutive refresh failures for backoff
-        self._last_server_time: float | None = (
-            None  # Server time from last successful API call
-        )
         self._marked_needs_refresh = False  # Flag to bypass cooldown if refresh needed
         self._last_log_time = 0.0  # Cache timestamp for log throttling
         self._last_log_status = ""  # Cache last logged status

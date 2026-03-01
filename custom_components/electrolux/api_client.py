@@ -93,35 +93,6 @@ async def retry_with_backoff(
         raise NetworkError("All retry attempts failed with unknown errors")
 
 
-def validate_api_response(
-    response: Any, expected_keys: list[str] | None = None
-) -> bool:
-    """Validate API response structure.
-
-    Args:
-        response: The API response to validate
-        expected_keys: List of keys that should be present in the response
-
-    Returns:
-        True if response is valid, False otherwise
-    """
-    if response is None:
-        _LOGGER.warning("API response is None")
-        return False
-
-    if expected_keys:
-        if not isinstance(response, dict):
-            _LOGGER.warning("API response is not a dict: %s", type(response))
-            return False
-
-        missing_keys = [key for key in expected_keys if key not in response]
-        if missing_keys:
-            _LOGGER.warning("API response missing expected keys: %s", missing_keys)
-            return False
-
-    return True
-
-
 async def safe_api_call(
     coro,
     operation_name: str,
@@ -261,6 +232,7 @@ class ElectroluxApiClient:
         self._client = ApplianceClient(self._token_manager)
         self._token_handler = None  # Track handler
         self._token_logger = None  # Track logger
+        self._sse_task = None  # Track SSE background task
 
         # Attach token refresh handler to surface token refresh failures as HA issues
         if hass:
@@ -648,3 +620,4 @@ class ElectroluxApiClient:
         if self._token_handler and self._token_logger:
             self._token_logger.removeHandler(self._token_handler)
             self._token_handler = None
+            self._token_logger = None

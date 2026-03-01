@@ -1,6 +1,7 @@
 """Utilities for the Electrolux platform."""
 
 import base64
+import json
 import logging
 import re
 from typing import Any
@@ -14,6 +15,7 @@ from .const import (
     CONF_NOTIFICATION_DEFAULT,
     CONF_NOTIFICATION_DIAG,
     CONF_NOTIFICATION_WARNING,
+    DOMAIN,  # noqa: F401 — re-exported for backward compatibility
     NAME,
     SECONDS_PER_MINUTE,
     TIME_INVALID_SENTINEL,
@@ -404,8 +406,6 @@ def map_command_error_to_home_assistant_error(
                     pass  # JSON parsing failed, try text parsing next
             elif hasattr(response, "text"):
                 try:
-                    import json
-
                     error_data = json.loads(response.text)
                 except Exception:
                     pass  # Text parsing failed, continue without error data
@@ -417,8 +417,6 @@ def map_command_error_to_home_assistant_error(
 
         # If no structured data found, try parsing the exception message string
         if not error_data:
-            import json
-            import re
 
             ex_str = str(ex)
             # Look for JSON-like dict in the message: message='{"error": ...}' or message="{'error': ...}"
@@ -438,8 +436,6 @@ def map_command_error_to_home_assistant_error(
     error_data_str = ""
     if error_data:
         try:
-            import json
-
             error_data_str = f" | API Response: {json.dumps(error_data)}"
         except Exception:
             error_data_str = f" | API Response: {error_data}"
