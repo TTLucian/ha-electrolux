@@ -352,3 +352,139 @@ async def test_token_refresh_error_handling():
 
     # Verify auth failed flag set
     assert client._auth_failed is True
+
+
+# ---------------------------------------------------------------------------
+# ElectroluxCoordinator.__init__
+# ---------------------------------------------------------------------------
+
+
+def test_coordinator_init_sets_attributes():
+    """Test that ElectroluxCoordinator.__init__ sets all expected attributes."""
+    from unittest.mock import patch
+
+    from custom_components.electrolux.coordinator import ElectroluxCoordinator
+
+    mock_hass = MagicMock()
+    mock_client = MagicMock()
+    mock_client._auth_failed = False
+
+    with patch(
+        "homeassistant.helpers.update_coordinator.DataUpdateCoordinator.__init__",
+        return_value=None,
+    ):
+        coordinator = ElectroluxCoordinator(
+            hass=mock_hass,
+            client=mock_client,
+            renew_interval=3600,
+            username="test_user",
+        )
+
+    assert coordinator.api is mock_client
+    assert coordinator.hass is mock_hass
+    assert coordinator.platforms == []
+    assert coordinator.renew_task is None
+    assert coordinator.listen_task is None
+    assert coordinator.renew_interval == 3600
+    assert coordinator._consecutive_auth_failures == 0
+    assert coordinator._auth_failure_threshold == 3
+    assert coordinator._last_token_update == 0.0
+    assert coordinator._appliances_cache is None
+    assert coordinator._deferred_tasks == set()
+    assert coordinator._deferred_tasks_by_appliance == {}
+    assert coordinator._last_update_times == {}
+    assert coordinator._last_known_connectivity == {}
+    assert coordinator._last_sse_restart_time == 0.0
+
+
+# ---------------------------------------------------------------------------
+# ElectroluxCoordinator.async_login
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_async_login_success():
+    """async_login returns True when get_appliances_list succeeds."""
+    from custom_components.electrolux.coordinator import ElectroluxCoordinator
+
+    with patch(
+        "homeassistant.helpers.update_coordinator.DataUpdateCoordinator.__init__",
+        return_value=None,
+    ):
+        coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
+        coord.api = MagicMock()
+        coord.api.get_appliances_list = AsyncMock(return_value=[])
+        coord.api._token_manager = MagicMock()
+        coord.api._token_manager.is_token_valid.return_value = True
+
+    result = await coord.async_login()
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_async_login_raises_config_entry_auth_failed_on_auth_error():
+    """async_login raises ConfigEntryAuthFailed when AuthenticationError is raised."""
+    from homeassistant.exceptions import ConfigEntryAuthFailed
+
+    from custom_components.electrolux.coordinator import ElectroluxCoordinator
+    from custom_components.electrolux.exceptions import AuthenticationError
+
+    with patch(
+        "homeassistant.helpers.update_coordinator.DataUpdateCoordinator.__init__",
+        return_value=None,
+    ):
+        coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
+        coord.api = MagicMock()
+        coord.api.get_appliances_list = AsyncMock(
+            side_effect=AuthenticationError("bad creds")
+        )
+        coord.api._token_manager = MagicMock()
+        coord.api._token_manager.is_token_valid.return_value = False
+
+    with pytest.raises(ConfigEntryAuthFailed):
+        await coord.async_login()
+
+
+@pytest.mark.asyncio
+async def test_async_login_raises_config_entry_not_ready_on_network_error():
+    """async_login raises ConfigEntryNotReady when NetworkError is raised."""
+    from homeassistant.exceptions import ConfigEntryNotReady
+
+    from custom_components.electrolux.coordinator import ElectroluxCoordinator
+    from custom_components.electrolux.exceptions import NetworkError
+
+    with patch(
+        "homeassistant.helpers.update_coordinator.DataUpdateCoordinator.__init__",
+        return_value=None,
+    ):
+        coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
+        coord.api = MagicMock()
+        coord.api.get_appliances_list = AsyncMock(side_effect=NetworkError("timeout"))
+        coord.api._token_manager = MagicMock()
+        coord.api._token_manager.is_token_valid.return_value = True
+
+    with pytest.raises(ConfigEntryNotReady):
+        await coord.async_login()
+
+
+@pytest.mark.asyncio
+async def test_async_login_raises_config_entry_not_ready_on_unexpected_error():
+    """async_login raises ConfigEntryNotReady on unexpected exceptions."""
+    from homeassistant.exceptions import ConfigEntryNotReady
+
+    from custom_components.electrolux.coordinator import ElectroluxCoordinator
+
+    with patch(
+        "homeassistant.helpers.update_coordinator.DataUpdateCoordinator.__init__",
+        return_value=None,
+    ):
+        coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
+        coord.api = MagicMock()
+        coord.api.get_appliances_list = AsyncMock(
+            side_effect=RuntimeError("unexpected")
+        )
+        coord.api._token_manager = MagicMock()
+        coord.api._token_manager.is_token_valid.return_value = True
+
+    with pytest.raises(ConfigEntryNotReady):
+        await coord.async_login()
