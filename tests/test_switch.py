@@ -240,8 +240,8 @@ class TestElectroluxSwitch:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Legacy appliances send simple commands, not wrapped in userSelections
-            assert command == {"testAttr": "ON"}
+            # Legacy appliances with entity_source also wrap the command in the source container
+            assert command == {"userSelections": {"testAttr": "ON"}}
 
     @pytest.mark.asyncio
     async def test_switch_with_appliance_source(
@@ -280,8 +280,8 @@ class TestElectroluxSwitch:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Legacy appliances send simple commands, not wrapped in appliance type
-            assert command == {"testAttr": "ON"}
+            # Legacy appliances with entity_source also wrap the command in the source container
+            assert command == {"oven": {"testAttr": "ON"}}
 
     @pytest.mark.asyncio
     async def test_switch_with_root_source(self, switch_entity):

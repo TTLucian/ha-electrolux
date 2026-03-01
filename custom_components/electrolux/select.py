@@ -233,8 +233,12 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         client: ElectroluxApiClient = self.api
         command: dict[str, Any] = {}
         if not self.is_dam_appliance:
-            # Legacy appliances: always send as simple top-level property
-            command = {self.entity_attr: formatted_value}
+            # Legacy appliances: send as top-level property, but respect entity_source
+            # when the capability key has a slash (e.g. userSelections/humidityTarget).
+            if self.entity_source:
+                command = {self.entity_source: {self.entity_attr: formatted_value}}
+            else:
+                command = {self.entity_attr: formatted_value}
         elif self.entity_source:
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing

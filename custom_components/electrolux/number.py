@@ -621,8 +621,12 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # Build the command. For legacy appliances, send simple top-level properties.
         # For DAM appliances, use appropriate wrapping.
         if not self.is_dam_appliance:
-            # Legacy appliances: always send as simple top-level property
-            command = {self.entity_attr: formatted_value}
+            # Legacy appliances: send as top-level property, but respect entity_source
+            # when the capability key has a slash (e.g. userSelections/antiCreaseValue).
+            if self.entity_source:
+                command = {self.entity_source: {self.entity_attr: formatted_value}}
+            else:
+                command = {self.entity_attr: formatted_value}
         elif self.entity_attr in ["targetDuration", "startTime"]:
             # DAM appliances: time settings wrapped in appliance type
             appliance_type = getattr(
