@@ -1,4 +1,3 @@
-```markdown
 ## Overview
 
 v3.4.3 is a maintenance release that fixes a command-sending bug affecting dryers and washers, and improves internal code quality.
@@ -34,5 +33,3 @@ v3.4.3 is a maintenance release that fixes a command-sending bug affecting dryer
 | `DW` | Dishwasher | Full | DW-911434654, DW-911434834 |
 | `A9` / `Muju` | Air Purifier | Full | A9 series; UltimateHome 500 (EP53) |
 | `MW` | Microwave | Stub | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
-
-```
