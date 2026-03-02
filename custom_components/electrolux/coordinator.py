@@ -927,13 +927,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 _LOGGER.warning(
                     "Timeout setting up appliances, cancelling pending tasks"
                 )
-                # Cancel all pending tasks
-                for task in appliance_tasks:
-                    if not task.done():
-                        task.cancel()
-
-                # Wait for cancellations to complete
-                await asyncio.gather(*appliance_tasks, return_exceptions=True)
+                # asyncio.wait_for already cancelled the gather and its internal
+                # tasks; nothing more to do here.
 
         except asyncio.CancelledError:
             _LOGGER.debug("Electrolux setup_entities cancelled")
@@ -945,6 +940,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def _setup_single_appliance(self, appliance_json: dict[str, Any]) -> None:
         """Setup a single appliance concurrently."""
+        # Extract metadata always available from the list API response.
+        # These are used when state/info API calls time out so that the
+        # minimal appliance still has the correct type (and therefore the
+        # correct catalog entities, e.g. timeToEnd for washers).
+        _appliance_type_hint: str | None = appliance_json.get("applianceType")
+        _model_hint: str = (
+            appliance_json.get("applianceData", {}).get("modelName") or "Unknown"
+        )
+
         try:
             appliance_id = appliance_json.get("applianceId")
             connection_status = appliance_json.get("connectionState")
@@ -1052,7 +1056,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     return
 
                 minimal_state = {
-                    "properties": {"reported": {}},
+                    "properties": {
+                        "reported": {
+                            "applianceInfo": {"applianceType": _appliance_type_hint},
+                        }
+                    },
                     "connectionState": "disconnected",
                     "connectivityState": "disconnected",
                 }
@@ -1062,7 +1070,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     pnc_id=appliance_id,
                     name=appliance_name or "Unknown",
                     brand="Electrolux",
-                    model="Unknown",
+                    model=_model_hint,
                     state=cast(ApplianceState, minimal_state),
                 )
 
@@ -1222,7 +1230,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if failed_appliance_id:
                 try:
                     minimal_state = {
-                        "properties": {"reported": {}},
+                        "properties": {
+                            "reported": {
+                                "applianceInfo": {
+                                    "applianceType": _appliance_type_hint
+                                },
+                            }
+                        },
                         "connectionState": "disconnected",
                         "connectivityState": "disconnected",
                     }
@@ -1232,7 +1246,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         pnc_id=failed_appliance_id,
                         name=failed_appliance_name or "Unknown",
                         brand="Electrolux",
-                        model="Unknown",
+                        model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
                     )
 
@@ -1288,7 +1302,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if failed_appliance_id:
                 try:
                     minimal_state = {
-                        "properties": {"reported": {}},
+                        "properties": {
+                            "reported": {
+                                "applianceInfo": {
+                                    "applianceType": _appliance_type_hint
+                                },
+                            }
+                        },
                         "connectionState": "disconnected",
                         "connectivityState": "disconnected",
                     }
@@ -1298,7 +1318,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         pnc_id=failed_appliance_id,
                         name=failed_appliance_name or "Unknown",
                         brand="Electrolux",
-                        model="Unknown",
+                        model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
                     )
 
@@ -1354,7 +1374,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if failed_appliance_id:
                 try:
                     minimal_state = {
-                        "properties": {"reported": {}},
+                        "properties": {
+                            "reported": {
+                                "applianceInfo": {
+                                    "applianceType": _appliance_type_hint
+                                },
+                            }
+                        },
                         "connectionState": "disconnected",
                         "connectivityState": "disconnected",
                     }
@@ -1364,7 +1390,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         pnc_id=failed_appliance_id,
                         name=failed_appliance_name or "Unknown",
                         brand="Electrolux",
-                        model="Unknown",
+                        model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
                     )
 

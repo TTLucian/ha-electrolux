@@ -522,7 +522,7 @@ class TestTextSetValueAdvancedPaths:
 
         await entity.async_set_value("hello")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {
                 "commands": [
@@ -545,7 +545,7 @@ class TestTextSetValueAdvancedPaths:
 
         await entity.async_set_value("hello")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {"commands": [{"testAttr": "hello"}]},
         )

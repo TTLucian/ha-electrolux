@@ -403,7 +403,8 @@ class TestExtractTokenExpiry:
         assert _extract_token_expiry("not.a.jwt") is None
 
     def test_returns_none_for_jwt_without_exp(self):
-        import base64, json
+        import base64
+        import json
 
         header = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode().rstrip("=")
         payload = (
@@ -415,7 +416,8 @@ class TestExtractTokenExpiry:
         assert _extract_token_expiry(token) is None
 
     def test_returns_exp_from_valid_jwt(self):
-        import base64, json
+        import base64
+        import json
 
         header = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode().rstrip("=")
         payload = (
@@ -490,9 +492,9 @@ class TestReauthFlow:
             ),
         ):
             mock_session.return_value.get_appliances_list = AsyncMock(return_value=[])
-            result = await flow.async_step_reauth_validate(user_input)
+            result = await flow.async_step_reauth_validate(user_input)  # type: ignore[arg-type]
 
-        assert result["type"] == "abort"
+        assert result["type"] == "abort"  # type: ignore[literal-required]
 
     @pytest.mark.asyncio
     async def test_reauth_validate_invalid_credentials(self):
@@ -530,7 +532,7 @@ class TestReauthFlow:
             mock_session.return_value.get_appliances_list = AsyncMock(
                 side_effect=ValueError("Unauthorized")
             )
-            result = await flow.async_step_reauth_validate(user_input)
+            result = await flow.async_step_reauth_validate(user_input)  # type: ignore[arg-type]
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
         assert result["errors"]["base"] == "invalid_auth"  # type: ignore[index]
@@ -934,9 +936,9 @@ class TestConfigFlowMissingCoverage:
             ),
         ):
             mock_session.return_value.get_appliances_list = AsyncMock(return_value=[])
-            result = await flow.async_step_reauth_validate(user_input)
+            result = await flow.async_step_reauth_validate(user_input)  # type: ignore[arg-type]
 
-        assert result["type"] == "abort"
+        assert result["type"] == "abort"  # type: ignore[literal-required]
 
     # ------------------------------------------------------------------ #
     # Line 317: reconfigure — token_expiry truthy

@@ -892,7 +892,7 @@ class TestButtonMissingCoverage:
         capability,
         catalog_entry=None,
         val_to_send="PRESS",
-        icon=None,
+        icon="",
     ):
         entity = ElectroluxButton(
             coordinator=coordinator,
@@ -968,7 +968,7 @@ class TestButtonMissingCoverage:
         # val_to_send must match a key in icon_mapping to return a mapped value
         # Find a valid key from icon_mapping, or use one that returns default
         entity = self._make_button(
-            mock_coordinator, mock_capability, icon=None, val_to_send="PRESS"
+            mock_coordinator, mock_capability, icon="", val_to_send="PRESS"
         )
         result = entity.icon
         # When val_to_send not in icon_mapping, returns "mdi:gesture-tap-button"
@@ -984,14 +984,14 @@ class TestButtonMissingCoverage:
         if icon_mapping:
             val = next(iter(icon_mapping))
             entity = self._make_button(
-                mock_coordinator, mock_capability, icon=None, val_to_send=val
+                mock_coordinator, mock_capability, icon="", val_to_send=val
             )
             result = entity.icon
             assert result == icon_mapping[val]
         else:
             # No icon_mapping entries; fallback default
             entity = self._make_button(
-                mock_coordinator, mock_capability, icon=None, val_to_send="UNKNOWN"
+                mock_coordinator, mock_capability, icon="", val_to_send="UNKNOWN"
             )
             result = entity.icon
             assert result == "mdi:gesture-tap-button"
@@ -1021,7 +1021,6 @@ class TestButtonMissingCoverage:
     @pytest.mark.asyncio
     async def test_async_setup_entry(self, mock_coordinator, mock_capability):
         """Lines 34-46: async_setup_entry adds button entities for each appliance."""
-        from unittest.mock import AsyncMock, patch
 
         from custom_components.electrolux.button import async_setup_entry
 

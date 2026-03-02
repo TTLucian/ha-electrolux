@@ -239,8 +239,8 @@ class ElectroluxEntity(CoordinatorEntity):
 
     @property
     def entity_domain(self) -> str:
-        """Entity domain for the entry."""
-        return "sensor"
+        """Entity domain for the entry. Must be overridden by subclasses."""
+        raise NotImplementedError  # pragma: no cover
 
     @property
     def unique_id(self) -> str:

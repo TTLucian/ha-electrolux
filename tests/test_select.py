@@ -604,7 +604,7 @@ class TestSelectAsyncSelectOptionAdvanced:
         ):
             await entity.async_select_option("Option 1")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {"commands": [{"airConditioner": {"testAttr": "OPTION1"}}]},
         )
@@ -639,7 +639,7 @@ class TestSelectAsyncSelectOptionAdvanced:
         ):
             await entity.async_select_option("Option 1")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {
                 "commands": [
@@ -709,7 +709,7 @@ class TestSelectAsyncSelectOptionAdvanced:
         ):
             await entity.async_select_option("Option 1")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {
                 "commands": [
@@ -737,7 +737,7 @@ class TestSelectAsyncSelectOptionAdvanced:
         ):
             await entity.async_select_option("Option 1")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {"commands": [{"fanMode": "OPTION1"}]},
         )
@@ -770,7 +770,7 @@ class TestSelectAsyncSelectOptionAdvanced:
         ):
             await entity.async_select_option("Option 1")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
+        entity.api.execute_appliance_command.assert_called_once_with(  # type: ignore[union-attr]
             "1:TEST_PNC",
             {"commands": [{"program": "OPTION1"}]},
         )

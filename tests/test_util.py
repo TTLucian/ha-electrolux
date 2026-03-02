@@ -573,8 +573,8 @@ class TestTimeConversions:
 
     def test_time_seconds_to_minutes_sentinel(self):
         """Returns sentinel when input is sentinel."""
-        from custom_components.electrolux.util import time_seconds_to_minutes
         from custom_components.electrolux.const import TIME_INVALID_SENTINEL
+        from custom_components.electrolux.util import time_seconds_to_minutes
 
         assert time_seconds_to_minutes(TIME_INVALID_SENTINEL) == TIME_INVALID_SENTINEL
 
@@ -598,8 +598,8 @@ class TestTimeConversions:
 
     def test_time_minutes_to_seconds_sentinel(self):
         """Returns sentinel when input is sentinel."""
-        from custom_components.electrolux.util import time_minutes_to_seconds
         from custom_components.electrolux.const import TIME_INVALID_SENTINEL
+        from custom_components.electrolux.util import time_minutes_to_seconds
 
         assert time_minutes_to_seconds(TIME_INVALID_SENTINEL) == TIME_INVALID_SENTINEL
 
@@ -816,11 +816,12 @@ class TestMapCommandError:
         """Exception whose .response.json() returns payload."""
 
         class _Resp:
-            def json(self_inner):
+            def json(self):
                 return payload
 
         class _Ex(Exception):
-            pass
+            response: object = None
+            status: object = None
 
         ex = _Ex("api error")
         ex.response = _Resp()
@@ -834,7 +835,8 @@ class TestMapCommandError:
             text = payload_json_str
 
         class _Ex(Exception):
-            pass
+            response: object = None
+            status: object = None
 
         ex = _Ex("api error")
         ex.response = _Resp()
@@ -845,7 +847,7 @@ class TestMapCommandError:
         """Exception with .error_data attribute."""
 
         class _Ex(Exception):
-            pass
+            error_data: object = None
 
         ex = _Ex("api error")
         ex.error_data = data
@@ -855,7 +857,7 @@ class TestMapCommandError:
         """Exception with .details attribute."""
 
         class _Ex(Exception):
-            pass
+            details: object = None
 
         ex = _Ex("api error")
         ex.details = data
@@ -955,7 +957,8 @@ class TestMapCommandError:
             text = json.dumps({"error": "DEVICE_OFFLINE"})
 
         class _Ex(Exception):
-            pass
+            response: object = None
+            status: object = None
 
         ex = _Ex("device error 503")
         ex.response = _Resp()
@@ -1021,6 +1024,7 @@ class TestMapCommandError:
 
         class _Ex(Exception):
             status = None
+            response: object = None
 
         ex = _Ex("some api error 403")
         ex.response = _Resp()
@@ -1034,7 +1038,7 @@ class TestMapCommandError:
         )
 
         class _Ex(Exception):
-            pass
+            status_code: object = None
 
         ex = _Ex("some error")
         ex.status_code = 429
@@ -1125,6 +1129,7 @@ class TestMapCommandError:
 
         class _Ex(Exception):
             status = 406
+            error_data: object = None
 
         ex = _Ex("406 Not Acceptable")
         ex.error_data = {"detail": "Remote control disabled"}
@@ -1139,6 +1144,7 @@ class TestMapCommandError:
 
         class _Ex(Exception):
             status = 406
+            error_data: object = None
 
         ex = _Ex("406 Not Acceptable")
         ex.error_data = {"detail": "Not supported by current program"}
@@ -1155,6 +1161,7 @@ class TestMapCommandError:
 
         class _Ex(Exception):
             status = 406
+            error_data: object = None
 
         ex = _Ex("406 Not Acceptable")
         ex.error_data = {"detail": "Some custom appliance error detail"}
@@ -1293,14 +1300,13 @@ class TestUtilMissingCoverage:
 
     def test_response_json_raises_falls_through_to_generic_error(self):
         """When response.json() raises, the except is swallowed and parsing continues (lines 405-406)."""
-        from unittest.mock import patch
 
         class _BadResp:
             def json(self):
                 raise ValueError("not json")
 
         class _Ex(Exception):
-            pass
+            response: object = None
 
         ex = _Ex("api error")
         ex.response = _BadResp()
@@ -1319,7 +1325,7 @@ class TestUtilMissingCoverage:
             text = "not valid json {"
 
         class _Ex(Exception):
-            pass
+            response: object = None
 
         ex = _Ex("api error")
         ex.response = _TextResp()
@@ -1364,7 +1370,7 @@ class TestUtilMissingCoverage:
         """When json.dumps(error_data) raises (non-serializable), falls back to str() (lines 440-441)."""
 
         class _Ex(Exception):
-            pass
+            error_data: object = None
 
         ex = _Ex("test error")
         # A set inside a dict is not JSON-serializable → json.dumps raises TypeError
@@ -1383,7 +1389,7 @@ class TestUtilMissingCoverage:
         from unittest.mock import patch
 
         class _Ex(Exception):
-            pass
+            error_data: object = None
 
         ex = _Ex("validation error")
         ex.error_data = {"error": "COMMAND_VALIDATION_ERROR", "detail": "some detail"}
@@ -1406,7 +1412,8 @@ class TestUtilMissingCoverage:
         from unittest.mock import patch
 
         class _Ex(Exception):
-            pass
+            status_code: object = None
+            error_data: object = None
 
         ex = _Ex("not acceptable error")
         ex.status_code = 406
@@ -1427,7 +1434,7 @@ class TestUtilMissingCoverage:
         """Method 3 'command validation' match uses error_data.detail to form detail_msg (lines 692-701)."""
 
         class _Ex(Exception):
-            pass
+            error_data: object = None
 
         ex = _Ex("command validation error occurred")
         # error_data without a recognised error_code key → bypasses Method 1

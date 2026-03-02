@@ -286,7 +286,9 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
     ) -> ConfigFlowResult:
         """Handle reconfiguration of an existing entry."""
         self._errors = {}
-        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        entry = self.hass.config_entries.async_get_entry(
+            cast(str, self.context.get("entry_id", ""))
+        )
         if entry is None:
             return self.async_abort(reason="entry_not_found")
 
