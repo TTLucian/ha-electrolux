@@ -638,13 +638,10 @@ class Appliance:
                     self.state.get(catalog_key) is not None if self.state else False
                 )
 
-                # Detect writable entities (write/readwrite access)
-                capability_access = catalog_item.capability_info.get("access", "")
-                is_writable_entity = capability_access in ["write", "readwrite"]
-
                 # Detect if we're in capabilities fallback mode (capabilities API failed)
-                # When capabilities_names is None or empty, we need to create writable entities
-                # from catalog even if not in state, so controls remain available
+                # When capabilities_names is None or empty, the capabilities API call failed
+                # and we must rely on the catalog as the source of truth for this appliance type
+                capability_access = catalog_item.capability_info.get("access", "")
                 in_fallback_mode = (
                     capabilities_names is None or len(capabilities_names) == 0
                 )
@@ -652,16 +649,22 @@ class Appliance:
                 # CRITICAL: Only create catalog entities if:
                 # - They're in the appliance state (entity was used/reported before), OR
                 # - They're in the always-created list (like manualSync), OR
-                # - We're in fallback mode AND it's a writable entity (preserve controls during offline/timeout)
+                # - We're in fallback mode: create ALL type-specific catalog entities so the
+                #   appliance has a full set of entities even when the capabilities API fails.
+                #   The catalog is already filtered per appliance type (WM, OV, RF, etc.) so
+                #   creating all entries won't pollute other appliance types' entity lists.
+                #   Without this, read-only sensors (applianceState, doorState, cyclePhase,
+                #   timeToEnd, …) are missing when the machine was idle at setup time and
+                #   those keys weren't yet present in the reported state.
                 #
                 # This prevents:
                 # 1. Creating entities for capabilities the appliance doesn't have (normal mode)
-                # 2. Removing writable entities when appliance is offline and capabilities timeout (fallback mode)
+                # 2. Missing entities when capabilities API fails and appliance was idle at setup
                 if not (
                     attr_in_reported
                     or attr_at_top_level
                     or is_always_created_entity
-                    or (in_fallback_mode and is_writable_entity)
+                    or in_fallback_mode
                 ):
                     _LOGGER.debug(
                         "Skipping catalog entity %s - not in appliance state or capabilities (access: %s, fallback: %s)",

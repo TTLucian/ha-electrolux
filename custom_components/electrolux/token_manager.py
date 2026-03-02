@@ -53,6 +53,7 @@ class ElectroluxTokenManager(TokenManager):
         self._last_failed_refresh = 0  # Track failed refresh attempts
         self._consecutive_failures = 0  # Track consecutive refresh failures for backoff
         self._marked_needs_refresh = False  # Flag to bypass cooldown if refresh needed
+        self._permanent_auth_failure = False  # Set on 401/invalid-grant; stops retry loop until new creds are loaded
         self._last_log_time = 0.0  # Cache timestamp for log throttling
         self._last_log_status = ""  # Cache last logged status
 
@@ -152,6 +153,15 @@ class ElectroluxTokenManager(TokenManager):
             current_time = int(time.time())
             _LOGGER.debug(f"[TOKEN-REFRESH] Refresh initiated at {current_time}")
 
+            # Stop immediately if credentials are known-bad (permanent 401)
+            # Only reset after user provides new credentials via reauth flow
+            if self._permanent_auth_failure:
+                _LOGGER.debug(
+                    "[TOKEN-REFRESH] Skipping refresh: permanent auth failure active. "
+                    "User must re-enter credentials via the HA notification."
+                )
+                return False
+
             # Double-check if token is still invalid (another task may have refreshed while we waited)
             if self.is_token_valid():
                 _LOGGER.debug(
@@ -250,6 +260,9 @@ class ElectroluxTokenManager(TokenManager):
                 self._last_failed_refresh = 0
                 self._consecutive_failures = 0  # Reset exponential backoff
                 self._marked_needs_refresh = False
+                self._permanent_auth_failure = (
+                    False  # New creds worked — clear the latch
+                )
                 _LOGGER.info(
                     f"[TOKEN-REFRESH] Token refresh completed successfully (new token valid for {exp_hours} hours, {exp_minutes} minutes)"
                 )
@@ -276,17 +289,20 @@ class ElectroluxTokenManager(TokenManager):
                             "This may indicate multiple Home Assistant instances using same credentials, "
                             "which is NOT supported due to single-use refresh tokens."
                         )
-                    # Trigger reauthentication immediately
+                    # Latch: stop all future refresh attempts until new credentials are loaded
+                    self._permanent_auth_failure = True
+                    self._consecutive_failures = 0
+                    # Trigger reauthentication once
                     if self._on_auth_error:
                         _LOGGER.warning(
-                            "[TOKEN-REFRESH] Triggering reauth callback due to permanent auth error"
+                            "[TOKEN-REFRESH] Triggering reauth callback due to permanent auth error "
+                            "(further refresh attempts suppressed until credentials are updated)"
                         )
                         await self._on_auth_error(f"Token refresh failed: {e}")
                     else:
                         _LOGGER.warning(
                             "[TOKEN-REFRESH] No auth error callback registered, cannot trigger reauth"
                         )
-                    self._consecutive_failures = 0  # Reset for auth errors
                     return False
 
                 # For other errors, set cooldown and return False
@@ -315,6 +331,9 @@ class ElectroluxTokenManager(TokenManager):
             self._on_token_update_with_expiry(
                 access_token, refresh_token, api_key, expires_at
             )
+
+        # Clear permanent failure latch — new credentials have been loaded
+        self._permanent_auth_failure = False
 
         # Use parent's update method to maintain SDK compatibility
         # Parent will call _on_token_update callback and update _auth_data
