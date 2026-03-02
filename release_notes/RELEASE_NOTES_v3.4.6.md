@@ -1,4 +1,3 @@
-````markdown
 # Release Notes v3.4.6
 
 ## Bug Fix: Missing Entities After Network Timeout During Setup
@@ -82,8 +81,7 @@ Other properties present in the diagnostic (`timeToEnd`, `remoteControl`, `appli
 - `custom_components/electrolux/coordinator.py` — `_setup_single_appliance` now extracts `applianceType` and `modelName` from the list API response before any async calls and injects them into all minimal appliance state fallbacks.
 - `custom_components/electrolux/catalog_washer.py` — Added 12 new entries: generic (non-model-prefixed) `userSelections/` boolean switches and `language` setting.
 
-````
-
+---
 
 ## Supported Appliances (as of v3.4.6)
 
