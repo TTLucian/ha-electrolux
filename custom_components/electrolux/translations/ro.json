@@ -3,11 +3,11 @@
         "step": {
             "user": {
                 "title": "Configurare Electrolux",
-                "description": "Conectați-vă aparatele Electrolux utilizând acreditările API din Portalul pentru dezvoltatori Electrolux.\n\n**Pentru a obține acreditările API:**\n1. Vizitați {url}\n2. Înregistrați-vă și creați o aplicație\n3. Obțineți cheia API, Tokenul de acces și Tokenul de reîmprospătare\n\nDacă aveți nevoie de ajutor, vizitați documentația de integrare.",
+                "description": "Conectați-vă aparatele Electrolux utilizând acreditările API din Portalul pentru dezvoltatori Electrolux.\n\n**Pentru a obține acreditările API:**\n1. Vizitați {url}\n2. Înregistrați-vă și creați o aplicație\n3. Obțineți cheia API, Token-ul de acces și Token-ul de reîmprospătare\n\nDacă aveți nevoie de ajutor, vizitați documentația de integrare.",
                 "data": {
                     "api_key": "Cheia API",
-                    "access_token": "Token de acces",
-                    "refresh_token": "Jeton de reîmprospătare",
+                    "access_token": "Token-ul de acces",
+                    "refresh_token": "Token-ul de reîmprospătare",
                     "notifications": "Activați notificările pentru alertele critice",
                     "notifications_warning": "Activați notificările pentru avertismente",
                     "notifications_diagnostic": "Activați notificările pentru mesajele de diagnosticare"
@@ -15,11 +15,11 @@
             },
             "reauth_validate": {
                 "title": "Re-autentificați Electrolux",
-                "description": "Tokenurile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu jetoane noi de pe Portalul pentru dezvoltatori Electrolux.\n\nAccesați {url} pentru a genera noi token-uri.",
+                "description": "Token-urile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu token-uri noi de pe Portalul pentru dezvoltatori Electrolux.\n\nAccesați {url} pentru a genera noi token-uri.",
                 "data": {
                     "api_key": "Cheia API",
-                    "access_token": "Token de acces",
-                    "refresh_token": "Jeton de reîmprospătare"
+                    "access_token": "Token-ul de acces",
+                    "refresh_token": "Token de reîmprospătare"
                 }
             },
             "reconfigure": {
@@ -28,12 +28,12 @@
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
-                    "refresh_token": "Jeton de reîmprospătare"
+                    "refresh_token": "Token de reîmprospătare"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Este permisă doar o singură configurație Electrolux.",
@@ -59,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare."
         }
     },
     "issues": {
@@ -73,12 +73,12 @@
                         "data": {
                             "api_key": "Cheia API",
                             "access_token": "Token de acces",
-                            "refresh_token": "Jeton de reîmprospătare"
+                            "refresh_token": "Token de reîmprospătare"
                         }
                     }
                 },
                 "error": {
-                    "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Jetonul de acces și Jetonul de reîmprospătare.",
+                    "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare.",
                     "invalid_format": "Format de autentificare nevalid. Vă rugăm să vă asigurați că toate câmpurile sunt completate corect.",
                     "entry_not_found": "Intrarea de configurare nu a fost găsită."
                 },
@@ -90,7 +90,7 @@
     },
     "exceptions": {
         "appliance_offline": {
-            "message": "Appliance is offline (current state: {state}). Vă rugăm să verificați dacă aparatul este conectat, are conexiune la rețea și este conectat la serviciile cloud."
+            "message": "Aparatul este offline (stare curentă: {state}). Vă rugăm să verificați dacă aparatul este conectat, are conexiune la rețea și este conectat la serviciile cloud."
         },
         "not_supported_by_program": {
             "message": "Nu se poate modifica {attr}: nu este acceptat de programul curent {program}."
@@ -105,7 +105,7 @@
             "message": "Temperatura sondei alimentare nu este acceptată de programul {program}."
         },
         "food_probe_locked_by_program": {
-            "message": "Temperatura sondei alimentare este blocată la {valoare}°C pentru programul {program}."
+            "message": "Temperatura sondei alimentare este blocată la {value}°C pentru programul {program}."
         },
         "value_below_minimum": {
             "message": "Valoarea {value} este sub minimul {min_val} pentru {attr}."
@@ -123,7 +123,7 @@
             "message": "Nu se poate modifica setarea: starea aparatului este incompletă. Vă rugăm să așteptați inițializarea aparatului."
         },
         "remote_control_disabled": {
-            "message": "Telecomanda este dezactivată pentru acest aparat. Vă rugăm să îl activați pe panoul de control al aparatului."
+            "message": "Telecomanda este dezactivată pentru acest aparat. Vă rugăm să o activați pe panoul de control al aparatului."
         },
         "appliance_disconnected": {
             "message": "Aparatul este deconectat sau nu este disponibil. Verificați conexiunea la rețea a aparatului."
@@ -135,7 +135,7 @@
             "message": "Comanda nu este acceptată de aparat. Verificați dacă aparatul acceptă această operațiune."
         },
         "type_mismatch": {
-            "message": "Eroare de integrare: nepotrivirea tipului de date pentru {attr}. Boolean așteptat."
+            "message": "Eroare de integrare: nepotrivirea tipului de date pentru {attr}. Se aștepta un boolean."
         }
     }
 }
