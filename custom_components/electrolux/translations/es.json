@@ -7,7 +7,7 @@
                 "data": {
                     "api_key": "Clave API",
                     "access_token": "Token de acceso",
-                    "refresh_token": "Actualizar ficha",
+                    "refresh_token": "Actualizar token",
                     "notifications": "Habilitar notificaciones para alertas críticas",
                     "notifications_warning": "Habilitar notificaciones para advertencias",
                     "notifications_diagnostic": "Habilitar notificaciones para mensajes de diagnóstico"
@@ -19,7 +19,16 @@
                 "data": {
                     "api_key": "Clave API",
                     "access_token": "Token de acceso",
-                    "refresh_token": "Actualizar ficha"
+                    "refresh_token": "Actualizar token"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigurar Electrolux",
+                "description": "Actualice sus credenciales API de Electrolux.\n\nVisita {url} para generar nuevos tokens.",
+                "data": {
+                    "api_key": "Clave API",
+                    "access_token": "Token de acceso",
+                    "refresh_token": "Actualizar token"
                 }
             }
         },
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Sólo se permite una única configuración de Electrolux.",
             "already_configured": "Este dispositivo ya está configurado.",
             "already_configured_account": "Esta clave API ya está configurada.",
+            "entry_not_found": "No se pudo encontrar la entrada de configuración.",
             "reconfigure_successful": "La reconfiguración fue exitosa."
         }
     },
@@ -41,7 +51,7 @@
                 "data": {
                     "api_key": "Clave API",
                     "access_token": "Token de acceso",
-                    "refresh_token": "Actualizar ficha",
+                    "refresh_token": "Actualizar token",
                     "notifications": "Habilitar notificaciones para alertas críticas",
                     "notifications_warning": "Habilitar notificaciones para advertencias",
                     "notifications_diagnostic": "Habilitar notificaciones para mensajes de diagnóstico"
@@ -63,7 +73,7 @@
                         "data": {
                             "api_key": "Clave API",
                             "access_token": "Token de acceso",
-                            "refresh_token": "Actualizar ficha"
+                            "refresh_token": "Actualizar token"
                         }
                     }
                 },
@@ -76,6 +86,56 @@
                     "entry_not_found": "No se pudo encontrar la entrada de configuración."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "El dispositivo está fuera de línea (estado actual: {estado}). Verifique que el dispositivo esté enchufado, tenga conectividad de red y esté conectado a los servicios en la nube."
+        },
+        "not_supported_by_program": {
+            "message": "No se puede cambiar {attr}: no es compatible con el programa actual {programa}."
+        },
+        "control_locked": {
+            "message": "{attr} está bloqueado en {value} para el programa {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Se debe insertar una sonda para alimentos para establecer la temperatura objetivo."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "La temperatura de la sonda de alimentos no es compatible con el programa {programa}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "La temperatura de la sonda alimentaria está bloqueada en {valor}°C para el programa {programa}."
+        },
+        "value_below_minimum": {
+            "message": "El valor {value} está por debajo del mínimo {min_val} para {attr}."
+        },
+        "value_above_maximum": {
+            "message": "El valor {value} está por encima del máximo {max_val} para {attr}."
+        },
+        "invalid_option": {
+            "message": "Opción no válida seleccionada."
+        },
+        "invalid_preset_mode": {
+            "message": "Modo preestablecido no válido {modo}. Modos disponibles: {modos}."
+        },
+        "appliance_state_incomplete": {
+            "message": "No se puede cambiar la configuración: el estado del aparato está incompleto. Espere a que el aparato se inicialice."
+        },
+        "remote_control_disabled": {
+            "message": "El control remoto está desactivado para este aparato. Habilítelo en el panel de control del aparato."
+        },
+        "appliance_disconnected": {
+            "message": "El aparato está desconectado o no está disponible. Verifique la conexión de red del aparato."
+        },
+        "command_rate_limited": {
+            "message": "Se enviaron demasiados comandos. Espere un momento e inténtelo de nuevo."
+        },
+        "command_not_accepted": {
+            "message": "Comando no aceptado por el aparato. Compruebe que el aparato admita esta operación."
+        },
+        "type_mismatch": {
+            "message": "Error de integración: el tipo de datos no coincide para {attr}. Booleano esperado."
         }
     }
 }

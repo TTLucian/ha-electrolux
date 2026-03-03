@@ -21,6 +21,15 @@
                     "access_token": "Zugriffstoken",
                     "refresh_token": "Aktualisierungstoken"
                 }
+            },
+            "reconfigure": {
+                "title": "Electrolux neu konfigurieren",
+                "description": "Aktualisieren Sie Ihre Electrolux-API-Anmeldeinformationen.\n\nBesuchen Sie {url}, um neue Token zu generieren.",
+                "data": {
+                    "api_key": "API-Schlüssel",
+                    "access_token": "Zugriffstoken",
+                    "refresh_token": "Aktualisierungstoken"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Es ist nur eine einzelne Electrolux-Konfiguration zulässig.",
             "already_configured": "Dieses Gerät ist bereits konfiguriert.",
             "already_configured_account": "Dieser API-Schlüssel ist bereits konfiguriert.",
+            "entry_not_found": "Der Konfigurationseintrag konnte nicht gefunden werden.",
             "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Der Konfigurationseintrag konnte nicht gefunden werden."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Appliance ist offline (aktueller Status: {state}). Bitte überprüfen Sie, ob das Gerät angeschlossen ist, über eine Netzwerkverbindung verfügt und mit Cloud-Diensten verbunden ist."
+        },
+        "not_supported_by_program": {
+            "message": "{attr} kann nicht geändert werden: wird vom aktuellen Programm {program} nicht unterstützt."
+        },
+        "control_locked": {
+            "message": "{attr} ist auf {value} für das Programm {program} gesperrt."
+        },
+        "food_probe_not_inserted": {
+            "message": "Um die Zieltemperatur einzustellen, muss der Lebensmittelfühler eingeführt werden."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Die Temperatur des Lebensmittelsensors wird vom Programm {program} nicht unterstützt."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Die Temperatur des Lebensmittelfühlers ist für das Programm {Programm} auf {Wert}°C gesperrt."
+        },
+        "value_below_minimum": {
+            "message": "Der Wert {value} liegt unter dem Mindestwert {min_val} für {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Der Wert {value} liegt über dem Maximalwert {max_val} für {attr}."
+        },
+        "invalid_option": {
+            "message": "Ungültige Option ausgewählt."
+        },
+        "invalid_preset_mode": {
+            "message": "Ungültiger voreingestellter Modus {mode}. Verfügbare Modi: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Einstellung kann nicht geändert werden: Der Gerätestatus ist unvollständig. Bitte warten Sie, bis das Gerät initialisiert ist."
+        },
+        "remote_control_disabled": {
+            "message": "Die Fernbedienung ist für dieses Gerät deaktiviert. Bitte aktivieren Sie es auf dem Bedienfeld des Geräts."
+        },
+        "appliance_disconnected": {
+            "message": "Gerät ist nicht angeschlossen oder nicht verfügbar. Überprüfen Sie die Netzwerkverbindung des Geräts."
+        },
+        "command_rate_limited": {
+            "message": "Zu viele Befehle gesendet. Bitte warten Sie einen Moment und versuchen Sie es erneut."
+        },
+        "command_not_accepted": {
+            "message": "Befehl wird von der Appliance nicht akzeptiert. Überprüfen Sie, ob das Gerät diesen Vorgang unterstützt."
+        },
+        "type_mismatch": {
+            "message": "Integrationsfehler: Datentypkonflikt für {attr}. Erwarteter Boolescher Wert."
         }
     }
 }

@@ -21,6 +21,15 @@
                     "access_token": "Adgangstoken",
                     "refresh_token": "Opdater token"
                 }
+            },
+            "reconfigure": {
+                "title": "Rekonfigurer Electrolux",
+                "description": "Opdater dine Electrolux API-legitimationsoplysninger.\n\nBesøg {url} for at generere nye tokens.",
+                "data": {
+                    "api_key": "API nøgle",
+                    "access_token": "Adgangstoken",
+                    "refresh_token": "Opdater token"
+                }
             }
         },
         "error": {
@@ -30,7 +39,8 @@
             "single_instance_allowed": "Kun en enkelt Electrolux-konfiguration er tilladt.",
             "already_configured": "Denne enhed er allerede konfigureret.",
             "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
-            "reconfigure_successful": "Omkonfigurationen lykkedes."
+            "entry_not_found": "Konfigurationsindgangen kunne ikke findes.",
+            "reconfigure_successful": "Genkonfigurationen lykkedes."
         }
     },
     "options": {
@@ -42,7 +52,7 @@
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
                     "refresh_token": "Opdater token",
-                    "notifications": "Aktiver notifikationer for kritiske advarsler",
+                    "notifications": "Aktiver meddelelser for kritiske advarsler",
                     "notifications_warning": "Aktiver meddelelser for advarsler",
                     "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
                 }
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfigurationsindgangen kunne ikke findes."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Apparatet er offline (nuværende tilstand: {state}). Kontroller venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
+        },
+        "not_supported_by_program": {
+            "message": "Kan ikke ændre {attr}: understøttes ikke af det nuværende program {program}."
+        },
+        "control_locked": {
+            "message": "{attr} er låst til {value} for program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Madsonde skal indsættes for at indstille måltemperaturen."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Kodetemperaturen understøttes ikke af programmet {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Koketemperaturen er låst til {værdi}°C for program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Værdien {value} er under minimumsværdien {min_val} for {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Værdien {value} er over det maksimale {max_val} for {attr}."
+        },
+        "invalid_option": {
+            "message": "Ugyldig indstilling valgt."
+        },
+        "invalid_preset_mode": {
+            "message": "Ugyldig forudindstillet tilstand {mode}. Tilgængelige tilstande: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kan ikke ændre indstilling: Apparatets tilstand er ufuldstændig. Vent venligst på, at apparatet initialiseres."
+        },
+        "remote_control_disabled": {
+            "message": "Fjernbetjeningen er deaktiveret for dette apparat. Aktiver det på apparatets kontrolpanel."
+        },
+        "appliance_disconnected": {
+            "message": "Apparatet er afbrudt eller ikke tilgængeligt. Kontroller apparatets netværksforbindelse."
+        },
+        "command_rate_limited": {
+            "message": "Der er sendt for mange kommandoer. Vent et øjeblik, og prøv igen."
+        },
+        "command_not_accepted": {
+            "message": "Kommandoen accepteres ikke af apparatet. Kontroller, at apparatet understøtter denne operation."
+        },
+        "type_mismatch": {
+            "message": "Integrationsfejl: datatype uoverensstemmelse for {attr}. Forventet boolesk."
         }
     }
 }

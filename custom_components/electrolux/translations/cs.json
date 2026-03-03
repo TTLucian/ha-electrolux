@@ -21,6 +21,15 @@
                     "access_token": "Přístupový token",
                     "refresh_token": "Obnovit token"
                 }
+            },
+            "reconfigure": {
+                "title": "Překonfigurujte Electrolux",
+                "description": "Aktualizujte své přihlašovací údaje Electrolux API.\n\nNavštivte stránku {url} a vygenerujte nové tokeny.",
+                "data": {
+                    "api_key": "Klíč API",
+                    "access_token": "Přístupový token",
+                    "refresh_token": "Obnovit token"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Je povolena pouze jedna konfigurace Electrolux.",
             "already_configured": "Toto zařízení je již nakonfigurováno.",
             "already_configured_account": "Tento klíč API je již nakonfigurován.",
+            "entry_not_found": "Záznam konfigurace nebyl nalezen.",
             "reconfigure_successful": "Opětovná konfigurace byla úspěšná."
         }
     },
@@ -70,12 +80,62 @@
                 "error": {
                     "invalid_auth": "Neplatné přihlašovací údaje rozhraní API. Zkontrolujte svůj API klíč, přístupový token a obnovovací token.",
                     "invalid_format": "Neplatný formát pověření. Ujistěte se, že jsou všechna pole správně vyplněna.",
-                    "entry_not_found": "Záznam konfigurace nebyl nalezen."
+                    "entry_not_found": "Configuration entry not found."
                 },
                 "abort": {
                     "entry_not_found": "Záznam konfigurace nebyl nalezen."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Zařízení je offline (aktuální stav: {state}). Zkontrolujte, zda je zařízení zapojeno, má síťové připojení a je připojeno ke cloudovým službám."
+        },
+        "not_supported_by_program": {
+            "message": "Nelze změnit {attr}: aktuální program {program} nepodporuje."
+        },
+        "control_locked": {
+            "message": "{attr} je uzamčen na {value} pro program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Pro nastavení cílové teploty musí být vložena potravinová sonda."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Teplota potravinové sondy není podporována programem {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Teplota potravinové sondy je uzamčena na {hodnota}°C pro program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Hodnota {value} je nižší než minimální {min_val} pro {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Hodnota {value} je vyšší než maximální {max_val} pro {attr}."
+        },
+        "invalid_option": {
+            "message": "Vybrána neplatná možnost."
+        },
+        "invalid_preset_mode": {
+            "message": "Neplatný přednastavený režim {mode}. Dostupné režimy: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nastavení nelze změnit: stav spotřebiče je neúplný. Počkejte, až se zařízení inicializuje."
+        },
+        "remote_control_disabled": {
+            "message": "Dálkové ovládání je pro tento spotřebič deaktivováno. Aktivujte jej na ovládacím panelu spotřebiče."
+        },
+        "appliance_disconnected": {
+            "message": "Spotřebič je odpojený nebo nedostupný. Zkontrolujte síťové připojení spotřebiče."
+        },
+        "command_rate_limited": {
+            "message": "Bylo odesláno příliš mnoho příkazů. Chvíli počkejte a zkuste to znovu."
+        },
+        "command_not_accepted": {
+            "message": "Příkaz zařízení nepřijal. Zkontrolujte, zda spotřebič tuto operaci podporuje."
+        },
+        "type_mismatch": {
+            "message": "Chyba integrace: Neshoda datového typu pro {attr}. Očekávaná logická hodnota."
         }
     }
 }

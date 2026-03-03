@@ -15,7 +15,16 @@
             },
             "reauth_validate": {
                 "title": "Todenna Electrolux uudelleen",
-                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
+                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheellisiä. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
+                "data": {
+                    "api_key": "API-avain",
+                    "access_token": "Käyttöoikeustunnus",
+                    "refresh_token": "Päivitä Token"
+                }
+            },
+            "reconfigure": {
+                "title": "Määritä Electrolux uudelleen",
+                "description": "Päivitä Electrolux API -kirjautumistietosi.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Vain yksi Electrolux-kokoonpano on sallittu.",
             "already_configured": "Tämä laite on jo määritetty.",
             "already_configured_account": "Tämä API-avain on jo määritetty.",
+            "entry_not_found": "Määritystietoa ei löytynyt.",
             "reconfigure_successful": "Uudelleenmääritys onnistui."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Määritystietoa ei löytynyt."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Laite on offline-tilassa (nykyinen tila: {state}). Tarkista, että laite on kytketty verkkovirtaan, verkkoyhteys ja pilvipalveluihin."
+        },
+        "not_supported_by_program": {
+            "message": "Ei voi muuttaa {attr}: nykyinen ohjelma {program} ei tue."
+        },
+        "control_locked": {
+            "message": "{attr} on lukittu arvoon {value} ohjelmalle {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Ruoka-anturi on asetettava tavoitelämpötilan asettamiseksi."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Ohjelma {program} ei tue ruoka-anturin lämpötilaa."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Ruokaanturin lämpötila on lukittu arvoon {arvo}°C ohjelmalle {program}."
+        },
+        "value_below_minimum": {
+            "message": "Arvo {value} on alle vähimmäisarvon {min_val} arvolle {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Arvo {value} on suurempi kuin enimmäisarvo {max_val} arvolle {attr}."
+        },
+        "invalid_option": {
+            "message": "Virheellinen vaihtoehto valittu."
+        },
+        "invalid_preset_mode": {
+            "message": "Virheellinen esiasetustila {mode}. Käytettävissä olevat tilat: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Asetusta ei voi muuttaa: laitteen tila on epätäydellinen. Odota, että laite käynnistyy."
+        },
+        "remote_control_disabled": {
+            "message": "Kaukosäädin on poistettu käytöstä tässä laitteessa. Ota se käyttöön laitteen ohjauspaneelista."
+        },
+        "appliance_disconnected": {
+            "message": "Laite on irrotettu tai ei ole käytettävissä. Tarkista laitteen verkkoyhteys."
+        },
+        "command_rate_limited": {
+            "message": "Liian monta komentoa lähetetty. Odota hetki ja yritä uudelleen."
+        },
+        "command_not_accepted": {
+            "message": "Laite ei hyväksy komentoa. Tarkista, että laite tukee tätä toimintoa."
+        },
+        "type_mismatch": {
+            "message": "Integrointivirhe: tietotyyppi ei täsmää kohteelle {attr}. Odotettu Boolean."
         }
     }
 }

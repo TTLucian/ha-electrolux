@@ -21,6 +21,15 @@
                     "access_token": "Juurdepääsuluba",
                     "refresh_token": "Värskenda märki"
                 }
+            },
+            "reconfigure": {
+                "title": "Seadistage Electrolux uuesti",
+                "description": "Värskendage oma Electroluxi API mandaate.\n\nUute märkide loomiseks külastage aadressi {url}.",
+                "data": {
+                    "api_key": "API võti",
+                    "access_token": "Juurdepääsuluba",
+                    "refresh_token": "Värskenda märki"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Lubatud on ainult üks Electroluxi konfiguratsioon.",
             "already_configured": "See seade on juba konfigureeritud.",
             "already_configured_account": "See API võti on juba konfigureeritud.",
+            "entry_not_found": "Konfiguratsioonikirjet ei leitud.",
             "reconfigure_successful": "Ümberseadistamine õnnestus."
         }
     },
@@ -42,7 +52,7 @@
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
                     "refresh_token": "Värskenda märki",
-                    "notifications": "Lubage kriitiliste hoiatusteadete märguanded",
+                    "notifications": "Lubage kriitiliste hoiatuste teatised",
                     "notifications_warning": "Hoiatuste märguannete lubamine",
                     "notifications_diagnostic": "Lubage diagnostikasõnumite märguanded"
                 }
@@ -73,9 +83,59 @@
                     "entry_not_found": "Konfiguratsioonikirjet ei leitud."
                 },
                 "abort": {
-                    "entry_not_found": "Seadistuse kirjet ei leitud."
+                    "entry_not_found": "Konfiguratsioonikirjet ei leitud."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Seade on võrguühenduseta (praegune olek: {state}). Kontrollige, kas seade on vooluvõrku ühendatud, võrguühendusega ja pilveteenustega ühendatud."
+        },
+        "not_supported_by_program": {
+            "message": "Ei saa muuta {attr}: praegune programm {program} ei toeta."
+        },
+        "control_locked": {
+            "message": "{attr} on programmi {program} jaoks lukustatud väärtusega {value}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Sihttemperatuuri seadmiseks tuleb sisestada toidusond."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Programm {program} ei toeta toidusondi temperatuuri."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Toidusondi temperatuur on programmi {program} jaoks lukustatud väärtusele {value}°C."
+        },
+        "value_below_minimum": {
+            "message": "Väärtus {value} on alla {attr} miinimumi {min_val}."
+        },
+        "value_above_maximum": {
+            "message": "Väärtus {value} on suurem kui {attr} maksimaalne väärtus {max_val}."
+        },
+        "invalid_option": {
+            "message": "Valitud on kehtetu valik."
+        },
+        "invalid_preset_mode": {
+            "message": "Kehtetu eelseadistatud režiim {mode}. Saadaolevad režiimid: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Seadet ei saa muuta: seadme olek on mittetäielik. Palun oodake, kuni seade initsialiseerub."
+        },
+        "remote_control_disabled": {
+            "message": "Kaugjuhtimispult on selle seadme jaoks keelatud. Palun lubage see seadme juhtpaneelil."
+        },
+        "appliance_disconnected": {
+            "message": "Seade on lahti ühendatud või pole saadaval. Kontrollige seadme võrguühendust."
+        },
+        "command_rate_limited": {
+            "message": "Saadeti liiga palju käske. Palun oodake veidi ja proovige uuesti."
+        },
+        "command_not_accepted": {
+            "message": "Seade ei aktsepteeri käsku. Kontrollige, kas seade toetab seda toimingut."
+        },
+        "type_mismatch": {
+            "message": "Integreerimise viga: {attr} andmetüüp ei ühti. Eeldatav Boolean."
         }
     }
 }
