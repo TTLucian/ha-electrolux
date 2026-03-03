@@ -60,27 +60,7 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:play-pause",
         available_when_states=WASHER_EXECUTE_STATES,
     ),
-    # Appliance state and cycle information
-    "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:washing-machine",
-    ),
+    # Cycle information
     "cyclePhase": ElectroluxDevice(
         capability_info={
             "access": "read",
@@ -596,32 +576,6 @@ CATALOG_WASHER: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:lightbulb",
         friendly_name="Display Light",
-    ),
-    "networkInterface/otaState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "DESCRIPTION_AVAILABLE": {},
-                "DESCRIPTION_DOWNLOADING": {},
-                "DESCRIPTION_READY": {},
-                "FW_DOWNLOADING": {},
-                "FW_DOWNLOAD_START": {},
-                "FW_SIGNATURE_CHECK": {},
-                "FW_UPDATE_IN_PROGRESS": {},
-                "IDLE": {},
-                "READY_TO_UPDATE": {},
-                "UPDATE_ABORT": {},
-                "UPDATE_CHECK": {},
-                "UPDATE_ERROR": {},
-                "UPDATE_OK": {},
-                "WAITINGFORAUTHORIZATION": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:update",
     ),
     # Maintenance system (simplified - showing key maintenance items)
     "applianceCareAndMaintenance0/maint1_ID": ElectroluxDevice(

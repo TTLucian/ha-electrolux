@@ -622,10 +622,15 @@ class TestAsyncUpdateDataGaps:
 
         # Patch asyncio.gather to return a list with a plain Exception object
         # This simulates a case where gather captures an Exception result
+        async def _fake_gather(*aws, return_exceptions=False):
+            for a in aws:
+                if asyncio.iscoroutine(a):
+                    a.close()
+            return [RuntimeError("injected exception result")]
+
         with patch(
             "custom_components.electrolux.coordinator.asyncio.gather",
-            new_callable=AsyncMock,
-            return_value=[RuntimeError("injected exception result")],
+            side_effect=_fake_gather,
         ):
             with pytest.raises(UpdateFailed):
                 await coordinator._async_update_data()
@@ -716,9 +721,11 @@ class TestPerformManualSyncGaps:
     ):
         """Lines 1847-1848: TimeoutError + listen_websocket recovery also raises."""
         # Set up data with capabilities so we skip the reload branch
-        coordinator.data = {
-            "APP001": {"capabilities": {"someCapability": True}},
-        }
+        _app = MagicMock()
+        _app.data.capabilities = {"someCapability": True}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}
         # Reset cooldown so sync is allowed
         coordinator._last_manual_sync_time = 0.0
 
@@ -747,9 +754,11 @@ class TestPerformManualSyncGaps:
         self, coordinator, mock_api
     ):
         """Lines 1867-1868: Exception + listen_websocket recovery also raises."""
-        coordinator.data = {
-            "APP001": {"capabilities": {"someCapability": True}},
-        }
+        _app = MagicMock()
+        _app.data.capabilities = {"someCapability": True}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}
         coordinator._last_manual_sync_time = 0.0
 
         mock_api.disconnect_websocket = AsyncMock(return_value=None)

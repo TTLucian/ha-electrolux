@@ -15,6 +15,23 @@ from custom_components.electrolux.coordinator import (
 )
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _make_create_task_mock(rv=None):
+    """Return a MagicMock for async_create_task that closes passed coroutines."""
+    _rv = rv
+
+    def _side_effect(coro):
+        if asyncio.iscoroutine(coro):
+            coro.close()
+        return _rv
+
+    return MagicMock(side_effect=_side_effect)
+
+
+# ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
@@ -26,6 +43,7 @@ def mock_hass():
     mock_loop.time.return_value = 1_000_000.0
     hass = MagicMock()
     hass.loop = mock_loop
+    hass.async_create_task = _make_create_task_mock()
     return hass
 
 
@@ -321,7 +339,7 @@ class TestScheduleDeferredUpdate:
     def test_creates_deferred_task(self, coordinator):
         mock_task = MagicMock()
         mock_task.done.return_value = False
-        coordinator.hass.async_create_task = MagicMock(return_value=mock_task)
+        coordinator.hass.async_create_task = _make_create_task_mock(mock_task)
 
         coordinator._schedule_deferred_update("app1")
 
@@ -335,7 +353,7 @@ class TestScheduleDeferredUpdate:
 
         new_task = MagicMock()
         new_task.done.return_value = False
-        coordinator.hass.async_create_task = MagicMock(return_value=new_task)
+        coordinator.hass.async_create_task = _make_create_task_mock(new_task)
 
         coordinator._schedule_deferred_update("app1")
 
@@ -349,7 +367,7 @@ class TestScheduleDeferredUpdate:
             t.done.return_value = False
             coordinator._deferred_tasks.add(t)
 
-        coordinator.hass.async_create_task = MagicMock()
+        coordinator.hass.async_create_task = _make_create_task_mock()
         coordinator._schedule_deferred_update("app99")
 
         coordinator.hass.async_create_task.assert_not_called()
@@ -364,7 +382,7 @@ class TestScheduleDeferredUpdate:
         mock_task = MagicMock()
         mock_task.done.return_value = False
         mock_task.add_done_callback.side_effect = capture_add_done_callback
-        coordinator.hass.async_create_task = MagicMock(return_value=mock_task)
+        coordinator.hass.async_create_task = _make_create_task_mock(mock_task)
 
         coordinator._schedule_deferred_update("app1")
         # Simulate task completion callback
@@ -521,7 +539,7 @@ class TestProcessIncrementalUpdate:
         ap.reported_state = {"applianceState": "running"}
         aps = _make_appliances({"app1": ap})
         coordinator.async_set_updated_data = MagicMock()
-        coordinator.hass.async_create_task = MagicMock()
+        coordinator.hass.async_create_task = _make_create_task_mock()
 
         data = {
             APPLIANCE_ID_KEY: "app1",
@@ -901,7 +919,11 @@ class TestCleanupRemovedAppliances:
 class TestPerformManualSync:
     @pytest.mark.asyncio
     async def test_succeeds_with_capabilities(self, coordinator):
-        coordinator.data = {"app1": {"capabilities": {"opMode": {}}}}
+        _app = MagicMock()
+        _app.data.capabilities = {"opMode": {}}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}
         coordinator.hass.loop.time.return_value = 1_000_000.0
         coordinator._last_manual_sync_time = 0.0
         coordinator.api.disconnect_websocket = AsyncMock()
@@ -918,7 +940,11 @@ class TestPerformManualSync:
     async def test_rejects_sync_within_cooldown(self, coordinator):
         from homeassistant.exceptions import HomeAssistantError
 
-        coordinator.data = {"app1": {"capabilities": {"opMode": {}}}}
+        _app = MagicMock()
+        _app.data.capabilities = {"opMode": {}}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}
         coordinator.hass.loop.time.return_value = 1_000_000.0
         coordinator._last_manual_sync_time = 999_999.0  # 1 second ago → within cooldown
 
@@ -927,7 +953,11 @@ class TestPerformManualSync:
 
     @pytest.mark.asyncio
     async def test_triggers_reload_when_no_capabilities(self, coordinator):
-        coordinator.data = {"app1": {}}  # no capabilities
+        _app = MagicMock()
+        _app.data.capabilities = {}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}  # appliance has no capabilities
         config_entry = MagicMock()
         config_entry.entry_id = "entry1"
         coordinator.config_entry = config_entry
@@ -953,7 +983,11 @@ class TestPerformManualSync:
     async def test_raises_ha_error_on_timeout(self, coordinator):
         from homeassistant.exceptions import HomeAssistantError
 
-        coordinator.data = {"app1": {"capabilities": {"opMode": {}}}}
+        _app = MagicMock()
+        _app.data.capabilities = {"opMode": {}}
+        _apps = MagicMock()
+        _apps.get_appliance.return_value = _app
+        coordinator.data = {"appliances": _apps}
         coordinator.hass.loop.time.return_value = 1_000_000.0
         coordinator._last_manual_sync_time = 0.0
         coordinator.api.disconnect_websocket = AsyncMock(

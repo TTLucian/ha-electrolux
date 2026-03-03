@@ -1,5 +1,6 @@
 """Test the Electrolux integration setup."""
 
+import asyncio
 from unittest.mock import MagicMock
 
 import pytest
@@ -159,7 +160,10 @@ class TestAsyncSetupEntry:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
@@ -358,7 +362,10 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry(
             data={
@@ -428,7 +435,10 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
@@ -455,7 +465,7 @@ class TestAsyncSetupEntryAdditional:
     @pytest.mark.asyncio
     async def test_setup_entry_last_update_failure_raises_not_ready(self):
         """Lines 186-189: last_update_success=False → ConfigEntryNotReady."""
-        from unittest.mock import AsyncMock, patch
+        from unittest.mock import patch
 
         from homeassistant.exceptions import ConfigEntryNotReady
 
@@ -533,7 +543,10 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
@@ -586,7 +599,10 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
@@ -631,7 +647,10 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock()
+        mock_hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+            or MagicMock()
+        )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
@@ -673,9 +692,13 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.data = {}
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
-        mock_hass.async_create_task = MagicMock(
-            side_effect=RuntimeError("task creation failed")
-        )
+
+        def _create_task_fail(coro, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            raise RuntimeError("task creation failed")
+
+        mock_hass.async_create_task = MagicMock(side_effect=_create_task_fail)
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()

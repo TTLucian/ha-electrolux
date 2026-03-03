@@ -140,7 +140,7 @@ class TestAsyncSetupEntryGaps:
         entry.runtime_data = coordinator
 
         mock_registry = MagicMock()
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get",
@@ -184,7 +184,7 @@ class TestAsyncSetupEntryGaps:
         entry.runtime_data = coordinator
 
         mock_registry = MagicMock()
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get",
@@ -219,7 +219,7 @@ class TestAsyncSetupEntryGaps:
         coordinator.data = {"appliances": mock_appliances}
         entry = MagicMock()
         entry.runtime_data = coordinator
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         # er.async_get SUCCEEDS, but async_get_or_create raises
         mock_registry = MagicMock()
@@ -1505,7 +1505,7 @@ class TestLine105FallbackWithAttr:
         entry.runtime_data = coordinator
 
         mock_registry = MagicMock()
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         # First slugify call returns "" (triggers fallback), second returns actual slug
         with patch(

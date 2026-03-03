@@ -15,7 +15,9 @@ def mock_hass():
     hass = MagicMock()
     hass.loop = MagicMock()
     hass.loop.time.return_value = 1000000000
-    hass.async_create_task = MagicMock()
+    hass.async_create_task = MagicMock(
+        side_effect=lambda coro: coro.close() if asyncio.iscoroutine(coro) else None
+    )
     return hass
 
 
@@ -33,7 +35,9 @@ def mock_api_client():
     """Mock API client."""
     client = MagicMock()
     client.get_appliances_list = AsyncMock()
-    client.get_appliance_state = AsyncMock()
+    client.get_appliance_state = AsyncMock(
+        return_value={"connectivityState": "connected"}
+    )
     client.watch_for_appliance_state_updates = AsyncMock()
     client.disconnect_websocket = AsyncMock()
     client._auth_failed = False
@@ -71,6 +75,8 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_time_to_end = {}
+        coord._last_token_update = 0.0
+        coord._appliances_cache = None
         coord._can_restart_sse = MagicMock(return_value=True)
         return coord
 

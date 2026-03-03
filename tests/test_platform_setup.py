@@ -64,7 +64,7 @@ class TestSensorPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -87,7 +87,7 @@ class TestSensorPlatformSetup:
         mock_coordinator = MagicMock()
         mock_coordinator.data = {}  # No appliances
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -115,7 +115,7 @@ class TestNumberPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -142,7 +142,7 @@ class TestSelectPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -169,7 +169,7 @@ class TestSwitchPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -196,7 +196,7 @@ class TestBinarySensorPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -223,7 +223,7 @@ class TestButtonPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -250,7 +250,7 @@ class TestTextPlatformSetup:
         ].entities = [mock_entity]
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -276,7 +276,7 @@ class TestClimatePlatformSetup:
         ].appliance_type = "AC"
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -301,7 +301,7 @@ class TestClimatePlatformSetup:
         ].appliance_type = "OV"
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -333,7 +333,7 @@ class TestClimatePlatformSetup:
         mock_coordinator.data = {"appliances": MagicMock(appliances=mock_appliances)}
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -365,7 +365,7 @@ class TestClimatePlatformSetup:
         }
 
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         await async_setup_entry(mock_hass, mock_config_entry, mock_add_entities)
 
@@ -391,7 +391,7 @@ class TestPlatformSetupErrorHandling:
         mock_coordinator = MagicMock()
         mock_coordinator.data = {}  # No appliances key
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities
@@ -410,7 +410,7 @@ class TestPlatformSetupErrorHandling:
         mock_coordinator = MagicMock()
         mock_coordinator.data = {"appliances": None}
         mock_config_entry.runtime_data = mock_coordinator
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
 
         result = await async_setup_entry(
             mock_hass, mock_config_entry, mock_add_entities

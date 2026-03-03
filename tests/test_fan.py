@@ -628,7 +628,7 @@ class TestFanMissingCoverage:
     @pytest.mark.asyncio
     async def test_async_setup_entry_creates_fan_entities(self):
         """Lines 64-76 — async_setup_entry iterates appliances and adds FAN entities."""
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import MagicMock
 
         from custom_components.electrolux.fan import async_setup_entry
 
@@ -646,7 +646,7 @@ class TestFanMissingCoverage:
         mock_config_entry = MagicMock()
         mock_config_entry.runtime_data = mock_coordinator
 
-        mock_add_entities = AsyncMock()
+        mock_add_entities = MagicMock()
         await async_setup_entry(MagicMock(), mock_config_entry, mock_add_entities)
 
         mock_add_entities.assert_called_once_with([fan_entity])

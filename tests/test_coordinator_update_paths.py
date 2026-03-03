@@ -16,12 +16,33 @@ from custom_components.electrolux.coordinator import ElectroluxCoordinator
 # ---------------------------------------------------------------------------
 
 
+async def _fake_gather_close(*coros, return_exceptions=False, **kw):
+    """Fake asyncio.gather that closes any coroutine arguments and returns []."""
+    for c in coros:
+        if asyncio.iscoroutine(c):
+            c.close()
+    return []
+
+
+def _make_create_task_mock(rv=None):
+    """Return a MagicMock for async_create_task that closes passed coroutines."""
+    _rv = rv
+
+    def _side_effect(coro):
+        if asyncio.iscoroutine(coro):
+            coro.close()
+        return _rv
+
+    return MagicMock(side_effect=_side_effect)
+
+
 @pytest.fixture
 def mock_hass():
     mock_loop = MagicMock()
     mock_loop.time.return_value = 1_000_000.0
     hass = MagicMock()
     hass.loop = mock_loop
+    hass.async_create_task = _make_create_task_mock()
     return hass
 
 
@@ -384,11 +405,16 @@ class TestRenewWebsocket:
                 # Stop the loop after one full iteration
                 raise asyncio.CancelledError()
 
+        async def fake_wait_for_timeout(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            raise asyncio.TimeoutError("timeout")
+
         # Patch wait_for so the disconnect/reconnect raises TimeoutError (caught internally)
         with patch("asyncio.sleep", side_effect=mock_sleep):
             with patch(
                 "asyncio.wait_for",
-                side_effect=asyncio.TimeoutError("timeout"),
+                side_effect=fake_wait_for_timeout,
             ):
                 with pytest.raises(asyncio.CancelledError):
                     await coordinator.renew_websocket()
@@ -436,8 +462,13 @@ class TestRenewWebsocket:
         coordinator.api.disconnect_websocket = AsyncMock()
         coordinator.listen_websocket = AsyncMock()
 
+        async def _fake_wait_for_noop(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return None
+
         with patch("asyncio.sleep", side_effect=mock_sleep):
-            with patch("asyncio.wait_for", new_callable=AsyncMock):
+            with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):
                 try:
                     await coordinator.renew_websocket()
                 except asyncio.CancelledError:
@@ -457,10 +488,12 @@ class TestRenewWebsocket:
         async def mock_wait_for(coro, timeout=None):
             nonlocal call_count
             call_count += 1
+            if asyncio.iscoroutine(coro):
+                coro.close()
             if call_count == 1:
                 # First call: token refresh - timeout
                 raise asyncio.TimeoutError()
-            # Second call: disconnect
+            # Second call and beyond: noop
             return None
 
         success_count = 0
@@ -493,6 +526,8 @@ class TestRenewWebsocket:
         async def mock_wait_for(coro, timeout=None):
             nonlocal call_count
             call_count += 1
+            if asyncio.iscoroutine(coro):
+                coro.close()
             if call_count == 1:
                 # First call: token refresh - exception
                 raise Exception("refresh failed")
@@ -525,6 +560,8 @@ class TestRenewWebsocket:
         async def fast_fail_wait_for(coro, timeout=None):
             nonlocal failure_count
             failure_count += 1
+            if asyncio.iscoroutine(coro):
+                coro.close()
             raise Exception("renewal error")
 
         async def mock_sleep(delay):
@@ -562,10 +599,20 @@ class TestCloseWebsocket:
 
         coordinator._deferred_tasks = {task1, task2}
         coordinator.renew_task = None
-        coordinator.api.close = AsyncMock()
 
-        with patch("asyncio.gather", new_callable=AsyncMock):
-            await coordinator.close_websocket()
+        async def _close_noop():
+            return None
+
+        coordinator.api.close = _close_noop
+
+        async def _fake_wait_for_noop(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                await coro
+            return None
+
+        with patch("asyncio.gather", new=_fake_gather_close):
+            with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):
+                await coordinator.close_websocket()
 
         task1.cancel.assert_called_once()
         task2.cancel.assert_not_called()
@@ -580,10 +627,20 @@ class TestCloseWebsocket:
         coordinator._deferred_tasks = set()
         coordinator._deferred_tasks_by_appliance = {"app1": task}
         coordinator.renew_task = None
-        coordinator.api.close = AsyncMock()
 
-        with patch("asyncio.gather", new_callable=AsyncMock):
-            await coordinator.close_websocket()
+        async def _close_noop():
+            return None
+
+        coordinator.api.close = _close_noop
+
+        async def _fake_wait_for_noop(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                await coro
+            return None
+
+        with patch("asyncio.gather", new=_fake_gather_close):
+            with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):
+                await coordinator.close_websocket()
 
         task.cancel.assert_called_once()
 
@@ -593,10 +650,19 @@ class TestCloseWebsocket:
         coordinator._deferred_tasks = set()
         coordinator._deferred_tasks_by_appliance = {}
         coordinator.renew_task = None
-        coordinator.api.close = AsyncMock()
 
-        with patch("asyncio.gather", new_callable=AsyncMock):
-            with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError()):
+        async def _close_noop():
+            return None
+
+        coordinator.api.close = _close_noop
+
+        async def fake_wait_for_timeout(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                await coro
+            raise asyncio.TimeoutError()
+
+        with patch("asyncio.gather", new=_fake_gather_close):
+            with patch("asyncio.wait_for", side_effect=fake_wait_for_timeout):
                 await coordinator.close_websocket()  # Should not raise
 
     @pytest.mark.asyncio
@@ -605,10 +671,19 @@ class TestCloseWebsocket:
         coordinator._deferred_tasks = set()
         coordinator._deferred_tasks_by_appliance = {}
         coordinator.renew_task = None
-        coordinator.api.close = AsyncMock()
 
-        with patch("asyncio.gather", new_callable=AsyncMock):
-            with patch("asyncio.wait_for", side_effect=Exception("close failed")):
+        async def _close_noop():
+            return None
+
+        coordinator.api.close = _close_noop
+
+        async def fake_wait_for_exception(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                await coro
+            raise Exception("close failed")
+
+        with patch("asyncio.gather", new=_fake_gather_close):
+            with patch("asyncio.wait_for", side_effect=fake_wait_for_exception):
                 await coordinator.close_websocket()  # Should not raise
 
     @pytest.mark.asyncio
@@ -620,10 +695,18 @@ class TestCloseWebsocket:
         coordinator.renew_task = renew_task
         coordinator._deferred_tasks = set()
         coordinator._deferred_tasks_by_appliance = {}
-        coordinator.api.close = AsyncMock()
 
-        with patch("asyncio.gather", new_callable=AsyncMock):
-            with patch("asyncio.wait_for", new_callable=AsyncMock):
+        async def _close_noop():
+            return None
+
+        coordinator.api.close = _close_noop
+
+        async def fake_wait_for_close(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                await coro
+
+        with patch("asyncio.gather", new=_fake_gather_close):
+            with patch("asyncio.wait_for", side_effect=fake_wait_for_close):
                 await coordinator.close_websocket()
 
         renew_task.cancel.assert_called_once()
@@ -649,13 +732,20 @@ class TestSetupEntities:
         )
 
         async def slow_setup(appliance_json):
-            await asyncio.sleep(0)  # Yields once; wait_for is patched to timeout anyway
+            await asyncio.sleep(0)  # Yields once; will be cancelled by gather timeout
 
         coordinator._setup_single_appliance = slow_setup
 
+        # Patch asyncio.gather to close inner coroutines and simulate timeout
+        async def _fake_gather_timeout(*coros, return_exceptions=False, **kw):
+            for coro in coros:
+                if asyncio.iscoroutine(coro):
+                    coro.close()
+            raise asyncio.TimeoutError()
+
         # After removing the broken cancel-loop dead code, a timeout now
         # logs a warning and allows setup_entities to return normally.
-        with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError()):
+        with patch("asyncio.gather", side_effect=_fake_gather_timeout):
             result = await coordinator.setup_entities()
 
         # Should return data dict (timeout is handled gracefully, not re-raised)

@@ -114,7 +114,7 @@ class TestEntityAsyncSetupEntry:
         entry.runtime_data = coordinator
 
         hass = MagicMock()
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
@@ -160,7 +160,7 @@ class TestEntityAsyncSetupEntry:
         entry = MagicMock()
         entry.runtime_data = coordinator
 
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
@@ -199,7 +199,7 @@ class TestEntityAsyncSetupEntry:
         entry = MagicMock()
         entry.runtime_data = coordinator
 
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
@@ -220,7 +220,7 @@ class TestEntityAsyncSetupEntry:
         entry = MagicMock()
         entry.runtime_data = coordinator
 
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
         await async_setup_entry(MagicMock(), entry, add_entities)
 
         add_entities.assert_not_called()
@@ -252,7 +252,7 @@ class TestEntityAsyncSetupEntry:
         entry = MagicMock()
         entry.runtime_data = coordinator
 
-        add_entities = AsyncMock()
+        add_entities = MagicMock()
 
         with patch(
             "custom_components.electrolux.entity.er.async_get",

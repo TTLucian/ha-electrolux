@@ -45,9 +45,7 @@ def _make_client(hass=None, config_entry=None):
 
 class TestGetElectroluxSession:
     def test_returns_api_client_instance(self):
-        with patch(
-            "custom_components.electrolux.api_client.ApplianceClient"
-        ), patch(
+        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
             "custom_components.electrolux.api_client.ElectroluxTokenManager"
         ) as mock_tm:
             mock_tm.return_value = MagicMock()
@@ -63,9 +61,7 @@ class TestGetElectroluxSession:
         assert isinstance(session, ElectroluxApiClient)
 
     def test_returns_client_without_hass(self):
-        with patch(
-            "custom_components.electrolux.api_client.ApplianceClient"
-        ), patch(
+        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
             "custom_components.electrolux.api_client.ElectroluxTokenManager"
         ) as mock_tm:
             mock_tm.return_value = MagicMock()
@@ -137,7 +133,9 @@ class TestRetryWithBackoff:
 
         with patch("asyncio.sleep", side_effect=fake_sleep):
             with pytest.raises(Exception):
-                await retry_with_backoff(asyncio_timeout(), max_retries=2, base_delay=0.01)
+                await retry_with_backoff(
+                    asyncio_timeout(), max_retries=2, base_delay=0.01
+                )
 
         assert len(sleep_called) >= 1
 
@@ -239,6 +237,7 @@ class TestSafeApiCall:
     @pytest.mark.asyncio
     async def test_network_error_no_retry_raises_home_assistant_error(self):
         """With retry_network_errors=False, ConnectionError raises 'Network connection failed'."""
+
         async def net_fail():
             raise ConnectionError("connection refused")
 
@@ -315,7 +314,9 @@ class TestSafeApiCall:
             raise Exception("something broke")
 
         with pytest.raises(HomeAssistantError, match="Operation failed"):
-            await safe_api_call(generic_fail(), "my operation", retry_network_errors=False)
+            await safe_api_call(
+                generic_fail(), "my operation", retry_network_errors=False
+            )
 
     @pytest.mark.asyncio
     async def test_uses_default_logger_when_none_provided(self):
@@ -343,8 +344,13 @@ class TestTokenRefreshHandlerEmit:
 
     def _make_record(self, message: str) -> logging.LogRecord:
         record = logging.LogRecord(
-            name="test", level=logging.ERROR, pathname="", lineno=0,
-            msg=message, args=(), exc_info=None
+            name="test",
+            level=logging.ERROR,
+            pathname="",
+            lineno=0,
+            msg=message,
+            args=(),
+            exc_info=None,
         )
         return record
 
@@ -401,8 +407,9 @@ class TestTokenRefreshHandlerEmit:
 
 class TestApiClientInit:
     def test_init_without_hass_no_handler_attached(self):
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), \
-             patch("custom_components.electrolux.api_client.ElectroluxTokenManager") as mock_tm:
+        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
+            "custom_components.electrolux.api_client.ElectroluxTokenManager"
+        ) as mock_tm:
             mock_tm.return_value = MagicMock()
             client = ElectroluxApiClient("key", "access", "refresh", hass=None)
         assert client._token_handler is None
@@ -410,9 +417,11 @@ class TestApiClientInit:
 
     def test_init_with_hass_attaches_handler(self):
         hass = MagicMock()
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), \
-             patch("custom_components.electrolux.api_client.ElectroluxTokenManager") as mock_tm, \
-             patch("custom_components.electrolux.api_client.logging") as mock_logging:
+        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
+            "custom_components.electrolux.api_client.ElectroluxTokenManager"
+        ) as mock_tm, patch(
+            "custom_components.electrolux.api_client.logging"
+        ) as mock_logging:
             mock_tm.return_value = MagicMock()
             mock_logger_instance = MagicMock()
             mock_logging.getLogger.return_value = mock_logger_instance
@@ -425,12 +434,12 @@ class TestApiClientInit:
     def test_init_hass_handler_attach_exception_logged(self):
         """Exception during handler attachment is caught and logged."""
         hass = MagicMock()
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), \
-             patch("custom_components.electrolux.api_client.ElectroluxTokenManager") as mock_tm, \
-             patch(
-                 "custom_components.electrolux.api_client._TokenRefreshHandler",
-                 side_effect=Exception("handler init error"),
-             ):
+        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
+            "custom_components.electrolux.api_client.ElectroluxTokenManager"
+        ) as mock_tm, patch(
+            "custom_components.electrolux.api_client._TokenRefreshHandler",
+            side_effect=Exception("handler init error"),
+        ):
             mock_tm.return_value = MagicMock()
             # Should not raise
             client = ElectroluxApiClient("key", "access", "refresh", hass=hass)
@@ -485,7 +494,9 @@ class TestTriggerReauth:
         hass.loop.call_soon_threadsafe.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_trigger_reauth_without_coordinator_does_not_schedule(self, monkeypatch):
+    async def test_trigger_reauth_without_coordinator_does_not_schedule(
+        self, monkeypatch
+    ):
         hass = MagicMock()
         hass.loop = MagicMock()
         hass.loop.call_soon_threadsafe = MagicMock()
@@ -665,7 +676,9 @@ class TestGetAppliancesList:
     @pytest.mark.asyncio
     async def test_model_extracted_from_pnc_when_unknown(self, monkeypatch):
         client = _make_client()
-        appliance = self._make_appliance("944188772_00:ABCDEF", "Fridge", "REF", "Unknown")
+        appliance = self._make_appliance(
+            "944188772_00:ABCDEF", "Fridge", "REF", "Unknown"
+        )
         client._handle_api_call = AsyncMock(return_value=[appliance])
 
         result = await client.get_appliances_list()
@@ -708,7 +721,9 @@ class TestGetAppliancesInfo:
     @pytest.mark.asyncio
     async def test_returns_info_with_known_model(self, monkeypatch):
         client = _make_client()
-        client._handle_api_call = AsyncMock(return_value=self._make_details("OvenModel123"))
+        client._handle_api_call = AsyncMock(
+            return_value=self._make_details("OvenModel123")
+        )
 
         result = await client.get_appliances_info(["app1"])
         assert len(result) == 1
@@ -813,10 +828,16 @@ class TestGetApplianceCapabilities:
         details.capabilities = {"mode": ["cool", "heat"]}
         client._handle_api_call = AsyncMock(return_value=details)
 
+        _details = details
+
+        async def _fake_safe_call_present(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return _details
+
         with patch(
             "custom_components.electrolux.api_client.safe_api_call",
-            new_callable=AsyncMock,
-            return_value=details,
+            side_effect=_fake_safe_call_present,
         ):
             result = await client.get_appliance_capabilities("app1")
         assert result == {"mode": ["cool", "heat"]}
@@ -828,10 +849,16 @@ class TestGetApplianceCapabilities:
         details.capabilities = None
         client._handle_api_call = AsyncMock(return_value=details)
 
+        _details = details
+
+        async def _fake_safe_call_no_cap(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return _details
+
         with patch(
             "custom_components.electrolux.api_client.safe_api_call",
-            new_callable=AsyncMock,
-            return_value=details,
+            side_effect=_fake_safe_call_no_cap,
         ):
             result = await client.get_appliance_capabilities("app1")
         assert result == {}
@@ -841,10 +868,16 @@ class TestGetApplianceCapabilities:
         client = _make_client()
         details = MagicMock(spec=["something"])  # no capabilities attr
 
+        _details = details
+
+        async def _fake_safe_call_no_attr(coro, *a, **kw):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return _details
+
         with patch(
             "custom_components.electrolux.api_client.safe_api_call",
-            new_callable=AsyncMock,
-            return_value=details,
+            side_effect=_fake_safe_call_no_attr,
         ):
             result = await client.get_appliance_capabilities("app1")
         assert result == {}
@@ -863,7 +896,14 @@ class TestWatchForApplianceStateUpdates:
         task.add_done_callback = MagicMock()
         task.done = MagicMock(return_value=False)
         task.cancel = MagicMock()
-        hass.async_create_task = MagicMock(return_value=task)
+        _task = task
+
+        def _create_task_side_effect(coro):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return _task
+
+        hass.async_create_task = MagicMock(side_effect=_create_task_side_effect)
 
         client = _make_client(hass=hass)
         client._client = MagicMock()
@@ -873,7 +913,7 @@ class TestWatchForApplianceStateUpdates:
         await client.watch_for_appliance_state_updates(["app1"], callback)
 
         hass.async_create_task.assert_called_once()
-        assert client._sse_task is task
+        assert client._sse_task is _task
 
     @pytest.mark.asyncio
     async def test_creates_sse_task_without_hass(self):
@@ -889,7 +929,13 @@ class TestWatchForApplianceStateUpdates:
         with patch("asyncio.create_task") as mock_create_task:
             task = MagicMock()
             task.add_done_callback = MagicMock()
-            mock_create_task.return_value = task
+
+            def _ct_side_effect(coro):
+                if asyncio.iscoroutine(coro):
+                    coro.close()
+                return task
+
+            mock_create_task.side_effect = _ct_side_effect
             await client.watch_for_appliance_state_updates(["app1"], callback)
 
         mock_create_task.assert_called_once()
@@ -1107,7 +1153,9 @@ class TestExecuteApplianceCommand:
     @pytest.mark.asyncio
     async def test_reraises_exception(self):
         client = _make_client()
-        client._handle_api_call = AsyncMock(side_effect=ConfigEntryAuthFailed("auth fail"))
+        client._handle_api_call = AsyncMock(
+            side_effect=ConfigEntryAuthFailed("auth fail")
+        )
 
         with pytest.raises(ConfigEntryAuthFailed):
             await client.execute_appliance_command("app1", {"temp": 180})

@@ -389,7 +389,6 @@ def test_coordinator_init_sets_attributes():
     assert coordinator._consecutive_auth_failures == 0
     assert coordinator._auth_failure_threshold == 3
     assert coordinator._last_token_update == 0.0
-    assert coordinator._appliances_cache is None
     assert coordinator._deferred_tasks == set()
     assert coordinator._deferred_tasks_by_appliance == {}
     assert coordinator._last_update_times == {}

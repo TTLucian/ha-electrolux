@@ -226,7 +226,7 @@ class TestRepairFlow:
 
         mock_hass.config_entries = Mock()
         mock_hass.config_entries.async_get_entry = Mock(return_value=mock_entry)
-        mock_hass.config_entries.async_update_entry = AsyncMock()
+        mock_hass.config_entries.async_update_entry = Mock()
         mock_hass.config_entries.async_reload = AsyncMock()
 
         # Create repair flow

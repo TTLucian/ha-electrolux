@@ -566,6 +566,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Cleanup callback
         def cleanup_deferred(t: asyncio.Task, app_id: str = appliance_id) -> None:
             """Remove task from tracking when done."""
+            self._deferred_tasks.discard(t)  # prevent set from growing unbounded
             # app_id is captured by VALUE at definition time
             if self._deferred_tasks_by_appliance.get(app_id) == t:
                 # Use pop for safety as established in previous fixes
@@ -587,14 +588,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if not task.done():
                 task.cancel()
 
-        # Wait for cancellations to complete with shield to ensure cleanup finishes
+        # Wait for cancellations to complete, ensuring cleanup finishes even on cancel
         if tasks:
             try:
-                await asyncio.shield(asyncio.gather(*tasks, return_exceptions=True))
+                await asyncio.gather(*tasks, return_exceptions=True)
             except asyncio.CancelledError:
+                # Drain remaining cancellations before propagating
+                await asyncio.gather(*tasks, return_exceptions=True)
                 _LOGGER.debug(
                     f"Task cleanup interrupted for appliance {appliance_id or 'unknown'}"
                 )
+                raise
             except Exception as ex:
                 _LOGGER.debug(
                     f"Error during task cleanup for appliance {appliance_id or 'unknown'}: {ex}"
@@ -957,7 +961,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
 
             # Track timing for diagnostics
-            start_time = asyncio.get_event_loop().time()
+            start_time = self.hass.loop.time()
 
             # Make concurrent API calls for this appliance
             info_task = asyncio.create_task(
@@ -985,7 +989,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     info_task, state_task
                 )
 
-                elapsed = asyncio.get_event_loop().time() - start_time
+                elapsed = self.hass.loop.time() - start_time
                 _LOGGER.debug(
                     "Appliance %s required data fetched in %.2f seconds",
                     appliance_id,
@@ -993,7 +997,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
             except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
                 # Enhanced diagnostic logging for network issues
-                elapsed = asyncio.get_event_loop().time() - start_time
+                elapsed = self.hass.loop.time() - start_time
                 error_type = type(ex).__name__
                 _LOGGER.warning(
                     "Network error getting required data for appliance %s (%s) after %.2f seconds: %s - %s",
@@ -1099,7 +1103,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 return
             except Exception as ex:
                 # Enhanced diagnostic logging for unexpected errors
-                elapsed = asyncio.get_event_loop().time() - start_time
+                elapsed = self.hass.loop.time() - start_time
                 error_type = type(ex).__name__
                 _LOGGER.warning(
                     "Unexpected error getting required data for appliance %s (%s) after %.2f seconds: %s - %s",
@@ -1519,8 +1523,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         _LOGGER.debug("Update results: %s", results)
 
+        keys_list = list(app_dict.keys())
         for i, result in enumerate(results):
-            app_id = list(app_dict.keys())[i]  # Get appliance ID for this result
+            app_id = keys_list[i]
             if isinstance(result, tuple) and len(result) == 2:
                 success, came_online = result
                 if success:
@@ -1587,12 +1592,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
 
         # Periodically clean up removed appliances (once per day)
-        # Check if we should run cleanup
-        if not hasattr(self, "_last_cleanup_time"):
-            self._last_cleanup_time = 0
-
         current_time = self.hass.loop.time()
-        if current_time - self._last_cleanup_time > CLEANUP_INTERVAL:  # 24 hours
+        if (
+            current_time - getattr(self, "_last_cleanup_time", 0) > CLEANUP_INTERVAL
+        ):  # 24 hours
             _LOGGER.debug("Running periodic appliance cleanup")
             await self.cleanup_removed_appliances()
             self._last_cleanup_time = int(current_time)
@@ -1720,6 +1723,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         # Cancel and clean up any deferred tasks
                         if appliance_id in self._deferred_tasks_by_appliance:
                             task = self._deferred_tasks_by_appliance.pop(appliance_id)
+                            self._deferred_tasks.discard(task)
                             if not task.done():
                                 task.cancel()
                         _LOGGER.debug(
@@ -1755,8 +1759,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
 
             # Check if appliance has minimal data (no capabilities = needs full reload)
-            appliance_data = self.data.get(appliance_id, {})
-            has_capabilities = bool(appliance_data.get("capabilities"))
+            _appliances_obj: Appliances | None = self.data.get("appliances")  # type: ignore[assignment]
+            _appliance_obj = (
+                _appliances_obj.get_appliance(appliance_id) if _appliances_obj else None
+            )
+            has_capabilities = bool(
+                _appliance_obj
+                and _appliance_obj.data
+                and _appliance_obj.data.capabilities
+            )
 
             if not has_capabilities:
                 _LOGGER.warning(
