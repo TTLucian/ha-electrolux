@@ -21,6 +21,15 @@
                     "access_token": "Маркер доступу",
                     "refresh_token": "Оновити маркер"
                 }
+            },
+            "reconfigure": {
+                "title": "Переконфігуруйте Electrolux",
+                "description": "Оновіть свої облікові дані Electrolux API.\n\nВідвідайте {url}, щоб створити нові маркери.",
+                "data": {
+                    "api_key": "Ключ API",
+                    "access_token": "Маркер доступу",
+                    "refresh_token": "Оновити маркер"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Допускається лише одна конфігурація Electrolux.",
             "already_configured": "Цей пристрій уже налаштовано.",
             "already_configured_account": "Цей ключ API вже налаштовано.",
+            "entry_not_found": "Запис конфігурації не знайдено.",
             "reconfigure_successful": "Повторна конфігурація пройшла успішно."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Запис конфігурації не знайдено."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Пристрій офлайн (поточний стан: {state}). Будь ласка, переконайтеся, що пристрій підключено до мережі, підключено до мережі та підключено до хмарних служб."
+        },
+        "not_supported_by_program": {
+            "message": "Неможливо змінити {attr}: не підтримується поточною програмою {program}."
+        },
+        "control_locked": {
+            "message": "{attr} заблоковано на {value} для програми {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Щоб встановити цільову температуру, потрібно вставити харчовий зонд."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Температура харчового датчика не підтримується програмою {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Температура харчового датчика зафіксована на рівні {value}°C для програми {program}."
+        },
+        "value_below_minimum": {
+            "message": "Значення {value} нижче мінімального {min_val} для {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Значення {value} перевищує максимальне {max_val} для {attr}."
+        },
+        "invalid_option": {
+            "message": "Вибрано недійсний варіант."
+        },
+        "invalid_preset_mode": {
+            "message": "Недійсний попередньо встановлений режим {mode}. Доступні режими: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Неможливо змінити налаштування: стан приладу неповний. Зачекайте, поки пристрій ініціалізується."
+        },
+        "remote_control_disabled": {
+            "message": "Пульт дистанційного керування вимкнено для цього приладу. Увімкніть його на панелі керування пристрою."
+        },
+        "appliance_disconnected": {
+            "message": "Прилад відключений або недоступний. Перевірте підключення пристрою до мережі."
+        },
+        "command_rate_limited": {
+            "message": "Надіслано забагато команд. Будь ласка, зачекайте трохи і спробуйте ще раз."
+        },
+        "command_not_accepted": {
+            "message": "Пристрій не приймає команду. Перевірте, чи пристрій підтримує цю операцію."
+        },
+        "type_mismatch": {
+            "message": "Помилка інтеграції: невідповідність типу даних для {attr}. Очікуване логічне значення."
         }
     }
 }

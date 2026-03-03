@@ -21,6 +21,15 @@
                     "access_token": "Toegangstoken",
                     "refresh_token": "Token vernieuwen"
                 }
+            },
+            "reconfigure": {
+                "title": "Electrolux opnieuw configureren",
+                "description": "Update uw Electrolux API-inloggegevens.\n\nBezoek {url} om nieuwe tokens te genereren.",
+                "data": {
+                    "api_key": "API-sleutel",
+                    "access_token": "Toegangstoken",
+                    "refresh_token": "Token vernieuwen"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Er is slechts één Electrolux-configuratie toegestaan.",
             "already_configured": "Dit apparaat is al geconfigureerd.",
             "already_configured_account": "Deze API-sleutel is al geconfigureerd.",
+            "entry_not_found": "Het configuratie-item kan niet worden gevonden.",
             "reconfigure_successful": "De herconfiguratie was succesvol."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Het configuratie-item kan niet worden gevonden."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Apparaat is offline (huidige status: {state}). Controleer of het apparaat is aangesloten, een netwerkverbinding heeft en is verbonden met cloudservices."
+        },
+        "not_supported_by_program": {
+            "message": "Kan {attr} niet wijzigen: wordt niet ondersteund door het huidige programma {program}."
+        },
+        "control_locked": {
+            "message": "{attr} is vergrendeld op {value} voor programma {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "De voedselsonde moet worden geplaatst om de doeltemperatuur in te stellen."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "De temperatuur van de voedselsonde wordt niet ondersteund door programma {programma}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "De temperatuur van de voedselsonde is vergrendeld op {waarde}°C voor programma {programma}."
+        },
+        "value_below_minimum": {
+            "message": "Waarde {value} ligt onder het minimum {min_val} voor {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Waarde {value} ligt boven het maximum {max_val} voor {attr}."
+        },
+        "invalid_option": {
+            "message": "Ongeldige optie geselecteerd."
+        },
+        "invalid_preset_mode": {
+            "message": "Ongeldige voorinstellingsmodus {mode}. Beschikbare modi: {modi}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kan instelling niet wijzigen: de status van het apparaat is onvolledig. Wacht tot het apparaat is geïnitialiseerd."
+        },
+        "remote_control_disabled": {
+            "message": "Afstandsbediening is uitgeschakeld voor dit apparaat. Schakel dit in op het bedieningspaneel van het apparaat."
+        },
+        "appliance_disconnected": {
+            "message": "Apparaat is losgekoppeld of niet beschikbaar. Controleer de netwerkverbinding van het apparaat."
+        },
+        "command_rate_limited": {
+            "message": "Te veel opdrachten verzonden. Wacht even en probeer het opnieuw."
+        },
+        "command_not_accepted": {
+            "message": "Commando niet geaccepteerd door apparaat. Controleer of het apparaat deze handeling ondersteunt."
+        },
+        "type_mismatch": {
+            "message": "Integratiefout: gegevenstype komt niet overeen voor {attr}. Verwachte Booleaanse waarde."
         }
     }
 }

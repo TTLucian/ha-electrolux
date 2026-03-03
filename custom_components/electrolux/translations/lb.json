@@ -21,6 +21,15 @@
                     "access_token": "Zougang Token",
                     "refresh_token": "Refresh Token"
                 }
+            },
+            "reconfigure": {
+                "title": "Electrolux nei konfiguréieren",
+                "description": "Update Är Electrolux API Umeldungsinformatiounen.\n\nBesicht {url} fir nei Tokens ze generéieren.",
+                "data": {
+                    "api_key": "API Schlëssel",
+                    "access_token": "Zougang Token",
+                    "refresh_token": "Refresh Token"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Nëmmen eng eenzeg Electrolux Konfiguratioun ass erlaabt.",
             "already_configured": "Dësen Apparat ass scho konfiguréiert.",
             "already_configured_account": "Dësen API Schlëssel ass scho konfiguréiert.",
+            "entry_not_found": "D'Konfiguratiounseintrag konnt net fonnt ginn.",
             "reconfigure_successful": "Nei Konfiguratioun war erfollegräich."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "D'Konfiguratiounseintrag konnt net fonnt ginn."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Den Apparat ass offline (aktuelle Staat: {Staat}). Kontrolléiert w.e.g. datt den Apparat ugeschloss ass, Netzwierkverbindung huet a mat Cloud Servicer ugeschloss ass."
+        },
+        "not_supported_by_program": {
+            "message": "Kann {attr} net änneren: net vum aktuelle Programm {Programm} ënnerstëtzt."
+        },
+        "control_locked": {
+            "message": "{attr} ass um {value} fir de Programm {Programm} gespaart."
+        },
+        "food_probe_not_inserted": {
+            "message": "D'Liewensmëttelsonde muss agefouert ginn fir d'Zieltemperatur ze setzen."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Liewensmëttelsondetemperatur gëtt net vum Programm {Programm} ënnerstëtzt."
+        },
+        "food_probe_locked_by_program": {
+            "message": "D'Liewensmëttelsondetemperatur ass bei {Wäert}°C fir Programm {Programm} gespaart."
+        },
+        "value_below_minimum": {
+            "message": "De Wäert {value} ass ënner dem Minimum {min_val} fir {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Wäert {value} ass iwwer de Maximum {max_val} fir {attr}."
+        },
+        "invalid_option": {
+            "message": "Invalid Optioun ausgewielt."
+        },
+        "invalid_preset_mode": {
+            "message": "Invalid Preset Modus {Modus}. Verfügbare Modi: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kann d'Astellung net änneren: den Apparatzoustand ass onkomplett. Waart w.e.g. bis den Apparat initialiséiert."
+        },
+        "remote_control_disabled": {
+            "message": "Fernsteierung ass fir dësen Apparat ausgeschalt. Aktivéiert et op der Kontrollpanel vum Apparat."
+        },
+        "appliance_disconnected": {
+            "message": "Den Apparat ass ofgeschalt oder net verfügbar. Kontrolléiert d'Netzverbindung vum Apparat."
+        },
+        "command_rate_limited": {
+            "message": "Ze vill Kommandoen geschéckt. Waart e Moment a probéiert nach eng Kéier."
+        },
+        "command_not_accepted": {
+            "message": "Kommando net vum Apparat akzeptéiert. Kontrolléiert datt den Apparat dës Operatioun ënnerstëtzt."
+        },
+        "type_mismatch": {
+            "message": "Integratiounsfehler: Datentyp Mëssverständnis fir {attr}. Boolean erwaart."
         }
     }
 }

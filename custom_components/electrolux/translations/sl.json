@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Nastavitev Electrolux",
-                "description": "Povežite svoje naprave Electrolux s poverilnicami API s portala za razvijalce Electrolux.\n\n**Če želite pridobiti poverilnice za API:**\n1. Obiščite {url}\n2. Registrirajte se in ustvarite aplikacijo\n3. Pridobite svoj ključ API, žeton za dostop in žeton za osvežitev\n\nČe potrebujete pomoč, obiščite integracijsko dokumentacijo.",
+                "description": "Povežite svoje naprave Electrolux z uporabo poverilnic API s portala za razvijalce Electrolux.\n\n**Če želite pridobiti poverilnice za API:**\n1. Obiščite {url}\n2. Registrirajte se in ustvarite aplikacijo\n3. Pridobite svoj ključ API, žeton za dostop in žeton za osvežitev\n\nČe potrebujete pomoč, obiščite integracijsko dokumentacijo.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Žeton za dostop",
@@ -14,8 +14,17 @@
                 }
             },
             "reauth_validate": {
-                "title": "Ponovno preverite pristnost Electroluxa",
+                "title": "Ponovno preverite Electrolux",
                 "description": "Vaši Electrolux API žetoni so potekli ali so neveljavni. Posodobite jih s svežimi žetoni s portala za razvijalce Electrolux.\n\nObiščite {url}, da ustvarite nove žetone.",
+                "data": {
+                    "api_key": "API ključ",
+                    "access_token": "Žeton za dostop",
+                    "refresh_token": "Osveži žeton"
+                }
+            },
+            "reconfigure": {
+                "title": "Ponovno konfigurirajte Electrolux",
+                "description": "Posodobite poverilnice Electrolux API.\n\nObiščite {url}, da ustvarite nove žetone.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Žeton za dostop",
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Dovoljena je samo ena konfiguracija Electrolux.",
             "already_configured": "Ta naprava je že konfigurirana.",
             "already_configured_account": "Ta ključ API je že konfiguriran.",
+            "entry_not_found": "Konfiguracijskega vnosa ni bilo mogoče najti.",
             "reconfigure_successful": "Ponovna konfiguracija je bila uspešna."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfiguracijskega vnosa ni bilo mogoče najti."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Naprava je brez povezave (trenutno stanje: {state}). Preverite, ali je naprava priključena, ima omrežno povezavo in je povezana s storitvami v oblaku."
+        },
+        "not_supported_by_program": {
+            "message": "Ni mogoče spremeniti {attr}: ne podpira trenutni program {program}."
+        },
+        "control_locked": {
+            "message": "{attr} je zaklenjen pri {value} za program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Za nastavitev ciljne temperature je treba vstaviti sondo za hrano."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Program {program} ne podpira temperature sonde za hrano."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Temperatura sonde za hrano je zaklenjena na {value}°C za program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Vrednost {value} je pod najmanjšo vrednostjo {min_val} za {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Vrednost {value} je nad največjo vrednostjo {max_val} za {attr}."
+        },
+        "invalid_option": {
+            "message": "Izbrana neveljavna možnost."
+        },
+        "invalid_preset_mode": {
+            "message": "Neveljaven prednastavljeni način {mode}. Razpoložljivi načini: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nastavitve ni mogoče spremeniti: stanje naprave je nepopolno. Počakajte, da se naprava inicializira."
+        },
+        "remote_control_disabled": {
+            "message": "Daljinski upravljalnik je za to napravo onemogočen. Omogočite ga na nadzorni plošči naprave."
+        },
+        "appliance_disconnected": {
+            "message": "Naprava je odklopljena ali ni na voljo. Preverite omrežno povezavo naprave."
+        },
+        "command_rate_limited": {
+            "message": "Preveč poslanih ukazov. Počakajte trenutek in poskusite znova."
+        },
+        "command_not_accepted": {
+            "message": "Naprava ne sprejme ukaza. Preverite, ali aparat podpira to operacijo."
+        },
+        "type_mismatch": {
+            "message": "Napaka pri integraciji: neujemanje vrste podatkov za {attr}. Pričakovana logična vrednost."
         }
     }
 }

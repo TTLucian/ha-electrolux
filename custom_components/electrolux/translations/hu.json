@@ -10,12 +10,21 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
+                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
                 }
             },
             "reauth_validate": {
                 "title": "Hitelesítse újra az Electroluxot",
-                "description": "Electrolux API-tokenjei lejártak vagy érvénytelenek. Kérjük, frissítse őket friss tokenekkel az Electrolux fejlesztői portáljáról.\n\nLátogasson el a(z) {url} címre új tokenek létrehozásához.",
+                "description": "Electrolux API-tokenjei lejártak vagy érvénytelenek. Kérjük, frissítse őket friss tokenekkel az Electrolux fejlesztői portáljáról.\n\nLátogassa meg a(z) {url} címet új tokenek létrehozásához.",
+                "data": {
+                    "api_key": "API kulcs",
+                    "access_token": "Hozzáférési token",
+                    "refresh_token": "Token frissítése"
+                }
+            },
+            "reconfigure": {
+                "title": "Konfigurálja újra az Electroluxot",
+                "description": "Frissítse Electrolux API hitelesítő adatait.\n\nLátogassa meg a(z) {url} címet új tokenek létrehozásához.",
                 "data": {
                     "api_key": "API kulcs",
                     "access_token": "Hozzáférési token",
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Csak egyetlen Electrolux konfiguráció megengedett.",
             "already_configured": "Ez az eszköz már konfigurálva van.",
             "already_configured_account": "Ez az API-kulcs már konfigurálva van.",
+            "entry_not_found": "A konfigurációs bejegyzés nem található.",
             "reconfigure_successful": "Az újrakonfigurálás sikeres volt."
         }
     },
@@ -44,7 +54,7 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
+                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
                 }
             }
         },
@@ -59,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Frissítse az Electrolux API hitelesítő adatait",
-                        "description": "Electrolux API-tokenjei lejártak, és az automatikus frissítés nem sikerült. Kérjük, adja meg az új hitelesítő adatokat az Electrolux fejlesztői portálról a működés visszaállításához.\n\n**Új hitelesítő adatok létrehozása:**\n1. Látogassa meg a következőt: {url}\n2. Hozzon létre új API-kulcsot, hozzáférési tokent és frissítési tokent\n3. Írja be őket alább",
+                        "description": "Electrolux API-tokenjei lejártak, és az automatikus frissítés nem sikerült. Kérjük, adjon meg új hitelesítő adatokat az Electrolux fejlesztői portálról a működés visszaállításához.\n\n**Új hitelesítő adatok létrehozása:**\n1. Látogassa meg a következőt: {url}\n2. Hozzon létre új API-kulcsot, hozzáférési tokent és frissítési tokent\n3. Írja be őket alább",
                         "data": {
                             "api_key": "API kulcs",
                             "access_token": "Hozzáférési token",
@@ -69,13 +79,63 @@
                 },
                 "error": {
                     "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze az API-kulcsot, a hozzáférési tokent és a frissítési tokent.",
-                    "invalid_format": "Érvénytelen hitelesítő adatformátum. Kérjük, győződjön meg arról, hogy minden mezőt helyesen töltött ki.",
+                    "invalid_format": "Érvénytelen hitelesítő adatformátum. Kérjük, győződjön meg róla, hogy minden mezőt helyesen töltött ki.",
                     "entry_not_found": "A konfigurációs bejegyzés nem található."
                 },
                 "abort": {
                     "entry_not_found": "A konfigurációs bejegyzés nem található."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Appliance is offline (current state: {state}). Kérjük, ellenőrizze, hogy a készülék csatlakoztatva van-e, rendelkezik-e hálózati kapcsolattal, és csatlakozik-e a felhőszolgáltatásokhoz."
+        },
+        "not_supported_by_program": {
+            "message": "A(z) {attr} nem módosítható: a jelenlegi {program} program nem támogatja."
+        },
+        "control_locked": {
+            "message": "A(z) {attr} zárolva van a(z) {value} értéknél a(z) {program} programban."
+        },
+        "food_probe_not_inserted": {
+            "message": "A célhőmérséklet beállításához élelmiszerszondát kell behelyezni."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Az ételszonda hőmérsékletét a {program} program nem támogatja."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Az élelmiszerszonda hőmérséklete {érték}°C-on zárolva van a {program} programban."
+        },
+        "value_below_minimum": {
+            "message": "Az {value} érték a {attr} minimális {min_val} értéke alatt van."
+        },
+        "value_above_maximum": {
+            "message": "Az {value} érték meghaladja a {attr} maximális {max_val} értékét."
+        },
+        "invalid_option": {
+            "message": "Érvénytelen opció van kiválasztva."
+        },
+        "invalid_preset_mode": {
+            "message": "Érvénytelen előre beállított mód {mode}. Rendelkezésre álló módok: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "A beállítás nem módosítható: a készülék állapota nem teljes. Kérjük, várja meg, amíg a készülék inicializálódik."
+        },
+        "remote_control_disabled": {
+            "message": "A távirányító le van tiltva ennél a készüléknél. Kérjük, engedélyezze a készülék kezelőpaneljén."
+        },
+        "appliance_disconnected": {
+            "message": "A készülék le van választva, vagy nem elérhető. Ellenőrizze a készülék hálózati csatlakozását."
+        },
+        "command_rate_limited": {
+            "message": "Túl sok parancs lett elküldve. Kérjük, várjon egy kicsit, és próbálja újra."
+        },
+        "command_not_accepted": {
+            "message": "A készülék nem fogadta el a parancsot. Ellenőrizze, hogy a készülék támogatja-e ezt a műveletet."
+        },
+        "type_mismatch": {
+            "message": "Integrációs hiba: a(z) {attr} adattípusa nem egyezik. Várható logikai érték."
         }
     }
 }

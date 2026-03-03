@@ -21,6 +21,15 @@
                     "access_token": "Piekļuves marķieris",
                     "refresh_token": "Atsvaidzināt marķieri"
                 }
+            },
+            "reconfigure": {
+                "title": "Pārkonfigurējiet Electrolux",
+                "description": "Atjauniniet savus Electrolux API akreditācijas datus.\n\nApmeklējiet vietni {url}, lai ģenerētu jaunus marķierus.",
+                "data": {
+                    "api_key": "API atslēga",
+                    "access_token": "Piekļuves marķieris",
+                    "refresh_token": "Atsvaidzināt marķieri"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Ir atļauta tikai viena Electrolux konfigurācija.",
             "already_configured": "Šī ierīce jau ir konfigurēta.",
             "already_configured_account": "Šī API atslēga jau ir konfigurēta.",
+            "entry_not_found": "Konfigurācijas ierakstu nevarēja atrast.",
             "reconfigure_successful": "Atkārtota konfigurācija bija veiksmīga."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfigurācijas ierakstu nevarēja atrast."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Ierīce ir bezsaistē (pašreizējais stāvoklis: {state}). Lūdzu, pārbaudiet, vai ierīce ir pievienota, tai ir tīkla savienojums un vai tā ir savienota ar mākoņpakalpojumiem."
+        },
+        "not_supported_by_program": {
+            "message": "Nevar mainīt {attr}: pašreizējā programma {program} neatbalsta."
+        },
+        "control_locked": {
+            "message": "Programma {attr} ir bloķēta ar vērtību {value} programmai {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Lai iestatītu mērķa temperatūru, ir jāievieto pārtikas zonde."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Programma {program} neatbalsta pārtikas zondes temperatūru."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Pārtikas zondes temperatūra programmai {program} ir bloķēta pie {value}°C."
+        },
+        "value_below_minimum": {
+            "message": "Vērtība {value} ir mazāka par minimālo {min_val} vērtību {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Vērtība {value} pārsniedz maksimālo {max_val} vērtību {attr}."
+        },
+        "invalid_option": {
+            "message": "Atlasīta nederīga opcija."
+        },
+        "invalid_preset_mode": {
+            "message": "Nederīgs iepriekš iestatītais režīms {mode}. Pieejamie režīmi: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nevar mainīt iestatījumu: ierīces stāvoklis ir nepilnīgs. Lūdzu, uzgaidiet, līdz ierīce tiek inicializēta."
+        },
+        "remote_control_disabled": {
+            "message": "Šai ierīcei ir atspējota tālvadības pults. Lūdzu, iespējojiet to ierīces vadības panelī."
+        },
+        "appliance_disconnected": {
+            "message": "Ierīce ir atvienota vai nav pieejama. Pārbaudiet ierīces tīkla savienojumu."
+        },
+        "command_rate_limited": {
+            "message": "Nosūtīts pārāk daudz komandu. Lūdzu, uzgaidiet brīdi un mēģiniet vēlreiz."
+        },
+        "command_not_accepted": {
+            "message": "Ierīce nepieņēma komandu. Pārbaudiet, vai ierīce atbalsta šo darbību."
+        },
+        "type_mismatch": {
+            "message": "Integrācijas kļūda: datu veida neatbilstība {attr}. Paredzētais Būla vērtība."
         }
     }
 }

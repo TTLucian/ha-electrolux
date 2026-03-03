@@ -15,7 +15,16 @@
             },
             "reauth_validate": {
                 "title": "Iš naujo patvirtinkite Electrolux",
-                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naudodami naujus žetonus iš Electrolux kūrėjų portalo.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
+                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naujais žetonais iš Electrolux kūrėjų portalo.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
+                "data": {
+                    "api_key": "API raktas",
+                    "access_token": "Prieigos prieigos raktas",
+                    "refresh_token": "Atnaujinti žetoną"
+                }
+            },
+            "reconfigure": {
+                "title": "Iš naujo sukonfigūruokite „Electrolux“.",
+                "description": "Atnaujinkite savo Electrolux API kredencialus.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Leidžiama tik viena Electrolux konfigūracija.",
             "already_configured": "Šis įrenginys jau sukonfigūruotas.",
             "already_configured_account": "Šis API raktas jau sukonfigūruotas.",
+            "entry_not_found": "Nepavyko rasti konfigūracijos įrašo.",
             "reconfigure_successful": "Iš naujo konfigūruoti pavyko."
         }
     },
@@ -37,7 +47,7 @@
         "step": {
             "user": {
                 "title": "„Electrolux“ parinktys",
-                "description": "Atnaujinkite savo Electrolux API kredencialus, jei jų galiojimo laikas baigėsi.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Atnaujinkite toliau pateiktus laukus\n\n**Saugumo pastaba:** Prieigos prieigos rakto ir Atnaujinimo prieigos rakto laukai tyčia paliekami tušti. Visada generuokite naujus žetonus iš portalo – niekada nenaudokite pakartotinai ir nedalykite esamų žetonų.",
+                "description": "Atnaujinkite savo Electrolux API kredencialus, jei jų galiojimo laikas baigėsi.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Atnaujinkite toliau pateiktus laukus\n\n**Saugumo pastaba:** Prieigos prieigos rakto ir Atnaujinimo prieigos rakto laukai tyčia paliekami tušti. Visada generuokite naujus žetonus iš portalo – niekada nenaudokite ir nedalykite esamų žetonų.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -76,6 +86,56 @@
                     "entry_not_found": "Nepavyko rasti konfigūracijos įrašo."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Prietaisas neprisijungęs (dabartinė būsena: {state}). Patikrinkite, ar prietaisas yra prijungtas prie tinklo, prijungtas prie tinklo ir prie debesies paslaugų."
+        },
+        "not_supported_by_program": {
+            "message": "Negalima pakeisti {attr}: nepalaiko dabartinė programa {program}."
+        },
+        "control_locked": {
+            "message": "Programos {program} {attr} užrakintas {value}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Norint nustatyti tikslinę temperatūrą, reikia įkišti maisto zondą."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Programa {program} nepalaiko maisto zondo temperatūros."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Programos {program} maisto zondo temperatūra užrakinta ties {value}°C."
+        },
+        "value_below_minimum": {
+            "message": "Vertė {value} yra mažesnė už mažiausią {min_val} {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Vertė {value} viršija maksimalią {max_val}, skirtą {attr}."
+        },
+        "invalid_option": {
+            "message": "Pasirinkta netinkama parinktis."
+        },
+        "invalid_preset_mode": {
+            "message": "Neteisingas iš anksto nustatytas režimas {mode}. Galimi režimai: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Negalima pakeisti nustatymo: prietaiso būsena neužbaigta. Palaukite, kol įrenginys pradės veikti."
+        },
+        "remote_control_disabled": {
+            "message": "Šio prietaiso nuotolinio valdymo pultas išjungtas. Įjunkite jį prietaiso valdymo skydelyje."
+        },
+        "appliance_disconnected": {
+            "message": "Prietaisas atjungtas arba nepasiekiamas. Patikrinkite prietaiso tinklo ryšį."
+        },
+        "command_rate_limited": {
+            "message": "Išsiųsta per daug komandų. Šiek tiek palaukite ir bandykite dar kartą."
+        },
+        "command_not_accepted": {
+            "message": "Prietaisas nepriėmė komandos. Patikrinkite, ar prietaisas palaiko šią operaciją."
+        },
+        "type_mismatch": {
+            "message": "Integravimo klaida: {attr} duomenų tipo neatitikimas. Tikimasi Būlio."
         }
     }
 }

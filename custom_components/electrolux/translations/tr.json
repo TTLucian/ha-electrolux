@@ -21,6 +21,15 @@
                     "access_token": "Erişim Jetonu",
                     "refresh_token": "Jetonu Yenile"
                 }
+            },
+            "reconfigure": {
+                "title": "Electrolux'ü yeniden yapılandırın",
+                "description": "Electrolux API kimlik bilgilerinizi güncelleyin.\n\nYeni jetonlar oluşturmak için {url} adresini ziyaret edin.",
+                "data": {
+                    "api_key": "API Anahtarı",
+                    "access_token": "Erişim Jetonu",
+                    "refresh_token": "Jetonu Yenile"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Yalnızca tek bir Electrolux konfigürasyonuna izin verilir.",
             "already_configured": "Bu cihaz zaten yapılandırılmış.",
             "already_configured_account": "Bu API Anahtarı zaten yapılandırılmış.",
+            "entry_not_found": "Yapılandırma girişi bulunamadı.",
             "reconfigure_successful": "Yeniden yapılandırma başarılı oldu."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Yapılandırma girişi bulunamadı."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Cihaz çevrimdışı (mevcut durum: {state}). Lütfen cihazın fişinin takılı olduğundan, ağ bağlantısına sahip olduğundan ve bulut hizmetlerine bağlı olduğundan emin olun."
+        },
+        "not_supported_by_program": {
+            "message": "{attr} değiştirilemiyor: geçerli program {program} tarafından desteklenmiyor."
+        },
+        "control_locked": {
+            "message": "{attr}, {program} programı için {value}'da kilitlendi."
+        },
+        "food_probe_not_inserted": {
+            "message": "Hedef sıcaklığı ayarlamak için yemek termometresinin takılması gerekir."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Yiyecek termometresi sıcaklığı {program} programı tarafından desteklenmiyor."
+        },
+        "food_probe_locked_by_program": {
+            "message": "{program} programı için gıda termometresi sıcaklığı {value}°C'de kilitlendi."
+        },
+        "value_below_minimum": {
+            "message": "{value} değeri, {attr} için minimum {min_val} değerinin altında."
+        },
+        "value_above_maximum": {
+            "message": "{value} değeri, {attr} için maksimum {max_val} değerinin üzerinde."
+        },
+        "invalid_option": {
+            "message": "Geçersiz seçenek seçildi."
+        },
+        "invalid_preset_mode": {
+            "message": "Geçersiz ön ayar modu {mode}. Kullanılabilir modlar: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Ayar değiştirilemiyor: Cihaz durumu eksik. Lütfen cihazın başlatılmasını bekleyin."
+        },
+        "remote_control_disabled": {
+            "message": "Bu cihaz için uzaktan kumanda devre dışı bırakıldı. Lütfen cihazın kontrol panelinde etkinleştirin."
+        },
+        "appliance_disconnected": {
+            "message": "Cihazın bağlantısı kesilmiş veya kullanılamıyor. Cihazın ağ bağlantısını kontrol edin."
+        },
+        "command_rate_limited": {
+            "message": "Çok fazla komut gönderildi. Lütfen biraz bekleyip tekrar deneyin."
+        },
+        "command_not_accepted": {
+            "message": "Komut cihaz tarafından kabul edilmedi. Cihazın bu işlemi desteklediğini kontrol edin."
+        },
+        "type_mismatch": {
+            "message": "Entegrasyon hatası: {attr} için veri türü uyuşmazlığı. Beklenen Boolean."
         }
     }
 }

@@ -21,6 +21,15 @@
                     "access_token": "Prístupový token",
                     "refresh_token": "Obnoviť token"
                 }
+            },
+            "reconfigure": {
+                "title": "Prekonfigurujte Electrolux",
+                "description": "Aktualizujte svoje poverenia Electrolux API.\n\nAk chcete vygenerovať nové tokeny, navštívte stránku {url}.",
+                "data": {
+                    "api_key": "API kľúč",
+                    "access_token": "Prístupový token",
+                    "refresh_token": "Obnoviť token"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Je povolená iba jedna konfigurácia Electrolux.",
             "already_configured": "Toto zariadenie je už nakonfigurované.",
             "already_configured_account": "Tento kľúč API je už nakonfigurovaný.",
+            "entry_not_found": "Konfiguračný záznam sa nepodarilo nájsť.",
             "reconfigure_successful": "Opätovná konfigurácia bola úspešná."
         }
     },
@@ -49,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
+            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
         }
     },
     "issues": {
@@ -68,7 +78,7 @@
                     }
                 },
                 "error": {
-                    "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token.",
+                    "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token.",
                     "invalid_format": "Neplatný formát poverení. Uistite sa, že sú všetky polia vyplnené správne.",
                     "entry_not_found": "Záznam konfigurácie sa nenašiel."
                 },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfiguračný záznam sa nepodarilo nájsť."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Zariadenie je offline (aktuálny stav: {state}). Skontrolujte, či je zariadenie zapojené, či má sieťové pripojenie a či je pripojené ku cloudovým službám."
+        },
+        "not_supported_by_program": {
+            "message": "Nie je možné zmeniť {attr}: nie je podporované aktuálnym programom {program}."
+        },
+        "control_locked": {
+            "message": "{attr} je uzamknutý na {value} pre program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Na nastavenie cieľovej teploty je potrebné vložiť potravinovú sondu."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Teplota potravinovej sondy nie je podporovaná programom {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Teplota potravinovej sondy je uzamknutá na {hodnota}°C pre program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Hodnota {value} je nižšia ako minimum {min_val} pre {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Hodnota {value} je vyššia ako maximálna hodnota {max_val} pre {attr}."
+        },
+        "invalid_option": {
+            "message": "Bola vybratá neplatná možnosť."
+        },
+        "invalid_preset_mode": {
+            "message": "Neplatný prednastavený režim {mode}. Dostupné režimy: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nie je možné zmeniť nastavenie: stav spotrebiča je neúplný. Počkajte, kým sa zariadenie inicializuje."
+        },
+        "remote_control_disabled": {
+            "message": "Diaľkové ovládanie je pre tento spotrebič deaktivované. Aktivujte ho na ovládacom paneli spotrebiča."
+        },
+        "appliance_disconnected": {
+            "message": "Spotrebič je odpojený alebo nedostupný. Skontrolujte sieťové pripojenie spotrebiča."
+        },
+        "command_rate_limited": {
+            "message": "Bolo odoslaných príliš veľa príkazov. Chvíľu počkajte a skúste to znova."
+        },
+        "command_not_accepted": {
+            "message": "Spotrebič neprijal príkaz. Skontrolujte, či spotrebič podporuje túto operáciu."
+        },
+        "type_mismatch": {
+            "message": "Chyba integrácie: nezhoda typu údajov pre {attr}. Očakávaná logická hodnota."
         }
     }
 }

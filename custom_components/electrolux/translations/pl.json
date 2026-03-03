@@ -21,6 +21,15 @@
                     "access_token": "Token dostępu",
                     "refresh_token": "Odśwież token"
                 }
+            },
+            "reconfigure": {
+                "title": "Skonfiguruj ponownie Electroluxa",
+                "description": "Zaktualizuj swoje dane uwierzytelniające Electrolux API.\n\nOdwiedź {url}, aby wygenerować nowe tokeny.",
+                "data": {
+                    "api_key": "Klucz API",
+                    "access_token": "Token dostępu",
+                    "refresh_token": "Odśwież token"
+                }
             }
         },
         "error": {
@@ -28,8 +37,9 @@
         },
         "abort": {
             "single_instance_allowed": "Dozwolona jest tylko jedna konfiguracja firmy Electrolux.",
-            "already_configured": "This device is already configured.",
+            "already_configured": "To urządzenie jest już skonfigurowane.",
             "already_configured_account": "Ten klucz API jest już skonfigurowany.",
+            "entry_not_found": "Nie można znaleźć wpisu konfiguracji.",
             "reconfigure_successful": "Ponowna konfiguracja przebiegła pomyślnie."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Nie można znaleźć wpisu konfiguracji."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Urządzenie jest w trybie offline (bieżący stan: {stan}). Sprawdź, czy urządzenie jest podłączone do prądu, ma połączenie z siecią i jest połączone z usługami w chmurze."
+        },
+        "not_supported_by_program": {
+            "message": "Nie można zmienić {attr}: nie jest obsługiwane przez bieżący program {program}."
+        },
+        "control_locked": {
+            "message": "{attr} jest zablokowany na {value} dla programu {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Aby ustawić temperaturę docelową, należy włożyć sondę do żywności."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Temperatura czujnika temperatury żywności nie jest obsługiwana przez program {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Temperatura czujnika żywności jest zablokowana na poziomie {wartość}°C dla programu {program}."
+        },
+        "value_below_minimum": {
+            "message": "Wartość {value} jest poniżej minimalnej wartości {min_val} dla {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Wartość {value} przekracza maksymalną wartość {max_val} dla {attr}."
+        },
+        "invalid_option": {
+            "message": "Wybrano nieprawidłową opcję."
+        },
+        "invalid_preset_mode": {
+            "message": "Nieprawidłowy tryb ustawień wstępnych {mode}. Dostępne tryby: {tryby}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nie można zmienić ustawienia: stan urządzenia jest niekompletny. Poczekaj na inicjalizację urządzenia."
+        },
+        "remote_control_disabled": {
+            "message": "Zdalne sterowanie jest wyłączone dla tego urządzenia. Proszę włączyć tę opcję na panelu sterowania urządzenia."
+        },
+        "appliance_disconnected": {
+            "message": "Urządzenie jest odłączone lub niedostępne. Sprawdź połączenie sieciowe urządzenia."
+        },
+        "command_rate_limited": {
+            "message": "Wysłano zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie."
+        },
+        "command_not_accepted": {
+            "message": "Polecenie nie zostało zaakceptowane przez urządzenie. Sprawdź, czy urządzenie obsługuje tę operację."
+        },
+        "type_mismatch": {
+            "message": "Błąd integracji: niezgodność typu danych dla {attr}. Oczekiwano wartości logicznej."
         }
     }
 }

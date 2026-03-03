@@ -21,6 +21,15 @@
                     "access_token": "Token de acesso",
                     "refresh_token": "Atualizar token"
                 }
+            },
+            "reconfigure": {
+                "title": "Reconfigurar Electrolux",
+                "description": "Atualize suas credenciais da API Electrolux.\n\nVisite {url} para gerar novos tokens.",
+                "data": {
+                    "api_key": "Chave de API",
+                    "access_token": "Token de acesso",
+                    "refresh_token": "Atualizar token"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Apenas uma única configuração Electrolux é permitida.",
             "already_configured": "Este dispositivo já está configurado.",
             "already_configured_account": "Esta chave de API já está configurada.",
+            "entry_not_found": "A entrada de configuração não foi encontrada.",
             "reconfigure_successful": "A reconfiguração foi bem-sucedida."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "A entrada de configuração não foi encontrada."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "O dispositivo está off-line (estado atual: {state}). Verifique se o dispositivo está conectado, tem conectividade de rede e conectado aos serviços de nuvem."
+        },
+        "not_supported_by_program": {
+            "message": "Não é possível alterar {attr}: não é compatível com o programa atual {program}."
+        },
+        "control_locked": {
+            "message": "{attr} está bloqueado em {value} para o programa {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "A sonda de alimentos deve ser inserida para definir a temperatura alvo."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "A temperatura da sonda de alimentos não é suportada pelo programa {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "A temperatura da sonda de alimentos está bloqueada em {value}°C para o programa {program}."
+        },
+        "value_below_minimum": {
+            "message": "O valor {value} está abaixo do mínimo {min_val} para {attr}."
+        },
+        "value_above_maximum": {
+            "message": "O valor {value} está acima do máximo {max_val} para {attr}."
+        },
+        "invalid_option": {
+            "message": "Opção inválida selecionada."
+        },
+        "invalid_preset_mode": {
+            "message": "Modo predefinido {mode} inválido. Modos disponíveis: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Não é possível alterar a configuração: o estado do aparelho está incompleto. Aguarde a inicialização do aparelho."
+        },
+        "remote_control_disabled": {
+            "message": "O controle remoto está desativado para este aparelho. Ative-o no painel de controle do aparelho."
+        },
+        "appliance_disconnected": {
+            "message": "O aparelho está desligado ou indisponível. Verifique a conexão de rede do aparelho."
+        },
+        "command_rate_limited": {
+            "message": "Muitos comandos enviados. Aguarde um momento e tente novamente."
+        },
+        "command_not_accepted": {
+            "message": "Comando não aceito pelo aparelho. Verifique se o aparelho suporta esta operação."
+        },
+        "type_mismatch": {
+            "message": "Erro de integração: incompatibilidade de tipo de dados para {attr}. Booleano esperado."
         }
     }
 }

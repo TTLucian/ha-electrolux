@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Electrolux oppsett",
-                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**For å få API-legitimasjon:**\n1. Gå til {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
+                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**Slik får du API-legitimasjon:**\n1. Gå til {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
                 "data": {
                     "api_key": "API-nøkkel",
                     "access_token": "Tilgangstoken",
@@ -21,15 +21,25 @@
                     "access_token": "Tilgangstoken",
                     "refresh_token": "Oppdater token"
                 }
+            },
+            "reconfigure": {
+                "title": "Konfigurer Electrolux på nytt",
+                "description": "Oppdater din Electrolux API-legitimasjon.\n\nBesøk {url} for å generere nye tokens.",
+                "data": {
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token"
+                }
             }
         },
         "error": {
-            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken fra Electrolux utviklerportal."
+            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk din API-nøkkel, tilgangstoken og oppdateringstoken fra Electrolux utviklerportal."
         },
         "abort": {
             "single_instance_allowed": "Kun én enkelt Electrolux-konfigurasjon er tillatt.",
             "already_configured": "Denne enheten er allerede konfigurert.",
             "already_configured_account": "Denne API-nøkkelen er allerede konfigurert.",
+            "entry_not_found": "Konfigurasjonsoppføringen ble ikke funnet.",
             "reconfigure_successful": "Re-konfigurasjonen var vellykket."
         }
     },
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfigurasjonsoppføringen ble ikke funnet."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Enheten er frakoblet (nåværende tilstand: {state}). Kontroller at apparatet er koblet til, har nettverkstilkobling og er koblet til skytjenester."
+        },
+        "not_supported_by_program": {
+            "message": "Kan ikke endre {attr}: støttes ikke av gjeldende program {program}."
+        },
+        "control_locked": {
+            "message": "{attr} er låst til {value} for program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Matsonde må settes inn for å stille inn måltemperatur."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Matsondetemperatur støttes ikke av programmet {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Matsondetemperaturen er låst til {value}°C for program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Verdien {value} er under minimumsverdien {min_val} for {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Verdien {value} er over maksimumsverdien {max_val} for {attr}."
+        },
+        "invalid_option": {
+            "message": "Ugyldig alternativ er valgt."
+        },
+        "invalid_preset_mode": {
+            "message": "Ugyldig forhåndsinnstilt modus {modus}. Tilgjengelige moduser: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kan ikke endre innstilling: apparatets tilstand er ufullstendig. Vent til apparatet initialiseres."
+        },
+        "remote_control_disabled": {
+            "message": "Fjernkontrollen er deaktivert for dette apparatet. Aktiver den på apparatets kontrollpanel."
+        },
+        "appliance_disconnected": {
+            "message": "Apparatet er frakoblet eller ikke tilgjengelig. Sjekk apparatets nettverkstilkobling."
+        },
+        "command_rate_limited": {
+            "message": "For mange kommandoer sendt. Vent et øyeblikk og prøv igjen."
+        },
+        "command_not_accepted": {
+            "message": "Kommandoen godtas ikke av apparatet. Kontroller at apparatet støtter denne operasjonen."
+        },
+        "type_mismatch": {
+            "message": "Integrasjonsfeil: datatype stemmer ikke overens for {attr}. Forventet boolsk."
         }
     }
 }

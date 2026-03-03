@@ -21,6 +21,15 @@
                     "access_token": "Access Token",
                     "refresh_token": "Uppdatera token"
                 }
+            },
+            "reconfigure": {
+                "title": "Konfigurera om Electrolux",
+                "description": "Uppdatera dina Electrolux API-uppgifter.\n\nBesök {url} för att generera nya tokens.",
+                "data": {
+                    "api_key": "API-nyckel",
+                    "access_token": "Access Token",
+                    "refresh_token": "Uppdatera token"
+                }
             }
         },
         "error": {
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Endast en enda Electrolux-konfiguration är tillåten.",
             "already_configured": "Den här enheten är redan konfigurerad.",
             "already_configured_account": "Denna API-nyckel är redan konfigurerad.",
+            "entry_not_found": "Konfigurationsposten kunde inte hittas.",
             "reconfigure_successful": "Omkonfigurationen lyckades."
         }
     },
@@ -37,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Electrolux tillval",
-                "description": "Uppdatera dina Electrolux API-uppgifter om de har gått ut.\n\n**Så här genererar du nya autentiseringsuppgifter:**\n1. Besök {url}\n2. Skapa ny API-nyckel, åtkomsttoken och uppdateringstoken\n3. Uppdatera fälten nedan\n\n**Säkerhetsnotering:** Fälten för åtkomsttoken och uppdateringstoken lämnas avsiktligt tomma. Generera alltid nya tokens från portalen – återanvänd eller dela aldrig befintliga tokens.",
+                "description": "Uppdatera dina Electrolux API-uppgifter om de har gått ut.\n\n**Så här genererar du nya autentiseringsuppgifter:**\n1. Besök {url}\n2. Skapa ny API-nyckel, åtkomsttoken och uppdateringstoken\n3. Uppdatera fälten nedan\n\n**Säkerhetsnotering:** Fälten Access Token och Refresh Token lämnas avsiktligt tomma. Generera alltid nya tokens från portalen – återanvänd eller dela aldrig befintliga tokens.",
                 "data": {
                     "api_key": "API-nyckel",
                     "access_token": "Access Token",
@@ -76,6 +86,56 @@
                     "entry_not_found": "Konfigurationsposten kunde inte hittas."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Apparaten är offline (nuvarande tillstånd: {state}). Kontrollera att apparaten är inkopplad, har nätverksanslutning och är ansluten till molntjänster."
+        },
+        "not_supported_by_program": {
+            "message": "Kan inte ändra {attr}: stöds inte av det aktuella programmet {program}."
+        },
+        "control_locked": {
+            "message": "{attr} är låst till {value} för programmet {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Matsonden måste sättas in för att ställa in måltemperaturen."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Matsondens temperatur stöds inte av programmet {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Matsondens temperatur är låst till {värde}°C för program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Värdet {value} är under det lägsta {min_val} för {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Värdet {value} är över det maximala {max_val} för {attr}."
+        },
+        "invalid_option": {
+            "message": "Ogiltigt alternativ valt."
+        },
+        "invalid_preset_mode": {
+            "message": "Ogiltigt förinställt läge {läge}. Tillgängliga lägen: {lägen}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kan inte ändra inställning: apparatens tillstånd är ofullständigt. Vänta tills apparaten initieras."
+        },
+        "remote_control_disabled": {
+            "message": "Fjärrkontrollen är inaktiverad för denna apparat. Aktivera det på apparatens kontrollpanel."
+        },
+        "appliance_disconnected": {
+            "message": "Apparaten är frånkopplad eller inte tillgänglig. Kontrollera apparatens nätverksanslutning."
+        },
+        "command_rate_limited": {
+            "message": "För många kommandon skickade. Vänta ett ögonblick och försök igen."
+        },
+        "command_not_accepted": {
+            "message": "Kommandot accepteras inte av apparaten. Kontrollera att apparaten stöder denna operation."
+        },
+        "type_mismatch": {
+            "message": "Integreringsfel: datatyp matchar inte för {attr}. Förväntat booleskt."
         }
     }
 }
