@@ -15,7 +15,16 @@
             },
             "reauth_validate": {
                 "title": "Ponovno provjerite autentičnost Electroluxa",
-                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s portala za razvojne programere Electrolux.\n\nPosjetite {url} za generiranje novih tokena.",
+                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s Electroluxovog portala za razvojne programere.\n\nPosjetite {url} za generiranje novih tokena.",
+                "data": {
+                    "api_key": "API ključ",
+                    "access_token": "Pristupni token",
+                    "refresh_token": "Osvježi token"
+                }
+            },
+            "reconfigure": {
+                "title": "Ponovno konfigurirajte Electrolux",
+                "description": "Ažurirajte svoje Electrolux API vjerodajnice.\n\nPosjetite {url} za generiranje novih tokena.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Pristupni token",
@@ -30,6 +39,7 @@
             "single_instance_allowed": "Dopuštena je samo jedna Electrolux konfiguracija.",
             "already_configured": "Ovaj uređaj je već konfiguriran.",
             "already_configured_account": "Ovaj API ključ je već konfiguriran.",
+            "entry_not_found": "Unos konfiguracije nije pronađen.",
             "reconfigure_successful": "Ponovna konfiguracija je bila uspješna."
         }
     },
@@ -59,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Ažurirajte Electrolux API vjerodajnice",
-                        "description": "Vaši Electrolux API tokeni su istekli i automatsko osvježavanje nije uspjelo. Unesite nove vjerodajnice s Electroluxovog portala za razvojne programere kako biste vratili funkcionalnost.\n\n**Za generiranje novih vjerodajnica:**\n1. Posjetite {url}\n2. Generirajte novi API ključ, pristupni token i token za osvježavanje\n3. Enter them below",
+                        "description": "Vaši Electrolux API tokeni su istekli i automatsko osvježavanje nije uspjelo. Unesite nove vjerodajnice s Electroluxovog portala za razvojne programere kako biste vratili funkcionalnost.\n\n**Za generiranje novih vjerodajnica:**\n1. Posjetite {url}\n2. Generirajte novi API ključ, pristupni token i token za osvježavanje\n3. Unesite ih ispod",
                         "data": {
                             "api_key": "API ključ",
                             "access_token": "Pristupni token",
@@ -76,6 +86,56 @@
                     "entry_not_found": "Unos konfiguracije nije pronađen."
                 }
             }
+        }
+    },
+    "exceptions": {
+        "appliance_offline": {
+            "message": "Uređaj je izvan mreže (trenutno stanje: {state}). Provjerite je li uređaj priključen, ima li mrežnu vezu i je li povezan s uslugama u oblaku."
+        },
+        "not_supported_by_program": {
+            "message": "Nije moguće promijeniti {attr}: ne podržava trenutni program {program}."
+        },
+        "control_locked": {
+            "message": "{attr} je zaključan na {value} za program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Za postavljanje ciljne temperature mora se umetnuti sonda za hranu."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Program {program} ne podržava temperaturu sonde za hranu."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Temperatura sonde za hranu je zaključana na {value}°C za program {program}."
+        },
+        "value_below_minimum": {
+            "message": "Vrijednost {value} ispod je minimalne {min_val} za {attr}."
+        },
+        "value_above_maximum": {
+            "message": "Vrijednost {value} je iznad maksimalnog {max_val} za {attr}."
+        },
+        "invalid_option": {
+            "message": "Odabrana je nevažeća opcija."
+        },
+        "invalid_preset_mode": {
+            "message": "Nevažeći unaprijed postavljeni način rada {mode}. Dostupni modovi: {modes}."
+        },
+        "appliance_state_incomplete": {
+            "message": "Nije moguće promijeniti postavku: stanje uređaja je nepotpuno. Pričekajte da se uređaj pokrene."
+        },
+        "remote_control_disabled": {
+            "message": "Daljinsko upravljanje je onemogućeno za ovaj uređaj. Omogućite ga na upravljačkoj ploči uređaja."
+        },
+        "appliance_disconnected": {
+            "message": "Aparat je isključen ili nije dostupan. Provjerite mrežnu vezu uređaja."
+        },
+        "command_rate_limited": {
+            "message": "Poslano je previše naredbi. Pričekajte trenutak i pokušajte ponovno."
+        },
+        "command_not_accepted": {
+            "message": "Uređaj ne prihvaća naredbu. Provjerite podržava li uređaj ovu operaciju."
+        },
+        "type_mismatch": {
+            "message": "Pogreška integracije: nepodudaranje tipa podataka za {attr}. Očekivani Booleov."
         }
     }
 }
