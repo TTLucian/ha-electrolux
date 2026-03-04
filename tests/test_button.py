@@ -194,7 +194,7 @@ class TestElectroluxButton:
         await entity.async_press()
 
         entity.api.execute_appliance_command.assert_called_once_with(
-            "TEST_PNC", {"testAttr": "PRESS"}
+            "TEST_PNC", {"userSelections": {"testAttr": "PRESS"}}
         )
 
     @pytest.mark.asyncio

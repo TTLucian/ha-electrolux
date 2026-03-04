@@ -300,7 +300,7 @@ class TestElectroluxText:
 
         entity.api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC",
-            {"testAttr": "new value"},
+            {"userSelections": {"testAttr": "new value"}},
         )
 
     @pytest.mark.asyncio
