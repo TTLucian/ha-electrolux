@@ -387,8 +387,12 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity):
 
         command: dict[str, Any]
         if not self.is_dam_appliance:
-            # Legacy appliances: simple top-level property
-            command = {attr: command_value}
+            # Legacy appliances: send as top-level property, but respect entity_source
+            # when the capability key has a slash.
+            if self.entity_source:
+                command = {self.entity_source: {attr: command_value}}
+            else:
+                command = {attr: command_value}
         else:
             # DAM appliances: wrapped in commands array
             command = {

@@ -11,5 +11,5 @@
   "requirements": [
     "electrolux-group-developer-sdk>=0.2.0"
   ],
-  "version": "3.4.7"
+  "version": "3.4.8"
 }
