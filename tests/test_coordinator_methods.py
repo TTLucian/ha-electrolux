@@ -1,6 +1,7 @@
 """Tests for ElectroluxCoordinator methods - increasing coordinator coverage."""
 
 import asyncio
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -95,6 +96,20 @@ def _make_appliance(app_id: str = "app1", connectivity: str = "connected") -> Ma
     ap.pnc_id = app_id
     ap.reported_state = {}
     ap.state = {"connectivityState": connectivity}
+
+    def get_state_impl(attr_name: str):
+        """Replicate Appliance.get_state() for slash-separated paths."""
+        keys = attr_name.split("/")
+        result = ap.reported_state
+        for key in keys:
+            if not isinstance(result, dict):
+                return None
+            result = result.get(key)
+            if result is None:
+                return None
+        return result
+
+    ap.get_state.side_effect = get_state_impl
     return ap
 
 
@@ -483,7 +498,9 @@ class TestProcessBulkUpdate:
 
 
 class TestProcessIncrementalUpdate:
-    def _make_data(self, app_id="app1", prop="opMode", value="auto"):
+    def _make_data(
+        self, app_id: str = "app1", prop: str = "opMode", value: Any = "auto"
+    ):
         return {APPLIANCE_ID_KEY: app_id, PROPERTY_KEY: prop, VALUE_KEY: value}
 
     def test_updates_appliance_on_changed_value(self, coordinator):
@@ -496,7 +513,9 @@ class TestProcessIncrementalUpdate:
             self._make_data("app1", "opMode", "auto"), aps
         )
 
-        ap.update_reported_data.assert_called_once_with({"opMode": "auto"})
+        ap.update_reported_data.assert_called_once_with(
+            {"property": "opMode", "value": "auto"}
+        )
         coordinator.async_set_updated_data.assert_called_once()
 
     def test_skips_duplicate_value(self, coordinator):
@@ -507,6 +526,36 @@ class TestProcessIncrementalUpdate:
 
         coordinator._process_incremental_update(
             self._make_data("app1", "opMode", "auto"), aps
+        )
+
+        ap.update_reported_data.assert_not_called()
+
+    def test_updates_nested_path_correctly(self, coordinator):
+        """SSE property 'upperOven/runningTime' must be passed as {"property": ..., "value": ...}
+        so update_reported_data writes it nested, not as a flat key with a slash."""
+        ap = _make_appliance("app1")
+        ap.reported_state = {"upperOven": {"runningTime": 0, "doorState": "CLOSED"}}
+        aps = _make_appliances({"app1": ap})
+        coordinator.async_set_updated_data = MagicMock()
+
+        coordinator._process_incremental_update(
+            self._make_data("app1", "upperOven/runningTime", 120), aps
+        )
+
+        ap.update_reported_data.assert_called_once_with(
+            {"property": "upperOven/runningTime", "value": 120}
+        )
+        coordinator.async_set_updated_data.assert_called_once()
+
+    def test_skips_duplicate_nested_value(self, coordinator):
+        """Duplicate check must look up nested state, not a flat key."""
+        ap = _make_appliance("app1")
+        ap.reported_state = {"upperOven": {"doorState": "CLOSED"}}
+        aps = _make_appliances({"app1": ap})
+        coordinator.async_set_updated_data = MagicMock()
+
+        coordinator._process_incremental_update(
+            self._make_data("app1", "upperOven/doorState", "CLOSED"), aps
         )
 
         ap.update_reported_data.assert_not_called()

@@ -462,7 +462,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             return
 
         # Check if value actually changed (Electrolux SSE sometimes sends duplicates)
-        old_value = appliance.reported_state.get(data[PROPERTY_KEY])
+        # Use get_state() to handle nested paths like "upperOven/runningTime"
+        old_value = appliance.get_state(data[PROPERTY_KEY])
         new_value = data[VALUE_KEY]
         value_changed = old_value != new_value
 
@@ -475,7 +476,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             return
 
         try:
-            appliance.update_reported_data({data[PROPERTY_KEY]: data[VALUE_KEY]})
+            # Use {"property": ..., "value": ...} format so update_reported_data correctly
+            # handles nested paths like "upperOven/runningTime" via its nested-write logic
+            appliance.update_reported_data(
+                {"property": data[PROPERTY_KEY], "value": data[VALUE_KEY]}
+            )
         except (KeyError, ValueError, TypeError) as ex:
             _LOGGER.error(
                 f"Data validation error updating incremental data for appliance {appliance_id}: {ex}"

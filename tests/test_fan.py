@@ -546,10 +546,16 @@ class TestSendCommand:
 
     @pytest.mark.asyncio
     async def test_send_command_dam_with_entity_source(self):
+        # entity_source="someSource", attr_name="nestedMode" is NOT a top-level cap
+        # → should wrap: {"someSource": {"nestedMode": "Auto"}} in commands
         fan = _make_fan(is_dam=True, entity_source="someSource")
         fan.api = MagicMock()
         fan.appliance_status = {
-            "capabilities": _make_capability_workmode(),
+            # Only Workmode and Fanspeed in top-level caps; "nestedMode" is absent
+            "capabilities": {
+                "Fanspeed": _make_capability_fanspeed(),
+                "Workmode": _make_capability_workmode(),
+            },
             "properties": {"reported": {}},
         }
         fan._apply_optimistic_update = MagicMock()
@@ -562,12 +568,63 @@ class TestSendCommand:
             "custom_components.electrolux.fan.execute_command_with_error_handling",
             new_callable=AsyncMock,
         ) as mock_exec:
-            await fan._send_command("Workmode", "Auto", cap)
+            await fan._send_command("nestedMode", "Auto", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
         inner = cmd_arg["commands"][0]
         assert "someSource" in inner
-        assert inner["someSource"] == {"Workmode": "Auto"}
+        assert inner["someSource"] == {"nestedMode": "Auto"}
+
+    @pytest.mark.asyncio
+    async def test_send_command_purifier_workmode_fan_flat_command(self):
+        """Regression test: Workmode/fan entity (entity_source='Workmode') must send
+        {"Workmode": mode} NOT {"Workmode": {"Workmode": mode}} on legacy appliances.
+        This was broken by the v3.4.8 entity_source wrapping fix."""
+        fan = _make_fan(is_dam=False, entity_source="Workmode")
+        fan.api = MagicMock()
+        fan._apply_optimistic_update = MagicMock()
+        # Workmode IS a top-level capability in appliance_status (set by _make_fan)
+
+        cap = {"access": "readwrite", "type": "string"}
+        with patch(
+            "custom_components.electrolux.fan.format_command_for_appliance",
+            return_value="Manual",
+        ), patch(
+            "custom_components.electrolux.fan.execute_command_with_error_handling",
+            new_callable=AsyncMock,
+        ) as mock_exec:
+            await fan._send_command("Workmode", "Manual", cap)
+
+        cmd_arg = mock_exec.call_args[0][2]
+        # Must be flat {"Workmode": "Manual"}, NOT double-nested {"Workmode": {"Workmode": ...}}
+        assert cmd_arg == {"Workmode": "Manual"}
+
+    @pytest.mark.asyncio
+    async def test_send_command_legacy_namespace_wraps_sub_capability(self):
+        """entity_source='upperOven', attr_name='executeCommand' is NOT a top-level cap
+        → legacy device wraps: {"upperOven": {"executeCommand": "START"}}."""
+        fan = _make_fan(is_dam=False, entity_source="upperOven")
+        fan.api = MagicMock()
+        fan._apply_optimistic_update = MagicMock()
+        # Override appliance_status with only upperOven in capabilities
+        # ("executeCommand" is absent at top level — it's a sub-key of upperOven)
+        fan.appliance_status = {
+            "capabilities": {"upperOven": {"access": "read"}},
+            "properties": {"reported": {}},
+        }
+
+        cap = {"access": "readwrite", "type": "string"}
+        with patch(
+            "custom_components.electrolux.fan.format_command_for_appliance",
+            return_value="START",
+        ), patch(
+            "custom_components.electrolux.fan.execute_command_with_error_handling",
+            new_callable=AsyncMock,
+        ) as mock_exec:
+            await fan._send_command("executeCommand", "START", cap)
+
+        cmd_arg = mock_exec.call_args[0][2]
+        assert cmd_arg == {"upperOven": {"executeCommand": "START"}}
 
     @pytest.mark.asyncio
     async def test_send_command_auth_error_triggers_reauth(self):

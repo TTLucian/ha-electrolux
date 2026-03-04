@@ -382,9 +382,12 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
         command: dict[str, Any]
         if not self.is_dam_appliance:
-            # Legacy appliances: send as top-level property, but respect entity_source
-            # when the capability key has a slash (e.g. upperOven/fanMode).
-            if self.entity_source:
+            # Legacy appliances: only wrap under entity_source when attr_name is NOT
+            # itself a top-level capability. This handles namespace sub-keys like
+            # "upperOven/executeCommand" (entity_source="upperOven", attr_name not top-level)
+            # vs. "Workmode/fan" (entity_source="Workmode" IS a top-level flat capability,
+            # so send {"Workmode": mode} instead of {"Workmode": {"Workmode": mode}}).
+            if self.entity_source and not self.get_capability(attr_name):
                 command = {self.entity_source: {attr_name: command_value}}
             else:
                 command = {attr_name: command_value}
@@ -403,8 +406,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                         attr_name: command_value,
                     },
                 }
-            else:
+            elif not self.get_capability(attr_name):
                 command = {self.entity_source: {attr_name: command_value}}
+            else:
+                command = {attr_name: command_value}
         else:
             command = {attr_name: command_value}
 
