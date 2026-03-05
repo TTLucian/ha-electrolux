@@ -1,7 +1,7 @@
 # 🏠 Home Assistant Electrolux Integration
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" />
+  <a href="https://github.com/TTLucian/ha-electrolux/releases/latest"><img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" /></a>
   <a href="https://raw.githubusercontent.com/TTLucian/ha-solar-ac-controller/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" /></a>
   <img src="https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge" />
   <img src="https://img.shields.io/github/actions/workflow/status/TTLucian/ha-electrolux/ci.yml?style=for-the-badge" />
