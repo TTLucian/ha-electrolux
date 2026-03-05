@@ -423,15 +423,16 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 f"{old_value} -> {new_value}s (type: {type(new_value)})"
             )
 
-            # Detect if we skipped the 1-second trigger window
+            # Detect if we skipped the 1-second trigger window and compensate
             if old_value is not None and old_value > 1 and new_value == 0:
-                _LOGGER.warning(
-                    f"[DEFERRED-DEBUG] SKIP DETECTED! timeToEnd jumped from {old_value}s to 0s "
-                    f"without hitting the trigger range (0, 1]. This means deferred update would NOT trigger! "
+                _LOGGER.debug(
+                    f"[DEFERRED-DEBUG] timeToEnd jumped from {old_value}s to 0s "
+                    f"without hitting the trigger range (0, 1]. Scheduling compensating deferred update. "
                     f"Appliance: {appliance_id}"
                 )
+                self._schedule_deferred_update(appliance_id)
             elif old_value is not None and new_value == 0:
-                _LOGGER.info(
+                _LOGGER.debug(
                     f"[DEFERRED-DEBUG] Normal completion: timeToEnd reached 0 "
                     f"(previous value: {old_value}). Appliance: {appliance_id}"
                 )

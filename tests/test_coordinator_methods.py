@@ -1212,9 +1212,11 @@ class TestProcessIncrementalUpdateTimeToEnd:
         return {APPLIANCE_ID_KEY: app_id, PROPERTY_KEY: prop, VALUE_KEY: value}
 
     def test_time_to_end_skip_detected(self, coordinator):
-        """When old_value > 1 and new_value == 0 → skip detection log branch."""
+        """When old_value > 1 and new_value == 0 → compensating deferred update is scheduled."""
 
-        # timeToEnd is the key we need
+        mock_task = MagicMock()
+        coordinator.hass.async_create_task = _make_create_task_mock(mock_task)
+
         ap = _make_appliance("app1")
         ap.reported_state = {"timeToEnd": 60}
         aps = _make_appliances({"app1": ap})
@@ -1223,8 +1225,10 @@ class TestProcessIncrementalUpdateTimeToEnd:
 
         data = self._incremental_data("app1", "timeToEnd", 0)
         coordinator._process_incremental_update(data, aps)
-        # Verify last_time_to_end was updated
+
         assert coordinator._last_time_to_end["app1"] == 0
+        # Deferred update must have been scheduled to compensate for the skipped window
+        coordinator.hass.async_create_task.assert_called()
 
     def test_time_to_end_normal_completion(self, coordinator):
         """When old_value <= 1 and new_value == 0 → normal completion log branch."""
