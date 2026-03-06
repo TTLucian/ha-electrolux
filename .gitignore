@@ -414,7 +414,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-.vscode
+*.vscode*
 .github/**/*instruction*
 *samples*
 *pyrightconfig*
