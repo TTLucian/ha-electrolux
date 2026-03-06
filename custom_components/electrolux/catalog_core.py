@@ -153,6 +153,7 @@ def _get_catalog_by_type():
         "DW": _get_catalog_dishwasher(),  # Dishwasher
         "MW": _get_catalog_microwave(),  # Microwave (in preparation)
         "Muju": _get_catalog_purifier(),  # Air Purifier (Muju brand)
+        "Verbier": _get_catalog_purifier(),  # Air Purifier with Humidification (Verbier)
     }
 
 

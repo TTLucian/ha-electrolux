@@ -1,6 +1,7 @@
 """Defined catalog of entities for purifier type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import (
@@ -83,6 +84,7 @@ A9 = {
             48: "BREEZE Complete air filter",
             49: "CLEAN Ultrafine particle filter",
             51: "CARE Ultimate protect filter",
+            55: "Air filter",  # Verbier model — exact name unknown
             64: "Breeze 360 filter",
             65: "Clean 360 Ultrafine particle filter",
             66: "Protect 360 filter",
@@ -92,6 +94,7 @@ A9 = {
             99: "Breeze 360 filter",
             100: "Fresh 360 filter",
             192: "FRESH Odour protect filter",
+            194: "Humidification filter",  # Verbier humidifier-purifier
             0: "Filter",
         },
     ),
@@ -163,6 +166,99 @@ A9 = {
         friendly_name="Air Purifier",
         entity_platform=Platform.FAN,
     ),
+    # Verbier (humidifier-purifier) controls
+    "AQILight": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "ambient": {"icon": "mdi:lightbulb-auto"},
+                "off": {"icon": "mdi:lightbulb-off"},
+                "on": {"icon": "mdi:lightbulb-on"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:lightbulb-auto",
+        friendly_name="AQI Light",
+    ),
+    "Humidification": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "boolean",
+        },
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:water",
+        friendly_name="Humidification",
+    ),
+    "HumidityTarget": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 40,
+            "max": 60,
+            "step": 10,
+            "default": 50,
+        },
+        device_class=NumberDeviceClass.HUMIDITY,
+        unit=PERCENTAGE,
+        entity_category=None,
+        entity_icon="mdi:water-percent",
+        friendly_name="Target Humidity",
+    ),
+    "LouverSwing": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "off": {"icon": "mdi:arrow-collapse-horizontal"},
+                "narrow": {"icon": "mdi:arrow-collapse-right"},
+                "wide": {"icon": "mdi:arrow-expand-horizontal"},
+                "naturalbreeze": {"icon": "mdi:weather-windy"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:arrow-oscillating",
+        friendly_name="Louver Swing",
+    ),
+    "QuietFan": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "off": {"icon": "mdi:fan"},
+                "on": {"icon": "mdi:fan-remove"},
+                "whenDark": {"icon": "mdi:weather-night"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan-remove",
+        friendly_name="Quiet Fan",
+    ),
+    # Verbier humidifier maintenance
+    "HumidificationFilter_ResetDate": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:calendar-check",
+        friendly_name="Humidification Filter Reset Date",
+    ),
+    "WaterTrayLevelLow": ElectroluxDevice(
+        capability_info={"access": "read", "type": "boolean"},
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:water-alert",
+        friendly_name="Water Tray Level Low",
+    ),
     "UILight": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -207,6 +303,14 @@ A9 = {
         entity_icon="mdi:air-filter",
         friendly_name="Filter Life",
     ),
+    "FilterLife_2": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int", "min": 0, "max": 100},
+        device_class=None,
+        unit=PERCENTAGE,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+        friendly_name="Filter Life 2",
+    ),
     "FilterType_1": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.ENUM,
@@ -218,6 +322,7 @@ A9 = {
             48: "BREEZE Complete air filter",
             49: "CLEAN Ultrafine particle filter",
             51: "CARE Ultimate protect filter",
+            55: "Air filter",  # Verbier model — exact name unknown
             64: "Breeze 360 filter",
             65: "Clean 360 Ultrafine particle filter",
             66: "Protect 360 filter",
@@ -227,9 +332,52 @@ A9 = {
             99: "Breeze 360 filter",
             100: "Fresh 360 filter",
             192: "FRESH Odour protect filter",
+            194: "Humidification filter",  # Verbier humidifier-purifier
             0: "Filter",
         },
         friendly_name="Filter Type",
+    ),
+    "FilterType_2": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        value_mapping={
+            1: "Standard filter",
+            48: "BREEZE Complete air filter",
+            49: "CLEAN Ultrafine particle filter",
+            51: "CARE Ultimate protect filter",
+            55: "Air filter",  # Verbier model — exact name unknown
+            64: "Breeze 360 filter",
+            65: "Clean 360 Ultrafine particle filter",
+            66: "Protect 360 filter",
+            67: "Breathe 360 filter",
+            68: "Fresh 360 filter",
+            96: "Breeze 360 filter",
+            99: "Breeze 360 filter",
+            100: "Fresh 360 filter",
+            192: "FRESH Odour protect filter",
+            194: "Humidification filter",  # Verbier humidifier-purifier
+            0: "Filter",
+        },
+        friendly_name="Filter Type 2",
+    ),
+    "FilterUID_1": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc",
+        friendly_name="Filter 1 NFC Tag UID",
+    ),
+    "FilterUID_2": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc",
+        friendly_name="Filter 2 NFC Tag UID",
     ),
     "PM2_5_approximate": ElectroluxDevice(
         capability_info={
@@ -365,5 +513,114 @@ A9 = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:wifi-strength-3",
         friendly_name="Signal Strength",
+    ),
+    # Verbier error sensors
+    "ErrGasNotResp": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: Gas Sensor Not Responding",
+    ),
+    "ErrNfcTagNotPres_1": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc-off",
+        friendly_name="Error: Filter 1 NFC Tag Not Present",
+    ),
+    "ErrNfcTagNotPres_2": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc-off",
+        friendly_name="Error: Filter 2 NFC Tag Not Present",
+    ),
+    "ErrNfcTagPresNotValid_1": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc-variant-off",
+        friendly_name="Error: Filter 1 NFC Tag Invalid",
+    ),
+    "ErrNfcTagPresNotValid_2": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc-variant-off",
+        friendly_name="Error: Filter 2 NFC Tag Invalid",
+    ),
+    "ErrNfcTransceiver_1": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: Filter 1 NFC Transceiver",
+    ),
+    "ErrNfcTransceiver_2": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: Filter 2 NFC Transceiver",
+    ),
+    "ErrTempRhNotResp": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error: Temperature/Humidity Sensor Not Responding",
+    ),
+    "ErrWaterTrayRemoved": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"not active": {}, "active": {}, "was active": {}},
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:water-remove",
+        friendly_name="Error: Water Tray Removed",
     ),
 }
