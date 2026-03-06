@@ -43,9 +43,9 @@ def _get_catalog_oven():
 @lru_cache(maxsize=None)
 def _get_catalog_purifier():
     """Lazy load purifier catalog."""
-    from .catalog_purifier import A9
+    from .catalog_purifier import CATALOG_PURIFIER
 
-    return A9
+    return CATALOG_PURIFIER
 
 
 @lru_cache(maxsize=None)
@@ -112,9 +112,9 @@ def _get_catalog_model():
     Returns:
         dict: Mapping of model names to their override configurations
     """
-    A9 = _get_catalog_purifier()
+    purifier_catalog = _get_catalog_purifier()
     return {
-        "A9": A9,
+        "A9": purifier_catalog,
     }
 
 

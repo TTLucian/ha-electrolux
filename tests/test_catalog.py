@@ -172,11 +172,11 @@ class TestCatalogPurifier:
     """Tests for catalog_purifier.py."""
 
     def test_catalog_purifier_loads(self):
-        """Purifier catalog loads without error (exported as A9 dict)."""
-        from custom_components.electrolux.catalog_purifier import A9
+        """Purifier catalog loads without error."""
+        from custom_components.electrolux.catalog_purifier import CATALOG_PURIFIER
 
-        assert isinstance(A9, dict)
-        assert len(A9) > 0
+        assert isinstance(CATALOG_PURIFIER, dict)
+        assert len(CATALOG_PURIFIER) > 0
 
     def test_purifier_has_fan_entity(self):
         """Purifier catalog has a fan platform entity in catalog_core."""

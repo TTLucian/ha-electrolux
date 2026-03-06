@@ -30,7 +30,18 @@ A comprehensive Home Assistant integration for Electrolux appliances using the o
 
 **All Electrolux Group appliances connected via the official app should work with this integration.** Every connected appliance will have entities created dynamically from whatever the API reports — at minimum including connectivity state, software version, and network interface.
 
-Full catalog support means the integration has been tested against real diagnostic data for that model — providing correct `device_class`, units, icons, and entity categories for all available entities. Without a catalog entry, entities are still created for everything the API reports but appear as generic sensors with no device class, unit, icon, or friendly name.
+### How entity creation works
+
+Electrolux appliances communicate two separate things to the cloud:
+
+- **Capabilities** — what the appliance *can do*: the controls, modes, and settings it exposes. These are its documented features and are used to create controllable entities.
+- **Reported state** — a snapshot of *everything* happening right now: sensor readings, error flags, firmware version, internal counters, signal strength, raw log values, device IDs…
+
+The integration creates entities from capabilities automatically. Reported state, however, is a very noisy dump — most of it has no business being a Home Assistant entity (firmware strings, raw counters, internal IDs, etc.). For values that only appear in reported state and not in capabilities — like air quality sensors on some purifier models — the integration needs an explicit **catalog entry** to know what unit and device class to assign them. Without that, it can't tell whether a numeric value is a temperature in °C, a counter, or something else entirely.
+
+The catalog is what bridges the gap: it tells the integration which reported state values are meaningful, what unit and device class they should have, and what icon and friendly name to display. This is why **diagnostics files are so valuable** — they contain both the capabilities schema and a real reported state snapshot, giving everything needed to build accurate catalog entries for a new appliance.
+
+Full catalog support means the integration has been tested against real diagnostic data for that model — providing correct `device_class`, units, icons, and entity categories for all available entities. Without a catalog entry, entities are still created for everything the API reports as capabilities but appear as generic sensors with no device class, unit, icon, or friendly name. Sensors that only appear in reported state and are not in capabilities will be missing entirely until a catalog entry is added.
 
 > 📎 **Help improve support for your appliance** — download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
 
@@ -49,7 +60,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | `TD` | Tumble Dryer | Full | Based on models `TD-916099949`, `TD-916098401`, `TD-916098618`, `TD-916099548` |
 | `AC` | Air Conditioner | Full | Based on model `AC-910280820` |
 | `DW` | Dishwasher | Full | Based on models `DW-911434654`, `DW-911434834` |
-| `A9` / `Muju` | Air Purifier | Full | A9 series; UltimateHome 500 (EP53) |
+| `A9` / `Muju` / `Verbier` | Air Purifier | Full | A9 series; UltimateHome 500 (EP53); Verbier (air purifier with humidification) |
 | `MW` | Microwave | Stub | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | Newer `DAM` Apliances | Partial support | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 
@@ -341,13 +352,15 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Appliance working time and cycle counters
 - Error detection and reporting with specific dishwasher error messages
 
-**💨🌿 Air Purifiers**
-- Air quality monitoring and control
-- Fan speed control (1-9 levels)
-- Work mode selection (Manual/Auto/Power Off)
+**💨🌿 Air Purifiers** (`A9`, `Muju`, `Verbier`)
+- Air quality monitoring (PM1, PM2.5, PM10, TVOC, eCO2)
+- Temperature and humidity sensors
+- Fan speed control (1–9 levels on A9, 1–5 on Muju/Verbier)
+- Work mode selection (Manual / Auto / Power Off / Quiet)
 - UI light control
 - Safety lock
 - Ionizer control
+- *Verbier only:* Humidification toggle, target humidity, louver swing, quiet fan schedule, AQI light, water tray level alert, humidification filter tracking, dual filter NFC tag sensors
 
 **🌊 Microwaves** - ⚠️ Basic Support (In Preparation)
 - Appliance state monitoring
@@ -596,8 +609,16 @@ PASTE YOUR LOGS HERE
 [!CAUTION]
 Privacy Check: The integration automatically redacts any sensitive information like api key and tokens but, just to be safe, before posting, scan the logs for sensitive data. Delete or mask any email addresses, passwords, unique API tokens, or GPS coordinates.
 
-### 📄 JSON Diagnostics for Device Issues 
-ATTENTION!!! You only need to send the diagnostics json once. It contains the same information every time you generate it. 
+### 📄 JSON Diagnostics for Device Issues
+
+> ⚠️ **You only need to send the diagnostics JSON once.** It contains the same information every time you generate it.
+
+For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **essential** for troubleshooting — and for adding support for appliances that aren't in the catalog yet.
+
+**Why diagnostics are so important for missing sensors:**
+
+Electrolux appliances report two separate things to the cloud: their *capabilities* (what they can do — controls, modes, settings) and their *reported state* (current sensor readings, error flags, firmware version, internal counters…). The integration uses the capabilities to create entities automatically. But some sensors — like air quality readings on purifiers, or temperature sensors on certain models — only appear in the reported state, not in the capabilities. Without seeing a real diagnostics file the integration has no way to know those values exist, what unit they use, or what device class they should have. The diagnostics file contains both the full capabilities schema and a real reported state snapshot — everything needed to build a correct catalog entry for your appliance.
+
 For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
 
 **How to get diagnostics:**

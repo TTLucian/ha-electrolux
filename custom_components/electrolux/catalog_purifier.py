@@ -17,7 +17,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .model import ElectroluxDevice
 
-A9 = {
+CATALOG_PURIFIER = {
     "Temp": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.TEMPERATURE,
