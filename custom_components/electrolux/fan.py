@@ -30,7 +30,7 @@ Features:
 """
 
 import logging
-from typing import Any, cast
+from typing import Any
 
 from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.config_entries import ConfigEntry
@@ -141,14 +141,24 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         self._attr_speed_count = self._speed_range[1] - self._speed_range[0] + 1
 
     def get_capability(self, attr_name: str) -> dict[str, Any] | None:
-        """Get capability definition for an attribute from appliance."""
-        if not self.appliance_status or not isinstance(self.appliance_status, dict):
-            return None
+        """Get capability definition for an attribute from appliance.
 
-        capabilities = cast(
-            dict[str, Any], self.appliance_status.get("capabilities", {})
-        )
-        return capabilities.get(attr_name)
+        Reads from the appliance's ElectroluxLibraryEntity.capabilities dict
+        (populated during setup() from get_appliance_capabilities API call).
+        Note: appliance_status is ApplianceState which only holds reported state
+        and connectivity — capabilities are stored separately on appliance.data.
+        """
+        try:
+            appliances = self.coordinator.data.get("appliances")
+            if appliances is not None:
+                appliance = appliances.appliances.get(self.pnc_id)
+                if appliance is not None and appliance.data is not None:
+                    caps = appliance.data.capabilities
+                    if caps:
+                        return caps.get(attr_name)
+        except (KeyError, AttributeError):
+            pass
+        return None
 
     @property
     def entity_domain(self):

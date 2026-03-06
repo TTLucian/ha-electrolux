@@ -633,10 +633,32 @@ class Appliance:
 
                 # Check if entity is in appliance state
                 # Use get_state() to properly handle nested paths with slashes (e.g., "networkInterface/linkQualityIndicator")
-                attr_in_reported = self.get_state(catalog_key) is not None
-                attr_at_top_level = (
-                    self.state.get(catalog_key) is not None if self.state else False
-                )
+                # Special case for fan-platform entities (e.g. "Workmode/fan"): the "/fan" suffix is a
+                # synthetic discriminator — it never appears as a real key in reported state or capabilities.
+                # Instead, check the parent key (e.g. "Workmode") which IS the actual API/state key.
+                if catalog_item.entity_platform == Platform.FAN:
+                    fan_base_key = catalog_key.rpartition("/")[0] or catalog_key
+                    attr_in_reported = self.get_state(fan_base_key) is not None
+                    attr_at_top_level = (
+                        self.state.get(fan_base_key) is not None
+                        if self.state
+                        else False
+                    )
+                    # Also create if the parent key is a known capability — the fan entity
+                    # must appear even before Workmode is first written to reported state
+                    # (e.g. fresh appliance, first boot, or appliance powered off at setup).
+                    if (
+                        not attr_in_reported
+                        and not attr_at_top_level
+                        and capabilities_names
+                        and fan_base_key in capabilities_names
+                    ):
+                        attr_in_reported = True
+                else:
+                    attr_in_reported = self.get_state(catalog_key) is not None
+                    attr_at_top_level = (
+                        self.state.get(catalog_key) is not None if self.state else False
+                    )
 
                 # Detect if we're in capabilities fallback mode (capabilities API failed)
                 # When capabilities_names is None or empty, the capabilities API call failed

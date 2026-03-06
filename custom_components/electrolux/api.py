@@ -222,6 +222,8 @@ class ElectroluxLibraryEntity:
         type_object = capability_def.get("type", None)
         if not type_object:
             return None
+        # Normalize type to lowercase — some appliances (e.g. Verbier) send "Number" with capital N
+        type_object = type_object.lower()
 
         # Access : read, readwrite (other values ignored)
         access = capability_def.get("access", None)

@@ -50,15 +50,24 @@ def _make_fan(
 ) -> ElectroluxFan:
     coordinator = _make_coordinator()
 
-    # Build appliance_status with capabilities
+    # Resolve default capabilities
     fanspeed_cap = fanspeed_cap or _make_capability_fanspeed()
     workmode_cap = workmode_cap or _make_capability_workmode()
 
+    # Set up coordinator.data so get_capability() finds capabilities via the
+    # correct path: coordinator.data["appliances"].appliances[pnc_id].data.capabilities
+    mock_appliance_data = MagicMock()
+    mock_appliance_data.capabilities = {
+        "Fanspeed": fanspeed_cap,
+        "Workmode": workmode_cap,
+    }
+    mock_appliance_obj = MagicMock()
+    mock_appliance_obj.data = mock_appliance_data
+    mock_appliances_obj = MagicMock()
+    mock_appliances_obj.appliances = {"FAN_PNC": mock_appliance_obj}
+    coordinator.data = {"appliances": mock_appliances_obj}
+
     appliance_status = {
-        "capabilities": {
-            "Fanspeed": fanspeed_cap,
-            "Workmode": workmode_cap,
-        },
         "properties": {
             "reported": {
                 "connectivityState": "connected" if connected else "disconnected",
@@ -125,12 +134,36 @@ class TestElectroluxFanInit:
 
     def test_speed_range_default(self):
         """When Fanspeed capability is missing, fallback to (1, 9)."""
-        fan = _make_fan()
-        # Override with empty capabilities to simulate missing cap
-        fan.appliance_status = {"capabilities": {}, "properties": {"reported": {}}}
-        # The range was already set in __init__, so just check default
-        assert fan._speed_range[0] == 1
-        assert fan._speed_range[1] == 9
+        # Build a coordinator with empty capabilities so __init__ keeps the default
+        coord = _make_coordinator()
+        mock_data = MagicMock()
+        mock_data.capabilities = {}  # no Fanspeed
+        mock_app = MagicMock()
+        mock_app.data = mock_data
+        mock_apps = MagicMock()
+        mock_apps.appliances = {"FAN_PNC": mock_app}
+        coord.data = {"appliances": mock_apps}
+        FanCls = type(
+            "_ElectroluxFanTest",
+            (ElectroluxFan,),
+            {"is_dam_appliance": property(lambda self: False)},
+        )
+        fan = FanCls(
+            coordinator=coord,
+            name="Test Fan",
+            config_entry=coord.config_entry,
+            pnc_id="FAN_PNC",
+            entity_type=FAN,
+            entity_name="fan_entity",
+            entity_attr="Fanspeed",
+            entity_source=None,
+            capability={},
+            unit=None,
+            device_class="",  # type: ignore[arg-type]
+            entity_category=None,
+            icon="mdi:fan",
+        )
+        assert fan._speed_range == (1, 9)
 
     def test_preset_modes_extracted(self):
         # preset_modes are derived from get_capability in __init__, which needs appliance_status.
@@ -175,14 +208,22 @@ class TestGetCapability:
         fan = _make_fan()
         cap = fan.get_capability("Fanspeed")
         assert cap is not None
+        assert cap.get("min") == 1
 
     def test_missing_capability_returns_none(self):
         fan = _make_fan()
         assert fan.get_capability("NonExistentCap") is None
 
-    def test_no_appliance_status_returns_none(self):
+    def test_no_coordinator_data_returns_none(self):
+        """If coordinator appliances is None, returns None gracefully."""
         fan = _make_fan()
-        fan.appliance_status = None
+        fan.coordinator.data = {"appliances": None}
+        assert fan.get_capability("Fanspeed") is None
+
+    def test_appliance_has_no_data_returns_none(self):
+        """If appliance.data is None, returns None gracefully."""
+        fan = _make_fan()
+        fan.coordinator.data["appliances"].appliances["FAN_PNC"].data = None
         assert fan.get_capability("Fanspeed") is None
 
 
@@ -466,7 +507,8 @@ class TestSetPercentageInternal:
     @pytest.mark.asyncio
     async def test_set_percentage_missing_capability_returns(self):
         fan = _make_fan()
-        fan.appliance_status = {"capabilities": {}, "properties": {"reported": {}}}
+        # Simulate Fanspeed not available (e.g. capabilities API failed)
+        fan.get_capability = MagicMock(return_value=None)
         fan._send_command = AsyncMock()
         # Should return without sending command
         await fan._set_percentage(50)
@@ -491,7 +533,8 @@ class TestSendWorkmodeCommand:
     @pytest.mark.asyncio
     async def test_missing_workmode_cap_returns(self):
         fan = _make_fan()
-        fan.appliance_status = {"capabilities": {}, "properties": {"reported": {}}}
+        # Simulate Workmode not available (e.g. capabilities API failed)
+        fan.get_capability = MagicMock(return_value=None)
         fan._send_command = AsyncMock()
         await fan._send_workmode_command("Auto")
         fan._send_command.assert_not_called()
@@ -550,14 +593,7 @@ class TestSendCommand:
         # → should wrap: {"someSource": {"nestedMode": "Auto"}} in commands
         fan = _make_fan(is_dam=True, entity_source="someSource")
         fan.api = MagicMock()
-        fan.appliance_status = {
-            # Only Workmode and Fanspeed in top-level caps; "nestedMode" is absent
-            "capabilities": {
-                "Fanspeed": _make_capability_fanspeed(),
-                "Workmode": _make_capability_workmode(),
-            },
-            "properties": {"reported": {}},
-        }
+        # Coordinator has Fanspeed and Workmode but NOT "nestedMode" — that's the point
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
@@ -606,12 +642,8 @@ class TestSendCommand:
         fan = _make_fan(is_dam=False, entity_source="upperOven")
         fan.api = MagicMock()
         fan._apply_optimistic_update = MagicMock()
-        # Override appliance_status with only upperOven in capabilities
-        # ("executeCommand" is absent at top level — it's a sub-key of upperOven)
-        fan.appliance_status = {
-            "capabilities": {"upperOven": {"access": "read"}},
-            "properties": {"reported": {}},
-        }
+        # Coordinator only has Fanspeed and Workmode — "executeCommand" is absent at
+        # top level, so get_capability("executeCommand") returns None → wrapping triggered
 
         cap = {"access": "readwrite", "type": "string"}
         with patch(
