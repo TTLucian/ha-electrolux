@@ -114,22 +114,17 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             catalog_entry=catalog_entry,
         )
 
-        self._attr_supported_features = (
-            FanEntityFeature.TURN_ON
-            | FanEntityFeature.TURN_OFF
-            | FanEntityFeature.SET_SPEED
-            | FanEntityFeature.PRESET_MODE
-        )
-
         # Get speed range from Fanspeed capability
-        self._speed_range = (1, 9)  # Default
+        self._speed_range = (1, 9)  # Default (A9 range; Muju/Verbier use 1-5 from API)
+        has_fanspeed_cap = False
         if fanspeed_cap := self.get_capability("Fanspeed"):
+            has_fanspeed_cap = True
             min_speed = fanspeed_cap.get("min", 1)
             max_speed = fanspeed_cap.get("max", 9)
             self._speed_range = (min_speed, max_speed)
 
         # Get available preset modes from Workmode capability
-        self._preset_modes = []
+        self._preset_modes: list[str] = []
         if workmode_cap := self.get_capability("Workmode"):
             if values := workmode_cap.get("values", {}):
                 # Extract all modes except PowerOff (that's handled by on/off)
@@ -139,6 +134,16 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
         self._attr_preset_modes = self._preset_modes if self._preset_modes else None
         self._attr_speed_count = self._speed_range[1] - self._speed_range[0] + 1
+
+        # Build supported features — only include PRESET_MODE / SET_SPEED when the
+        # appliance actually provides the underlying capabilities.  Without this,
+        # HA logs a validation warning if preset_modes / speed_count is empty/zero.
+        features = FanEntityFeature.TURN_ON | FanEntityFeature.TURN_OFF
+        if has_fanspeed_cap:
+            features |= FanEntityFeature.SET_SPEED
+        if self._preset_modes:
+            features |= FanEntityFeature.PRESET_MODE
+        self._attr_supported_features = features
 
     def get_capability(self, attr_name: str) -> dict[str, Any] | None:
         """Get capability definition for an attribute from appliance.

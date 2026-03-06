@@ -114,12 +114,48 @@ def _make_fan(
 
 
 class TestElectroluxFanInit:
-    def test_supported_features(self):
+    def test_supported_features_full(self):
+        """When capabilities are present, all 4 features are declared."""
         fan = _make_fan()
         assert fan._attr_supported_features & FanEntityFeature.TURN_ON
         assert fan._attr_supported_features & FanEntityFeature.TURN_OFF
         assert fan._attr_supported_features & FanEntityFeature.SET_SPEED
         assert fan._attr_supported_features & FanEntityFeature.PRESET_MODE
+
+    def test_supported_features_no_caps(self):
+        """When capabilities are unavailable, SET_SPEED and PRESET_MODE are omitted."""
+        coord = _make_coordinator()
+        mock_data = MagicMock()
+        mock_data.capabilities = {}
+        mock_app = MagicMock()
+        mock_app.data = mock_data
+        mock_apps = MagicMock()
+        mock_apps.appliances = {"FAN_PNC": mock_app}
+        coord.data = {"appliances": mock_apps}
+        FanCls = type(
+            "_ElectroluxFanTest",
+            (ElectroluxFan,),
+            {"is_dam_appliance": property(lambda self: False)},
+        )
+        fan = FanCls(
+            coordinator=coord,
+            name="Test Fan",
+            config_entry=coord.config_entry,
+            pnc_id="FAN_PNC",
+            entity_type=FAN,
+            entity_name="fan_entity",
+            entity_attr="Fanspeed",
+            entity_source=None,
+            capability={},
+            unit=None,
+            device_class="",  # type: ignore[arg-type]
+            entity_category=None,
+            icon="mdi:fan",
+        )
+        assert fan._attr_supported_features & FanEntityFeature.TURN_ON
+        assert fan._attr_supported_features & FanEntityFeature.TURN_OFF
+        assert not (fan._attr_supported_features & FanEntityFeature.SET_SPEED)
+        assert not (fan._attr_supported_features & FanEntityFeature.PRESET_MODE)
 
     def test_speed_range_from_capability(self):
         # _speed_range is set in __init__ from get_capability, which reads appliance_status.
