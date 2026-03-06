@@ -2,8 +2,7 @@
 
 from typing import Literal
 
-from homeassistant.const import Platform
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
 # Base component constants
 NAME = "Electrolux"

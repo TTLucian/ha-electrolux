@@ -5,8 +5,7 @@ from homeassistant.components.button import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import UnitOfMass, UnitOfTime
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime
 
 from .const import (
     AUTODOSE_DETERGENT_DUAL_OFF,

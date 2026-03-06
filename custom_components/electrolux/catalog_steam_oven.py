@@ -9,8 +9,7 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import UnitOfTemperature, UnitOfTime
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 
 from .execute_command_states import STEAM_OVEN_EXECUTE_STATES
 from .model import ElectroluxDevice

@@ -15,8 +15,7 @@ from homeassistant.components.button import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import Platform, UnitOfTime
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, Platform, UnitOfTime
 
 from .const import (
     BINARY_SENSOR,

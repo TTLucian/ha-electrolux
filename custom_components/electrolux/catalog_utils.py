@@ -2,7 +2,7 @@
 
 from typing import Any, Optional
 
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory
 
 from .const import (
     ENTITY_CATEGORY_DIAGNOSTIC,

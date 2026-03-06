@@ -4,7 +4,7 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.components.climate import (
+from homeassistant.components.climate.const import (
     HVACAction,
     HVACMode,
 )
@@ -164,7 +164,7 @@ class TestElectroluxClimate:
 
     def test_supported_features(self, climate_entity):
         """Test supported features."""
-        from homeassistant.components.climate import ClimateEntityFeature
+        from homeassistant.components.climate.const import ClimateEntityFeature
 
         features = climate_entity.supported_features
         assert features & ClimateEntityFeature.TARGET_TEMPERATURE

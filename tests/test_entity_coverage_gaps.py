@@ -1557,7 +1557,7 @@ class TestHandleCoordinatorUpdateEarlyExits:
     def test_coordinator_data_none_returns_early(self):
         """Line 294: When coordinator.data is None, _handle_coordinator_update returns."""
         entity = make_entity()
-        entity.coordinator.data = None
+        entity.coordinator.data = None  # type: ignore[assignment]
         entity.async_write_ha_state = MagicMock()
 
         # Should not raise

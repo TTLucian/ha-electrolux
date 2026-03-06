@@ -250,7 +250,7 @@ class TestCatalogUtils:
 
     def test_create_diagnostic_string_entity(self):
         """create_diagnostic_string_entity returns an ElectroluxDevice."""
-        from homeassistant.helpers.entity import EntityCategory
+        from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalog_utils import (
             create_diagnostic_string_entity,
@@ -266,7 +266,7 @@ class TestCatalogUtils:
 
     def test_create_config_entity(self):
         """create_config_entity returns an ElectroluxDevice with CONFIG category."""
-        from homeassistant.helpers.entity import EntityCategory
+        from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalog_utils import create_config_entity
 
