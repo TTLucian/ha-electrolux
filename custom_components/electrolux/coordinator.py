@@ -284,11 +284,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def deferred_update(self, appliance_id: str, delay: int) -> None:
         """Deferred update due to Electrolux not sending updated data at the end of the appliance program/cycle."""
-        _LOGGER.info(
+        _LOGGER.debug(
             f"[DEFERRED-DEBUG] Deferred update scheduled for {appliance_id}, waiting {delay}s..."
         )
         await asyncio.sleep(delay)
-        _LOGGER.info(
+        _LOGGER.debug(
             f"[DEFERRED-DEBUG] Deferred update executing for {appliance_id} after {delay}s delay"
         )
         if self.data is None:
@@ -302,7 +302,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             if appliance:
                 # Log current state before polling
                 current_time_to_end = appliance.state.get("timeToEnd", "<not set>")
-                _LOGGER.info(
+                _LOGGER.debug(
                     f"[DEFERRED-DEBUG] Before API poll: {appliance_id} timeToEnd = {current_time_to_end}"
                 )
 
@@ -310,19 +310,19 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
                 # Log what the API returned
                 api_time_to_end = appliance_status.get("timeToEnd", "<not in response>")
-                _LOGGER.warning(
+                _LOGGER.debug(
                     f"[DEFERRED-DEBUG] API poll result for {appliance_id}: timeToEnd = {api_time_to_end}. "
                     f"Full state keys: {list(appliance_status.keys())}"
                 )
 
                 # Check if this update actually changed anything
                 if current_time_to_end == api_time_to_end:
-                    _LOGGER.warning(
+                    _LOGGER.debug(
                         f"[DEFERRED-DEBUG] NO CHANGE detected! API returned same timeToEnd={api_time_to_end}. "
                         f"This suggests SSE may have already sent the final update, or state is truly stuck."
                     )
                 else:
-                    _LOGGER.warning(
+                    _LOGGER.debug(
                         f"[DEFERRED-DEBUG] State CHANGED: {current_time_to_end} -> {api_time_to_end}. "
                         f"This confirms SSE did NOT send the final update - Electrolux bug exists!"
                     )
@@ -523,7 +523,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """Schedule deferred update if time entity reaches threshold."""
         appliance_data = {data[PROPERTY_KEY]: data[VALUE_KEY]}
         if self._should_defer_update(appliance_data):
-            _LOGGER.warning(
+            _LOGGER.debug(
                 f"[DEFERRED-DEBUG] Trigger condition met for {appliance_id}! "
                 f"Property '{data[PROPERTY_KEY]}' = {data[VALUE_KEY]} is in range (0, 1]. "
                 f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s to check for missing final update."
@@ -693,7 +693,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         if self._should_defer_update(appliance_data):
-            _LOGGER.warning(
+            _LOGGER.debug(
                 f"[DEFERRED-DEBUG] Bulk update trigger for {appliance_id}! "
                 f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s."
             )
