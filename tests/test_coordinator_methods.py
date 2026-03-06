@@ -1212,16 +1212,20 @@ class TestProcessIncrementalUpdateTimeToEnd:
         return {APPLIANCE_ID_KEY: app_id, PROPERTY_KEY: prop, VALUE_KEY: value}
 
     def test_time_to_end_skip_detected(self, coordinator):
-        """When old_value > 1 and new_value == 0 → compensating deferred update is scheduled."""
+        """When old_value > TIME_ENTITY_THRESHOLD_HIGH and new_value == 0
+        (e.g. 120 → 0, skipping even the 60s mark) → compensating deferred update is scheduled.
+        """
 
         mock_task = MagicMock()
         coordinator.hass.async_create_task = _make_create_task_mock(mock_task)
 
         ap = _make_appliance("app1")
-        ap.reported_state = {"timeToEnd": 60}
+        ap.reported_state = {"timeToEnd": 120}
         aps = _make_appliances({"app1": ap})
         coordinator.async_set_updated_data = MagicMock()
-        coordinator._last_time_to_end["app1"] = 60  # old value > 1
+        coordinator._last_time_to_end["app1"] = (
+            120  # old value > TIME_ENTITY_THRESHOLD_HIGH (60)
+        )
 
         data = self._incremental_data("app1", "timeToEnd", 0)
         coordinator._process_incremental_update(data, aps)
@@ -1245,14 +1249,14 @@ class TestProcessIncrementalUpdateTimeToEnd:
     def test_time_to_end_tracking_without_prior_value(self, coordinator):
         """When no prior timeToEnd value → just tracks without skip detection."""
         ap = _make_appliance("app1")
-        ap.reported_state = {"timeToEnd": 5}
+        ap.reported_state = {"timeToEnd": 300}
         aps = _make_appliances({"app1": ap})
         coordinator.async_set_updated_data = MagicMock()
-        # No prior value in _last_time_to_end
+        # No prior value in _last_time_to_end; use 90s (above threshold) to avoid triggering deferred update
 
-        data = self._incremental_data("app1", "timeToEnd", 3)
+        data = self._incremental_data("app1", "timeToEnd", 90)
         coordinator._process_incremental_update(data, aps)
-        assert coordinator._last_time_to_end["app1"] == 3
+        assert coordinator._last_time_to_end["app1"] == 90
 
     def test_duplicate_value_updates_last_seen_time(self, coordinator):
         """Duplicate incremental value still updates _last_update_times."""

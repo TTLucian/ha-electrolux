@@ -88,8 +88,16 @@ AUTH_ERROR_KEYWORDS = [
 ]
 
 # Time entity thresholds
+# NOTE: Appliances like dishwashers count time in minutes but the API reports
+# in seconds, so timeToEnd steps in 60s increments (120 → 60 → 0) and never
+# reaches 1s. Setting the high threshold to 60 means the trigger fires at the
+# last-minute mark (timeToEnd = 60), which is the final non-zero SSE value for
+# those appliances. For second-granularity appliances any value in (0, 60] also
+# triggers the deferred poll, with repeated triggers simply resetting the timer.
 TIME_ENTITY_THRESHOLD_LOW = 0
-TIME_ENTITY_THRESHOLD_HIGH = 1  # seconds
+TIME_ENTITY_THRESHOLD_HIGH = (
+    60  # seconds (1 minute — covers minute-granularity appliances)
+)
 
 
 class ElectroluxCoordinator(DataUpdateCoordinator):
@@ -423,11 +431,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 f"{old_value} -> {new_value}s (type: {type(new_value)})"
             )
 
-            # Detect if we skipped the 1-second trigger window and compensate
-            if old_value is not None and old_value > 1 and new_value == 0:
+            # Detect if we skipped the trigger window entirely (e.g. 120 → 0)
+            # and compensate. With threshold=60 the normal trigger fires at 60s,
+            # so only values that jumped past 60 without stopping there need this.
+            if (
+                old_value is not None
+                and old_value > TIME_ENTITY_THRESHOLD_HIGH
+                and new_value == 0
+            ):
                 _LOGGER.debug(
                     f"[DEFERRED-DEBUG] timeToEnd jumped from {old_value}s to 0s "
-                    f"without hitting the trigger range (0, 1]. Scheduling compensating deferred update. "
+                    f"without hitting the trigger range (0, {TIME_ENTITY_THRESHOLD_HIGH}]. Scheduling compensating deferred update. "
                     f"Appliance: {appliance_id}"
                 )
                 self._schedule_deferred_update(appliance_id)
@@ -525,7 +539,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if self._should_defer_update(appliance_data):
             _LOGGER.debug(
                 f"[DEFERRED-DEBUG] Trigger condition met for {appliance_id}! "
-                f"Property '{data[PROPERTY_KEY]}' = {data[VALUE_KEY]} is in range (0, 1]. "
+                f"Property '{data[PROPERTY_KEY]}' = {data[VALUE_KEY]} is in range (0, {TIME_ENTITY_THRESHOLD_HIGH}]. "
                 f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s to check for missing final update."
             )
             self._schedule_deferred_update(appliance_id)
@@ -539,7 +553,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     and TIME_ENTITY_THRESHOLD_LOW < value <= TIME_ENTITY_THRESHOLD_HIGH
                 ):
                     _LOGGER.debug(
-                        f"[DEFERRED-DEBUG] Threshold check: {key}={value} is in trigger range (0, 1]"
+                        f"[DEFERRED-DEBUG] Threshold check: {key}={value} is in trigger range (0, {TIME_ENTITY_THRESHOLD_HIGH}]"
                     )
                     return True
         return False
