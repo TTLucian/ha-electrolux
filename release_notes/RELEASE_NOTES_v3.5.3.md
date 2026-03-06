@@ -4,7 +4,7 @@
 
 ### Verbier — Air Purifier with Humidification
 
-Added full support for the Verbier appliance type — an Electrolux air purifier with integrated humidification. This model was previously unrecognised by the integration and produced no entities.
+Added full support for the Verbier appliance type — an Electrolux air purifier with integrated humidification. Previously, this appliance type had no catalog entry: controls and filter sensors were created as generic unnamed entities with no device class, unit, or icon, and air quality sensors (Temperature, Humidity, PM1, PM2.5, PM10, TVOC, eCO2) were missing entirely because they only appear in the device's reported state and not in its capabilities.
 
 **Sensors created:**
 
