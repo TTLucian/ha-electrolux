@@ -7,6 +7,22 @@ from homeassistant.const import PERCENTAGE
 from ..model import ElectroluxDevice
 
 CATALOG_DH: dict[str, ElectroluxDevice] = {
+    # Power control — ON/OFF (button entity; SDK dh_config.py EXECUTE_COMMAND_ON/OFF)
+    "executeCommand": ElectroluxDevice(
+        capability_info={
+            "access": "write",
+            "type": "string",
+            "values": {
+                "ON": {},
+                "OFF": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:power",
+        friendly_name="Power",
+    ),
     # Current humidity reading (read-only sensor)
     "sensorHumidity": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
@@ -31,7 +47,10 @@ CATALOG_DH: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:water-percent",
         friendly_name="Target Humidity",
     ),
-    # Fan speed (select entity — values come from device capabilities at runtime)
+    # Fan speed (select entity)
+    # NOTE: The SDK reads values dynamically from device capabilities.
+    # Placeholder values below will be replaced by whatever the device
+    # actually reports. Unverified until a real diagnostic is provided.
     "fanSpeedSetting": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -49,7 +68,10 @@ CATALOG_DH: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:fan",
         friendly_name="Fan Speed",
     ),
-    # Operating mode (select entity — e.g. continuous, auto, laundry, etc.)
+    # Operating mode (select entity)
+    # NOTE: The SDK reads values dynamically from device capabilities.
+    # Placeholder values below will be replaced by whatever the device
+    # actually reports. Unverified until a real diagnostic is provided.
     "mode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
