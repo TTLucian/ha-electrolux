@@ -77,6 +77,8 @@ The table below lists all appliance types and the known-tested diagnostic sample
 
 The following appliance types have catalog entries built from the Electrolux SDK's internal API mappings, but have **never been tested against real hardware**. Capability key names are correct per the SDK, but modes, value ranges, and model-specific differences need verification with real diagnostic JSON files.
 
+> **⚠️ SDK stability note:** The integration uses `electrolux-group-developer-sdk` v0.3.0, which is in early development. Its API, key names, and appliance constants may change between releases without notice. If something stops working after a package update, the catalog or command logic may need adjusting to match the new SDK version.
+
 If you own one of these appliances, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. This is the single most impactful contribution you can make — a diagnostic file takes 30 seconds to generate and enables full verified support for your appliance type.
 
 | Appliance | Issue title | Status |

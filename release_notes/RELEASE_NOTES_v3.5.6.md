@@ -10,6 +10,12 @@ mappings, four new catalog files were created and the type-code registry was ext
 capabilities matched against a rich entity catalog instead of falling back to the generic
 auto-discovery mode.
 
+> **⚠️ SDK note:** The catalog entries for new appliance types were derived from
+> `electrolux-group-developer-sdk` v0.3.0, which is under active, early development.
+> Key names and appliance constants may change between SDK releases. If entities stop
+> appearing or commands break after a package update, the SDK may have changed its
+> internal mappings — please open an issue.
+
 ---
 
 #### Dehumidifier (DH, Husky) — new `catalog_dh.py`
