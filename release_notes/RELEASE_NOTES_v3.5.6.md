@@ -173,6 +173,7 @@ With no appliance type, the per-type catalog lookup was skipped entirely. The pu
 contains the definitions for `Temp`, `Humidity`, and `ECO2` — sensors that the hardware *does*
 report but that are not advertised in the API capabilities — so those entities were never created.
 
+
 **Fix:** The appliance type is now read from the appliances list at setup time and stored
 directly on the `Appliance` object. The reported-state fallback is kept for backward compatibility
 but is no longer the primary source.
