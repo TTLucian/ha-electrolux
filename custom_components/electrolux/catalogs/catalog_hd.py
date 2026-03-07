@@ -13,7 +13,10 @@ from ..model import ElectroluxDevice
 
 CATALOG_HD: dict[str, ElectroluxDevice] = {
     # ── Fan control ────────────────────────────────────────────────────────────
-    # Fan level (select — values come from device capabilities at runtime)
+    # Fan level (select)
+    # NOTE: Values are read dynamically from device capabilities at runtime.
+    # Placeholder values below will be replaced by whatever the device reports.
+    # Unverified until a real diagnostic is provided.
     "hoodFanLevel": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -33,7 +36,8 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
         friendly_name="Fan Level",
     ),
     # ── Lighting controls ──────────────────────────────────────────────────────
-    # Light brightness (0–100 %)
+    # Light brightness — range read from device capabilities at runtime
+    # NOTE: min/max/step values below are unverified placeholders.
     "lightIntensity": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -48,7 +52,8 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:brightness-6",
         friendly_name="Light Intensity",
     ),
-    # Light colour temperature (Kelvin)
+    # Light colour temperature — range read from device capabilities at runtime
+    # NOTE: min/max/step values below are unverified placeholders.
     "lightColorTemperature": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -160,5 +165,14 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:volume-high",
         friendly_name="Sound Volume",
+    ),
+    # Timer / countdown duration (SDK: TARGET_DURATION → "targetDuration")
+    "targetDuration": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "number"},
+        device_class=None,
+        unit=UnitOfTime.SECONDS,
+        entity_category=None,
+        entity_icon="mdi:timer-outline",
+        friendly_name="Target Duration",
     ),
 }

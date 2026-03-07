@@ -51,6 +51,9 @@ CATALOG_HB: dict[str, ElectroluxDevice] = {
     ),
     # ── hobHood — linked hood controls (nested under the hobHood sub-object) ──
     # Fan speed level sent to the connected hood
+    # NOTE: Values are read dynamically from device capabilities at runtime.
+    # Placeholder values below will be replaced by whatever the device reports.
+    # Unverified until a real diagnostic is provided.
     "hobHood/hobToHoodFanSpeed": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -70,6 +73,9 @@ CATALOG_HB: dict[str, ElectroluxDevice] = {
         friendly_name="Hood Fan Speed",
     ),
     # Hood linkage activation state
+    # NOTE: Values are read dynamically from device capabilities at runtime.
+    # Placeholder values below will be replaced by whatever the device reports.
+    # Unverified until a real diagnostic is provided.
     "hobHood/hobToHoodState": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

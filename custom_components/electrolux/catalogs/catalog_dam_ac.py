@@ -63,7 +63,8 @@ CATALOG_DAM_AC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:power",
         friendly_name="Power",
     ),
-    # Target temperature — integer °C, range read from device capabilities
+    # Target temperature — range read from device capabilities at runtime
+    # NOTE: min/max/step values below are unverified placeholders.
     "airConditioner/targetTemperature": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -79,6 +80,9 @@ CATALOG_DAM_AC: dict[str, ElectroluxDevice] = {
         friendly_name="Target Temperature",
     ),
     # Operating mode
+    # NOTE: Values are read dynamically from device capabilities at runtime.
+    # Placeholder values below will be replaced by whatever the device reports.
+    # Unverified until a real diagnostic is provided.
     "airConditioner/mode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -98,6 +102,9 @@ CATALOG_DAM_AC: dict[str, ElectroluxDevice] = {
         friendly_name="Mode",
     ),
     # Fan speed mode
+    # NOTE: Values are read dynamically from device capabilities at runtime.
+    # Placeholder values below will be replaced by whatever the device reports.
+    # Unverified until a real diagnostic is provided.
     "airConditioner/fanMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

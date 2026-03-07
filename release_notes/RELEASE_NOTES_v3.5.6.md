@@ -16,10 +16,16 @@ auto-discovery mode.
 
 | Capability key | Entity | Notes |
 |---|---|---|
+| `executeCommand` | Power (button) | ON / OFF |
 | `sensorHumidity` | Humidity (sensor) | Current ambient humidity % |
 | `targetHumidity` | Target Humidity (number) | Setpoint — range / step read from device |
-| `fanSpeedSetting` | Fan Speed (select) | LOW / MEDIUM / HIGH / TURBO |
-| `mode` | Mode (select) | AUTO / CONTINUOUS / LAUNDRY / DRY_CLOTHES / SILENT |
+| `fanSpeedSetting` | Fan Speed (select) | ⚠️ values unverified — read from device capabilities at runtime |
+| `mode` | Mode (select) | ⚠️ values unverified — read from device capabilities at runtime |
+
+> **⚠️ `fanSpeedSetting` and `mode` values unverified.**
+> The SDK reads these values dynamically from device capabilities rather than defining them statically.
+> Placeholder values in the catalog will be replaced by whatever the device actually reports.
+> If your dehumidifier shows incorrect options, please [submit a diagnostic](https://github.com/TTLucian/ha-electrolux/issues).
 
 ---
 
@@ -58,8 +64,8 @@ covered by a single catalog; each device exposes only its own subset of capabili
 | `childLock` | Child Lock (switch) | |
 | `keySoundTone` | Key Sound (switch) | |
 | `windowNotification` | Window Notification (switch) | |
-| `hobHood/hobToHoodFanSpeed` | Hood Fan Speed (select) | Nested under `hobHood` sub-object |
-| `hobHood/hobToHoodState` | Hood State (select) | Nested under `hobHood` sub-object |
+| `hobHood/hobToHoodFanSpeed` | Hood Fan Speed (select) | Nested under `hobHood` — ⚠️ values unverified, replaced by device capabilities at runtime |
+| `hobHood/hobToHoodState` | Hood State (select) | Nested under `hobHood` — ⚠️ values unverified, replaced by device capabilities at runtime |
 
 ---
 
@@ -67,9 +73,9 @@ covered by a single catalog; each device exposes only its own subset of capabili
 
 | Capability key | Entity | Notes |
 |---|---|---|
-| `hoodFanLevel` | Fan Level (select) | off / low / medium / high / intensive |
-| `lightIntensity` | Light Intensity (number) | 0–100 % |
-| `lightColorTemperature` | Light Colour Temperature (number) | 2700–6500 K |
+| `hoodFanLevel` | Fan Level (select) | ⚠️ values unverified — replaced by device capabilities at runtime |
+| `lightIntensity` | Light Intensity (number) | ⚠️ range unverified — replaced by device capabilities at runtime |
+| `lightColorTemperature` | Light Colour Temperature (number) | ⚠️ range unverified — replaced by device capabilities at runtime |
 | `hoodCharcFilterTimer` | Charcoal Filter Timer (sensor) | Hours until service |
 | `hoodGreaseFilterTimer` | Grease Filter Timer (sensor) | Hours until service |
 | `tvocFilterTime` | TVOC Filter Time (sensor) | Hours remaining |
@@ -79,6 +85,7 @@ covered by a single catalog; each device exposes only its own subset of capabili
 | `hoodAutoSwitchOffEvent` | Auto Switch-Off (binary sensor) | |
 | `applianceMode` | Appliance Mode (select) | |
 | `soundVolume` | Sound Volume (number) | 0–100 % |
+| `targetDuration` | Target Duration (number) | Countdown timer — seconds |
 
 ---
 
@@ -155,7 +162,10 @@ own type code. The `DAM_` prefix stripping in `models.py` has been removed.
 | `temperature` | Ambient Temperature (sensor) | Root level (not nested) |
 | `airConditioner/applianceState` | State (sensor) | Nested |
 | `airConditioner/executeCommand` | Power (select) | on / off |
-| `airConditioner/targetTemperature` | Target Temperature (number) | Integer °C |
+| `airConditioner/targetTemperature` | Target Temperature (number) | ⚠️ range unverified — replaced by device capabilities at runtime |
+| `airConditioner/mode` | Mode (select) | ⚠️ values unverified — replaced by device capabilities at runtime |
+| `airConditioner/fanMode` | Fan Mode (select) | ⚠️ values unverified — replaced by device capabilities at runtime |
+
 ---
 
 ### Air Purifier — Temperature, Humidity and eCO₂ sensors missing (bug fix)
