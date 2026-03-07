@@ -417,7 +417,6 @@ def map_command_error_to_home_assistant_error(
 
         # If no structured data found, try parsing the exception message string
         if not error_data:
-
             ex_str = str(ex)
             # Look for JSON-like dict in the message: message='{"error": ...}' or message="{'error': ...}"
             match = re.search(r"message=['\"](\{.+?\})['\"]", ex_str)
@@ -790,7 +789,13 @@ def format_command_for_appliance(
         # Handle numeric representations
         return bool(value)
 
-    elif "temperature" in attr.lower() or cap_type in ("number", "float", "integer"):
+    elif "temperature" in attr.lower() or cap_type in (
+        "number",
+        "float",
+        "integer",
+        "int",
+        "temperature",
+    ):
         # Temperature or numeric type - ensure float and apply step and range constraints
         try:
             numeric_value = float(value)
@@ -818,6 +823,13 @@ def format_command_for_appliance(
                 numeric_value = max(numeric_value, float(min_val))
             if max_val is not None:
                 numeric_value = min(numeric_value, float(max_val))
+
+            # Always return int for whole-number values.
+            # Electrolux API rejects floats universally (e.g. 120.0 → HTTP 500),
+            # confirmed across all appliance types and all capability types.
+            # No fractional step values exist in any known appliance sample.
+            if numeric_value == int(numeric_value):
+                return int(numeric_value)
 
             return numeric_value
 

@@ -1276,6 +1276,87 @@ class TestFormatCommandEdgeCases:
         assert format_command_for_appliance(cap, "attr", 42) == "42"
         assert format_command_for_appliance(cap, "attr", True) == "True"
 
+    def test_int_type_always_returns_int(self):
+        """'type: int' capabilities must always return int, never float.
+
+        Regression test: Electrolux API returns HTTP 500 when a float (e.g. 3.0)
+        is sent for an int-typed capability like Fanspeed.
+        """
+        from custom_components.electrolux.util import format_command_for_appliance
+
+        fanspeed_cap = {"type": "int", "min": 1, "max": 9, "step": 1}
+        result = format_command_for_appliance(fanspeed_cap, "Fanspeed", 3)
+        assert result == 3
+        assert isinstance(result, int), f"Expected int, got {type(result)}: {result}"
+
+        # float input must also be coerced to int
+        result = format_command_for_appliance(fanspeed_cap, "Fanspeed", 3.0)
+        assert result == 3
+        assert isinstance(result, int), (
+            f"Expected int from float input, got {type(result)}: {result}"
+        )
+
+    def test_temperature_type_in_cap_type_tuple(self):
+        """'type: temperature' is handled numerically via the cap_type tuple (defense in depth).
+
+        Even if the attr name doesn't contain 'temperature', the type field alone
+        is sufficient to trigger integer conversion.
+        """
+        from custom_components.electrolux.util import format_command_for_appliance
+
+        temp_cap = {"type": "temperature", "min": 1.0, "max": 7.0, "step": 1.0}
+        result = format_command_for_appliance(temp_cap, "fridgeSetpoint", 4)
+        assert result == 4
+        assert isinstance(result, int), f"Expected int, got {type(result)}: {result}"
+
+    def test_whole_number_returns_int_regardless_of_step_type(self):
+        """Whole-number values always return int, even with a fractional step.
+
+        The Electrolux API rejects floats universally. The previous step_has_fraction
+        guard was unnecessary — no appliance sample has a fractional step, and even if
+        it did, sending 2 instead of 2.0 is always safe.
+        """
+        from custom_components.electrolux.util import format_command_for_appliance
+
+        # Fractional step=0.5, but value is a whole number → must return int
+        cap = {"type": "number", "min": 0.0, "max": 10.0, "step": 0.5}
+        result = format_command_for_appliance(cap, "someValue", 2.0)
+        assert isinstance(result, int), (
+            f"Expected int for 2.0, got {type(result)}: {result}"
+        )
+        assert result == 2
+
+    def test_number_type_integer_step_returns_int(self):
+        """'type: number' with integer step must return int for whole-number values.
+
+        Regression test: antiCreaseValue on TD dryers has step=30 (integer).
+        format_command_for_appliance was converting 120 → 120.0 (float), causing
+        HTTP 500. The fix detects integer steps and returns int instead of float.
+        """
+        from custom_components.electrolux.util import format_command_for_appliance
+
+        anti_crease_cap = {"type": "number", "min": 30, "max": 120, "step": 30}
+        for val in [30, 60, 90, 120, 30.0, 60.0, 90.0, 120.0]:
+            result = format_command_for_appliance(
+                anti_crease_cap, "antiCreaseValue", val
+            )
+            assert result == int(val), f"Expected {int(val)}, got {result}"
+            assert isinstance(result, int), (
+                f"Expected int for value {val}, got {type(result)}: {result}"
+            )
+
+    def test_number_type_fractional_step_returns_float(self):
+        """Genuinely fractional values (non-integer) are preserved as float.
+
+        Only a value that cannot be represented as int (i.e. 24.5 ≠ int(24.5)=24)
+        escapes the int-return path. Whole numbers like 24.0 always become 24.
+        """
+        from custom_components.electrolux.util import format_command_for_appliance
+
+        temp_cap = {"type": "number", "min": 15.56, "max": 32.22, "step": 0.5}
+        result = format_command_for_appliance(temp_cap, "targetTemperatureC", 24.5)
+        assert isinstance(result, float)
+
 
 class TestUtilMissingCoverage:
     """Tests targeting the remaining missed lines in util.py."""
