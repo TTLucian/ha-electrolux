@@ -20,13 +20,9 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 def get_electrolux_session(
-    api_key, access_token, refresh_token, client_session, hass=None, config_entry=None
+    api_key, access_token, refresh_token, hass=None, config_entry=None
 ) -> "ElectroluxApiClient":
-    """Return Electrolux API Session.
-
-    Note: client_session is currently unused by the underlying SDK but is kept
-    for future compatibility when the SDK supports passing in a shared aiohttp session.
-    """
+    """Return Electrolux API Session."""
     return ElectroluxApiClient(api_key, access_token, refresh_token, hass, config_entry)
 
 

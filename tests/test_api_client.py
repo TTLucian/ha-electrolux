@@ -24,11 +24,12 @@ from custom_components.electrolux.api_client import (
 
 def _make_client(hass=None, config_entry=None):
     """Create an ElectroluxApiClient with SDK internals mocked out."""
-    with patch(
-        "custom_components.electrolux.api_client.ApplianceClient"
-    ) as mock_sdk, patch(
-        "custom_components.electrolux.api_client.ElectroluxTokenManager"
-    ) as mock_tm:
+    with (
+        patch("custom_components.electrolux.api_client.ApplianceClient") as mock_sdk,
+        patch(
+            "custom_components.electrolux.api_client.ElectroluxTokenManager"
+        ) as mock_tm,
+    ):
         mock_tm_instance = MagicMock()
         mock_tm_instance.set_auth_error_callback = MagicMock()
         mock_tm_instance.set_token_update_callback_with_expiry = MagicMock()
@@ -45,29 +46,32 @@ def _make_client(hass=None, config_entry=None):
 
 class TestGetElectroluxSession:
     def test_returns_api_client_instance(self):
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
-            "custom_components.electrolux.api_client.ElectroluxTokenManager"
-        ) as mock_tm:
+        with (
+            patch("custom_components.electrolux.api_client.ApplianceClient"),
+            patch(
+                "custom_components.electrolux.api_client.ElectroluxTokenManager"
+            ) as mock_tm,
+        ):
             mock_tm.return_value = MagicMock()
             hass = MagicMock()
             session = get_electrolux_session(
                 "api_key",
                 "access_token",
                 "refresh_token",
-                client_session=None,
                 hass=hass,
                 config_entry=None,
             )
         assert isinstance(session, ElectroluxApiClient)
 
     def test_returns_client_without_hass(self):
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
-            "custom_components.electrolux.api_client.ElectroluxTokenManager"
-        ) as mock_tm:
+        with (
+            patch("custom_components.electrolux.api_client.ApplianceClient"),
+            patch(
+                "custom_components.electrolux.api_client.ElectroluxTokenManager"
+            ) as mock_tm,
+        ):
             mock_tm.return_value = MagicMock()
-            session = get_electrolux_session(
-                "api_key", "token", "refresh", client_session=None
-            )
+            session = get_electrolux_session("api_key", "token", "refresh")
         assert isinstance(session, ElectroluxApiClient)
 
 
@@ -407,9 +411,12 @@ class TestTokenRefreshHandlerEmit:
 
 class TestApiClientInit:
     def test_init_without_hass_no_handler_attached(self):
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
-            "custom_components.electrolux.api_client.ElectroluxTokenManager"
-        ) as mock_tm:
+        with (
+            patch("custom_components.electrolux.api_client.ApplianceClient"),
+            patch(
+                "custom_components.electrolux.api_client.ElectroluxTokenManager"
+            ) as mock_tm,
+        ):
             mock_tm.return_value = MagicMock()
             client = ElectroluxApiClient("key", "access", "refresh", hass=None)
         assert client._token_handler is None
@@ -417,11 +424,13 @@ class TestApiClientInit:
 
     def test_init_with_hass_attaches_handler(self):
         hass = MagicMock()
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
-            "custom_components.electrolux.api_client.ElectroluxTokenManager"
-        ) as mock_tm, patch(
-            "custom_components.electrolux.api_client.logging"
-        ) as mock_logging:
+        with (
+            patch("custom_components.electrolux.api_client.ApplianceClient"),
+            patch(
+                "custom_components.electrolux.api_client.ElectroluxTokenManager"
+            ) as mock_tm,
+            patch("custom_components.electrolux.api_client.logging") as mock_logging,
+        ):
             mock_tm.return_value = MagicMock()
             mock_logger_instance = MagicMock()
             mock_logging.getLogger.return_value = mock_logger_instance
@@ -434,11 +443,15 @@ class TestApiClientInit:
     def test_init_hass_handler_attach_exception_logged(self):
         """Exception during handler attachment is caught and logged."""
         hass = MagicMock()
-        with patch("custom_components.electrolux.api_client.ApplianceClient"), patch(
-            "custom_components.electrolux.api_client.ElectroluxTokenManager"
-        ) as mock_tm, patch(
-            "custom_components.electrolux.api_client._TokenRefreshHandler",
-            side_effect=Exception("handler init error"),
+        with (
+            patch("custom_components.electrolux.api_client.ApplianceClient"),
+            patch(
+                "custom_components.electrolux.api_client.ElectroluxTokenManager"
+            ) as mock_tm,
+            patch(
+                "custom_components.electrolux.api_client._TokenRefreshHandler",
+                side_effect=Exception("handler init error"),
+            ),
         ):
             mock_tm.return_value = MagicMock()
             # Should not raise
@@ -456,7 +469,9 @@ class TestApiClientInit:
         client = _make_client()
         cb = MagicMock()
         client.set_token_update_callback_with_expiry(cb)
-        client._token_manager.set_token_update_callback_with_expiry.assert_called_once_with(cb)  # type: ignore[union-attr]
+        client._token_manager.set_token_update_callback_with_expiry.assert_called_once_with(  # type: ignore[union-attr,attr-defined]
+            cb
+        )
 
 
 # ---------------------------------------------------------------------------

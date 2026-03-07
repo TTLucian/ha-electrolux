@@ -25,7 +25,6 @@ from homeassistant.exceptions import (
     ConfigEntryNotReady,
 )
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -92,17 +91,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         expiry_time = datetime.datetime.fromtimestamp(token_expires_at)
         time_until_expiry = token_expires_at - time.time()
         _LOGGER.info(
-            f"[AUTH-DEBUG] Stored token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
+            f"[AUTH-DEBUG] Stored token expiry: {expiry_time.isoformat()} ({time_until_expiry / 3600:.1f} hours from now)"
         )
     else:
         _LOGGER.warning("[AUTH-DEBUG] No token expiry stored in config entry")
 
-    session = async_get_clientsession(hass)
-
     _LOGGER.debug("[AUTH-DEBUG] Creating API client session")
-    client = get_electrolux_session(
-        api_key, access_token, refresh_token, session, hass, entry
-    )
+    client = get_electrolux_session(api_key, access_token, refresh_token, hass, entry)
     _LOGGER.debug("[AUTH-DEBUG] API client created successfully")
 
     coordinator = ElectroluxCoordinator(
