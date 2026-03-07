@@ -169,7 +169,6 @@ class TestAsyncSetupEntry:
         mock_coordinator = _make_mock_coordinator()
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -206,7 +205,6 @@ class TestAsyncSetupEntry:
         )
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -239,7 +237,6 @@ class TestAsyncSetupEntry:
         )
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -378,7 +375,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator = _make_mock_coordinator()
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -410,7 +406,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator.async_login = AsyncMock(return_value=False)
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -448,7 +443,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator.last_update_success = True
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -480,7 +474,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator.last_update_success = False
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -511,7 +504,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator = _make_mock_coordinator()
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -556,7 +548,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator.renew_task = mock_renew_task
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -609,7 +600,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator.close_websocket = AsyncMock()
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -659,7 +649,6 @@ class TestAsyncSetupEntryAdditional:
         )
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
@@ -704,7 +693,6 @@ class TestAsyncSetupEntryAdditional:
         mock_coordinator = _make_mock_coordinator()
 
         with (
-            patch("custom_components.electrolux.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.get_electrolux_session",
                 return_value=MagicMock(),
