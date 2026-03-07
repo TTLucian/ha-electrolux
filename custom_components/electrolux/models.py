@@ -669,7 +669,7 @@ class Appliance:
                 # CRITICAL: Only create catalog entities if:
                 # - They're in the appliance state (entity was used/reported before), OR
                 # - They're in the always-created list (like manualSync), OR
-                # - We're in fallback mode: create ALL type-specific catalog entities so the
+                # - We're in fallback mode: create type-specific catalog entities so the
                 #   appliance has a full set of entities even when the capabilities API fails.
                 #   The catalog is already filtered per appliance type (WM, OV, RF, etc.) so
                 #   creating all entries won't pollute other appliance types' entity lists.
@@ -677,14 +677,27 @@ class Appliance:
                 #   timeToEnd, …) are missing when the machine was idle at setup time and
                 #   those keys weren't yet present in the reported state.
                 #
+                #   In fallback mode, "readwrite" control entities (e.g. uiLockMode,
+                #   temperatureRepresentation) are NOT created unless they've already
+                #   appeared in reported state. Creating a readwrite control without
+                #   confirmed capability support causes ghost entities: the entity is
+                #   registered but disappears on the next successful capability load,
+                #   leaving HA with "entity no longer provided" warnings.
+                #
                 # This prevents:
                 # 1. Creating entities for capabilities the appliance doesn't have (normal mode)
                 # 2. Missing entities when capabilities API fails and appliance was idle at setup
+                # 3. Ghost "readwrite" entities from fallback mode surviving into normal mode
+                create_in_fallback = in_fallback_mode and (
+                    capability_access != "readwrite"
+                    or attr_in_reported
+                    or attr_at_top_level
+                )
                 if not (
                     attr_in_reported
                     or attr_at_top_level
                     or is_always_created_entity
-                    or in_fallback_mode
+                    or create_in_fallback
                 ):
                     _LOGGER.debug(
                         "Skipping catalog entity %s - not in appliance state or capabilities (access: %s, fallback: %s)",
