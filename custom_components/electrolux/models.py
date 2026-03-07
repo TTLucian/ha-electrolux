@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import logging
 import re
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 if TYPE_CHECKING:
     from .entity import ElectroluxEntity
@@ -104,7 +104,7 @@ class Appliance:
         pnc_id: str,
         brand: str,
         model: str,
-        state: ApplianceState,
+        state: ApplianceState | dict[str, Any],
         serial_number: str | None = None,
         appliance_type: str | None = None,
     ) -> None:
@@ -115,7 +115,7 @@ class Appliance:
         self.pnc_id = pnc_id
         self.name = name
         self.brand = brand
-        self.state: ApplianceState = state
+        self.state: ApplianceState = cast(ApplianceState, state)
         self.serial_number: str | None = serial_number
         self.entities: list[Any] = []
         self._catalog_cache: dict[str, Any] | None = None
@@ -124,8 +124,6 @@ class Appliance:
     @property
     def reported_state(self) -> dict[str, Any]:
         """Return the reported state of the appliance."""
-        from typing import cast
-
         return (
             cast(dict[str, Any], self.state).get("properties", {}).get("reported", {})
         )
@@ -149,8 +147,6 @@ class Appliance:
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""
-        from typing import cast
-
         self.state = cast(ApplianceState, appliance_status)
         self.initialize_constant_values()
         for entity in self.entities:

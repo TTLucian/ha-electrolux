@@ -1379,7 +1379,7 @@ class TestDisconnectWebsocketCancelledPath:
                 raise asyncio.CancelledError("task was cancelled")
                 yield  # noqa: unreachable — makes this a generator-based awaitable
 
-        client._sse_task = _CancelledAwaitable()
+        client._sse_task = _CancelledAwaitable()  # type: ignore[assignment]
         # Should not raise — CancelledError is caught and logged
         await client.disconnect_websocket()
         assert client._sse_task is None

@@ -120,25 +120,25 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.listen_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
-        self._deferred_tasks_by_appliance: dict[
-            str, asyncio.Task
-        ] = {}  # Track deferred tasks by appliance
+        self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
+            {}
+        )  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
         self._manual_sync_lock = (
             asyncio.Lock()
         )  # Prevent concurrent manual sync operations
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
-        self._last_update_times: dict[
-            str, float
-        ] = {}  # Track last update time per appliance
-        self._last_known_connectivity: dict[
-            str, str
-        ] = {}  # Track previous connectivity state per appliance
+        self._last_update_times: dict[str, float] = (
+            {}
+        )  # Track last update time per appliance
+        self._last_known_connectivity: dict[str, str] = (
+            {}
+        )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
-        self._last_time_to_end: dict[
-            str, float | None
-        ] = {}  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._last_time_to_end: dict[str, float | None] = (
+            {}
+        )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
         self._consecutive_auth_failures = (
             0  # Track consecutive auth failures before creating repair
         )
@@ -1278,9 +1278,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[failed_appliance_id] = (
-                            minimal_appliance
-                        )
+                        self.data["appliances"].appliances[
+                            failed_appliance_id
+                        ] = minimal_appliance
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1351,9 +1351,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[failed_appliance_id] = (
-                            minimal_appliance
-                        )
+                        self.data["appliances"].appliances[
+                            failed_appliance_id
+                        ] = minimal_appliance
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1424,9 +1424,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[failed_appliance_id] = (
-                            minimal_appliance
-                        )
+                        self.data["appliances"].appliances[
+                            failed_appliance_id
+                        ] = minimal_appliance
 
                     _LOGGER.info(
                         "Created minimal appliance entry for %s (%s) after unexpected error, "

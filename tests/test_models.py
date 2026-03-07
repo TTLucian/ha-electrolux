@@ -97,7 +97,7 @@ def _make_appliance(state=None):
         pnc_id="PNC123",
         brand="Electrolux",
         model="EOH8854AAX",
-        state=state,  # type: ignore[arg-type]
+        state=state,
     )
 
 
@@ -386,7 +386,7 @@ def _make_app_full(state=None, model="EOH8854AAX"):
         pnc_id="PNC123",
         brand="Electrolux",
         model=model,
-        state=state,  # type: ignore[arg-type]
+        state=state,
     )
 
 
