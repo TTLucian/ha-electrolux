@@ -1292,9 +1292,9 @@ class TestFormatCommandEdgeCases:
         # float input must also be coerced to int
         result = format_command_for_appliance(fanspeed_cap, "Fanspeed", 3.0)
         assert result == 3
-        assert isinstance(result, int), (
-            f"Expected int from float input, got {type(result)}: {result}"
-        )
+        assert isinstance(
+            result, int
+        ), f"Expected int from float input, got {type(result)}: {result}"
 
     def test_temperature_type_in_cap_type_tuple(self):
         """'type: temperature' is handled numerically via the cap_type tuple (defense in depth).
@@ -1321,9 +1321,9 @@ class TestFormatCommandEdgeCases:
         # Fractional step=0.5, but value is a whole number → must return int
         cap = {"type": "number", "min": 0.0, "max": 10.0, "step": 0.5}
         result = format_command_for_appliance(cap, "someValue", 2.0)
-        assert isinstance(result, int), (
-            f"Expected int for 2.0, got {type(result)}: {result}"
-        )
+        assert isinstance(
+            result, int
+        ), f"Expected int for 2.0, got {type(result)}: {result}"
         assert result == 2
 
     def test_number_type_integer_step_returns_int(self):
@@ -1341,9 +1341,9 @@ class TestFormatCommandEdgeCases:
                 anti_crease_cap, "antiCreaseValue", val
             )
             assert result == int(val), f"Expected {int(val)}, got {result}"
-            assert isinstance(result, int), (
-                f"Expected int for value {val}, got {type(result)}: {result}"
-            )
+            assert isinstance(
+                result, int
+            ), f"Expected int for value {val}, got {type(result)}: {result}"
 
     def test_number_type_fractional_step_returns_float(self):
         """Genuinely fractional values (non-integer) are preserved as float.

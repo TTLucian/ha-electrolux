@@ -107,7 +107,23 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         if not self.is_dam_appliance:
             # Legacy appliances: send as top-level property, but respect entity_source
             # when the capability key has a slash.
-            if self.entity_source:
+            if self.entity_source == "userSelections":
+                reported = (
+                    self.appliance_status.get("properties", {}).get("reported", {})
+                    if self.appliance_status
+                    else {}
+                )
+                program_uid = reported.get("userSelections", {}).get("programUID")
+                if program_uid:
+                    command = {
+                        "userSelections": {
+                            "programUID": program_uid,
+                            self.entity_attr: command_value,
+                        }
+                    }
+                else:
+                    command = {self.entity_source: {self.entity_attr: command_value}}
+            elif self.entity_source:
                 command = {self.entity_source: {self.entity_attr: command_value}}
             else:
                 command = {self.entity_attr: command_value}

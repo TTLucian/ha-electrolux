@@ -1415,9 +1415,9 @@ class TestGetProgramCapabilitiesGaps:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data = mock_data
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
+            mock_data
+        )
 
         result = entity._get_program_capabilities("Cotton")
         assert result == {}
@@ -1431,9 +1431,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="spinSpeed", reported={"program": "QuickWash"})
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data = mock_data
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
+            mock_data
+        )
 
         result = entity._get_program_capabilities("QuickWash")
         assert "spinSpeed" in result
@@ -1447,9 +1447,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="temperature", reported={})
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data = mock_data
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
+            mock_data
+        )
 
         result = entity._get_program_capabilities("Synthetic")
         assert "temperature" in result
@@ -1766,9 +1766,9 @@ class TestIsSupportedByProgramNoApplianceData:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data = mock_data
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
+            mock_data
+        )
 
         # Mock _get_program_capabilities so entity IS found in caps
         entity._get_program_capabilities = MagicMock(
@@ -1794,9 +1794,9 @@ class TestGetProgramConstraintNoProgram:
         mock_data.capabilities = {
             "program": {"values": {}}  # UnknownProgram not in values
         }
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data = mock_data
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
+            mock_data
+        )
 
         result = entity._get_program_constraint("min")
         assert result is None

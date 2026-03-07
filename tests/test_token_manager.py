@@ -219,9 +219,9 @@ class TestElectroluxTokenManager401:
             assert all(results), "All concurrent refresh calls should succeed"
 
             # Should only make ONE actual HTTP request (others wait and skip due to lock)
-            assert refresh_call_count == 1, (
-                f"Expected 1 HTTP request, got {refresh_call_count}"
-            )
+            assert (
+                refresh_call_count == 1
+            ), f"Expected 1 HTTP request, got {refresh_call_count}"
 
             # Verify tokens were updated
             auth_data = await token_manager.get_auth_data()
@@ -628,9 +628,9 @@ class TestElectroluxTokenManager401:
             # Second refresh should bypass cooldown due to _marked_needs_refresh
             result2 = await token_manager.refresh_token()
             assert result2 is False
-            assert refresh_attempts == 2, (
-                "Cooldown should be bypassed when token expired"
-            )
+            assert (
+                refresh_attempts == 2
+            ), "Cooldown should be bypassed when token expired"
 
 
 class TestTokenManagerMissingCoverage:

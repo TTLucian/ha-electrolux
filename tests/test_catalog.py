@@ -38,9 +38,9 @@ class TestCatalogCore:
 
         catalog = CATALOG_BASE()
         for key, value in catalog.items():
-            assert isinstance(value, ElectroluxDevice), (
-                f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
-            )
+            assert isinstance(
+                value, ElectroluxDevice
+            ), f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
 
     def test_catalog_by_type_loads(self):
         """Appliance-type-specific catalogs load correctly."""
@@ -82,18 +82,15 @@ class TestCatalogOven:
         from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
         for key, value in CATALOG_OV.items():
-            assert isinstance(value, ElectroluxDevice), (
-                f"Oven catalog entry '{key}' is {type(value)}"
-            )
+            assert isinstance(
+                value, ElectroluxDevice
+            ), f"Oven catalog entry '{key}' is {type(value)}"
 
     def test_oven_has_temperature_entities(self):
         """Oven catalog has temperature entities."""
         from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
-        assert (
-            "targetTemperatureC" in CATALOG_OV
-            or "displayTemperatureC" in CATALOG_OV
-        )
+        assert "targetTemperatureC" in CATALOG_OV or "displayTemperatureC" in CATALOG_OV
 
     def test_oven_has_execute_command(self):
         """Oven catalog has executeCommand entity."""
@@ -117,9 +114,9 @@ class TestCatalogWasher:
         from custom_components.electrolux.catalogs.catalog_wm import CATALOG_WM
 
         for key, value in CATALOG_WM.items():
-            assert isinstance(value, ElectroluxDevice), (
-                f"Washer catalog entry '{key}' is {type(value)}"
-            )
+            assert isinstance(
+                value, ElectroluxDevice
+            ), f"Washer catalog entry '{key}' is {type(value)}"
 
 
 class TestCatalogWasherDryer:
@@ -217,10 +214,7 @@ class TestCatalogAirConditioner:
             CATALOG_AC,
         )
 
-        assert (
-            "mode" in CATALOG_AC
-            or "executeCommand" in CATALOG_AC
-        )
+        assert "mode" in CATALOG_AC or "executeCommand" in CATALOG_AC
 
 
 class TestCatalogStructuredOven:

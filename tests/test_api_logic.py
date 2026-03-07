@@ -307,9 +307,9 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=True)
-            assert result == value, (
-                f"Expected '{value}' for unknown input, got {result}"
-            )
+            assert (
+                result == value
+            ), f"Expected '{value}' for unknown input, got {result}"
 
     def test_string_to_boolean_unknown_with_fallback_false(self):
         """Test unknown values with fallback=False return False."""
@@ -317,9 +317,9 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=False)
-            assert result is False, (
-                f"Expected False for unknown input '{value}', got {result}"
-            )
+            assert (
+                result is False
+            ), f"Expected False for unknown input '{value}', got {result}"
 
     def test_string_to_boolean_case_insensitive(self):
         """Test that the function is case insensitive."""

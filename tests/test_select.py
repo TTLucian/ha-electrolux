@@ -214,8 +214,10 @@ class TestElectroluxSelect:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Legacy appliances with entity_source also wrap the command in the source container
-            assert command == {"userSelections": {"testAttr": "OPTION1"}}
+            # Legacy appliances with userSelections source include programUID
+            assert command == {
+                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPTION1"}
+            }
 
     @pytest.mark.asyncio
     async def test_select_with_appliance_source(
