@@ -156,7 +156,7 @@ All 345 tests passing:
 
 ## 🙏 Credits
 
-Special thanks to our users who reported these issues and provided detailed logs and sample data that made debugging possible. Your patience and detailed bug reports are invaluable!
+Special thanks to everyone who reported these issues and provided detailed logs and sample data that made debugging possible. Your patience and detailed bug reports are invaluable!
 
 ---
 

@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Help us support your appliance!
+        ## Help add support for your appliance!
 
         The single most useful thing you can do is attach your **diagnostics JSON file**.
         It contains the full capability map of your appliance and takes 30 seconds to generate.
@@ -57,7 +57,7 @@ body:
         **How to download:**
         Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics
 
-        The file contains your appliance's full capability map. Without it we cannot add support.
+        The file contains your appliance's full capability map. Without it, support cannot be added.
       placeholder: "Drag and drop the diagnostics JSON file here, or paste its contents."
     validations:
       required: true

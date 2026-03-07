@@ -9,7 +9,7 @@ body:
       value: |
         Thanks for suggesting a feature! 🚀
         
-        We love hearing your ideas - describe what you'd like to see and we'll consider it!
+        All ideas are welcome — describe what you'd like to see and it will be considered!
 
   - type: textarea
     id: problem
@@ -51,7 +51,7 @@ body:
     id: use-case
     attributes:
       label: How would you use this? (Optional)
-      description: A specific example helps us understand your need
+      description: A specific example helps clarify the need
       placeholder: |
         For example:
         - I would use this to automate...

@@ -9,14 +9,14 @@ body:
       value: |
         Thanks for taking the time to report a bug! 
         
-        **📝 Quick tip:** The more details you provide, the faster we can help you. Fill out as much as you can!
+        **📝 Quick tip:** The more details you provide, the faster the issue can be fixed. Fill out as much as you can!
 
   - type: textarea
     id: description
     attributes:
       label: What happened?
       description: A brief description of the issue.
-      placeholder: Tell us what happened...
+      placeholder: Describe what happened...
     validations:
       required: true
 
@@ -24,7 +24,7 @@ body:
     id: steps
     attributes:
       label: Steps to Reproduce (Optional)
-      description: If you can reliably reproduce this, let us know how
+      description: If you can reliably reproduce this, describe how
       placeholder: |
         1. Go to '...'
         2. Click on '...'
@@ -87,7 +87,7 @@ body:
     attributes:
       label: Diagnostics File (Very Helpful!). It's now required because none of you are uploading diagnostics, and it's really hard to fix bugs without them.
       description: |
-        **This really helps us fix bugs faster!** Download diagnostics:
+        **This really helps fix bugs faster!** Download diagnostics:
         Settings → Devices & Services → Electrolux → Select Device → Download Diagnostics
         
         **Privacy:** Sensitive data (API keys, tokens) is automatically redacted, but please double-check before uploading.

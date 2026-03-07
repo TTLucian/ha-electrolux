@@ -7,9 +7,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Need help? We're here for you! 👋
+        Need help? 👋
         
-        **Tip:** The more context you provide, the better we can help. But just describe your question - everything else is optional!
+        **Tip:** The more context you provide, the better the answer. But just describe your question — everything else is optional!
 
   - type: textarea
     id: question
@@ -24,7 +24,7 @@ body:
     id: context
     attributes:
       label: What have you tried? (Optional)
-      description: Let us know what you've already attempted
+      description: Describe what you've already attempted
       placeholder: |
         I have tried...
         1. ...

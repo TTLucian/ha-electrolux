@@ -156,7 +156,7 @@ To protect users from accidentally damaging their appliances, the integration no
 - Granular blocking approach: only dangerous children blocked, safe children allowed
 
 **Why This Matters:**
-These commands can permanently break WiFi connectivity, unpair the appliance from your account, or require professional service to restore. By blocking them at the code level, we prevent accidental use through automations, dashboards, or voice assistants.
+These commands can permanently break WiFi connectivity, unpair the appliance from your account, or require professional service to restore. By blocking them at the code level, this prevents accidental use through automations, dashboards, or voice assistants.
 
 **For Developers:**
 The blacklist is easily maintainable using regex patterns. To add more dangerous entities, update `DANGEROUS_ENTITIES_BLACKLIST` in const.py.
