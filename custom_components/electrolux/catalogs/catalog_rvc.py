@@ -156,6 +156,11 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Cleaning Command",
     ),
     # Vacuum cleaning mode (select)
+    # NOTE: The values below (QUIET/SMART/POWER) come from the SDK.
+    # The Electrolux API docs describe different values in the per-room cleaning
+    # command context: quiet/energySaving/standard/powerful (Gordias) and
+    # quiet/energySaving/standard/powerful/max (Cybele). The global capability
+    # may differ — these values are unverified until a real diagnostic is provided.
     "vacuumMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

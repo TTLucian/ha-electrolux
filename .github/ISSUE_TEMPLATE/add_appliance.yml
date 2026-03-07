@@ -1,0 +1,105 @@
+name: 🏠 Add Appliance Support
+description: Submit diagnostics to add or improve support for a new or unverified appliance type
+title: "[Appliance]: <type> — <model>"
+labels: ["appliance-support"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Help us support your appliance!
+
+        The single most useful thing you can do is attach your **diagnostics JSON file**.
+        It contains the full capability map of your appliance and takes 30 seconds to generate.
+
+        **How to download diagnostics:**
+        Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics
+
+        **Privacy:** API keys, tokens, and personal data are automatically redacted by Home Assistant, but please double-check before uploading.
+
+  - type: input
+    id: model
+    attributes:
+      label: Appliance Model
+      description: |
+        The model identifier shown in Home Assistant Device info.
+        Format: `XX-XXXXXXXXX_XX` (type code, dash, PNC, underscore, variant).
+      placeholder: "e.g., TD-916099971_01"
+    validations:
+      required: true
+
+  - type: input
+    id: appliance-type
+    attributes:
+      label: Appliance Type Code
+      description: |
+        The short type code as reported by the integration (visible in the diagnostics file under `applianceType`, or in the device brand/model info).
+      placeholder: "e.g., TD, DH, PUREi9, Gordias, HB, HD, DAM_AC"
+    validations:
+      required: true
+
+  - type: input
+    id: brand-name
+    attributes:
+      label: Brand & Product Name (Optional)
+      description: Commercial name of the appliance.
+      placeholder: "e.g., AEG ProSteam 9000, Electrolux PerfectCare 900"
+    validations:
+      required: false
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics JSON File (Required)
+      description: |
+        Drag and drop the `.json` diagnostics file here.
+
+        **How to download:**
+        Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics
+
+        The file contains your appliance's full capability map. Without it we cannot add support.
+      placeholder: "Drag and drop the diagnostics JSON file here, or paste its contents."
+    validations:
+      required: true
+
+  - type: textarea
+    id: missing-entities
+    attributes:
+      label: Missing or Broken Entities (Optional)
+      description: |
+        Are there any specific controls or sensors that are missing or not working correctly?
+        List them here — e.g. "Vacuum Mode shows wrong options", "Anti-crease timer missing".
+      placeholder: |
+        - Vacuum Mode shows QUIET/SMART/POWER but appliance has quiet/standard/powerful
+        - Anti-crease duration is not present
+    validations:
+      required: false
+
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration Version
+      description: Which version of the Electrolux integration are you running?
+      placeholder: "e.g., 3.5.6"
+    validations:
+      required: false
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant Version
+      placeholder: "e.g., 2026.2.1"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have attached the diagnostics JSON file above.
+          required: true
+        - label: The model field above matches the format `XX-XXXXXXXXX_XX` (e.g. `TD-916099971_01`).
+          required: true
+        - label: I have checked that this appliance type is not already fully supported (see the Supported Appliances table in the release notes).
+          required: false

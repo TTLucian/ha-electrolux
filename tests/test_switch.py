@@ -417,14 +417,16 @@ class TestElectroluxSwitch:
         mock_coord = MagicMock()
         mock_coord.handle_authentication_error = AsyncMock()
 
-        with patch(
-            "custom_components.electrolux.switch.execute_command_with_error_handling",
-            side_effect=AuthenticationError("token expired"),
-        ), patch(
-            "custom_components.electrolux.switch.format_command_for_appliance",
-            return_value="ON",
-        ), patch.object(
-            switch_entity, "coordinator", mock_coord
+        with (
+            patch(
+                "custom_components.electrolux.switch.execute_command_with_error_handling",
+                side_effect=AuthenticationError("token expired"),
+            ),
+            patch(
+                "custom_components.electrolux.switch.format_command_for_appliance",
+                return_value="ON",
+            ),
+            patch.object(switch_entity, "coordinator", mock_coord),
         ):
             with pytest.raises(AuthenticationError):
                 await switch_entity.switch(True)
@@ -496,12 +498,15 @@ class TestElectroluxSwitch:
         entity.api.execute_appliance_command = AsyncMock(return_value=None)
 
         generic_err = HomeAssistantError("remote control disabled")
-        with patch(
-            "custom_components.electrolux.switch.execute_command_with_error_handling",
-            side_effect=generic_err,
-        ), patch(
-            "custom_components.electrolux.switch.format_command_for_appliance",
-            return_value="OFF",
+        with (
+            patch(
+                "custom_components.electrolux.switch.execute_command_with_error_handling",
+                side_effect=generic_err,
+            ),
+            patch(
+                "custom_components.electrolux.switch.format_command_for_appliance",
+                return_value="OFF",
+            ),
         ):
             with pytest.raises(HomeAssistantError, match="remote control disabled"):
                 await entity.switch(True)

@@ -38,7 +38,15 @@ covered by a single catalog; each device exposes only its own subset of capabili
 | `state` | Cleaning State (sensor) | Gordias/Cybele/700series: string state |
 | `chargingStatus` | Charging Status (sensor) | Gordias/Cybele/700series |
 | `cleaningCommand` | Cleaning Command (select) | Gordias/Cybele/700series: start / stop / pause / resume / dock |
-| `vacuumMode` | Vacuum Mode (select) | Gordias/Cybele/700series: QUIET / SMART / POWER |
+| `vacuumMode` | Vacuum Mode (select) | Gordias/Cybele/700series — ⚠️ values unverified, see note below |
+
+> **⚠️ `vacuumMode` values unverified for Gordias/Cybele/700series.**
+> The catalog currently lists `QUIET / SMART / POWER` (from the SDK). The Electrolux API docs
+> describe `quiet / energySaving / standard / powerful` (Gordias) and
+> `quiet / energySaving / standard / powerful / max` (Cybele) in the per-room cleaning command.
+> Whether the global `vacuumMode` capability uses the same casing and set of values cannot be
+> confirmed without a real diagnostic JSON. If your Gordias or Cybele shows incorrect vacuum mode
+> options, please [submit a diagnostic](https://github.com/TTLucian/ha-electrolux/issues).
 
 ---
 
@@ -177,5 +185,42 @@ report but that are not advertised in the API capabilities — so those entities
 **Fix:** The appliance type is now read from the appliances list at setup time and stored
 directly on the `Appliance` object. The reported-state fallback is kept for backward compatibility
 but is no longer the primary source.
+
+---
+
+### `userSelections` commands fail with HTTP 500 on legacy appliances (bug fix)
+
+**Affected appliances:** All **legacy** (non-DAM) appliances with `userSelections` sub-properties —
+confirmed on Tumble Dryer `TD-916099971`, affects any washer, dryer, or similar appliance with
+controls like `antiCreaseValue`, `humidityTarget`, `dryingTime`, etc.
+
+**Symptom:** Changing a `userSelections` entity in Home Assistant (e.g. Anti-Crease duration)
+caused an immediate HTTP 500 error from the Electrolux API. The appliance itself was unaffected; the
+command was simply rejected.
+
+**Root cause — `programUID` was missing from the command payload.**
+The [Electrolux API](https://developer.electrolux.one/documentation/reference) requires that any
+write to a `userSelections` sub-property include the `programUID` alongside the changed property:
+
+```json
+{
+    "userSelections": {
+        "programUID": "COTTON_PR_COTTONSECO",
+        "antiCreaseValue": 120
+    }
+}
+```
+
+The DAM path already handled this correctly. The legacy path in all four writable entity types
+(`number`, `select`, `switch`, `text`) sent the command **without** `programUID`:
+
+```json
+{ "userSelections": { "antiCreaseValue": 120 } }   ← HTTP 500
+```
+
+**Fix:** The legacy command path in `number.py`, `select.py`, `switch.py`, and `text.py` now reads
+`programUID` from the appliance's current reported state and includes it in every `userSelections`
+command. If `programUID` is unavailable the command falls back to the old format (no regression for
+appliances that do not use `programUID`).
 
 
