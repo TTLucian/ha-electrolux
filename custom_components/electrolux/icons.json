@@ -549,9 +549,6 @@
       "tankblevel": {
         "default": "mdi:flask"
       },
-      "targetmicrowavepower": {
-        "default": "mdi:microwave"
-      },
       "targettemperaturec": {
         "default": "mdi:thermometer"
       },

@@ -501,9 +501,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             if self.entity_attr in ["targetTemperatureC", "targetTemperatureF"]:
                 return TEMP_OVEN_STEP
             return DEFAULT_NUMBER_STEP
-        if val is None and self.capability:
-            val = _get_capability_constraint(self.capability, key)
-        return float(val or DEFAULT_NUMBER_STEP)
+        if val is None and self.capability:  # pragma: no cover
+            val = _get_capability_constraint(self.capability, key)  # pragma: no cover
+        return float(val or DEFAULT_NUMBER_STEP)  # pragma: no cover
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""

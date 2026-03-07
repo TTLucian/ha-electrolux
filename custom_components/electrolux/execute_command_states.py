@@ -13,7 +13,7 @@ are easy to extend when new API samples become available.
 Sources (all from ``samples/*.json`` → ``applianceState`` → ``triggers``)
 -------
 * OV-944188772_00.json      → OVEN_EXECUTE_STATES
-* SO-944035035_01.json      → STEAM_OVEN_EXECUTE_STATES
+* SO-944035035_01.json      → STRUCTURED_OVEN_EXECUTE_STATES
 * WM-914915144_00.json      → WASHER_EXECUTE_STATES
 * WD-914611500_00.json,
   WD-914611000_01.json      → WASHER_EXECUTE_STATES (identical state machine)
@@ -43,17 +43,17 @@ OVEN_EXECUTE_STATES: dict[str, list[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Steam Oven (SO / upperOven) — SO-944035035_01.json
+# Structured Oven (SO / upperOven) — SO-944035035_01.json
 # ---------------------------------------------------------------------------
-# The steam oven has only three applianceState values: ALARM, OFF, RUNNING.
+# The structured oven has only three applianceState values: ALARM, OFF, RUNNING.
 # There are NO conditional triggers in the sample — no PAUSED, DELAYED_START,
 # READY_TO_START, or END_OF_CYCLE states exist for this appliance type.
 # Using OVEN_EXECUTE_STATES here would make START permanently invisible because
-# it requires READY_TO_START / END_OF_CYCLE which never occur on a steam oven.
+# it requires READY_TO_START / END_OF_CYCLE which never occur on a structured oven.
 # applianceState  → accepted executeCommand values
 # OFF             → START   (oven is idle/ready)
 # RUNNING         → STOPRESET
-STEAM_OVEN_EXECUTE_STATES: dict[str, list[str]] = {
+STRUCTURED_OVEN_EXECUTE_STATES: dict[str, list[str]] = {
     "START": ["OFF"],
     "STOPRESET": ["RUNNING"],
 }
@@ -75,7 +75,7 @@ WASHER_EXECUTE_STATES: dict[str, list[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Washer-Dryer (WD) — WD-914611500_00.json, WD-914611000_01.json
+# Washer Dryer (WD) — WD-914611500_00.json, WD-914611000_01.json
 # ---------------------------------------------------------------------------
 # Same executeCommand state machine as a plain washer.
 # (WD also has IDLE→ON in the applianceState triggers, but that ON command is

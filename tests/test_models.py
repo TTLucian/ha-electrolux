@@ -164,6 +164,35 @@ class TestApplianceType:
         app = _make_appliance(state={})
         assert app.appliance_type is None
 
+    def test_constructor_param_overrides_reported_state(self):
+        """appliance_type kwarg takes precedence over applianceInfo in reported_state."""
+        state_with_ov = {
+            "properties": {"reported": {"applianceInfo": {"applianceType": "OV"}}}
+        }
+        app = Appliance(
+            coordinator=MagicMock(),
+            name="Test",
+            pnc_id="123",
+            brand="Electrolux",
+            model="model",
+            state=state_with_ov,
+            appliance_type="Verbier",
+        )
+        assert app.appliance_type == "Verbier"
+
+    def test_constructor_param_used_when_reported_state_lacks_type(self):
+        """When reported_state has no applianceInfo, constructor param is used."""
+        app = Appliance(
+            coordinator=MagicMock(),
+            name="Test",
+            pnc_id="123",
+            brand="Electrolux",
+            model="model",
+            state={},
+            appliance_type="Verbier",
+        )
+        assert app.appliance_type == "Verbier"
+
 
 class TestApplianceGetState:
     def test_simple_key(self):
@@ -735,6 +764,7 @@ class TestApplianceSetup:
     def test_setup_with_no_capabilities_survives(self, caplog):
         """Lines 547-550: setup() returns gracefully when capabilities is None."""
         import logging
+
         from custom_components.electrolux.api import ElectroluxLibraryEntity
 
         app = _make_app_full()
@@ -1158,7 +1188,11 @@ class TestSetupAdditionalCoverage:
         assert "Skipping duplicate entity" in caplog.text
 
     def test_nested_static_attribute_setdefault_path(self):
-        """Line 577: nested key static_attribute triggers setdefault on capabilities dict."""
+        """Line 572: setdefault loop runs when static_attribute has a slash.
+
+        The Appliance's OWN reported_state (not the data entity's) must contain the
+        static attribute key for attr_in_reported to be True.
+        """
         import custom_components.electrolux.models as models_mod
         from custom_components.electrolux.api import ElectroluxLibraryEntity
         from custom_components.electrolux.model import ElectroluxDevice
@@ -1166,7 +1200,26 @@ class TestSetupAdditionalCoverage:
         original_static = models_mod.STATIC_ATTRIBUTES
         try:
             models_mod.STATIC_ATTRIBUTES = ["userSelections/program"]
-            app = _make_app_full()
+            # Build the Appliance with a state that includes the slash-key in reported
+            app_state = {
+                "properties": {
+                    "reported": {
+                        "applianceInfo": {"applianceType": "OV"},
+                        "applianceState": "READY",
+                        "userSelections/program": "BAKE",  # literal "/" key in reported
+                    }
+                }
+            }
+            from custom_components.electrolux.models import Appliance
+
+            app = Appliance(
+                coordinator=_make_coordinator(),
+                name="Test Oven",
+                pnc_id="PNC123",
+                brand="Electrolux",
+                model="EOH8854AAX",
+                state=app_state,
+            )
             app._catalog_cache = {
                 "userSelections/program": ElectroluxDevice(
                     capability_info={
@@ -1175,11 +1228,6 @@ class TestSetupAdditionalCoverage:
                         "values": {"BAKE": {}, "GRILL": {}},
                     }
                 )
-            }
-            # Use the FULL path as a direct key in reported_state so attr_in_reported is True
-            reported = {
-                "applianceInfo": {"applianceType": "OV"},
-                "userSelections/program": "BAKE",
             }
             caps = {
                 "userSelections": {
@@ -1193,7 +1241,11 @@ class TestSetupAdditionalCoverage:
             data = ElectroluxLibraryEntity(
                 name="Test",
                 status="connected",
-                state={"properties": {"reported": reported}},
+                state={
+                    "properties": {
+                        "reported": {"applianceInfo": {"applianceType": "OV"}}
+                    }
+                },
                 appliance_info={},
                 capabilities=caps,
             )
@@ -1201,3 +1253,147 @@ class TestSetupAdditionalCoverage:
             assert isinstance(app.entities, list)
         finally:
             models_mod.STATIC_ATTRIBUTES = original_static
+
+    def test_get_entity_unknown_platform_raises_value_error(self):
+        """L469-470: entity_type not in entity_classes → raises ValueError."""
+        import custom_components.electrolux.models as models_mod
+
+        original_platforms = models_mod.PLATFORMS
+        try:
+            # Add a fake platform so entity_type in PLATFORMS check passes
+            fake_platform = "fake_platform_xyz_12345"
+            models_mod.PLATFORMS = list(original_platforms) + [fake_platform]
+
+            app = _make_app_full()
+            app._catalog_cache = {}
+
+            # Mock data where get_entity_type returns the fake platform
+            mock_data = MagicMock()
+            mock_data.get_entity_type.return_value = fake_platform
+            mock_data.get_entity_name.return_value = "fakeName"
+            mock_data.get_entity_attr.return_value = "fakeName"
+            mock_data.get_category.return_value = ""
+            mock_data.get_entity_unit.return_value = None
+            mock_data.get_entity_device_class.return_value = None
+            mock_data.get_capability.return_value = {
+                "access": "readwrite",
+                "type": "string",
+            }
+            mock_data.get_sensor_name.return_value = "Fake Name"
+            app.data = mock_data
+
+            import pytest
+
+            with pytest.raises(ValueError, match="Unknown entity type"):
+                app.get_entity("fakeAttr")
+        finally:
+            models_mod.PLATFORMS = original_platforms
+
+    def test_setup_fan_catalog_entry_not_in_api_caps_covered_by_reported_state(self):
+        """L635-641: Fan-platform catalog entry with capability_info that isn't in
+        API caps — base key IS in reported state → attr_in_reported=True."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.api import ElectroluxLibraryEntity
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        # Appliance state includes "Workmode" in reported (fan base key)
+        app_state = {
+            "properties": {
+                "reported": {
+                    "applianceInfo": {"applianceType": "AP"},
+                    "Workmode": "Manual",
+                }
+            }
+        }
+        from custom_components.electrolux.models import Appliance
+
+        app = Appliance(
+            coordinator=_make_coordinator(),
+            name="Test Purifier",
+            pnc_id="APNC",
+            brand="Electrolux",
+            model="AP_MODEL",
+            state=app_state,
+        )
+        # Catalog has "Workmode/fan" with FAN platform + capability_info
+        app._catalog_cache = {
+            "Workmode/fan": ElectroluxDevice(
+                capability_info={
+                    "access": "readwrite",
+                    "type": "string",
+                    "values": {"Manual": {}, "Auto": {}, "PowerOff": {}},
+                },
+                entity_platform=Platform.FAN,
+            )
+        }
+        # API capabilities do NOT include "Workmode/fan" so it falls into catalog-only branch
+        caps = {
+            "otherCap": {"access": "read", "type": "string"},
+        }
+        data = ElectroluxLibraryEntity(
+            name="Test",
+            status="connected",
+            state=app_state,
+            appliance_info={},
+            capabilities=caps,
+        )
+        app.setup(data)
+        assert isinstance(app.entities, list)
+        # At least the fan entity should be created
+        assert len(app.entities) >= 1
+
+    def test_setup_fan_catalog_base_key_in_caps_not_in_reported(self):
+        """L645-651: fan catalog entry — base key in capabilities_names but NOT in
+        reported state → attr_in_reported set to True via the L651 override."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.api import ElectroluxLibraryEntity
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        # Appliance state does NOT have "Workmode" in reported state
+        app_state = {
+            "properties": {
+                "reported": {
+                    "applianceInfo": {"applianceType": "AP"},
+                    # Deliberately no "Workmode" key here
+                }
+            }
+        }
+        from custom_components.electrolux.models import Appliance
+
+        app = Appliance(
+            coordinator=_make_coordinator(),
+            name="Test Purifier",
+            pnc_id="APNC2",
+            brand="Electrolux",
+            model="AP_MODEL",
+            state=app_state,
+        )
+        app._catalog_cache = {
+            "Workmode/fan": ElectroluxDevice(
+                capability_info={
+                    "access": "readwrite",
+                    "type": "string",
+                    "values": {"Manual": {}, "Auto": {}, "PowerOff": {}},
+                },
+                entity_platform=Platform.FAN,
+            )
+        }
+        # API capabilities DO include "Workmode" (the fan base key) but NOT "Workmode/fan"
+        caps = {
+            "Workmode": {
+                "access": "readwrite",
+                "type": "string",
+                "values": {"Manual": {}, "Auto": {}, "PowerOff": {}},
+            },
+        }
+        data = ElectroluxLibraryEntity(
+            name="Test",
+            status="connected",
+            state=app_state,
+            appliance_info={},
+            capabilities=caps,
+        )
+        app.setup(data)
+        assert isinstance(app.entities, list)

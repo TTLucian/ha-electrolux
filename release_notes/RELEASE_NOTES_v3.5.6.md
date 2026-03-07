@@ -1,0 +1,180 @@
+# Release Notes v3.5.6
+
+## New Features
+
+### Expanded appliance support — 17 new type codes catalogued
+
+Using the SDK's built-in appliance configuration as the authoritative source of API key
+mappings, four new catalog files were created and the type-code registry was extended from
+12 to 29 supported appliance types. Appliances of these types will now have their
+capabilities matched against a rich entity catalog instead of falling back to the generic
+auto-discovery mode.
+
+---
+
+#### Dehumidifier (DH, Husky) — new `catalog_dh.py`
+
+| Capability key | Entity | Notes |
+|---|---|---|
+| `sensorHumidity` | Humidity (sensor) | Current ambient humidity % |
+| `targetHumidity` | Target Humidity (number) | Setpoint — range / step read from device |
+| `fanSpeedSetting` | Fan Speed (select) | LOW / MEDIUM / HIGH / TURBO |
+| `mode` | Mode (select) | AUTO / CONTINUOUS / LAUNDRY / DRY_CLOTHES / SILENT |
+
+---
+
+#### Robot Vacuum (PUREi9, Gordias, Cybele, 700series) — new `catalog_rvc.py`
+
+Both the older PUREi9 API (integer `robotStatus`, `CleaningCommand`) and the newer
+Gordias/Cybele/700series API (string `state`, `cleaningCommand`, `chargingStatus`) are
+covered by a single catalog; each device exposes only its own subset of capabilities.
+
+| Capability key | Entity | Notes |
+|---|---|---|
+| `batteryStatus` | Battery (sensor) | % — common to all robot vacuum models |
+| `robotStatus` | Robot Status (sensor) | PUREi9 only — integer 1-14 with human-readable labels |
+| `CleaningCommand` | Cleaning Command (select) | PUREi9: play / stop / pause / home |
+| `powerMode` | Power Mode (select) | PUREi9: QUIET / SMART / POWER |
+| `state` | Cleaning State (sensor) | Gordias/Cybele/700series: string state |
+| `chargingStatus` | Charging Status (sensor) | Gordias/Cybele/700series |
+| `cleaningCommand` | Cleaning Command (select) | Gordias/Cybele/700series: start / stop / pause / resume / dock |
+| `vacuumMode` | Vacuum Mode (select) | Gordias/Cybele/700series: QUIET / SMART / POWER |
+
+---
+
+#### Induction Hob (HB) — new `catalog_hb.py`
+
+| Capability key | Entity | Notes |
+|---|---|---|
+| `applianceMode` | Appliance Mode (select) | Top-level operating mode |
+| `childLock` | Child Lock (switch) | |
+| `keySoundTone` | Key Sound (switch) | |
+| `windowNotification` | Window Notification (switch) | |
+| `hobHood/hobToHoodFanSpeed` | Hood Fan Speed (select) | Nested under `hobHood` sub-object |
+| `hobHood/hobToHoodState` | Hood State (select) | Nested under `hobHood` sub-object |
+
+---
+
+#### Hood / Extractor Fan (HD) — new `catalog_hd.py`
+
+| Capability key | Entity | Notes |
+|---|---|---|
+| `hoodFanLevel` | Fan Level (select) | off / low / medium / high / intensive |
+| `lightIntensity` | Light Intensity (number) | 0–100 % |
+| `lightColorTemperature` | Light Colour Temperature (number) | 2700–6500 K |
+| `hoodCharcFilterTimer` | Charcoal Filter Timer (sensor) | Hours until service |
+| `hoodGreaseFilterTimer` | Grease Filter Timer (sensor) | Hours until service |
+| `tvocFilterTime` | TVOC Filter Time (sensor) | Hours remaining |
+| `hoodFilterCharcEnable` | Charcoal Filter Enable (switch) | |
+| `drawerStatus` | Drawer (binary sensor) | OPEN / CLOSED |
+| `humanCentricLightEventState` | Human-Centric Light (binary sensor) | |
+| `hoodAutoSwitchOffEvent` | Auto Switch-Off (binary sensor) | |
+| `applianceMode` | Appliance Mode (select) | |
+| `soundVolume` | Sound Volume (number) | 0–100 % |
+
+---
+
+### Additional AC and AP variant type codes registered
+
+All AC and AP variant type codes that the SDK defines are now mapped to their respective
+catalogs, so these appliances are catalogued from first connection rather than relying on
+generic auto-discovery:
+
+| New type codes | Catalog used |
+|---|---|
+| `CA`, `Azul`, `Bogong`, `Panther`, `Telica` | Air Conditioner |
+| `PUREA9`, `Fuji`, `WELLA5`, `WELLA7` | Air Purifier |
+
+---
+
+## Supported Appliances (as of v3.5.6)
+
+| Type | Appliance | Status | Known-Tested Samples |
+|------|-----------|--------|----------------------|
+| `OV` | Oven | Full | OV-944188772 |
+| `SO` | Structured Oven | Full | SO-944035035 |
+| `CR` | Combi Refrigerator | Full | CR-925060324 |
+| `WM` | Washing Machine | Full | WM-914501128, WM-914915144 |
+| `WD` | Washer Dryer | Full | WD-914611000, WD-914611500 |
+| `TD` | Tumble Dryer | Full | TD-916098401, TD-916098618, TD-916099548, TD-916099949, TD-916099971 |
+| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` verified) | AC-910280820 — CA/Azul/Bogong/Panther/Telica unverified |
+| `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+| `DW` | Dishwasher | Full | DW-911434654, DW-911434834 |
+| `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (Muju/Verbier verified) | UltimateHome 500 (EP53); Verbier — PUREA9/Fuji/WELLA5/WELLA7 unverified |
+| `DH` / `Husky` | Dehumidifier | Catalog *(unverified)* | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Catalog *(unverified)* | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+| `HB` | Induction Hob | Catalog *(unverified)* | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+| `HD` | Hood / Extractor Fan | Catalog *(unverified)* | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+| `MW` | Microwave | Stub | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
+
+### 🔬 Diagnostics wanted — help verify new appliance types
+
+The catalog entries for the appliance types listed as *unverified* above were built from the
+Electrolux SDK's internal API mappings. Capability key names are correct per the SDK, but
+value ranges, available modes, and model-specific differences can only be confirmed with a
+real diagnostic JSON file.
+
+If you own one of these appliances, please download your diagnostics from
+**Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics**
+and [open a GitHub issue - Feature request](https://github.com/TTLucian/ha-electrolux/issues) with the file
+attached. This is the single most impactful contribution you can make — a diagnostic file
+takes 30 seconds to generate and enables full verified support for your appliance type.
+
+| Appliance | Issue title to use |
+|-----------|-------------------|
+| 🌊 **Dehumidifier** (DH, Husky) | `DH diagnostics — [your model]` |
+| 🤖 **Robot Vacuum** (PUREi9, Gordias, Cybele, 700series) | `RVC diagnostics — [your model]` |
+| 🍳 **Induction Hob** (HB) | `HB diagnostics — [your model]` |
+| 💨 **Hood / Extractor Fan** (HD) | `HD diagnostics — [your model]` |
+| ❄️ **DAM Air Conditioner** (DAM_AC) | `DAM_AC diagnostics — [your model]` |
+| ❄️ **AC variants** (CA, Azul, Bogong, Panther, Telica) | `AC variant diagnostics — [your type/model]` |
+| 💨 **AP variants** (PUREA9, Fuji, WELLA5, WELLA7) | `AP variant diagnostics — [your type/model]` |
+
+---
+
+### DAM_AC — dedicated catalog (bug fix)
+
+**Previous behaviour:** `DAM_AC` appliances had the `DAM_` prefix stripped before catalog
+lookup, so they were matched against the standard `AC` catalog. None of the `AC` catalog
+keys exist in the DAM_AC API — all controls are nested under the `airConditioner/`
+sub-object — so a DAM_AC device produced zero recognised entities.
+
+**Fix:** A dedicated `catalog_dam_ac.py` was created and `DAM_AC` is now registered as its
+own type code. The `DAM_` prefix stripping in `models.py` has been removed.
+
+| Capability key | Entity | Notes |
+|---|---|---|
+| `temperature` | Ambient Temperature (sensor) | Root level (not nested) |
+| `airConditioner/applianceState` | State (sensor) | Nested |
+| `airConditioner/executeCommand` | Power (select) | on / off |
+| `airConditioner/targetTemperature` | Target Temperature (number) | Integer °C |
+---
+
+### Air Purifier — Temperature, Humidity and eCO₂ sensors missing (bug fix)
+
+**Affected appliances:** All air purifier variants — `Verbier`, `Muju`, `PUREA9`, `Fuji`, `WELLA5`, `WELLA7`.
+
+**Symptom:** After integrating a Verbier (or any air purifier variant), the Temperature, Humidity
+and eCO₂ sensors were never created in Home Assistant, even when the values were present in the
+appliance's live state.
+
+**Root cause — integration read `applianceType` from the wrong place.**
+The Electrolux API provides `applianceType` in the **appliances list** (`"applianceType": "Verbier"`).
+This field is present and correct for every appliance type without exception.
+
+Many appliances — washers, dryers, ovens — *additionally* embed the same value
+deep inside their live telemetry at
+`appliances_detail[id].state.properties.reported.applianceInfo.applianceType`.
+The integration was reading only from that second, optional location. Air purifiers never include
+`applianceInfo` in their reported state, so for those appliances `applianceType` always resolved
+to `None`.
+
+With no appliance type, the per-type catalog lookup was skipped entirely. The purifier catalog
+contains the definitions for `Temp`, `Humidity`, and `ECO2` — sensors that the hardware *does*
+report but that are not advertised in the API capabilities — so those entities were never created.
+
+**Fix:** The appliance type is now read from the appliances list at setup time and stored
+directly on the `Appliance` object. The reported-state fallback is kept for backward compatibility
+but is no longer the primary source.
+
+

@@ -106,6 +106,7 @@ class Appliance:
         model: str,
         state: ApplianceState,
         serial_number: str | None = None,
+        appliance_type: str | None = None,
     ) -> None:
         """Initialize the appliance."""
         self.data = None
@@ -118,6 +119,7 @@ class Appliance:
         self.serial_number: str | None = serial_number
         self.entities: list[Any] = []
         self._catalog_cache: dict[str, Any] | None = None
+        self._appliance_type: str | None = appliance_type
 
     @property
     def reported_state(self) -> dict[str, Any]:
@@ -133,12 +135,17 @@ class Appliance:
         """Return the reported type of the appliance.
 
         OV: Oven
-        RF: Refrigerator
+        CR: Combi Refrigerator
         WM: Washing Machine
-        WD: Washer-Dryer
+        WD: Washer Dryer
         AC: Air Conditioner
         """
-        return self.reported_state.get("applianceInfo", {}).get("applianceType")
+        # Prefer the explicitly-passed type (from appliances_list API field).
+        # Fall back to reported_state.applianceInfo.applianceType for backward
+        # compatibility with minimal-state objects that embed it there.
+        return self._appliance_type or self.reported_state.get("applianceInfo", {}).get(
+            "applianceType"
+        )
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""
@@ -199,13 +206,9 @@ class Appliance:
 
         # Merge with appliance-type specific catalog if available
         appliance_type = self.appliance_type
-        # DAM devices use types like "DAM_AC" - strip the prefix for catalog lookup
-        catalog_lookup_type = (
-            appliance_type.replace("DAM_", "") if appliance_type else appliance_type
-        )
         catalog_by_type = _get_catalog_by_type()
-        if catalog_lookup_type in catalog_by_type:
-            type_catalog = catalog_by_type[catalog_lookup_type]
+        if appliance_type in catalog_by_type:
+            type_catalog = catalog_by_type[appliance_type]
             for key, device in type_catalog.items():
                 new_catalog[key] = device
 

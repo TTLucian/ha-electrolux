@@ -1221,3 +1221,180 @@ class TestClose:
 
         await client.close()  # Should not raise
         client.disconnect_websocket.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# retry_with_backoff — L89: NetworkError when loop never executes
+# ---------------------------------------------------------------------------
+
+
+class TestRetryWithBackoffNetworkErrorFallback:
+    @pytest.mark.asyncio
+    async def test_negative_max_retries_raises_network_error(self):
+        """L89: range(0) loop never runs → last_exception is None → NetworkError."""
+        from custom_components.electrolux.exceptions import NetworkError
+
+        async def dummy():
+            return "unreachable"
+
+        coro = dummy()
+        with pytest.raises(NetworkError, match="All retry attempts failed"):
+            await retry_with_backoff(coro, max_retries=-1)
+
+
+# ---------------------------------------------------------------------------
+# get_appliance_capabilities — inner _get_capabilities() execution (L469-472)
+# ---------------------------------------------------------------------------
+
+
+class TestGetApplianceCapabilitiesInnerFunction:
+    @pytest.mark.asyncio
+    async def test_inner_get_capabilities_function_executed(self):
+        """L469-472: inner _get_capabilities() coroutine is awaited by safe_api_call."""
+        client = _make_client()
+
+        mock_result = MagicMock()
+        mock_result.capabilities = {"mode": {"type": "string", "access": "readwrite"}}
+        client._handle_api_call = AsyncMock(return_value=mock_result)
+        client._client.get_appliance_details = MagicMock(return_value=MagicMock())
+
+        caps = await client.get_appliance_capabilities("APP123")
+        assert caps == {"mode": {"type": "string", "access": "readwrite"}}
+
+
+# ---------------------------------------------------------------------------
+# watch_for_appliance_state_updates — exception during SSE setup (L564-566)
+# ---------------------------------------------------------------------------
+
+
+class TestWatchForApplianceStateUpdatesException:
+    @pytest.mark.asyncio
+    async def test_exception_during_sse_setup_logs_and_reraises(self):
+        """L564-566: exception raised inside try block is caught, logged, re-raised."""
+        client = _make_client()
+
+        # Make remove_all_listeners_by_appliance_id raise an exception
+        client._client.remove_all_listeners_by_appliance_id = MagicMock(
+            side_effect=RuntimeError("SSE setup exploded")
+        )
+
+        with pytest.raises(RuntimeError, match="SSE setup exploded"):
+            await client.watch_for_appliance_state_updates(["APP1"], lambda x: None)
+
+
+# ---------------------------------------------------------------------------
+# _handle_sse_failure callback — task ended without exception (L580)
+# ---------------------------------------------------------------------------
+
+
+class TestHandleSseFailureNoException:
+    @pytest.mark.asyncio
+    async def test_task_ended_no_exception_logs_debug(self):
+        """L580: task.cancelled()=False and task.exception()=None → logs 'ended unexpectedly'."""
+
+        client = _make_client(hass=MagicMock())
+
+        # Capture which branch is taken by observing the mock task
+        done_callbacks = []
+
+        class FakeTask:
+            def cancelled(self):
+                return False
+
+            def exception(self):
+                return None  # No exception — triggers the else branch (L580)
+
+            def add_done_callback(self, cb):
+                done_callbacks.append(cb)
+
+            def done(self):
+                return False
+
+        fake_task = FakeTask()
+
+        async def fake_stream():
+            pass
+
+        if client.hass:
+            client.hass.async_create_task = MagicMock(return_value=fake_task)
+
+        with patch(
+            "custom_components.electrolux.api_client.asyncio.create_task",
+            return_value=fake_task,
+        ):
+            client._client.remove_all_listeners_by_appliance_id = MagicMock()
+            client._client.add_listener = MagicMock()
+            client._client.start_event_stream = MagicMock(return_value=fake_stream())
+            await client.watch_for_appliance_state_updates(["APP1"], lambda x: None)
+
+        # Fire the done callback with the fake_task to exercise L580
+        assert len(done_callbacks) == 1
+        done_callbacks[0](fake_task)  # triggers the else branch → L580 log
+
+
+# ---------------------------------------------------------------------------
+# disconnect_websocket — exception in outer except (L590-591)
+# ---------------------------------------------------------------------------
+
+
+class TestDisconnectWebsocketException:
+    @pytest.mark.asyncio
+    async def test_outer_exception_is_logged_not_raised(self):
+        """L590-591: exception raised inside disconnect_websocket's outer try → logged."""
+        client = _make_client()
+
+        # Make _sse_task.done() raise to trigger the outer except block
+        mock_task = MagicMock()
+        mock_task.done.side_effect = RuntimeError("task broken")
+        client._sse_task = mock_task
+
+        # Should not raise — exception is caught and logged
+        await client.disconnect_websocket()
+
+
+# ---------------------------------------------------------------------------
+# L580: disconnect_websocket CancelledError path
+# ---------------------------------------------------------------------------
+
+
+class TestDisconnectWebsocketCancelledPath:
+    @pytest.mark.asyncio
+    async def test_cancelled_error_on_await_sse_task_is_logged(self):
+        """L580: await self._sse_task raises CancelledError → logged at debug level."""
+        import asyncio
+
+        client = _make_client()
+
+        # Use a proper awaitable that raises CancelledError
+        class _CancelledAwaitable:
+            """Awaitable that raises CancelledError when awaited."""
+
+            def done(self):
+                return False
+
+            def cancel(self):
+                pass
+
+            def __await__(self):
+                raise asyncio.CancelledError("task was cancelled")
+                yield  # noqa: unreachable — makes this a generator-based awaitable
+
+        client._sse_task = _CancelledAwaitable()
+        # Should not raise — CancelledError is caught and logged
+        await client.disconnect_websocket()
+        assert client._sse_task is None
+
+
+# ---------------------------------------------------------------------------
+# L283-287: _report_token_refresh_error with no hass
+# ---------------------------------------------------------------------------
+
+
+class TestReportTokenRefreshErrorNoHass:
+    @pytest.mark.asyncio
+    async def test_no_hass_logs_warning_and_returns(self):
+        """L283-287: _report_token_refresh_error with hass=None → warning logged, returns."""
+        client = _make_client(hass=None)
+        client.hass = None
+        # Should not raise
+        await client._report_token_refresh_error("test refresh failure")

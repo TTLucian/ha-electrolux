@@ -120,25 +120,25 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.listen_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
-        self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
-            {}
-        )  # Track deferred tasks by appliance
+        self._deferred_tasks_by_appliance: dict[
+            str, asyncio.Task
+        ] = {}  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
         self._manual_sync_lock = (
             asyncio.Lock()
         )  # Prevent concurrent manual sync operations
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
-        self._last_update_times: dict[str, float] = (
-            {}
-        )  # Track last update time per appliance
-        self._last_known_connectivity: dict[str, str] = (
-            {}
-        )  # Track previous connectivity state per appliance
+        self._last_update_times: dict[
+            str, float
+        ] = {}  # Track last update time per appliance
+        self._last_known_connectivity: dict[
+            str, str
+        ] = {}  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
-        self._last_time_to_end: dict[str, float | None] = (
-            {}
-        )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._last_time_to_end: dict[
+            str, float | None
+        ] = {}  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
         self._consecutive_auth_failures = (
             0  # Track consecutive auth failures before creating repair
         )
@@ -226,7 +226,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 "[TOKEN-CALLBACK] Token refresh callback triggered - new tokens received"
             )
             _LOGGER.debug(
-                f"[TOKEN-CALLBACK] New token expiry: {expiry_time.isoformat()} ({time_until_expiry/3600:.1f} hours from now)"
+                f"[TOKEN-CALLBACK] New token expiry: {expiry_time.isoformat()} ({time_until_expiry / 3600:.1f} hours from now)"
             )
             _LOGGER.debug(
                 f"[TOKEN-CALLBACK] Token lengths - access: {len(access_token)}, refresh: {len(refresh_token)}, api_key: {len(api_key)}"
@@ -258,7 +258,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
 
                 _LOGGER.info(
-                    f"[TOKEN-CALLBACK] Config entry updated successfully - tokens persisted (valid for {time_until_expiry/3600:.1f}h)"
+                    f"[TOKEN-CALLBACK] Config entry updated successfully - tokens persisted (valid for {time_until_expiry / 3600:.1f}h)"
                 )
             except Exception as ex:
                 _LOGGER.error(
@@ -1096,6 +1096,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     brand="Electrolux",
                     model=_model_hint,
                     state=cast(ApplianceState, minimal_state),
+                    appliance_type=_appliance_type_hint,
                 )
 
                 # Thread-safe addition to appliances dict
@@ -1215,6 +1216,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 model=appliance_model,
                 state=cast(ApplianceState, appliance_state),
                 serial_number=serial_number,
+                appliance_type=_appliance_type_hint,
             )
 
             # Thread-safe addition to appliances dict
@@ -1272,12 +1274,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         brand="Electrolux",
                         model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
+                        appliance_type=_appliance_type_hint,
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1344,12 +1347,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         brand="Electrolux",
                         model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
+                        appliance_type=_appliance_type_hint,
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1416,12 +1420,13 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         brand="Electrolux",
                         model=_model_hint,
                         state=cast(ApplianceState, minimal_state),
+                        appliance_type=_appliance_type_hint,
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     _LOGGER.info(
                         "Created minimal appliance entry for %s (%s) after unexpected error, "

@@ -30,7 +30,7 @@ Targets the following uncovered lines identified by coverage report:
 - 1112: _evaluate_operand cap_name == 'value' path
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.const import EntityCategory
@@ -683,7 +683,7 @@ class TestDeviceInfoGaps:
     def test_long_id_non_standard_format(self):
         """Long numeric (Muju-style) IDs follow the non-standard branch."""
         pnc_id = "956006959323006505087076"
-        entity = self._make_entity_with_pnc(pnc_id, "RF")
+        entity = self._make_entity_with_pnc(pnc_id, "CR")
         info = entity.device_info
         # No connections expected (no MAC in plain numeric ID)
         assert info.get("connections", set()) == set()
@@ -1415,9 +1415,9 @@ class TestGetProgramCapabilitiesGaps:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Cotton")
         assert result == {}
@@ -1431,9 +1431,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="spinSpeed", reported={"program": "QuickWash"})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("QuickWash")
         assert "spinSpeed" in result
@@ -1447,9 +1447,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="temperature", reported={})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Synthetic")
         assert "temperature" in result
@@ -1766,9 +1766,9 @@ class TestIsSupportedByProgramNoApplianceData:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         # Mock _get_program_capabilities so entity IS found in caps
         entity._get_program_capabilities = MagicMock(
@@ -1794,9 +1794,9 @@ class TestGetProgramConstraintNoProgram:
         mock_data.capabilities = {
             "program": {"values": {}}  # UnknownProgram not in values
         }
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_constraint("min")
         assert result is None

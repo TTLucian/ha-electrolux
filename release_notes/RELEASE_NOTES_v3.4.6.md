@@ -88,11 +88,11 @@ Other properties present in the diagnostic (`timeToEnd`, `remoteControl`, `appli
 | Type | Appliance | Status | Verified Samples |
 |------|-----------|--------|-----------------|
 | `OV` | Oven | Full | OV-944188772 |
-| `SO` | Steam Oven | Full | SO-944035035 |
+| `SO` | Structured Oven | Full | SO-944035035 |
 | `RF` | Refrigerator | Partial | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
-| `CR` | Combined Refrigerator | Full | CR-925060324 |
+| `CR` | Combi Refrigerator | Full | CR-925060324 |
 | `WM` | Washing Machine | Full | WM-914501128, WM-914915144, WM-914580416 |
-| `WD` | Washer-Dryer | Full | WD-914611000, WD-914611500 |
+| `WD` | Washer Dryer | Full | WD-914611000, WD-914611500 |
 | `TD` | Tumble Dryer | Full | TD-916098401, TD-916098618, TD-916099548, TD-916099949, TD-916099971 |
 | `AC` | Air Conditioner | Full | AC-910280820 |
 | `DW` | Dishwasher | Full | DW-911434654, DW-911434834 |

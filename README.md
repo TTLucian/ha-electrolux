@@ -43,7 +43,11 @@ The catalog is what bridges the gap: it tells the integration which reported sta
 
 Full catalog support means the integration has been tested against real diagnostic data for that model — providing correct `device_class`, units, icons, and entity categories for all available entities. Without a catalog entry, entities are still created for everything the API reports as capabilities but appear as generic sensors with no device class, unit, icon, or friendly name. Sensors that only appear in reported state and are not in capabilities will be missing entirely until a catalog entry is added.
 
-> 📎 **Help improve support for your appliance** — download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
+This is not just a design choice of this integration — it mirrors how the official Electrolux SDK itself works. The SDK's `is_feature_supported()` always checks against the capabilities response, never against the reported state. A value that appears only in the reported state but not in capabilities is treated as unsupported by the SDK, and therefore invisible to the integration unless an explicit catalog entry is built from real diagnostic data.
+
+As a concrete consequence: temperature (`Temp`) and humidity (`Humidity`) sensors on air purifiers, and values like measured load weight (`measuredLoadWeight`), optisense load weight (`fcOptisenseLoadWeight`), or UI/mainboard software versions (`applianceUiSwVersion`, `applianceMainBoardSwVersion`) on washing machines and many others, all appear **only** in the reported state — none of them are listed in that appliance's capabilities. Without a real diagnostics file to prove they exist and reveal their data type, the integration cannot create those entities at all.
+
+> 📎 **Help improve support for your appliance** — without your diagnostics, values present only in reported state stay invisible: the SDK itself only surfaces a property if it appears in capabilities, so there's no way to know those values exist without a real diagnostics file. Download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
 
 ### ✅ Fully Catalog-Supported Models (verified from diagnostic samples)
 
@@ -51,30 +55,39 @@ The table below lists all appliance types and the known-tested diagnostic sample
 
 | Type | Appliance | Status | Known-Tested Samples / Models |
 |------|-----------|--------|-------------------------------|
-| `OV` | Oven | Full | Based on model `OV-944188772` |
-| `SO` | Steam Oven | Full | Based on model `SO-944035035` |
-| `RF` | Refrigerator | Partial | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `CR` | Combined Refrigerator | Full ✨ *new* | Based on model `CR-925060324` |
-| `WM` | Washing Machine | Full | Based on models `WM-EW7F3816DB`, `WM-914501128`, `WM-914915144` |
-| `WD` | Washer-Dryer | Full | Based on models `WD-914611000`, `WD-914611500` |
-| `TD` | Tumble Dryer | Full | Based on models `TD-916099949`, `TD-916098401`, `TD-916098618`, `TD-916099548` |
-| `AC` | Air Conditioner | Full | Based on model `AC-910280820` |
-| `DW` | Dishwasher | Full | Based on models `DW-911434654`, `DW-911434834` |
-| `A9` / `Muju` / `Verbier` | Air Purifier | Full | A9 series; UltimateHome 500 (EP53); Verbier (air purifier with humidification) |
-| `MW` | Microwave | Stub | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| Newer `DAM` Apliances | Partial support | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `OV` | Oven | Full | `OV-944188772` |
+| `SO` | Structured Oven | Full | `SO-944035035` |
+| `RF` | Refrigerator | Partial | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `CR` | Combi Refrigerator | Full | `CR-925060324` |
+| `WM` | Washing Machine | Full | `WM-914501128`, `WM-914915144` |
+| `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500` |
+| `TD` | Tumble Dryer | Full | `TD-916098401`, `TD-916098618`, `TD-916099548`, `TD-916099949`, `TD-916099971` |
+| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` verified) | `AC-910280820` — other variants unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834` |
+| `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (Muju/Verbier verified) | UltimateHome 500 (EP53); Verbier — PUREA9/Fuji/WELLA5/WELLA7 unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DH` / `Husky` | Dehumidifier | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `HB` | Induction Hob | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `HD` | Hood / Extractor Fan | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 
 > Appliance types not listed above still have all their entities created dynamically from whatever the API reports in the device capabilities — no entities are suppressed. However, without a catalog entry they appear as generic sensors and controls with no device class, unit, icon, or friendly name. The base catalog (connectivity state, software version, network interface) applies to all appliance types regardless.
 
-### � Diagnostics Wanted
+### 🔬 Diagnostics Wanted
 
-The following appliance types need real diagnostic JSON samples before full support can be built. If you own one of these devices, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
+The following appliance types have catalog entries built from the Electrolux SDK's internal API mappings, but have **never been tested against real hardware**. Capability key names are correct per the SDK, but modes, value ranges, and model-specific differences need verification with real diagnostic JSON files.
 
-| Appliance | Issue title | Why it's needed |
-|-----------|-------------|----------------|
-| 🤖 **Robot Vacuum** (Pure i8, Pure i9, Gordias, Cybele, or any RVC) | `RVC diagnostics — [your model]` | Appliance type code unknown; no capability keys; room-cleaning support blocked entirely |
-| 🍽️ **Microwave Oven** (any `MW` model) | `MW diagnostics — [your model]` | Type code registered but catalog is empty — all entities appear as generic sensors |
-| ⚡ **DAM Appliance** (appliance ID starts with `1:` or type starts with `DAM_`) | `DAM diagnostics — [your model]` | DAM connectivity fixed in v3.4.1 but catalog enrichment requires per-type samples |
+If you own one of these appliances, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. This is the single most impactful contribution you can make — a diagnostic file takes 30 seconds to generate and enables full verified support for your appliance type.
+
+| Appliance | Issue title | Status |
+|-----------|-------------|--------|
+| 🌊 **Dehumidifier** (`DH`, `Husky`) | `DH diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| 🤖 **Robot Vacuum** (`PUREi9`, `Gordias`, `Cybele`, `700series`) | `RVC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| 🍳 **Induction Hob** (`HB`) | `HB diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| 💨 **Hood / Extractor Fan** (`HD`) | `HD diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| ❄️ **DAM Air Conditioner** (`DAM_AC`) | `DAM_AC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| ❄️ **AC variants** (`CA`, `Azul`, `Bogong`, `Panther`, `Telica`) | `AC variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified |
+| 💨 **AP variants** (`PUREA9`, `Fuji`, `WELLA5`, `WELLA7`) | `AP variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified |
 
 ### �🔍 Finding Your Model Number
 
@@ -231,9 +244,9 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Food probe monitoring and control
 - Delayed start and timers
 
-**🍲 Steam Ovens** ✨ NEW v3.3.4
-- AEG Steam Ovens
-- Electrolux Steam Ovens
+**🍲 Structured Ovens (SO)** ✨ NEW v3.3.4
+- AEG Structured Ovens
+- Electrolux Structured Ovens
 - **Full dedicated implementation with 40+ entities**
 - All standard oven features plus steam-specific controls:
   - Water tank level monitoring
@@ -284,7 +297,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Network interface monitoring (WiFi quality, OTA updates, software version)
 - Appliance working time and cycle counters
 
-**🧺💨 Washer-Dryers**
+**🧺💨 Washer Dryers**
 - Electrolux UltimateCare and PerfectCare series
 - AEG AbsoluteCare series
 - Full integrated washing and drying control
@@ -362,16 +375,6 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Ionizer control
 - *Verbier only:* Humidification toggle, target humidity, louver swing, quiet fan schedule, AQI light, water tray level alert, humidification filter tracking, dual filter NFC tag sensors
 
-**🌊 Microwaves** - ⚠️ Basic Support (In Preparation)
-- Appliance state monitoring
-- Microwave power sensor (Watts)
-- Time-to-end countdown
-- **Status**: Foundation infrastructure added in v3.2.7
-- **Full support pending**: Requires diagnostic JSON files from users with microwave appliances
-- **Coming soon**: Power level controls, cooking modes, timer controls, quick start, defrost settings, child lock
-
-> **Help me improve microwave support!** If you have an Electrolux microwave, please submit diagnostic files via Settings → Devices & Services → Electrolux → [Your Microwave] → Download Diagnostics.
-
 ## ⚡ Features
 
 ### 📊 Sensors
@@ -382,14 +385,13 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Door and safety lock status
 - Water levels and tank status
 - Filter life and maintenance alerts
-- Load weight monitoring (washing machines, washer-dryers)
+- Load weight monitoring (washing machines, washer dryers)
 - Humidity sensors (refrigerators, air conditioners)
 - Air quality sensors (air purifiers)
 - Cycle counters and working time statistics
-- Drying cycle monitoring (washer-dryers)
+- Drying cycle monitoring (washer dryers)
 - Dryer monitoring (tumble dryers: fluff filter status, dryness levels, load weight)
 - Dishwasher monitoring (salt levels, rinse aid levels, filter status)
-- Microwave monitoring (power output, time-to-end)
 
 ### 🎮 Controls
 - **Manual Sync Button** (⚠️ **Use Sparingly**):
@@ -414,7 +416,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
   - Fan speed control (AUTO, LOW, MEDIUM, HIGH, QUIET, TURBO)
   - Swing direction control (OFF, VERTICAL, HORIZONTAL, BOTH)
   - Target temperature and humidity settings
-- Drying controls (washer-dryers):
+- Drying controls (washer dryers):
   - Dry mode toggle
   - Drying time selection
   - Dryness level selection (CUPBOARD, EXTRA, IRON)
@@ -442,12 +444,12 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 |-----------|--------|----------------------------------|
 | Oven | START | `READY_TO_START`, `END_OF_CYCLE` |
 | Oven | STOPRESET | `RUNNING`, `PAUSED`, `DELAYED_START` |
-| Steam Oven | START | `OFF` |
-| Steam Oven | STOPRESET | `RUNNING` |
-| Washer / Washer-Dryer | START | `READY_TO_START` |
-| Washer / Washer-Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE` |
-| Washer / Washer-Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
-| Washer / Washer-Dryer | RESUME | `PAUSED` |
+| Structured Oven | START | `OFF` |
+| Structured Oven | STOPRESET | `RUNNING` |
+| Washing Machine / Washer Dryer | START | `READY_TO_START` |
+| Washing Machine / Washer Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE` |
+| Washing Machine / Washer Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
+| Washing Machine / Washer Dryer | RESUME | `PAUSED` |
 | Dryer | START | `READY_TO_START`, `IDLE` |
 | Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE`, `ANTICREASE` |
 | Dryer | PAUSE | `RUNNING`, `DELAYED_START` |

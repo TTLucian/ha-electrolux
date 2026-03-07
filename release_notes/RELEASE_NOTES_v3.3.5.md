@@ -51,7 +51,7 @@ Changed 7 duration controls from `SensorDeviceClass.DURATION` to `NumberDeviceCl
 - **startTime** (line 192): Delay start time control
 - **stopTime** (line 205): Delay end time control
 
-#### Washer-Dryer Catalog (catalog_washer_dryer.py)
+#### Washer Dryer Catalog (catalog_washer_dryer.py)
 - **stopTime** (line 140): Delay end time control
 
 ### Migration Required

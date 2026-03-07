@@ -683,10 +683,61 @@ class TestElectroluxClimateMissingCoverage:
         from custom_components.electrolux.entity import ElectroluxEntity
 
         entity = self._make_entity(mock_coordinator)
-        with patch.object(entity, "is_connected", return_value=True), patch.object(
-            ElectroluxEntity, "available", new_callable=PropertyMock, return_value=True
+        with (
+            patch.object(entity, "is_connected", return_value=True),
+            patch.object(
+                ElectroluxEntity,
+                "available",
+                new_callable=PropertyMock,
+                return_value=True,
+            ),
         ):
             assert entity.available is True
+
+    @pytest.mark.asyncio
+    async def test_send_command_non_dam_with_entity_source(self, mock_coordinator):
+        """L393: non-DAM appliance with entity_source → command = {entity_source: {attr: value}}."""
+        from unittest.mock import AsyncMock, patch
+
+        entity = ElectroluxClimate(
+            coordinator=mock_coordinator,
+            name="Test AC",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=CLIMATE,
+            entity_name="climate",
+            entity_attr="climate",
+            entity_source="upperOven",  # non-None entity_source
+            capability={"targetTemperatureC": {"min": 30, "max": 230}},
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:air-conditioner",
+            catalog_entry=None,
+        )
+        entity.hass = mock_coordinator.hass
+        entity.api = MagicMock()
+
+        with (
+            patch.object(
+                type(entity),
+                "is_dam_appliance",
+                new_callable=lambda: property(lambda self: False),
+            ),
+            patch(
+                "custom_components.electrolux.climate.format_command_for_appliance",
+                return_value=180.0,
+            ),
+            patch(
+                "custom_components.electrolux.climate.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
+            await entity._send_command("targetTemperatureC", 180.0)
+
+        call_args = mock_exec.call_args[0]
+        command = call_args[2]
+        assert command == {"upperOven": {"targetTemperatureC": 180.0}}
 
 
 # Appliance Type Detection Tests (Bug Fix Verification)

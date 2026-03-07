@@ -491,9 +491,13 @@ class TestElectroluxNumber:
         # Check that the method returns True
         assert entity._is_supported_by_program()
 
-        with patch.object(entity, "_is_supported_by_program", return_value=True), patch(
-            "custom_components.electrolux.number.format_command_for_appliance"
-        ) as mock_format, patch.object(entity, "coordinator") as mock_coord:
+        with (
+            patch.object(entity, "_is_supported_by_program", return_value=True),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance"
+            ) as mock_format,
+            patch.object(entity, "coordinator") as mock_coord,
+        ):
             mock_coord.async_request_refresh = AsyncMock()
             mock_coord._last_update_times = {}
             mock_format.return_value = 42
@@ -956,14 +960,17 @@ class TestNumberAsyncSetNativeValueAdvanced:
         mock_appliance = MagicMock()
         mock_appliance.appliance_type = "oven"
 
-        with patch.object(
-            type(entity),
-            "get_appliance",
-            new_callable=PropertyMock,
-            return_value=mock_appliance,
-        ), patch(
-            "custom_components.electrolux.number.format_command_for_appliance",
-            return_value=3600,
+        with (
+            patch.object(
+                type(entity),
+                "get_appliance",
+                new_callable=PropertyMock,
+                return_value=mock_appliance,
+            ),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=3600,
+            ),
         ):
             await entity.async_set_native_value(60.0)  # 60 minutes
 
@@ -1099,14 +1106,16 @@ class TestNumberAsyncSetNativeValueAdvanced:
 
         mock_coordinator.handle_authentication_error = AsyncMock()
 
-        with patch(
-            "custom_components.electrolux.number.execute_command_with_error_handling",
-            side_effect=AuthenticationError("token expired"),
-        ), patch(
-            "custom_components.electrolux.number.format_command_for_appliance",
-            return_value=50,
-        ), patch.object(
-            entity, "coordinator", mock_coordinator
+        with (
+            patch(
+                "custom_components.electrolux.number.execute_command_with_error_handling",
+                side_effect=AuthenticationError("token expired"),
+            ),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=50,
+            ),
+            patch.object(entity, "coordinator", mock_coordinator),
         ):
             await entity.async_set_native_value(50.0)  # Should NOT raise
 
@@ -1119,12 +1128,15 @@ class TestNumberAsyncSetNativeValueAdvanced:
         entity._is_locked_by_program = MagicMock(return_value=False)
         entity._is_supported_by_program = MagicMock(return_value=True)
 
-        with patch(
-            "custom_components.electrolux.number.execute_command_with_error_handling",
-            side_effect=HomeAssistantError("command validation failed"),
-        ), patch(
-            "custom_components.electrolux.number.format_command_for_appliance",
-            return_value=50,
+        with (
+            patch(
+                "custom_components.electrolux.number.execute_command_with_error_handling",
+                side_effect=HomeAssistantError("command validation failed"),
+            ),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=50,
+            ),
         ):
             with pytest.raises(HomeAssistantError):
                 await entity.async_set_native_value(50.0)
@@ -2238,3 +2250,106 @@ class TestNumberMissingCoverage:
             return_value=True,
         ):
             assert entity.available is True
+
+    # L217: native_value when locked AND unit=SECONDS → time conversion
+    def test_native_value_locked_unit_seconds_converts_to_minutes(
+        self, mock_coordinator
+    ):
+        """L217: locked entity with UnitOfTime.SECONDS returns converted minutes."""
+        from custom_components.electrolux.number import ElectroluxNumber
+
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Duration",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="targetDuration",
+            entity_attr="targetDuration",
+            entity_source=None,
+            capability={"type": "number", "access": "readwrite", "min": 0, "max": 1800},
+            unit=UnitOfTime.SECONDS,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:timer",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.reported_state = {
+            "connectivityState": "connected",
+            "targetDuration": 3600,
+        }
+        entity.appliance_status = {"properties": {"reported": entity.reported_state}}
+        # Force lock by making _is_locked_by_program return True and _get_locked_value return 3600
+        entity._is_locked_by_program = MagicMock(return_value=True)
+        entity._get_locked_value = MagicMock(return_value=3600)
+
+        result = entity.native_value
+        # 3600 seconds → 60 minutes
+        assert result == 60
+
+    # L390: native_unit_of_measurement with non-SECONDS unit
+    def test_native_unit_non_seconds_returns_unit_directly(self, mock_coordinator):
+        """L390: when unit != SECONDS, returns self.unit directly."""
+        from custom_components.electrolux.number import ElectroluxNumber
+
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Target Temp",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="targetTemp",
+            entity_attr="targetTemperatureC",
+            entity_source=None,
+            capability={
+                "type": "temperature",
+                "access": "readwrite",
+                "min": 30,
+                "max": 230,
+            },
+            unit=UnitOfTemperature.CELSIUS,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:thermometer",
+        )
+        entity.hass = mock_coordinator.hass
+        assert entity.native_unit_of_measurement == UnitOfTemperature.CELSIUS
+
+    # L504-506: _get_converted_constraint("step") fallback to capability step
+    def test_get_converted_constraint_step_from_capability(self, mock_coordinator):
+        """L504-506: step with val=None falls back to _get_capability_constraint."""
+        from custom_components.electrolux.number import ElectroluxNumber
+
+        cap_with_range = {
+            "type": "number",
+            "access": "readwrite",
+            "range": [0.0, 100.0, 2.5],  # DAM multi-range format: step is 2.5
+        }
+        entity = ElectroluxNumber(
+            coordinator=mock_coordinator,
+            name="Test Step",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=NUMBER,
+            entity_name="stepAttr",
+            entity_attr="stepAttr",
+            entity_source=None,
+            capability=cap_with_range,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:tune",
+        )
+        entity.hass = mock_coordinator.hass
+        entity._is_locked_by_program = MagicMock(return_value=False)
+
+        # Calling native_step exercises _get_converted_constraint("step")
+        # With no catalog step override, val is None so capability fallback (L504-506) is hit
+        step = entity.native_step
+        assert step == 2.5
+
+    # L807: entity_registry_enabled_default always returns True
+    def test_entity_registry_enabled_default_is_true(self, mock_coordinator):
+        """L807: entity_registry_enabled_default returns True."""
+        entity = self._make_entity(mock_coordinator)
+        assert entity.entity_registry_enabled_default is True

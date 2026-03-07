@@ -190,7 +190,7 @@ This release consolidates and optimizes the appliance catalog system for better 
 ```python
 CATALOG_BY_TYPE = {
     "WM": CATALOG_WASHER,        # Washing Machine
-    "WD": CATALOG_WASHER_DRYER,  # Washer-Dryer
+    "WD": CATALOG_WASHER_DRYER,  # Washer Dryer
     "DW": CATALOG_DISHWASHER,    # Dishwasher (new)
     "OV": CATALOG_OVEN,          # Oven
     "FR": CATALOG_FRIDGE,        # Refrigerator

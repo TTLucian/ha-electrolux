@@ -10,12 +10,12 @@ v3.4.2 introduces smart state-aware availability for `executeCommand` buttons. E
   |-----------|--------|-----------------------------------|
   | Oven | START | `READY_TO_START`, `END_OF_CYCLE` |
   | Oven | STOPRESET | `RUNNING`, `PAUSED`, `DELAYED_START` |
-  | Steam Oven | START | `OFF` |
-  | Steam Oven | STOPRESET | `RUNNING` |
-  | Washer / Washer-Dryer | START | `READY_TO_START` |
-  | Washer / Washer-Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE` |
-  | Washer / Washer-Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
-  | Washer / Washer-Dryer | RESUME | `PAUSED` |
+  | Structured Oven | START | `OFF` |
+  | Structured Oven | STOPRESET | `RUNNING` |
+  | Washer / Washer Dryer | START | `READY_TO_START` |
+  | Washer / Washer Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE` |
+  | Washer / Washer Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
+  | Washer / Washer Dryer | RESUME | `PAUSED` |
   | Dryer | START | `READY_TO_START`, `IDLE` |
   | Dryer | STOPRESET | `PAUSED`, `END_OF_CYCLE`, `ANTICREASE` |
   | Dryer | PAUSE | `RUNNING`, `DELAYED_START` |
@@ -36,11 +36,11 @@ v3.4.2 introduces smart state-aware availability for `executeCommand` buttons. E
 | Type | Appliance | Status | Verified Samples |
 |------|-----------|--------|-----------------|
 | `OV` | Oven | Full | OV-944188772 |
-| `SO` | Steam Oven | Full | SO-944035035 |
+| `SO` | Structured Oven | Full | SO-944035035 |
 | `RF` | Refrigerator | Partial | *(no samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues))* |
-| `CR` | Combined Refrigerator | Full | CR-925060324 |
+| `CR` | Combi Refrigerator | Full | CR-925060324 |
 | `WM` | Washing Machine | Full | WM-914501128, WM-914915144 |
-| `WD` | Washer-Dryer | Full | WD-914611000, WD-914611500 |
+| `WD` | Washer Dryer | Full | WD-914611000, WD-914611500 |
 | `TD` | Tumble Dryer | Full | TD-916098401, TD-916098618, TD-916099548, TD-916099949, TD-916099971 |
 | `AC` | Air Conditioner | Full | AC-910280820 |
 | `DW` | Dishwasher | Full | DW-911434654, DW-911434834 |

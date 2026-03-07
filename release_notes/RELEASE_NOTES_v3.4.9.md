@@ -20,7 +20,7 @@ Fixed by:
 
 | Appliance | Affected namespaces | Impact |
 |---|---|---|
-| Steam Oven (SO) | `upperOven/` | **Severe** — all real-time state: door, temperatures, run time, timeToEnd, applianceState, food probe, etc. |
+| Structured Oven (SO) | `upperOven/` | **Severe** — all real-time state: door, temperatures, run time, timeToEnd, applianceState, food probe, etc. |
 | Refrigerator (CR) | `fridge/`, `freezer/`, `extraCavity/`, `iceMaker/` | **Severe** — door state, temperatures, fast mode, applianceState |
 | All others (WM, WD, TD, DW, OV, AC) | `networkInterface/` only | Negligible — OTA diagnostics; `command`/`startUpCommand` are blacklisted |
 
@@ -51,7 +51,7 @@ This silently broke all interactive fan controls on Electrolux/AEG air purifiers
 | Appliance | Impact |
 |---|---|
 | PUREA9 / Muju air purifiers | **Fixed** — turn on/off, preset modes, fan speed now work |
-| Steam Oven (SO) | No change — oven namespace wrapping is still correct |
+| Structured Oven (SO) | No change — oven namespace wrapping is still correct |
 | All other appliances | No change |
 
 ---

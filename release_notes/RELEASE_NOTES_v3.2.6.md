@@ -189,7 +189,7 @@ if appliance_state == "END_OF_CYCLE":
         return timestamp  # Still active work
 ```
 
-**Benefit:** Dryers, washers, and washer-dryers now **should** show accurate countdown during anti-crease and cooling phases instead of hiding the timer when there's still time remaining.
+**Benefit:** Dryers, washers, and washer dryers now **should** show accurate countdown during anti-crease and cooling phases instead of hiding the timer when there's still time remaining.
 
 ---
 

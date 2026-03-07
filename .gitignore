@@ -4,5 +4,4 @@ __pycache__/
 .github/**/*instruction*
 *samples*
 *pyrightconfig*
-quality_scale.yaml
 log.log

@@ -72,10 +72,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
         # Handle string values like "ON"/"OFF"
         if isinstance(value, str):
-            result = string_to_boolean(value, fallback=False)
-            if isinstance(result, bool):
-                return result
-            return False
+            return string_to_boolean(value, fallback=False)
 
         # For other types, try to convert to boolean
         return bool(value)

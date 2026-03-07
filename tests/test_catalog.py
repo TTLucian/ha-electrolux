@@ -38,9 +38,9 @@ class TestCatalogCore:
 
         catalog = CATALOG_BASE()
         for key, value in catalog.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
+            assert isinstance(value, ElectroluxDevice), (
+                f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
+            )
 
     def test_catalog_by_type_loads(self):
         """Appliance-type-specific catalogs load correctly."""
@@ -68,115 +68,115 @@ class TestCatalogCore:
 
 
 class TestCatalogOven:
-    """Tests for catalog_oven.py."""
+    """Tests for catalog_ov.py."""
 
     def test_catalog_oven_loads(self):
         """Oven catalog loads without error."""
-        from custom_components.electrolux.catalog_oven import CATALOG_OVEN
+        from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
-        assert isinstance(CATALOG_OVEN, dict)
-        assert len(CATALOG_OVEN) > 0
+        assert isinstance(CATALOG_OV, dict)
+        assert len(CATALOG_OV) > 0
 
     def test_oven_entities_are_electrolux_devices(self):
         """All oven catalog values are ElectroluxDevice instances."""
-        from custom_components.electrolux.catalog_oven import CATALOG_OVEN
+        from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
-        for key, value in CATALOG_OVEN.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Oven catalog entry '{key}' is {type(value)}"
+        for key, value in CATALOG_OV.items():
+            assert isinstance(value, ElectroluxDevice), (
+                f"Oven catalog entry '{key}' is {type(value)}"
+            )
 
     def test_oven_has_temperature_entities(self):
         """Oven catalog has temperature entities."""
-        from custom_components.electrolux.catalog_oven import CATALOG_OVEN
+        from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
         assert (
-            "targetTemperatureC" in CATALOG_OVEN
-            or "displayTemperatureC" in CATALOG_OVEN
+            "targetTemperatureC" in CATALOG_OV
+            or "displayTemperatureC" in CATALOG_OV
         )
 
     def test_oven_has_execute_command(self):
         """Oven catalog has executeCommand entity."""
-        from custom_components.electrolux.catalog_oven import CATALOG_OVEN
+        from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
-        assert "executeCommand" in CATALOG_OVEN
+        assert "executeCommand" in CATALOG_OV
 
 
 class TestCatalogWasher:
-    """Tests for catalog_washer.py."""
+    """Tests for catalog_wm.py."""
 
     def test_catalog_washer_loads(self):
         """Washer catalog loads without error."""
-        from custom_components.electrolux.catalog_washer import CATALOG_WASHER
+        from custom_components.electrolux.catalogs.catalog_wm import CATALOG_WM
 
-        assert isinstance(CATALOG_WASHER, dict)
-        assert len(CATALOG_WASHER) > 0
+        assert isinstance(CATALOG_WM, dict)
+        assert len(CATALOG_WM) > 0
 
     def test_washer_entities_are_electrolux_devices(self):
         """All washer catalog values are ElectroluxDevice instances."""
-        from custom_components.electrolux.catalog_washer import CATALOG_WASHER
+        from custom_components.electrolux.catalogs.catalog_wm import CATALOG_WM
 
-        for key, value in CATALOG_WASHER.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Washer catalog entry '{key}' is {type(value)}"
+        for key, value in CATALOG_WM.items():
+            assert isinstance(value, ElectroluxDevice), (
+                f"Washer catalog entry '{key}' is {type(value)}"
+            )
 
 
 class TestCatalogWasherDryer:
-    """Tests for catalog_washer_dryer.py."""
+    """Tests for catalog_wd.py."""
 
     def test_catalog_washer_dryer_loads(self):
         """Washer-dryer catalog loads without error."""
-        from custom_components.electrolux.catalog_washer_dryer import (
-            CATALOG_WASHER_DRYER,
+        from custom_components.electrolux.catalogs.catalog_wd import (
+            CATALOG_WD,
         )
 
-        assert isinstance(CATALOG_WASHER_DRYER, dict)
-        assert len(CATALOG_WASHER_DRYER) > 0
+        assert isinstance(CATALOG_WD, dict)
+        assert len(CATALOG_WD) > 0
 
 
 class TestCatalogDryer:
-    """Tests for catalog_dryer.py."""
+    """Tests for catalog_td.py."""
 
     def test_catalog_dryer_loads(self):
         """Dryer catalog loads without error."""
-        from custom_components.electrolux.catalog_dryer import CATALOG_DRYER
+        from custom_components.electrolux.catalogs.catalog_td import CATALOG_TD
 
-        assert isinstance(CATALOG_DRYER, dict)
-        assert len(CATALOG_DRYER) > 0
+        assert isinstance(CATALOG_TD, dict)
+        assert len(CATALOG_TD) > 0
 
 
 class TestCatalogRefrigerator:
-    """Tests for catalog_refrigerator.py."""
+    """Tests for catalog_cr.py."""
 
     def test_catalog_refrigerator_loads(self):
         """Refrigerator catalog loads without error."""
-        from custom_components.electrolux.catalog_refrigerator import (
-            CATALOG_REFRIGERATOR,
+        from custom_components.electrolux.catalogs.catalog_cr import (
+            CATALOG_CR,
         )
 
-        assert isinstance(CATALOG_REFRIGERATOR, dict)
-        assert len(CATALOG_REFRIGERATOR) > 0
+        assert isinstance(CATALOG_CR, dict)
+        assert len(CATALOG_CR) > 0
 
     def test_refrigerator_has_temperature_entities(self):
         """Refrigerator catalog has temperature tracking entities."""
-        from custom_components.electrolux.catalog_refrigerator import (
-            CATALOG_REFRIGERATOR,
+        from custom_components.electrolux.catalogs.catalog_cr import (
+            CATALOG_CR,
         )
 
-        assert "fridge/targetTemperatureC" in CATALOG_REFRIGERATOR
-        assert "freezer/targetTemperatureC" in CATALOG_REFRIGERATOR
+        assert "fridge/targetTemperatureC" in CATALOG_CR
+        assert "freezer/targetTemperatureC" in CATALOG_CR
 
 
 class TestCatalogPurifier:
-    """Tests for catalog_purifier.py."""
+    """Tests for catalog_ap.py."""
 
     def test_catalog_purifier_loads(self):
         """Purifier catalog loads without error."""
-        from custom_components.electrolux.catalog_purifier import CATALOG_PURIFIER
+        from custom_components.electrolux.catalogs.catalog_ap import CATALOG_AP
 
-        assert isinstance(CATALOG_PURIFIER, dict)
-        assert len(CATALOG_PURIFIER) > 0
+        assert isinstance(CATALOG_AP, dict)
+        assert len(CATALOG_AP) > 0
 
     def test_purifier_has_fan_entity(self):
         """Purifier catalog has a fan platform entity in catalog_core."""
@@ -189,60 +189,49 @@ class TestCatalogPurifier:
 
 
 class TestCatalogDishwasher:
-    """Tests for catalog_dishwasher.py."""
+    """Tests for catalog_dw.py."""
 
     def test_catalog_dishwasher_loads(self):
         """Dishwasher catalog loads without error."""
-        from custom_components.electrolux.catalog_dishwasher import CATALOG_DISHWASHER
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
 
-        assert isinstance(CATALOG_DISHWASHER, dict)
-        assert len(CATALOG_DISHWASHER) > 0
-
-
-class TestCatalogMicrowave:
-    """Tests for catalog_microwave.py."""
-
-    def test_catalog_microwave_loads(self):
-        """Microwave catalog loads without error."""
-        from custom_components.electrolux.catalog_microwave import CATALOG_MICROWAVE
-
-        assert isinstance(CATALOG_MICROWAVE, dict)
-        assert len(CATALOG_MICROWAVE) > 0
+        assert isinstance(CATALOG_DW, dict)
+        assert len(CATALOG_DW) > 0
 
 
 class TestCatalogAirConditioner:
-    """Tests for catalog_air_conditioner.py."""
+    """Tests for catalog_ac.py."""
 
     def test_catalog_air_conditioner_loads(self):
         """Air conditioner catalog loads without error."""
-        from custom_components.electrolux.catalog_air_conditioner import (
-            CATALOG_AIR_CONDITIONER,
+        from custom_components.electrolux.catalogs.catalog_ac import (
+            CATALOG_AC,
         )
 
-        assert isinstance(CATALOG_AIR_CONDITIONER, dict)
-        assert len(CATALOG_AIR_CONDITIONER) > 0
+        assert isinstance(CATALOG_AC, dict)
+        assert len(CATALOG_AC) > 0
 
     def test_air_conditioner_has_mode(self):
         """Air conditioner catalog has mode control entity."""
-        from custom_components.electrolux.catalog_air_conditioner import (
-            CATALOG_AIR_CONDITIONER,
+        from custom_components.electrolux.catalogs.catalog_ac import (
+            CATALOG_AC,
         )
 
         assert (
-            "mode" in CATALOG_AIR_CONDITIONER
-            or "executeCommand" in CATALOG_AIR_CONDITIONER
+            "mode" in CATALOG_AC
+            or "executeCommand" in CATALOG_AC
         )
 
 
-class TestCatalogSteamOven:
-    """Tests for catalog_steam_oven.py."""
+class TestCatalogStructuredOven:
+    """Tests for catalog_so.py."""
 
-    def test_catalog_steam_oven_loads(self):
-        """Steam oven catalog loads without error."""
-        from custom_components.electrolux.catalog_steam_oven import CATALOG_STEAM_OVEN
+    def test_catalog_structured_oven_loads(self):
+        """Structured oven catalog loads without error."""
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
 
-        assert isinstance(CATALOG_STEAM_OVEN, dict)
-        assert len(CATALOG_STEAM_OVEN) > 0
+        assert isinstance(CATALOG_SO, dict)
+        assert len(CATALOG_SO) > 0
 
 
 class TestCatalogUtils:

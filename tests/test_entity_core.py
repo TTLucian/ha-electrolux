@@ -10,7 +10,7 @@ Covers:
 - _evaluate_trigger_condition / _evaluate_operand: trigger logic
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.const import EntityCategory
@@ -423,7 +423,7 @@ class TestEntityDeviceInfo:
     def test_long_id_no_mac(self):
         """Long numeric IDs (Muju-style) don't extract a MAC."""
         pnc_id = "956006959323006505087076"
-        entity = self._setup_entity_with_appliance(pnc_id, "RF")
+        entity = self._setup_entity_with_appliance(pnc_id, "CR")
         info = entity.device_info
         # No connections key expected (or empty) for Muju style
         connections = info.get("connections", set())

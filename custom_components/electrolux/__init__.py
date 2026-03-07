@@ -6,7 +6,7 @@ try:
 
     if not hasattr(josepy, "ComparableX509"):
         josepy.ComparableX509 = josepy.ComparableKey  # type: ignore
-except ImportError:
+except ImportError:  # pragma: no cover
     pass  # josepy not installed yet
 
 import asyncio

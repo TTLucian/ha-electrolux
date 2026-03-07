@@ -50,7 +50,7 @@ After this fix, users can click on any filter life time entity in the Home Assis
 
 ---
 
-## Fixed: Oven and Steam Oven Fahrenheit Temperature Controls
+## Fixed: Oven and Structured Oven Fahrenheit Temperature Controls
 
 ### How Oven Temperature Controls Work
 The appliance catalog defines **all possible entities** an appliance type might have across all regional variants. At runtime, the integration only creates entities that are present in the device's reported capabilities — so the correct set of controls is created automatically for each device.
@@ -68,10 +68,10 @@ This means:
 | `targetTemperatureF` | Oven | °F |
 | `targetFoodProbeTemperatureC` | Oven | °C |
 | `targetFoodProbeTemperatureF` | Oven | °F |
-| `upperOven/targetTemperatureC` | Steam Oven | °C |
-| `upperOven/targetTemperatureF` | Steam Oven | °F |
-| `upperOven/targetFoodProbeTemperatureC` | Steam Oven | °C |
-| `upperOven/targetFoodProbeTemperatureF` | Steam Oven | °F |
+| `upperOven/targetTemperatureC` | Structured Oven | °C |
+| `upperOven/targetTemperatureF` | Structured Oven | °F |
+| `upperOven/targetFoodProbeTemperatureC` | Structured Oven | °C |
+| `upperOven/targetFoodProbeTemperatureF` | Structured Oven | °F |
 
 ---
 
@@ -186,7 +186,7 @@ Electrolux washer firmware embeds a platform code (`EWX1493A_`) in the names of 
 
 > **⚠️ WM/WD users — please verify after updating**
 >
-> No users have reported breakage related to these entities, which may mean they were silently producing no data with the old key names. After updating, check whether these entities now appear and report correct values. If anything unexpectedly broke on your washer or washer-dryer, please open a GitHub issue and upload your diagnostics JSON (Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics).
+> No users have reported breakage related to these entities, which may mean they were silently producing no data with the old key names. After updating, check whether these entities now appear and report correct values. If anything unexpectedly broke on your washer or washer dryer, please open a GitHub issue and upload your diagnostics JSON (Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics).
 
 ---
 

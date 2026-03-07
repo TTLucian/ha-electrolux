@@ -855,8 +855,9 @@ def format_command_for_appliance(
                     for key in values_dict.keys():
                         if key.upper() == target_value:
                             return key
-                    # Fallback to uppercase if exact match not found
-                    return target_value
+                    # Fallback: return uppercase form (unreachable if ON/OFF keys are unique,
+                    # but kept as defensive guard)
+                    return target_value  # pragma: no cover
 
             # Check if the value is a valid key in the values dict
             if str(value) in values_dict:

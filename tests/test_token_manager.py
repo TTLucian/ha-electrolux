@@ -34,12 +34,15 @@ class TestElectroluxTokenManager401:
 
         # Mock the request to raise a 401 Unauthorized error
         mock_exception = Exception("401 Unauthorized")
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_jwt_payload,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_exception,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_jwt_payload,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_exception,
+            ),
         ):
             # Call get_auth_data (this will trigger refresh due to expired token)
             # SDK raises exception when refresh fails
@@ -73,12 +76,15 @@ class TestElectroluxTokenManager401:
 
         # Mock the request to raise a 400 Bad Request with invalid_grant error
         mock_exception = Exception("400 Bad Request: invalid grant")
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_jwt_payload,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_exception,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_jwt_payload,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_exception,
+            ),
         ):
             # Call get_auth_data (this will trigger refresh)
             # SDK raises exception when refresh fails
@@ -125,12 +131,15 @@ class TestElectroluxTokenManager401:
             else:
                 return mock_fresh_jwt
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            side_effect=mock_jwt_decode,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            return_value=mock_response,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                side_effect=mock_jwt_decode,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                return_value=mock_response,
+            ),
         ):
             # Call get_auth_data (this will trigger refresh due to expired token)
             auth_data = await token_manager.get_auth_data()
@@ -185,17 +194,20 @@ class TestElectroluxTokenManager401:
             else:
                 return mock_expired_jwt
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            side_effect=mock_jwt_decode,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
-        ), patch(
-            "custom_components.electrolux.token_manager.time.time",
-            return_value=1000000000,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                side_effect=mock_jwt_decode,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.time.time",
+                return_value=1000000000,
+            ),
         ):
-
             # Simulate SDK calling refresh_token() directly from 3 concurrent 401 responses
             results = await asyncio.gather(
                 token_manager.refresh_token(),
@@ -207,9 +219,9 @@ class TestElectroluxTokenManager401:
             assert all(results), "All concurrent refresh calls should succeed"
 
             # Should only make ONE actual HTTP request (others wait and skip due to lock)
-            assert (
-                refresh_call_count == 1
-            ), f"Expected 1 HTTP request, got {refresh_call_count}"
+            assert refresh_call_count == 1, (
+                f"Expected 1 HTTP request, got {refresh_call_count}"
+            )
 
             # Verify tokens were updated
             auth_data = await token_manager.get_auth_data()
@@ -253,12 +265,15 @@ class TestElectroluxTokenManager401:
             else:
                 return mock_fresh_jwt
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            side_effect=mock_jwt_decode,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                side_effect=mock_jwt_decode,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
         ):
             # SDK's get_auth_data() should trigger proactive refresh
             auth_data = await token_manager.get_auth_data()
@@ -288,12 +303,15 @@ class TestElectroluxTokenManager401:
             refresh_called = True
             return {}
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_valid_jwt,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_valid_jwt,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
         ):
             # Should return auth data without refresh
             auth_data = await token_manager.get_auth_data()
@@ -325,15 +343,19 @@ class TestElectroluxTokenManager401:
 
         # Patch time.time() before creating TokenManager to avoid clock skew detection
         # during initialization
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_expiring_jwt,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
-        ), patch(
-            "custom_components.electrolux.token_manager.time.time",
-            return_value=fixed_time,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_expiring_jwt,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.time.time",
+                return_value=fixed_time,
+            ),
         ):
             token_manager = ElectroluxTokenManager(
                 access_token="test_access",
@@ -393,15 +415,19 @@ class TestElectroluxTokenManager401:
             else:
                 return mock_expired_jwt
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            side_effect=mock_jwt_decode,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            return_value=mock_response,
-        ), patch(
-            "custom_components.electrolux.token_manager.time.time",
-            return_value=fixed_time,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                side_effect=mock_jwt_decode,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                return_value=mock_response,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.time.time",
+                return_value=fixed_time,
+            ),
         ):
             # Trigger refresh via get_auth_data since token is expired
             await token_manager.get_auth_data()
@@ -465,12 +491,15 @@ class TestElectroluxTokenManager401:
         # Network error (not auth error)
         mock_exception = Exception("Connection timeout")
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_expired_jwt,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_exception,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_expired_jwt,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_exception,
+            ),
         ):
             result = await token_manager.refresh_token()
 
@@ -504,15 +533,19 @@ class TestElectroluxTokenManager401:
         def mock_time():
             return current_time
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_expired_jwt,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
-        ), patch(
-            "custom_components.electrolux.token_manager.time.time",
-            side_effect=mock_time,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_expired_jwt,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.time.time",
+                side_effect=mock_time,
+            ),
         ):
             # First failure: cooldown = 60s
             result1 = await token_manager.refresh_token()
@@ -568,15 +601,19 @@ class TestElectroluxTokenManager401:
             refresh_attempts += 1
             raise mock_exception
 
-        with patch(
-            "custom_components.electrolux.token_manager.jwt.decode",
-            return_value=mock_expired_jwt,
-        ), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=mock_request,
-        ), patch(
-            "custom_components.electrolux.token_manager.time.time",
-            return_value=fixed_time,
+        with (
+            patch(
+                "custom_components.electrolux.token_manager.jwt.decode",
+                return_value=mock_expired_jwt,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=mock_request,
+            ),
+            patch(
+                "custom_components.electrolux.token_manager.time.time",
+                return_value=fixed_time,
+            ),
         ):
             # First refresh fails, setting cooldown
             result1 = await token_manager.refresh_token()
@@ -591,9 +628,9 @@ class TestElectroluxTokenManager401:
             # Second refresh should bypass cooldown due to _marked_needs_refresh
             result2 = await token_manager.refresh_token()
             assert result2 is False
-            assert (
-                refresh_attempts == 2
-            ), "Cooldown should be bypassed when token expired"
+            assert refresh_attempts == 2, (
+                "Cooldown should be bypassed when token expired"
+            )
 
 
 class TestTokenManagerMissingCoverage:
@@ -633,8 +670,9 @@ class TestTokenManagerMissingCoverage:
 
     def test_is_token_valid_handles_expired_signature_error(self):
         """Lines 118-120 — ExpiredSignatureError is caught and returns False."""
-        import jwt as pyjwt
         from unittest.mock import patch
+
+        import jwt as pyjwt
 
         from custom_components.electrolux.token_manager import ElectroluxTokenManager
 
@@ -724,11 +762,33 @@ class TestTokenManagerMissingCoverage:
         # Ensure no auth error callback is registered
         tm._on_auth_error = None
 
-        with patch.object(tm, "is_token_valid", return_value=False), patch(
-            "custom_components.electrolux.token_manager.request",
-            side_effect=Exception("401 Unauthorized"),
+        with (
+            patch.object(tm, "is_token_valid", return_value=False),
+            patch(
+                "custom_components.electrolux.token_manager.request",
+                side_effect=Exception("401 Unauthorized"),
+            ),
         ):
             result = await tm.refresh_token()
 
         # Should return False (permanent auth error, no callback to trigger reauth)
         assert result is False
+
+
+# ── lines 159-163: refresh_token skips when permanent_auth_failure is set ────
+
+
+@pytest.mark.asyncio
+async def test_refresh_token_returns_false_when_permanent_auth_failure():
+    """L159-163: _permanent_auth_failure=True → refresh_token logs and returns False."""
+    from custom_components.electrolux.token_manager import ElectroluxTokenManager
+
+    tm = ElectroluxTokenManager(
+        access_token="tok",
+        refresh_token="ref",
+        api_key="key",
+    )
+    tm._permanent_auth_failure = True
+
+    result = await tm.refresh_token()
+    assert result is False

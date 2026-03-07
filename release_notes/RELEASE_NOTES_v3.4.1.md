@@ -8,9 +8,9 @@
 >
 > Without submitted JSON samples, DAM appliances will appear with plain generic sensors and no enrichment.
 
-> ### 🤖 Robot Vacuum Cleaner (RVC) Support Wanted
+> ### 🤖 Robot Vacuum Support Wanted
 >
-> Robot Vacuum Cleaner support is planned for a future release, but **no diagnostic samples have been submitted yet**. Without a sample the integration cannot determine the appliance type code, capability keys, state values, or command structure needed to build the vacuum entity and room-cleaning controls.
+> Robot Vacuum support is planned for a future release, but **no diagnostic samples have been submitted yet**. Without a sample the integration cannot determine the appliance type code, capability keys, state values, or command structure needed to build the vacuum entity and room-cleaning controls.
 >
 > **If you own an Electrolux or AEG robot vacuum (Pure i8, Pure i9, Gordias, Cybele, or any other model managed through the Electrolux app), please [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) titled `RVC diagnostics — [your model]`** and attach your diagnostics (Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics).
 >
@@ -44,7 +44,7 @@ v3.4.1 is a catalog expansion and compatibility release. It introduces basic DAM
 - **DAM constant sensor values**: DAM capabilities use `"value"` for constant readings; legacy uses `"default"`. Both keys are now checked
 
 **IMPROVEMENTS:**
-- **New Appliance Type: CR (Combined Refrigerator)**: Added full catalog support for the `CR` appliance type, backed by the existing refrigerator catalog. Model `925060324` (EHE6899BA) now has a dedicated model entry
+- **New Appliance Type: CR (Combi Refrigerator)**: Added full catalog support for the `CR` appliance type, backed by the existing refrigerator catalog. Model `925060324` (EHE6899BA) now has a dedicated model entry
 - **Refrigerator Compartment Temperature Sensors**: Added `sensorTemperatureC` to all four compartments — `fridge`, `freezer`, `extraCavity`, `iceMaker` — for refrigerators that report per-compartment ambient temperature readings
 - **Refrigerator Compressor Entities**: Added `compressorState` (binary running sensor) and `compressorSpeed` (RPM sensor) for refrigerators that expose compressor telemetry
 - **Refrigerator Appliance State Device Class Fix**: `fridge/applianceState` and `freezer/applianceState` now use `BinarySensorDeviceClass.RUNNING` instead of the generic string sensor, matching the existing fix already applied to `extraCavity` and `iceMaker`
@@ -63,11 +63,11 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | Type | Appliance | Status | Known-Tested Samples / Models |
 |------|-----------|--------|-------------------------------|
 | `OV` | Oven | Full | Based on model `OV-944188772` |
-| `SO` | Steam Oven | Full | Based on model `SO-944035035` |
+| `SO` | Structured Oven | Full | Based on model `SO-944035035` |
 | `RF` | Refrigerator | Partial | No diagnostic samples received yet — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `CR` | Combined Refrigerator | Full ✨ *new* | Based on model `CR-925060324` |
+| `CR` | Combi Refrigerator | Full ✨ *new* | Based on model `CR-925060324` |
 | `WM` | Washing Machine | Full | Based on models `WM-EW7F3816DB`, `WM-914501128`, `WM-914915144` |
-| `WD` | Washer-Dryer | Full | Based on models `WD-914611000`, `WD-914611500` |
+| `WD` | Washer Dryer | Full | Based on models `WD-914611000`, `WD-914611500` |
 | `TD` | Tumble Dryer | Full | Based on models `TD-916099949`, `TD-916098401`, `TD-916098618` |
 | `AC` | Air Conditioner | Full | Based on model `AC-910280820` |
 | `DW` | Dishwasher | Full | Based on models `DW-911434654`, `DW-911434834` |
@@ -78,7 +78,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 
 > ### 🧪 Please Test and Report Issues
 >
-> v3.4.1 includes a **large catalog expansion** across nearly every supported appliance type. Hundreds of new entities have been added for washing machines, washer-dryers, tumble dryers, dishwashers, refrigerators, steam ovens, and air purifiers — many driven by newly analysed diagnostic samples.
+> v3.4.1 includes a **large catalog expansion** across nearly every supported appliance type. Hundreds of new entities have been added for washing machines, washer dryers, tumble dryers, dishwashers, refrigerators, steam ovens, and air purifiers — many driven by newly analysed diagnostic samples.
 >
 > Because the new entities cover capabilities not previously exercised, some may behave unexpectedly on your specific model (wrong entity type, unexpected values, unavailability, etc.).
 >
@@ -95,7 +95,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 ## New: CR Appliance Type and EHE6899BA Model
 
 ### Background
-The Electrolux API identifies fridge-freezer combo units as type `CR` (Combined Refrigerator). Previously this type code was not registered in the integration's type catalog, so any `CR` appliance would receive no entity enrichment — all entities would be created as generic sensors without device classes, units, or icons.
+The Electrolux API identifies fridge-freezer combo units as type `CR` (Combi Refrigerator). Previously this type code was not registered in the integration's type catalog, so any `CR` appliance would receive no entity enrichment — all entities would be created as generic sensors without device classes, units, or icons.
 
 ### Changes
 - `CR` type is now mapped to the existing refrigerator catalog, sharing all enrichment definitions with the `RF` type

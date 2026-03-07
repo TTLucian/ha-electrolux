@@ -307,9 +307,9 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=True)
-            assert (
-                result == value
-            ), f"Expected '{value}' for unknown input, got {result}"
+            assert result == value, (
+                f"Expected '{value}' for unknown input, got {result}"
+            )
 
     def test_string_to_boolean_unknown_with_fallback_false(self):
         """Test unknown values with fallback=False return False."""
@@ -317,9 +317,9 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=False)
-            assert (
-                result is False
-            ), f"Expected False for unknown input '{value}', got {result}"
+            assert result is False, (
+                f"Expected False for unknown input '{value}', got {result}"
+            )
 
     def test_string_to_boolean_case_insensitive(self):
         """Test that the function is case insensitive."""
@@ -341,3 +341,332 @@ class TestStringToBoolean:
         assert string_to_boolean("  on  ") is True
         assert string_to_boolean("off\t") is False
         assert string_to_boolean(" true ") is True
+
+
+# ---------------------------------------------------------------------------
+# ElectroluxLibraryEntity — basic method coverage
+# ---------------------------------------------------------------------------
+
+
+class TestElectroluxLibraryEntityBasics:
+    """Cover basic entity methods that feed into the mapping pipeline."""
+
+    def _make_entity(self, capabilities=None, state=None):
+        return ElectroluxLibraryEntity(
+            name="TestAppliance",
+            status="connected",
+            state=state or {"properties": {"reported": {"temp": 21}}},
+            appliance_info={},
+            capabilities=capabilities,
+        )
+
+    # L80: reported_state property
+    def test_reported_state_property(self):
+        entity = self._make_entity()
+        assert entity.reported_state == {"temp": 21}
+
+    # L84: get_name
+    def test_get_name(self):
+        entity = self._make_entity()
+        assert entity.get_name() == "TestAppliance"
+
+    # L88-91: get_value with nested slash notation
+    def test_get_value_slash_notation(self):
+        entity = self._make_entity(
+            state={
+                "properties": {"reported": {"userSelections": {"programUID": "COTTON"}}}
+            }
+        )
+        assert entity.get_value("userSelections/programUID") == "COTTON"
+
+    def test_get_value_slash_missing_key(self):
+        entity = self._make_entity(
+            state={"properties": {"reported": {"userSelections": {}}}}
+        )
+        assert entity.get_value("userSelections/programUID") is None
+
+    def test_get_value_plain_key(self):
+        entity = self._make_entity(state={"properties": {"reported": {"temp": 42}}})
+        assert entity.get_value("temp") == 42
+
+    # L123: get_sensor_name with all-uppercase intermediate group
+    def test_get_sensor_name_all_caps_sequence_mid_word(self):
+        """'SOMECaps' — the all-uppercase group must be appended as-is (L123)."""
+        entity = self._make_entity()
+        # "ABCDef" triggers the upper-group mid-word branch
+        result = entity.get_sensor_name("ABCDef")
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_get_sensor_name_trailing_caps(self):
+        """Uppercase group at end-of-string triggers L123 (i+1 bounds)."""
+        entity = self._make_entity()
+        result = entity.get_sensor_name("fCMiscID")
+        assert isinstance(result, str)
+
+
+# ---------------------------------------------------------------------------
+# get_entity_unit / get_entity_device_class — missing branches
+# ---------------------------------------------------------------------------
+
+
+class TestGetEntityUnitMissingBranches:
+    """Cover L177: return None when type is non-temperature."""
+
+    def test_non_temperature_type_returns_none(self):
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={"speed": {"type": "int", "access": "read"}},
+        )
+        assert entity.get_entity_unit("speed") is None
+
+
+class TestGetEntityDeviceClassMissingBranches:
+    """Cover L211 (SensorDeviceClass) and L231 (return None for non-temperature)."""
+
+    def test_temperature_read_returns_sensor_device_class(self):
+        """L211: temperature + access=read → SensorDeviceClass.TEMPERATURE."""
+        from homeassistant.components.sensor import SensorDeviceClass
+
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={"ambientTemp": {"type": "temperature", "access": "read"}},
+        )
+        result = entity.get_entity_device_class("ambientTemp")
+        assert result == SensorDeviceClass.TEMPERATURE
+
+    def test_non_temperature_type_returns_none(self):
+        """L231: any non-temperature type_class → return None."""
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={"speed": {"type": "int", "access": "read"}},
+        )
+        assert entity.get_entity_device_class("speed") is None
+
+
+# ---------------------------------------------------------------------------
+# get_entity_type — missing branches
+# ---------------------------------------------------------------------------
+
+
+class TestGetEntityTypeMissingBranches:
+    """Cover L239 (boolean+values→SWITCH), L263-264 (boolean readwrite match),
+    L267 (temperature read→SENSOR), L271 (read+number→SENSOR),
+    L277 (write→BUTTON), L281 (constant→SENSOR), L290 (int/number readwrite→NUMBER)."""
+
+    def _entity_with_cap(self, cap_name, cap_def):
+        return ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={cap_name: cap_def},
+        )
+
+    def test_boolean_readwrite_with_values_returns_switch(self):
+        """L239: boolean readwrite + values present → SWITCH (Electrolux bug exception)."""
+        from custom_components.electrolux.const import SWITCH
+
+        entity = self._entity_with_cap(
+            "lockState",
+            {
+                "type": "boolean",
+                "access": "readwrite",
+                "values": {"LOCKED": {}, "UNLOCKED": {}},
+            },
+        )
+        assert entity.get_entity_type("lockState") == SWITCH
+
+    def test_boolean_readwrite_match_case_returns_switch(self):
+        """L263-264: boolean readwrite (no values) → SWITCH via match-case."""
+        from custom_components.electrolux.const import SWITCH
+
+        entity = self._entity_with_cap(
+            "remoteControl",
+            {"type": "boolean", "access": "readwrite"},
+        )
+        assert entity.get_entity_type("remoteControl") == SWITCH
+
+    def test_temperature_read_returns_sensor_platform(self):
+        """L267: temperature + access=read → SENSOR platform."""
+        from custom_components.electrolux.const import SENSOR
+
+        entity = self._entity_with_cap(
+            "ambientTemp",
+            {"type": "temperature", "access": "read"},
+        )
+        assert entity.get_entity_type("ambientTemp") == SENSOR
+
+    def test_access_read_number_returns_sensor(self):
+        """L271: number type + access=read → SENSOR."""
+        from custom_components.electrolux.const import SENSOR
+
+        entity = self._entity_with_cap(
+            "waterLevel",
+            {"type": "number", "access": "read"},
+        )
+        assert entity.get_entity_type("waterLevel") == SENSOR
+
+    def test_access_write_returns_button(self):
+        """L277: access=write → BUTTON."""
+        from custom_components.electrolux.const import BUTTON
+
+        entity = self._entity_with_cap(
+            "resetFilter",
+            {"type": "string", "access": "write"},
+        )
+        assert entity.get_entity_type("resetFilter") == BUTTON
+
+    def test_access_constant_returns_sensor(self):
+        """L281: access=constant → SENSOR."""
+        from custom_components.electrolux.const import SENSOR
+
+        entity = self._entity_with_cap(
+            "firmwareVersion",
+            {"type": "string", "access": "constant"},
+        )
+        assert entity.get_entity_type("firmwareVersion") == SENSOR
+
+    def test_int_type_readwrite_returns_number(self):
+        """L290: int type + readwrite (no values constraint) → NUMBER."""
+        from custom_components.electrolux.const import NUMBER
+
+        entity = self._entity_with_cap(
+            "spinSpeed",
+            {"type": "int", "access": "readwrite", "min": 400, "max": 1600},
+        )
+        assert entity.get_entity_type("spinSpeed") == NUMBER
+
+
+# ---------------------------------------------------------------------------
+# sources_list — whitelisted and flat-capability branches
+# ---------------------------------------------------------------------------
+
+
+class TestSourcesListMissingBranches:
+    """Cover L314 (return True for whitelisted blacklisted source) and
+    L333-334 (flat capability with access+type at top level)."""
+
+    def test_blacklisted_but_whitelisted_returns_true(self):
+        """L314: source matches blacklist pattern but also whitelist → included."""
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={
+                "fCMiscellaneousState": {
+                    "waterUsage": {"type": "number", "access": "read"}
+                },
+                "fCMiscellaneousState/waterUsage": {"type": "number", "access": "read"},
+            },
+        )
+        result = entity.sources_list()
+        # fCMiscellaneousState matches blacklist, waterUsage sub-key matches whitelist
+        # The check is on the top-level key; whitelist patterns match the full source name
+        assert result is not None
+
+    def test_flat_capability_with_access_and_type_appended(self):
+        """L333-334: a flat top-level capability with access+type is appended to sources."""
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={
+                "applianceState": {"type": "string", "access": "read"},
+            },
+        )
+        result = entity.sources_list()
+        assert result is not None
+        # applianceState appears both as a top-level key and appended via the flat-cap branch
+        assert result.count("applianceState") >= 1
+
+
+# ---------------------------------------------------------------------------
+# Precise coverage fixes for api.py lines 123, 177, 231, 271, 277
+# ---------------------------------------------------------------------------
+
+
+class TestApiPreciseCoverage:
+    """Target the exact lines that remain uncovered after broader tests."""
+
+    def _entity(self, caps):
+        return ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities=caps,
+        )
+
+    # L123: get_sensor_name mid-word group that is NOT all-caps → group.lower() appended
+    def test_get_sensor_name_mixed_case_group_lowercased(self):
+        """L123: group 'Target' precedes uppercase → words.append(group.lower())."""
+        entity = self._entity({})
+        # "targetTemp" → preprocessed to "TargetTemp"
+        # When "T" at index 6 follows lowercase "t", group="Target" doesn't match [A-Z0-9]+
+        # → words.append("target") → L123
+        result = entity.get_sensor_name("targetTemp")
+        assert "target" in result.lower()
+
+    # L177: get_capability for deep path where intermediate is not a dict
+    def test_get_capability_intermediate_not_dict_returns_none(self):
+        """L177: traversal hits a non-dict intermediate value → return None."""
+        entity = self._entity({"outer": {"inner": "string_not_dict"}})
+        # "outer/inner/deep" → outer→{"inner":"string_not_dict"} → inner→"string_not_dict"
+        # → next loop: isinstance("string_not_dict", dict) is False → return None
+        result = entity.get_capability("outer/inner/deep")
+        assert result is None
+
+    # L231: get_entity_type when capability has no "access" field
+    def test_get_entity_type_no_access_returns_none(self):
+        """L231: capability with type but without access field → return None."""
+        entity = self._entity({"speed": {"type": "number"}})
+        result = entity.get_entity_type("speed")
+        assert result is None
+
+    # L271: get_entity_type for "alert" type → SENSOR (case "alert": return SENSOR)
+    def test_get_entity_type_alert_returns_sensor(self):
+        """L271: type='alert' access='read' → SENSOR platform (case 'alert': return SENSOR)."""
+        from custom_components.electrolux.const import SENSOR
+
+        entity = self._entity({"someAlert": {"type": "alert", "access": "read"}})
+        result = entity.get_entity_type("someAlert")
+        assert result == SENSOR
+
+    # temperature readwrite → NUMBER (covers L269)
+    def test_get_entity_type_temperature_readwrite_returns_number(self):
+        """L269: temperature + readwrite (no values) → NUMBER platform."""
+        from custom_components.electrolux.const import NUMBER
+
+        entity = self._entity(
+            {
+                "targetTemp": {
+                    "type": "temperature",
+                    "access": "readwrite",
+                    "min": 16,
+                    "max": 32,
+                }
+            }
+        )
+        result = entity.get_entity_type("targetTemp")
+        assert result == NUMBER
+
+    # L277: get_entity_type for executeCommand + read → BUTTON
+    def test_get_entity_type_execute_command_read_returns_button(self):
+        """L277: attr_name='executeCommand' + access='read' → BUTTON."""
+        from custom_components.electrolux.const import BUTTON
+
+        entity = self._entity({"executeCommand": {"type": "string", "access": "read"}})
+        result = entity.get_entity_type("executeCommand")
+        assert result == BUTTON

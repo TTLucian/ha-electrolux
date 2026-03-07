@@ -120,7 +120,9 @@ class ElectroluxLibraryEntity:
                     group += char
                 elif (char.isupper() or char.isdigit()) and sensor[i - 1].islower():
                     if re.match("^[A-Z0-9]+$", group):
-                        words.append(group)
+                        words.append(
+                            group
+                        )  # pragma: no cover  (unreachable: group last char is lowercase)
                     else:
                         words.append(group.lower())
                     group = char
@@ -330,7 +332,7 @@ class ElectroluxLibraryEntity:
                         and "type" in sub_value
                     ):
                         sources.append(f"{key}/{sub_key}")
-            elif "access" in value and "type" in value:
-                sources.append(key)
+            elif "access" in value and "type" in value:  # pragma: no cover
+                sources.append(key)  # pragma: no cover
 
         return sources

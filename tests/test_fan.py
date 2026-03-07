@@ -589,13 +589,16 @@ class TestSendCommand:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("Workmode", "Auto", cap)
 
         mock_exec.assert_awaited_once()
@@ -610,13 +613,16 @@ class TestSendCommand:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("Workmode", "Auto", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
@@ -633,13 +639,16 @@ class TestSendCommand:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("nestedMode", "Auto", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
@@ -658,13 +667,16 @@ class TestSendCommand:
         # Workmode IS a top-level capability in appliance_status (set by _make_fan)
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Manual",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Manual",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("Workmode", "Manual", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
@@ -682,13 +694,16 @@ class TestSendCommand:
         # top level, so get_capability("executeCommand") returns None → wrapping triggered
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="START",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="START",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("executeCommand", "START", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
@@ -706,13 +721,16 @@ class TestSendCommand:
         fan.coordinator = mock_coord
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-            side_effect=AuthenticationError("bad token"),
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+                side_effect=AuthenticationError("bad token"),
+            ),
         ):
             with pytest.raises(AuthenticationError):
                 await fan._send_command("Workmode", "Auto", cap)
@@ -726,12 +744,15 @@ class TestSendCommand:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ),
         ):
             await fan._send_command("Workmode", "Auto", cap)
 
@@ -906,13 +927,16 @@ class TestFanMissingCoverage:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            new_callable=AsyncMock,
-        ) as mock_exec:
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
             await fan._send_command("Workmode", "Auto", cap)
 
         cmd_arg = mock_exec.call_args[0][2]
@@ -934,12 +958,72 @@ class TestFanMissingCoverage:
         fan._apply_optimistic_update = MagicMock()
 
         cap = {"access": "readwrite", "type": "string"}
-        with patch(
-            "custom_components.electrolux.fan.format_command_for_appliance",
-            return_value="Auto",
-        ), patch(
-            "custom_components.electrolux.fan.execute_command_with_error_handling",
-            AsyncMock(side_effect=HomeAssistantError("command rejected")),
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                AsyncMock(side_effect=HomeAssistantError("command rejected")),
+            ),
         ):
             with pytest.raises(HomeAssistantError, match="command rejected"):
                 await fan._send_command("Workmode", "Auto", cap)
+
+
+# ---------------------------------------------------------------------------
+# Coverage gap: get_capability AttributeError (L164-165)
+# ---------------------------------------------------------------------------
+
+
+class TestGetCapabilityAttributeError:
+    def test_attribute_error_on_appliances_access_returns_none(self):
+        """L164-165: AttributeError while traversing appliance data → caught, returns None."""
+        fan = _make_fan()
+
+        class _BrokenObj:
+            """Object whose .appliances raises AttributeError."""
+
+            @property
+            def appliances(self):
+                raise AttributeError("no appliances attr")
+
+        fan.coordinator.data = {"appliances": _BrokenObj()}
+        assert fan.get_capability("Fanspeed") is None
+
+
+# ---------------------------------------------------------------------------
+# Coverage gap: _send_command DAM + entity_source + capability found (L427)
+# ---------------------------------------------------------------------------
+
+
+class TestSendCommandDamEntitySourceCapabilityFound:
+    @pytest.mark.asyncio
+    async def test_dam_entity_source_capability_found_uses_flat_command(self):
+        """L427: DAM appliance, entity_source set (not userSelections), get_capability
+        returns truthy → else branch: command = {attr_name: command_value}."""
+        # entity_source="Workmode" is NOT "userSelections"; capability for "Fanspeed"
+        # IS in the mock data → get_capability returns truthy → hits L427
+        fan = _make_fan(is_dam=True, entity_source="Workmode")
+        fan.api = MagicMock()
+        fan._apply_optimistic_update = MagicMock()
+
+        cap = {"access": "readwrite", "type": "number", "min": 1, "max": 9}
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value=7,
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ) as mock_exec,
+        ):
+            await fan._send_command("Fanspeed", 7, cap)
+
+        cmd_arg = mock_exec.call_args[0][2]
+        # DAM wraps in {"commands": [...]}, inner command should be flat {attr_name: value}
+        assert "commands" in cmd_arg
+        inner = cmd_arg["commands"][0]
+        assert inner == {"Fanspeed": 7}

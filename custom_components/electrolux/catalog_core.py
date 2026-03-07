@@ -18,81 +18,113 @@ from .model import ElectroluxDevice
 @lru_cache(maxsize=None)
 def _get_catalog_air_conditioner():
     """Lazy load air conditioner catalog."""
-    from .catalog_air_conditioner import CATALOG_AIR_CONDITIONER
+    from .catalogs.catalog_ac import CATALOG_AC
 
-    return CATALOG_AIR_CONDITIONER
+    return CATALOG_AC
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_dishwasher():
     """Lazy load dishwasher catalog."""
-    from .catalog_dishwasher import CATALOG_DISHWASHER
+    from .catalogs.catalog_dw import CATALOG_DW
 
-    return CATALOG_DISHWASHER
+    return CATALOG_DW
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_oven():
     """Lazy load oven catalog."""
-    from .catalog_oven import CATALOG_OVEN
+    from .catalogs.catalog_ov import CATALOG_OV
 
-    return CATALOG_OVEN
+    return CATALOG_OV
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_purifier():
     """Lazy load purifier catalog."""
-    from .catalog_purifier import CATALOG_PURIFIER
+    from .catalogs.catalog_ap import CATALOG_AP
 
-    return CATALOG_PURIFIER
+    return CATALOG_AP
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_refrigerator():
     """Lazy load refrigerator catalog."""
-    from .catalog_refrigerator import CATALOG_REFRIGERATOR
+    from .catalogs.catalog_cr import CATALOG_CR
 
-    return CATALOG_REFRIGERATOR
+    return CATALOG_CR
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_washer():
     """Lazy load washer catalog."""
-    from .catalog_washer import CATALOG_WASHER
+    from .catalogs.catalog_wm import CATALOG_WM
 
-    return CATALOG_WASHER
+    return CATALOG_WM
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_washer_dryer():
-    """Lazy load washer-dryer catalog."""
-    from .catalog_washer_dryer import CATALOG_WASHER_DRYER
+    """Lazy load washer dryer catalog."""
+    from .catalogs.catalog_wd import CATALOG_WD
 
-    return CATALOG_WASHER_DRYER
+    return CATALOG_WD
 
 
 @lru_cache(maxsize=None)
 def _get_catalog_dryer():
     """Lazy load dryer catalog."""
-    from .catalog_dryer import CATALOG_DRYER
+    from .catalogs.catalog_td import CATALOG_TD
 
-    return CATALOG_DRYER
-
-
-@lru_cache(maxsize=None)
-def _get_catalog_microwave():
-    """Lazy load microwave catalog."""
-    from .catalog_microwave import CATALOG_MICROWAVE
-
-    return CATALOG_MICROWAVE
+    return CATALOG_TD
 
 
 @lru_cache(maxsize=None)
-def _get_catalog_steam_oven():
-    """Lazy load steam oven catalog."""
-    from .catalog_steam_oven import CATALOG_STEAM_OVEN
+def _get_catalog_structured_oven():
+    """Lazy load structured oven catalog."""
+    from .catalogs.catalog_so import CATALOG_SO
 
-    return CATALOG_STEAM_OVEN
+    return CATALOG_SO
+
+
+@lru_cache(maxsize=None)
+def _get_catalog_dam_ac():
+    """Lazy load DAM air conditioner catalog."""
+    from .catalogs.catalog_dam_ac import CATALOG_DAM_AC
+
+    return CATALOG_DAM_AC
+
+
+@lru_cache(maxsize=None)
+def _get_catalog_dehumidifier():
+    """Lazy load dehumidifier catalog."""
+    from .catalogs.catalog_dh import CATALOG_DH
+
+    return CATALOG_DH
+
+
+@lru_cache(maxsize=None)
+def _get_catalog_rvc():
+    """Lazy load robot vacuum catalog."""
+    from .catalogs.catalog_rvc import CATALOG_RVC
+
+    return CATALOG_RVC
+
+
+@lru_cache(maxsize=None)
+def _get_catalog_hob():
+    """Lazy load hob catalog."""
+    from .catalogs.catalog_hb import CATALOG_HB
+
+    return CATALOG_HB
+
+
+@lru_cache(maxsize=None)
+def _get_catalog_hood():
+    """Lazy load hood catalog."""
+    from .catalogs.catalog_hd import CATALOG_HD
+
+    return CATALOG_HD
 
 
 # definitions of model explicit overrides. These will be used to
@@ -126,33 +158,63 @@ def _get_catalog_by_type():
     the base catalog with features unique to each appliance type.
 
     Supported appliance types:
-    - OV: Oven - includes temperature, program, timing controls
-    - SO: Steam Oven - includes upperOven nested capabilities and steam-specific features
-    - RF: Refrigerator - includes temperature zones and alerts
-    - CR: Combined Refrigerator (French door fridge) - same catalog as RF
-    - WM: Washing Machine - includes cycle programs and options
-    - WD: Washer-Dryer - combines washing and drying functionality
-    - TD: Tumble Dryer - includes drying programs and controls
-    - AC: Air Conditioner - includes climate control and air quality
-    - DW: Dishwasher - includes wash programs and options
-    - MW: Microwave - includes power levels and cooking programs (in preparation)
+    - OV: Oven
+    - SO: Structured Oven (upperOven nested capabilities)
+    - CR: Combi Refrigerator
+    - WM: Washing Machine
+    - WD: Washer Dryer
+    - TD: Tumble Dryer
+    - AC / CA / Azul / Bogong / Panther / Telica: Air Conditioner variants
+    - DAM_AC: DAM Air Conditioner (nested airConditioner/ sub-object)
+    - DW: Dishwasher
+    - Muju / Verbier / PUREA9 / Fuji / WELLA5 / WELLA7: Air Purifier variants
+    - DH / Husky: Dehumidifier
+    - PUREi9 / Gordias / Cybele / 700series: Robot Vacuum
+    - HB: Induction Hob
+    - HD: Hood / Extractor Fan
 
     Returns:
         dict: Mapping of appliance type codes to their entity catalogs
     """
+    _ac = _get_catalog_air_conditioner()
+    _purifier = _get_catalog_purifier()
     return {
+        # Cooking
         "OV": _get_catalog_oven(),  # Oven
-        "SO": _get_catalog_steam_oven(),  # Steam Oven (dedicated catalog for upperOven nesting)
-        "RF": _get_catalog_refrigerator(),  # Refrigerator
-        "CR": _get_catalog_refrigerator(),  # Combined Refrigerator (French door)
+        "SO": _get_catalog_structured_oven(),  # Structured Oven (dedicated catalog for upperOven nesting)
+        "HB": _get_catalog_hob(),  # Induction Hob
+        "HD": _get_catalog_hood(),  # Hood / Extractor Fan
+        # Cooling
+        "CR": _get_catalog_refrigerator(),  # Combi Refrigerator
+        # Laundry care
         "WM": _get_catalog_washer(),  # Washing Machine
-        "WD": _get_catalog_washer_dryer(),  # Washer-Dryer
+        "WD": _get_catalog_washer_dryer(),  # Washer Dryer
         "TD": _get_catalog_dryer(),  # Tumble Dryer
-        "AC": _get_catalog_air_conditioner(),  # Air Conditioner
         "DW": _get_catalog_dishwasher(),  # Dishwasher
-        "MW": _get_catalog_microwave(),  # Microwave (in preparation)
-        "Muju": _get_catalog_purifier(),  # Air Purifier (Muju brand)
-        "Verbier": _get_catalog_purifier(),  # Air Purifier with Humidification (Verbier)
+        # Air conditioning — legacy variants share the same capability keys
+        "AC": _ac,
+        "CA": _ac,
+        "Azul": _ac,
+        "Bogong": _ac,
+        "Panther": _ac,
+        "Telica": _ac,
+        # DAM Air Conditioner — distinct nested API structure
+        "DAM_AC": _get_catalog_dam_ac(),
+        # Air purifiers — all variants share the same capability keys
+        "Muju": _purifier,
+        "Verbier": _purifier,
+        "PUREA9": _purifier,
+        "Fuji": _purifier,
+        "WELLA5": _purifier,
+        "WELLA7": _purifier,
+        # Dehumidifier
+        "DH": _get_catalog_dehumidifier(),
+        "Husky": _get_catalog_dehumidifier(),
+        # Robot Vacuum
+        "PUREi9": _get_catalog_rvc(),
+        "Gordias": _get_catalog_rvc(),
+        "Cybele": _get_catalog_rvc(),
+        "700series": _get_catalog_rvc(),
     }
 
 

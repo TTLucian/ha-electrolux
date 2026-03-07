@@ -83,7 +83,7 @@ Standardized all duration sensor unit definitions across appliance catalogs:
 **Sensors Using MINUTES:**
 - `applianceTotalWorkingTime` - Total appliance working time (diagnostic)
 - `antiCreaseValue` - Anti-crease duration for dryers
-- `delayTime` - Delayed start time for washers/washer-dryers
+- `delayTime` - Delayed start time for washers/washer dryers
 
 **Sensors Using SECONDS:**
 - `timeToEnd` - Countdown timer for all appliances (primary)
@@ -111,7 +111,7 @@ Standardized all duration sensor unit definitions across appliance catalogs:
 - `custom_components/electrolux/catalog_oven.py` - Standardized oven time controls
 - `custom_components/electrolux/catalog_dryer.py` - Standardized dryer duration entities
 - `custom_components/electrolux/catalog_washer.py` - Standardized washer time controls
-- `custom_components/electrolux/catalog_washer_dryer.py` - Standardized washer-dryer durations
+- `custom_components/electrolux/catalog_washer_dryer.py` - Standardized washer dryer durations
 - `custom_components/electrolux/catalog_refrigerator.py` - Verified refrigerator timers
 
 ---

@@ -1,13 +1,13 @@
 # Release Notes - v$RESOLVED_VERSION
 
-## 🌀 **MAJOR ENHANCEMENT: Washer-Dryer Appliance Support**
+## 🌀 **MAJOR ENHANCEMENT: Washer Dryer Appliance Support**
 
-This release introduces **comprehensive washer-dryer support** with full integrated washing and drying control capabilities, providing users with complete control over their Electrolux washer-dryer appliances.
+This release introduces **comprehensive washer dryer support** with full integrated washing and drying control capabilities, providing users with complete control over their Electrolux washer dryer appliances.
 
 ### ✅ **New Features**
 
-#### 🏠 **Washer-Dryer Platform Integration**
-- **Full WD Support**: Complete entity suite for Electrolux washer-dryer appliances
+#### 🏠 **Washer Dryer Platform Integration**
+- **Full WD Support**: Complete entity suite for Electrolux washer dryer appliances
 - **Automatic Detection**: Appliances with type "WD" are automatically configured with comprehensive controls
 - **Integrated Wash+Dry Cycles**: Support for appliances that combine washing and drying in unified programs
 
@@ -37,7 +37,7 @@ This release introduces **comprehensive washer-dryer support** with full integra
 
 #### ⚙️ **Technical Implementation**
 - **Dedicated Catalog**: New `CATALOG_WASHER_DRYER` with 60+ entity definitions
-- **Type-Based Mapping**: Automatic routing of "WD" appliances to washer-dryer catalog
+- **Type-Based Mapping**: Automatic routing of "WD" appliances to washer dryer catalog
 - **Backward Compatibility**: Existing washing machine ("WM") support unchanged
 - **API Compliance**: Based on actual Electrolux API capabilities from production appliances
 
@@ -47,7 +47,7 @@ This release introduces **comprehensive washer-dryer support** with full integra
 ```python
 CATALOG_BY_TYPE = {
     "WM": CATALOG_WASHER,        # Washing Machine (unchanged)
-    "WD": CATALOG_WASHER_DRYER,  # Washer-Dryer (new)
+    "WD": CATALOG_WASHER_DRYER,  # Washer Dryer (new)
     # ... other appliance types
 }
 ```
@@ -76,17 +76,17 @@ CATALOG_BY_TYPE = {
 - **Code formatting** compliant with project standards
 
 ### 📋 **Migration Notes**
-- **Automatic**: No user action required - washer-dryer appliances are automatically detected and configured
+- **Automatic**: No user action required - washer dryer appliances are automatically detected and configured
 - **Backward Compatible**: Existing washing machine installations unaffected
 - **No Breaking Changes**: All existing entities and functionality preserved
 
 ### 🐛 **Bug Fixes**
-- Fixed washer-dryer appliances showing only connection state instead of full controls
+- Fixed washer dryer appliances showing only connection state instead of full controls
 - Resolved catalog mapping issue for "WD" appliance type
 - Improved entity naming and categorization for better user experience
 
 ---
 
-**Full appliance control for Electrolux washer-dryers is now available!** 🎉
+**Full appliance control for Electrolux washer dryers is now available!** 🎉
 
-*This release is based on actual Electrolux API capabilities extracted from model `914611500` washer-dryer appliance diagnostics.*
+*This release is based on actual Electrolux API capabilities extracted from model `914611500` washer dryer appliance diagnostics.*

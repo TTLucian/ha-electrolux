@@ -487,3 +487,55 @@ async def test_async_login_raises_config_entry_not_ready_on_unexpected_error():
 
     with pytest.raises(ConfigEntryNotReady):
         await coord.async_login()
+
+
+# ---------------------------------------------------------------------------
+# L615-621 / L622-623: _cancel_and_cleanup_tasks exception branches
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_cancel_cleanup_tasks_cancelled_error_is_reraised(mock_coordinator):
+    """L615-621: asyncio.gather raises CancelledError → drains again, logs, re-raises."""
+    import asyncio
+
+    mock_task = MagicMock()
+    mock_task.done.return_value = True  # already done — no task.cancel() call needed
+
+    gather_call_count = 0
+
+    async def _fake_gather(*args, **kwargs):
+        nonlocal gather_call_count
+        gather_call_count += 1
+        if gather_call_count == 1:
+            raise asyncio.CancelledError()
+        # Second call (drain) returns normally
+        return []
+
+    with patch(
+        "custom_components.electrolux.coordinator.asyncio.gather",
+        side_effect=_fake_gather,
+    ):
+        with pytest.raises(asyncio.CancelledError):
+            await mock_coordinator._cleanup_appliance_tasks(
+                [mock_task], "test_appliance_id"
+            )
+
+    # Gather was called twice: once initially, once for the drain
+    assert gather_call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_cancel_cleanup_tasks_generic_exception_is_swallowed(mock_coordinator):
+    """L622-623: Generic exception during gather is logged and NOT re-raised."""
+    mock_task = MagicMock()
+    mock_task.done.return_value = True
+
+    with patch(
+        "custom_components.electrolux.coordinator.asyncio.gather",
+        side_effect=RuntimeError("gather exploded"),
+    ):
+        # Must NOT raise
+        await mock_coordinator._cleanup_appliance_tasks(
+            [mock_task], "test_appliance_id"
+        )
