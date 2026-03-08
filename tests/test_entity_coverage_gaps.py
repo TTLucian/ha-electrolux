@@ -598,6 +598,58 @@ class TestApplyOptimisticUpdateGaps:
 
         entity.async_write_ha_state.assert_not_called()
 
+    def test_nested_single_level_source_writes_to_correct_path(self):
+        """Optimistic update for entity_source='userSelections' updates nested dict."""
+        entity = make_entity(
+            entity_attr="glassCareOption",
+            entity_source="userSelections",
+            reported={"userSelections": {"programUID": "ECO", "glassCareOption": False}},
+        )
+        entity.entity_id = ""
+        entity.async_write_ha_state = MagicMock()
+
+        entity._apply_optimistic_update("glassCareOption", True)
+
+        # Value must be at the nested path, NOT at the top level
+        assert entity.reported_state.get("userSelections", {}).get("glassCareOption") is True
+        assert entity.reported_state.get("glassCareOption") is None
+
+    def test_nested_single_level_source_does_not_shadow_sse_update(self):
+        """SSE update to nested path is not masked by a prior optimistic top-level key."""
+        entity = make_entity(
+            entity_attr="extraPowerOption",
+            entity_source="userSelections",
+            reported={"userSelections": {"programUID": "ECO", "extraPowerOption": False}},
+        )
+        entity.entity_id = ""
+        entity.async_write_ha_state = MagicMock()
+
+        # Optimistically toggle ON
+        entity._apply_optimistic_update("extraPowerOption", True)
+        assert entity.reported_state["userSelections"]["extraPowerOption"] is True
+
+        # Simulate SSE rolling back the change (command was rejected by appliance)
+        entity.reported_state["userSelections"]["extraPowerOption"] = False
+
+        # The entity must now reflect the SSE value, not a stale top-level key
+        assert entity.reported_state.get("userSelections", {}).get("extraPowerOption") is False
+        assert entity.reported_state.get("extraPowerOption") is None  # no phantom key
+
+    def test_nested_multi_level_source_writes_to_correct_path(self):
+        """Optimistic update for entity_source='a/b' navigates two levels deep."""
+        entity = make_entity(
+            entity_attr="mode",
+            entity_source="a/b",
+            reported={"a": {"b": {"mode": "cool"}}},
+        )
+        entity.entity_id = ""
+        entity.async_write_ha_state = MagicMock()
+
+        entity._apply_optimistic_update("mode", "heat")
+
+        assert entity.reported_state.get("a", {}).get("b", {}).get("mode") == "heat"
+        assert entity.reported_state.get("mode") is None  # no phantom top-level key
+
 
 # ===========================================================================
 # 6.  available property – returns False

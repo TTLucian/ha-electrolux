@@ -384,8 +384,14 @@ class ElectroluxEntity(CoordinatorEntity):
         This updates the local state immediately to prevent UI "snap back" while
         waiting for SSE confirmation. SSE updates will override if actual state differs.
 
+        For entities with entity_source (e.g. userSelections/extraPowerOption),
+        the update is written into the correct nested sub-dict so that
+        extract_value() continues to read from the right location and SSE
+        incremental updates (which also target the nested path) are not masked
+        by a stale top-level key.
+
         Args:
-            attr: Attribute name to update
+            attr: Attribute name to update (leaf key, without source prefix)
             value: New value (should be API format, not UI format)
             log_message: Optional custom log message suffix
         """
@@ -395,8 +401,36 @@ class ElectroluxEntity(CoordinatorEntity):
             and "properties" in self.appliance_status
             and "reported" in self.appliance_status["properties"]
         ):
-            self.appliance_status["properties"]["reported"][attr] = value
-            self._reported_state_cache[attr] = value
+            reported = self.appliance_status["properties"]["reported"]
+
+            if self.entity_source:
+                if "/" in self.entity_source:
+                    # Multi-level source path — navigate to the innermost dict
+                    r_target: dict[str, Any] = reported
+                    c_target: dict[str, Any] = self._reported_state_cache
+                    for part in self.entity_source.split("/"):
+                        if not isinstance(r_target.get(part), dict):
+                            r_target[part] = {}
+                        r_target = r_target[part]
+                        if not isinstance(c_target.get(part), dict):
+                            c_target[part] = {}
+                        c_target = c_target[part]
+                    r_target[attr] = value
+                    c_target[attr] = value
+                else:
+                    # Single-level source: e.g., "userSelections", "fridge", "freezer"
+                    if not isinstance(reported.get(self.entity_source), dict):
+                        reported[self.entity_source] = {}
+                    reported[self.entity_source][attr] = value
+                    if not isinstance(
+                        self._reported_state_cache.get(self.entity_source), dict
+                    ):
+                        self._reported_state_cache[self.entity_source] = {}
+                    self._reported_state_cache[self.entity_source][attr] = value
+            else:
+                reported[attr] = value
+                self._reported_state_cache[attr] = value
+
             # Only write state if entity has been added to HA (skip in tests)
             if self.entity_id:
                 self.async_write_ha_state()
@@ -404,14 +438,16 @@ class ElectroluxEntity(CoordinatorEntity):
             # Log with custom message or default
             if log_message:
                 _LOGGER.debug(
-                    "Optimistically updated %s to %s (%s)",
+                    "Optimistically updated %s/%s to %s (%s)",
+                    self.entity_source or "root",
                     attr,
                     value,
                     log_message,
                 )
             else:
                 _LOGGER.debug(
-                    "Optimistically updated %s to %s (will be confirmed by SSE)",
+                    "Optimistically updated %s/%s to %s (will be confirmed by SSE)",
+                    self.entity_source or "root",
                     attr,
                     value,
                 )
