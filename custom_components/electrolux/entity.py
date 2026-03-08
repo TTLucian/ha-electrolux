@@ -1037,14 +1037,11 @@ class ElectroluxEntity(CoordinatorEntity):
             return self._is_supported_cache
 
         # Compute support status
-        if (
-            self.entity_attr
-            in [
-                "program",
-                "programUID",  # Always support programUID (entity_attr without source prefix)
-                "userSelections/programUID",
-            ]
-        ):
+        if self.entity_attr in [
+            "program",
+            "programUID",  # Always support programUID (entity_attr without source prefix)
+            "userSelections/programUID",
+        ]:
             self._is_supported_cache = True
             return True
 
