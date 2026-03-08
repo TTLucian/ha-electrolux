@@ -145,6 +145,32 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             features |= FanEntityFeature.PRESET_MODE
         self._attr_supported_features = features
 
+    def _is_fanspeed_disabled(self) -> bool:
+        """Return True if Fanspeed is disabled for the current Workmode.
+
+        The appliance capability doc declares triggers on Workmode that mark
+        Fanspeed as ``disabled: true`` for Auto, Quiet, and PowerOff modes.
+        Sending a Fanspeed command in those modes causes the firmware to
+        automatically revert Workmode to Manual, which is the root cause of the
+        HomeKit "Auto → Manual" regression reported by Muju users.
+        """
+        current_mode = self.get_state_attr("Workmode")
+        if not current_mode:
+            return False
+        workmode_cap = self.get_capability("Workmode")
+        if not workmode_cap:
+            return False
+        for trigger in workmode_cap.get("triggers", []):
+            condition = trigger.get("condition", {})
+            if (
+                condition.get("operator") == "eq"
+                and condition.get("operand_1") == "value"
+                and condition.get("operand_2") == current_mode
+            ):
+                if trigger.get("action", {}).get("Fanspeed", {}).get("disabled"):
+                    return True
+        return False
+
     def get_capability(self, attr_name: str) -> dict[str, Any] | None:
         """Get capability definition for an attribute from appliance.
 
@@ -182,9 +208,21 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
     @property
     def percentage(self) -> int | None:
-        """Return the current speed percentage."""
+        """Return the current speed percentage.
+
+        Returns None when Fanspeed is disabled for the current Workmode (e.g.
+        Auto, Quiet).  A None percentage tells Home Assistant (and the HomeKit
+        Bridge) that speed is not user-controllable in this mode, preventing
+        the bridge from issuing a redundant set_percentage call that would
+        cause the appliance firmware to revert Workmode to Manual.
+        """
         if not self.is_on:
             return 0
+
+        # Fanspeed is locked by the appliance in Auto/Quiet/PowerOff modes.
+        # Reporting None prevents HomeKit Bridge from calling set_percentage.
+        if self._is_fanspeed_disabled():
+            return None
 
         fanspeed = self.get_state_attr("Fanspeed")
         if fanspeed is None:
@@ -308,6 +346,12 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         if percentage == 0:
             await self.async_turn_off()
             return
+
+        # If Fanspeed is disabled for the current mode (e.g. Auto, Quiet),
+        # switching to Manual first is the correct behaviour — the user is
+        # explicitly requesting speed control.
+        if self._is_fanspeed_disabled():
+            await self._send_workmode_command("Manual")
 
         # Turn on if currently off
         if not self.is_on:

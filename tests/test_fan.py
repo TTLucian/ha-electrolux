@@ -1027,3 +1027,257 @@ class TestSendCommandDamEntitySourceCapabilityFound:
         assert "commands" in cmd_arg
         inner = cmd_arg["commands"][0]
         assert inner == {"Fanspeed": 7}
+
+
+# ---------------------------------------------------------------------------
+# Helpers for Muju-style capability with Workmode → Fanspeed disabled triggers
+# ---------------------------------------------------------------------------
+
+
+def _make_capability_workmode_with_triggers() -> dict:
+    """Return a Workmode capability that mirrors the Muju air purifier JSON.
+
+    The Muju appliance marks Fanspeed as ``disabled: true`` for Auto, Quiet and
+    PowerOff modes via capability triggers.  This fixture is used to exercise
+    ``_is_fanspeed_disabled()`` and the resulting behaviour of ``percentage``
+    and ``async_set_percentage``.
+    """
+    return {
+        "access": "readwrite",
+        "type": "string",
+        "values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}},
+        "triggers": [
+            {
+                "action": {
+                    "Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 5}
+                },
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "Auto",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {
+                    "Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 2}
+                },
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "Quiet",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"Fanspeed": {"disabled": True}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "PowerOff",
+                    "operator": "eq",
+                },
+            },
+        ],
+    }
+
+
+# ---------------------------------------------------------------------------
+# _is_fanspeed_disabled
+# ---------------------------------------------------------------------------
+
+
+class TestIsFanspeedDisabled:
+    """Tests for the ``_is_fanspeed_disabled`` helper added to fix the Muju
+    HomeKit Auto→Manual regression (v3.5.8)."""
+
+    def _make_fan_with_triggers(self, workmode: str) -> "ElectroluxFan":
+        """Return a fan whose Workmode capability has Fanspeed-disabled triggers."""
+        caps_with_triggers = _make_capability_workmode_with_triggers()
+        fan = _make_fan(workmode=workmode)
+        # Override get_capability so Workmode returns the triggers-bearing capability
+        original_get_cap = fan.get_capability
+
+        def _get_cap_override(attr: str):
+            if attr == "Workmode":
+                return caps_with_triggers
+            return original_get_cap(attr)
+
+        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_state_attr = MagicMock(
+            side_effect=lambda k: workmode if k == "Workmode" else None
+        )
+        return fan
+
+    def test_returns_true_for_auto_mode(self):
+        """Fanspeed is disabled when Workmode == Auto."""
+        fan = self._make_fan_with_triggers("Auto")
+        assert fan._is_fanspeed_disabled() is True
+
+    def test_returns_true_for_quiet_mode(self):
+        """Fanspeed is disabled when Workmode == Quiet."""
+        fan = self._make_fan_with_triggers("Quiet")
+        assert fan._is_fanspeed_disabled() is True
+
+    def test_returns_true_for_poweroff_mode(self):
+        """Fanspeed is disabled when Workmode == PowerOff."""
+        fan = self._make_fan_with_triggers("PowerOff")
+        assert fan._is_fanspeed_disabled() is True
+
+    def test_returns_false_for_manual_mode(self):
+        """Fanspeed is NOT disabled when Workmode == Manual (no matching trigger)."""
+        fan = self._make_fan_with_triggers("Manual")
+        assert fan._is_fanspeed_disabled() is False
+
+    def test_returns_false_when_no_triggers_in_capability(self):
+        """No triggers key in capability → Fanspeed assumed enabled."""
+        fan = _make_fan(workmode="Auto")
+        # Standard workmode cap without triggers
+        fan.get_capability = MagicMock(  # type: ignore[method-assign]
+            return_value=_make_capability_workmode(["Auto", "Manual", "Quiet"])
+        )
+        fan.get_state_attr = MagicMock(return_value="Auto")
+        assert fan._is_fanspeed_disabled() is False
+
+    def test_returns_false_when_workmode_capability_missing(self):
+        """get_capability returns None → safe fallback to False."""
+        fan = _make_fan(workmode="Auto")
+        fan.get_capability = MagicMock(return_value=None)  # type: ignore[method-assign]
+        fan.get_state_attr = MagicMock(return_value="Auto")
+        assert fan._is_fanspeed_disabled() is False
+
+    def test_returns_false_when_current_mode_is_none(self):
+        """No current Workmode state → safe fallback to False."""
+        fan = _make_fan()
+        fan.get_state_attr = MagicMock(return_value=None)
+        assert fan._is_fanspeed_disabled() is False
+
+
+# ---------------------------------------------------------------------------
+# percentage — Muju / disabled-Fanspeed behaviour
+# ---------------------------------------------------------------------------
+
+
+class TestPercentageDisabledFanspeed:
+    """Tests for the ``percentage`` property when Fanspeed is trigger-disabled."""
+
+    def _fan_in_mode(self, workmode: str) -> "ElectroluxFan":
+        caps_with_triggers = _make_capability_workmode_with_triggers()
+        fan = _make_fan(workmode=workmode, fanspeed=3)
+        fan._speed_range = (1, 5)
+        original_get_cap = fan.get_capability
+
+        def _get_cap_override(attr: str):
+            if attr == "Workmode":
+                return caps_with_triggers
+            return original_get_cap(attr)
+
+        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_state_attr = MagicMock(
+            side_effect=lambda k: workmode if k == "Workmode" else 3
+        )
+        return fan
+
+    def test_percentage_returns_none_in_auto_mode(self):
+        """``percentage`` must return None for Auto mode so HomeKit Bridge does
+        not call ``set_percentage``, which would trigger a firmware revert to Manual."""
+        fan = self._fan_in_mode("Auto")
+        assert fan.percentage is None
+
+    def test_percentage_returns_none_in_quiet_mode(self):
+        """``percentage`` must return None for Quiet mode (same trigger rule)."""
+        fan = self._fan_in_mode("Quiet")
+        assert fan.percentage is None
+
+    def test_percentage_returns_value_in_manual_mode(self):
+        """``percentage`` must return a non-None value when Fanspeed is enabled."""
+        fan = self._fan_in_mode("Manual")
+        pct = fan.percentage
+        assert pct is not None
+        assert 0 < pct <= 100
+
+    def test_percentage_returns_zero_when_off(self):
+        """``percentage`` must still return 0 (not None) when fan is off."""
+        fan = self._fan_in_mode("PowerOff")
+        # is_on returns False for PowerOff → should return 0 before reaching the
+        # _is_fanspeed_disabled() check
+        assert fan.percentage == 0
+
+
+# ---------------------------------------------------------------------------
+# async_set_percentage — Manual-first guard when Fanspeed is disabled
+# ---------------------------------------------------------------------------
+
+
+class TestAsyncSetPercentageManualFirst:
+    """Tests confirming that ``async_set_percentage`` switches to Manual before
+    setting speed when the current Workmode disables Fanspeed (e.g. Auto)."""
+
+    def _fan_in_auto_with_triggers(self) -> "ElectroluxFan":
+        caps_with_triggers = _make_capability_workmode_with_triggers()
+        fan = _make_fan(workmode="Auto")
+        original_get_cap = fan.get_capability
+
+        def _get_cap_override(attr: str):
+            if attr == "Workmode":
+                return caps_with_triggers
+            return original_get_cap(attr)
+
+        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_state_attr = MagicMock(return_value="Auto")
+        fan.is_connected = MagicMock(return_value=True)
+        fan._send_workmode_command = AsyncMock()
+        fan._set_percentage = AsyncMock()
+        return fan
+
+    @pytest.mark.asyncio
+    async def test_switches_to_manual_before_setting_speed_in_auto_mode(self):
+        """When Workmode == Auto (Fanspeed disabled), ``async_set_percentage``
+        must call ``_send_workmode_command("Manual")`` before ``_set_percentage``."""
+        fan = self._fan_in_auto_with_triggers()
+        mock_workmode: AsyncMock = fan._send_workmode_command  # type: ignore[assignment]
+        mock_set_pct: AsyncMock = fan._set_percentage  # type: ignore[assignment]
+        await fan.async_set_percentage(60)
+
+        mock_workmode.assert_awaited_once_with("Manual")
+        mock_set_pct.assert_awaited_once_with(60)
+
+    @pytest.mark.asyncio
+    async def test_manual_before_speed_call_order(self):
+        """The Manual switch must happen BEFORE ``_set_percentage`` is called."""
+        fan = self._fan_in_auto_with_triggers()
+        call_order: list[str] = []
+
+        async def record_workmode(mode: str) -> None:
+            call_order.append(f"workmode:{mode}")
+
+        async def record_set_pct(pct: int) -> None:
+            call_order.append(f"set_pct:{pct}")
+
+        fan._send_workmode_command = AsyncMock(side_effect=record_workmode)
+        fan._set_percentage = AsyncMock(side_effect=record_set_pct)
+
+        await fan.async_set_percentage(80)
+
+        assert call_order == ["workmode:Manual", "set_pct:80"]
+
+    @pytest.mark.asyncio
+    async def test_no_extra_workmode_command_in_manual_mode(self):
+        """When already in Manual mode (Fanspeed enabled), ``async_set_percentage``
+        must NOT send an extra ``_send_workmode_command`` call — no regression."""
+        caps_with_triggers = _make_capability_workmode_with_triggers()
+        fan = _make_fan(workmode="Manual")
+        original_get_cap = fan.get_capability
+
+        def _get_cap_override(attr: str):
+            if attr == "Workmode":
+                return caps_with_triggers
+            return original_get_cap(attr)
+
+        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_state_attr = MagicMock(return_value="Manual")
+        fan.is_connected = MagicMock(return_value=True)
+        fan._send_workmode_command = AsyncMock()
+        fan._set_percentage = AsyncMock()
+
+        await fan.async_set_percentage(50)
+
+        fan._send_workmode_command.assert_not_called()
+        fan._set_percentage.assert_awaited_once_with(50)
