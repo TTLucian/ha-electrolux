@@ -1192,7 +1192,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     type(ex).__name__,
                     ex,
                 )
-                self._pending_capability_retry.add(appliance_id)
+                if appliance_id:
+                    self._pending_capability_retry.add(appliance_id)
 
             # Process appliance data
             appliance_info = appliance_infos[0] if appliance_infos else None
