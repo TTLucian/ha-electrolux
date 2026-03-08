@@ -56,4 +56,5 @@ contains only the writable fields the API recognises:
     "autoDoorOpener": true
   }
 }
+
 ```
