@@ -452,6 +452,114 @@ class ElectroluxEntity(CoordinatorEntity):
                     value,
                 )
 
+            # Apply capability-defined trigger side-effects.
+            # E.g. setting extraPowerOption=True causes the appliance to also
+            # reset glassCareOption and extraSilentOption to False.  We mirror
+            # those changes locally so sibling switch entities update immediately.
+            self._apply_triggered_updates(attr, value)
+
+    def _apply_triggered_updates(self, attr: str, new_value: Any) -> None:
+        """Write optimistic side-effects from capability triggers.
+
+        When a switch is toggled, the appliance may automatically reset related
+        options (e.g. extraPowerOption=True forces glassCareOption=False).  This
+        method reads the capability triggers for the changed attribute and writes
+        the triggered ``default`` values into the shared ``reported`` dict, then
+        notifies the coordinator so all sibling entities re-render.
+
+        Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions
+        are handled — these cover all known DW/WM/dryer option triggers.
+        """
+        if not self.appliance_status:
+            return
+
+        appliance = self.get_appliance
+        if not (hasattr(appliance, "data") and appliance.data):
+            return
+        if not (
+            hasattr(appliance.data, "capabilities") and appliance.data.capabilities
+        ):
+            return
+
+        cap_key = f"{self.entity_source}/{attr}" if self.entity_source else attr
+        cap_def = appliance.data.capabilities.get(
+            cap_key
+        ) or appliance.data.capabilities.get(attr)
+        if not isinstance(cap_def, dict):
+            return
+
+        triggers = cap_def.get("triggers", [])
+        if not triggers:
+            return
+
+        reported = (
+            cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
+        )
+        if not isinstance(reported, dict):
+            return
+        applied = False
+
+        for trigger in triggers:
+            if not isinstance(trigger, dict):
+                continue
+
+            # Evaluate trigger condition.
+            # The common form is {operand_1: "value", operand_2: expected, operator: "eq"},
+            # where "value" is a placeholder for the new value being set.
+            condition = trigger.get("condition", {})
+            if condition:
+                operator = condition.get("operator", "eq")
+                op1 = condition.get("operand_1")
+                op2 = condition.get("operand_2")
+                # Resolve "value" placeholder to the actual new value
+                if op1 == "value":
+                    op1 = new_value
+                if op2 == "value":
+                    op2 = new_value
+                # Skip complex (dict) operands — not needed for known triggers
+                if isinstance(op1, dict) or isinstance(op2, dict):
+                    continue
+                if operator == "eq" and op1 != op2:
+                    continue
+                if operator == "ne" and op1 == op2:
+                    continue
+
+            action = trigger.get("action", {})
+            for affected_key, action_def in action.items():
+                if not isinstance(action_def, dict) or "default" not in action_def:
+                    continue
+                triggered_value = action_def["default"]
+
+                # Write into the shared reported dict (reference shared by all entities
+                # for this appliance) and keep the per-entity cache consistent.
+                if "/" in affected_key:
+                    source, leaf = affected_key.split("/", 1)
+                    if not isinstance(reported.get(source), dict):
+                        reported[source] = {}
+                    reported[source][leaf] = triggered_value
+                    cache = self._reported_state_cache
+                    if not isinstance(cache.get(source), dict):
+                        cache[source] = {}
+                    cache[source][leaf] = triggered_value
+                else:
+                    reported[affected_key] = triggered_value
+                    self._reported_state_cache[affected_key] = triggered_value
+
+                applied = True
+                _LOGGER.debug(
+                    "Trigger applied: %s=%s → %s set to %s (will be confirmed by SSE)",
+                    cap_key,
+                    new_value,
+                    affected_key,
+                    triggered_value,
+                )
+
+        if applied:
+            # Notify the coordinator so sibling entities re-render with the
+            # updated reported values.  Passing coordinator.data back is a
+            # lightweight in-place update (same object reference).
+            self.coordinator.async_set_updated_data(self.coordinator.data)
+
     @property
     def is_dam_appliance(self) -> bool:
         """Return True if this is a DAM (One Connected Platform) appliance."""

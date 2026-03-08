@@ -603,7 +603,9 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(
             entity_attr="glassCareOption",
             entity_source="userSelections",
-            reported={"userSelections": {"programUID": "ECO", "glassCareOption": False}},
+            reported={
+                "userSelections": {"programUID": "ECO", "glassCareOption": False}
+            },
         )
         entity.entity_id = ""
         entity.async_write_ha_state = MagicMock()
@@ -611,7 +613,10 @@ class TestApplyOptimisticUpdateGaps:
         entity._apply_optimistic_update("glassCareOption", True)
 
         # Value must be at the nested path, NOT at the top level
-        assert entity.reported_state.get("userSelections", {}).get("glassCareOption") is True
+        assert (
+            entity.reported_state.get("userSelections", {}).get("glassCareOption")
+            is True
+        )
         assert entity.reported_state.get("glassCareOption") is None
 
     def test_nested_single_level_source_does_not_shadow_sse_update(self):
@@ -619,7 +624,9 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(
             entity_attr="extraPowerOption",
             entity_source="userSelections",
-            reported={"userSelections": {"programUID": "ECO", "extraPowerOption": False}},
+            reported={
+                "userSelections": {"programUID": "ECO", "extraPowerOption": False}
+            },
         )
         entity.entity_id = ""
         entity.async_write_ha_state = MagicMock()
@@ -632,7 +639,10 @@ class TestApplyOptimisticUpdateGaps:
         entity.reported_state["userSelections"]["extraPowerOption"] = False
 
         # The entity must now reflect the SSE value, not a stale top-level key
-        assert entity.reported_state.get("userSelections", {}).get("extraPowerOption") is False
+        assert (
+            entity.reported_state.get("userSelections", {}).get("extraPowerOption")
+            is False
+        )
         assert entity.reported_state.get("extraPowerOption") is None  # no phantom key
 
     def test_nested_multi_level_source_writes_to_correct_path(self):
@@ -649,6 +659,173 @@ class TestApplyOptimisticUpdateGaps:
 
         assert entity.reported_state.get("a", {}).get("b", {}).get("mode") == "heat"
         assert entity.reported_state.get("mode") is None  # no phantom top-level key
+
+    # -----------------------------------------------------------------------
+    # _apply_triggered_updates tests
+    # -----------------------------------------------------------------------
+
+    def test_trigger_fires_and_updates_sibling_options(self):
+        """extraPowerOption=True resets glassCareOption and extraSilentOption via triggers."""
+        reported = {
+            "userSelections": {
+                "programUID": "ECO",
+                "extraPowerOption": False,
+                "glassCareOption": True,
+                "extraSilentOption": True,
+            }
+        }
+        capabilities = {
+            "userSelections/extraPowerOption": {
+                "access": "readwrite",
+                "type": "boolean",
+                "triggers": [
+                    {
+                        "action": {
+                            "userSelections/glassCareOption": {"default": False},
+                            "userSelections/extraSilentOption": {"default": False},
+                        },
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": True,
+                            "operator": "eq",
+                        },
+                    }
+                ],
+            }
+        }
+        entity = make_entity(
+            entity_attr="extraPowerOption",
+            entity_source="userSelections",
+            reported=reported,
+            capability=capabilities["userSelections/extraPowerOption"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        entity.entity_id = ""
+        entity.async_write_ha_state = MagicMock()
+        set_updated_mock = MagicMock()
+        entity.coordinator.async_set_updated_data = set_updated_mock
+
+        entity._apply_triggered_updates("extraPowerOption", True)
+
+        # Sibling options must be reset to their triggered defaults
+        assert reported["userSelections"]["glassCareOption"] is False
+        assert reported["userSelections"]["extraSilentOption"] is False
+        # The changed entity itself must NOT be touched by _apply_triggered_updates
+        assert reported["userSelections"]["extraPowerOption"] is False
+        # Coordinator must be notified so sibling switch entities re-render
+        set_updated_mock.assert_called_once()
+
+    def test_trigger_does_not_fire_when_condition_not_met(self):
+        """Setting extraPowerOption=False does NOT trigger the glassCareOption reset."""
+        reported = {
+            "userSelections": {
+                "programUID": "ECO",
+                "extraPowerOption": True,
+                "glassCareOption": True,
+            }
+        }
+        capabilities = {
+            "userSelections/extraPowerOption": {
+                "access": "readwrite",
+                "type": "boolean",
+                "triggers": [
+                    {
+                        "action": {
+                            "userSelections/glassCareOption": {"default": False},
+                        },
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": True,
+                            "operator": "eq",
+                        },
+                    }
+                ],
+            }
+        }
+        entity = make_entity(
+            entity_attr="extraPowerOption",
+            entity_source="userSelections",
+            reported=reported,
+            capability=capabilities["userSelections/extraPowerOption"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        set_updated_mock = MagicMock()
+        entity.coordinator.async_set_updated_data = set_updated_mock
+
+        entity._apply_triggered_updates("extraPowerOption", False)
+
+        # Condition not met — glassCareOption stays as-is
+        assert reported["userSelections"]["glassCareOption"] is True
+        set_updated_mock.assert_not_called()
+
+    def test_no_trigger_when_capability_has_none(self):
+        """No coordinator notification when the capability has no triggers defined."""
+        reported = {"mode": "AUTO"}
+        capabilities = {"mode": {"access": "readwrite", "type": "string"}}
+        entity = make_entity(
+            entity_attr="mode",
+            reported=reported,
+            capability=capabilities["mode"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        set_updated_mock = MagicMock()
+        entity.coordinator.async_set_updated_data = set_updated_mock
+
+        entity._apply_triggered_updates("mode", "COOL")
+
+        set_updated_mock.assert_not_called()
+
+    def test_trigger_integrates_via_apply_optimistic_update(self):
+        """_apply_optimistic_update calls _apply_triggered_updates transparently."""
+        reported = {
+            "userSelections": {
+                "programUID": "ECO",
+                "extraPowerOption": False,
+                "glassCareOption": True,
+            }
+        }
+        capabilities = {
+            "userSelections/extraPowerOption": {
+                "access": "readwrite",
+                "type": "boolean",
+                "triggers": [
+                    {
+                        "action": {
+                            "userSelections/glassCareOption": {"default": False},
+                        },
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": True,
+                            "operator": "eq",
+                        },
+                    }
+                ],
+            }
+        }
+        entity = make_entity(
+            entity_attr="extraPowerOption",
+            entity_source="userSelections",
+            reported=reported,
+            capability=capabilities["userSelections/extraPowerOption"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        entity.entity_id = ""
+        entity.async_write_ha_state = MagicMock()
+
+        entity._apply_optimistic_update("extraPowerOption", True)
+
+        # Main update applied
+        assert reported["userSelections"]["extraPowerOption"] is True
+        # Trigger also applied
+        assert reported["userSelections"]["glassCareOption"] is False
 
 
 # ===========================================================================
@@ -1467,9 +1644,9 @@ class TestGetProgramCapabilitiesGaps:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Cotton")
         assert result == {}
@@ -1483,9 +1660,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="spinSpeed", reported={"program": "QuickWash"})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("QuickWash")
         assert "spinSpeed" in result
@@ -1499,9 +1676,9 @@ class TestGetProgramCapabilitiesGaps:
             }
         }
         entity = make_entity(entity_attr="temperature", reported={})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Synthetic")
         assert "temperature" in result
@@ -1818,9 +1995,9 @@ class TestIsSupportedByProgramNoApplianceData:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         # Mock _get_program_capabilities so entity IS found in caps
         entity._get_program_capabilities = MagicMock(
@@ -1846,9 +2023,9 @@ class TestGetProgramConstraintNoProgram:
         mock_data.capabilities = {
             "program": {"values": {}}  # UnknownProgram not in values
         }
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data[
+            "appliances"
+        ].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_constraint("min")
         assert result is None

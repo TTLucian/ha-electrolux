@@ -85,6 +85,8 @@ def coordinator(mock_hass, mock_api):
         coord._auth_failure_threshold = 3
         coord._last_token_update = 0.0
         coord._appliances_cache = None
+        coord._last_remote_control = {}
+        coord._pending_state_refresh_tasks = {}
         coord.config_entry = None
         coord.last_update_success = True
         return coord

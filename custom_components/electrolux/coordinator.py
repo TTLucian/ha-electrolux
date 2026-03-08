@@ -120,25 +120,25 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.listen_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
-        self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
-            {}
-        )  # Track deferred tasks by appliance
+        self._deferred_tasks_by_appliance: dict[
+            str, asyncio.Task
+        ] = {}  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
         self._manual_sync_lock = (
             asyncio.Lock()
         )  # Prevent concurrent manual sync operations
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
-        self._last_update_times: dict[str, float] = (
-            {}
-        )  # Track last update time per appliance
-        self._last_known_connectivity: dict[str, str] = (
-            {}
-        )  # Track previous connectivity state per appliance
+        self._last_update_times: dict[
+            str, float
+        ] = {}  # Track last update time per appliance
+        self._last_known_connectivity: dict[
+            str, str
+        ] = {}  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
-        self._last_time_to_end: dict[str, float | None] = (
-            {}
-        )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._last_time_to_end: dict[
+            str, float | None
+        ] = {}  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
         self._consecutive_auth_failures = (
             0  # Track consecutive auth failures before creating repair
         )
@@ -150,6 +150,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._pending_capability_retry: set[str] = (
             set()
         )  # Appliances that need capability re-fetch (initial fetch failed)
+        self._last_remote_control: dict[
+            str, str
+        ] = {}  # Track remoteControl state per appliance to detect panel interactions
+        self._pending_state_refresh_tasks: dict[
+            str, asyncio.Task
+        ] = {}  # Deduplicate _refresh_after_appliance_state_change tasks per appliance
 
         super().__init__(
             hass,
@@ -360,6 +366,31 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
             raise UpdateFailed(f"Unexpected error: {ex}") from ex
 
+    def _schedule_state_refresh(self, appliance_id: str) -> None:
+        """Schedule a deduped _refresh_after_appliance_state_change task.
+
+        Cancels any in-flight refresh for the same appliance before creating a new
+        one, so rapid SSE transitions (e.g. multiple TEMPORARY_LOCKED unlock events
+        or coincident applianceState + remoteControl changes) result in only one
+        API poll instead of an unbounded pile-up.
+        """
+        existing = self._pending_state_refresh_tasks.get(appliance_id)
+        if existing and not existing.done():
+            existing.cancel()
+
+        task = self.hass.async_create_task(
+            self._refresh_after_appliance_state_change(appliance_id)
+        )
+        if task is None:
+            # In some test environments async_create_task is mocked and returns None
+            return
+        self._pending_state_refresh_tasks[appliance_id] = task
+
+        def _cleanup(t: asyncio.Task, app_id: str = appliance_id) -> None:
+            self._pending_state_refresh_tasks.pop(app_id, None)
+
+        task.add_done_callback(_cleanup)
+
     async def _refresh_after_appliance_state_change(self, appliance_id: str) -> None:
         """Poll fresh appliance state after applianceState changes via SSE.
 
@@ -529,9 +560,30 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # like displayTemperatureC update accurately even if SSE goes silent in the
         # new state (e.g. the API stops pushing oven temperature when it turns off).
         if data[PROPERTY_KEY] == "applianceState":
-            self.hass.async_create_task(
-                self._refresh_after_appliance_state_change(appliance_id)
+            self._schedule_state_refresh(appliance_id)
+
+        # When remoteControl transitions OUT of TEMPORARY_LOCKED the user interacted
+        # with the physical panel and may have changed options (extraPowerOption,
+        # sanitizeOption, glassCareOption, programUID, etc.).  The Electrolux API does
+        # NOT push SSE events for those nested userSelections changes, so we trigger a
+        # fresh full-state poll to pick them up.
+        prev_rc = self._last_remote_control.get(appliance_id)
+        curr_rc = (
+            str(data[VALUE_KEY]) if data[PROPERTY_KEY] == "remoteControl" else None
+        )
+        if curr_rc is not None:
+            self._last_remote_control[appliance_id] = curr_rc
+        if (
+            data[PROPERTY_KEY] == "remoteControl"
+            and prev_rc == "TEMPORARY_LOCKED"
+            and curr_rc != "TEMPORARY_LOCKED"
+        ):
+            _LOGGER.debug(
+                "remoteControl left TEMPORARY_LOCKED for %s — scheduling state refresh "
+                "to capture panel option changes",
+                appliance_id,
             )
+            self._schedule_state_refresh(appliance_id)
 
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         self._check_deferred_update(data, appliance_id)
@@ -1284,9 +1336,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1357,9 +1409,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1430,9 +1482,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     _LOGGER.info(
                         "Created minimal appliance entry for %s (%s) after unexpected error, "
