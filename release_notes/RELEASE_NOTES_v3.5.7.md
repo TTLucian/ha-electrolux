@@ -54,7 +54,39 @@ startups.
 
 ---
 
+### Verbier air purifier — TVOC sensor showing `9.8e-07` instead of a ppb reading
+
+**Symptom:** On Verbier devices the TVOC sensor displayed a tiny dimensionless number
+(e.g. `9.8e-07`) rather than the expected integer ppb value (e.g. `1070 ppb`).
+
+**Root cause:** Home Assistant's `volatile_organic_compounds_parts` device class internally
+uses `UnitlessRatioConverter`.  When a `native_unit` of `ppb` was supplied, HA divided
+the raw appliance integer by 10⁹ to produce a dimensionless ratio — the opposite of what
+users expect.  The sensor attributes also lost the `unit_of_measurement` label.
+
+**Fix:** The `device_class` for the TVOC entity is now set to `None`.  Without a device
+class HA passes the raw integer straight through, displaying the value exactly as the
+appliance reports it (`1070 ppb`).
+
+---
+
+### Verbier air purifier — wrong filter-type names for codes 55 and 194
+
+**Symptom:** The filter-type sensor showed the wrong names for Verbier's filters:
+- Filter code `55` was labelled `Air filter` (should be `CLEAN Particle filter`)
+- Filter code `194` was labelled `Humidification filter` (should be `FRESH Anti-odor filter`)
+
+**Fix:** The filter-type mappings in the air-purifier catalog (`FilterType`, `FilterType_1`,
+`FilterType_2`) have been corrected with the product-accurate names.
+
+---
+
 ## Upgrade notes
 
 No configuration changes required. Install the update, restart Home Assistant, and remove
 any pre-existing ghost entities from affected device cards.
+
+**Verbier TVOC users:** If the TVOC entity is still showing the old `9.8e-07` state after
+upgrading, restart Home Assistant. If it persists, delete the TVOC entity from the device
+card (⚙ → Delete entity) and let the integration recreate it — this clears the stale
+entity-registry unit preference that was stored as `null`.

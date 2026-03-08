@@ -55,9 +55,13 @@ CATALOG_AP = {
     ),
     "TVOC": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS_PARTS,
+        # device_class intentionally None: VOLATILE_ORGANIC_COMPOUNDS_PARTS causes HA to
+        # normalise ppb values to a dimensionless ratio (× 1e-9), turning e.g. 1070 → 1.07e-6.
+        # Without a device class HA displays the raw integer with the ppb unit label as-is.
+        device_class=None,
         unit=CONCENTRATION_PARTS_PER_BILLION,
         entity_category=None,
+        entity_icon="mdi:molecule",
         friendly_name="TVOC",
     ),
     "ECO2": ElectroluxDevice(
@@ -84,7 +88,7 @@ CATALOG_AP = {
             48: "BREEZE Complete air filter",
             49: "CLEAN Ultrafine particle filter",
             51: "CARE Ultimate protect filter",
-            55: "Air filter",  # Verbier model — exact name unknown
+            55: "CLEAN Particle filter",
             64: "Breeze 360 filter",
             65: "Clean 360 Ultrafine particle filter",
             66: "Protect 360 filter",
@@ -94,7 +98,7 @@ CATALOG_AP = {
             99: "Breeze 360 filter",
             100: "Fresh 360 filter",
             192: "FRESH Odour protect filter",
-            194: "Humidification filter",  # Verbier humidifier-purifier
+            194: "FRESH Anti-odor filter",
             0: "Filter",
         },
     ),
@@ -322,7 +326,7 @@ CATALOG_AP = {
             48: "BREEZE Complete air filter",
             49: "CLEAN Ultrafine particle filter",
             51: "CARE Ultimate protect filter",
-            55: "Air filter",  # Verbier model — exact name unknown
+            55: "CLEAN Particle filter",
             64: "Breeze 360 filter",
             65: "Clean 360 Ultrafine particle filter",
             66: "Protect 360 filter",
@@ -332,7 +336,7 @@ CATALOG_AP = {
             99: "Breeze 360 filter",
             100: "Fresh 360 filter",
             192: "FRESH Odour protect filter",
-            194: "Humidification filter",  # Verbier humidifier-purifier
+            194: "FRESH Anti-odor filter",
             0: "Filter",
         },
         friendly_name="Filter Type",
@@ -348,7 +352,7 @@ CATALOG_AP = {
             48: "BREEZE Complete air filter",
             49: "CLEAN Ultrafine particle filter",
             51: "CARE Ultimate protect filter",
-            55: "Air filter",  # Verbier model — exact name unknown
+            55: "CLEAN Particle filter",
             64: "Breeze 360 filter",
             65: "Clean 360 Ultrafine particle filter",
             66: "Protect 360 filter",
@@ -358,7 +362,7 @@ CATALOG_AP = {
             99: "Breeze 360 filter",
             100: "Fresh 360 filter",
             192: "FRESH Odour protect filter",
-            194: "Humidification filter",  # Verbier humidifier-purifier
+            194: "FRESH Anti-odor filter",
             0: "Filter",
         },
         friendly_name="Filter Type 2",
