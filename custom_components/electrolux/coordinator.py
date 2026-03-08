@@ -1585,6 +1585,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 self._consecutive_auth_failures = 0
 
+            # API is reachable — retry capabilities for any appliances whose initial
+            # fetch failed at startup.  We only attempt this when state polling succeeds
+            # so we don't hammer a still-unavailable API.
+            if getattr(self, "_pending_capability_retry", None):
+                await self._retry_missing_capabilities()
+
         # Trigger SSE restart if appliances came back online
         if newly_online_appliances and self._can_restart_sse():
             _LOGGER.info(
@@ -1620,10 +1626,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(
                 f"Some appliances failed to update ({successful}/{len(app_dict)} successful)"
             )
-
-        # Retry capabilities for appliances whose initial fetch failed
-        if getattr(self, "_pending_capability_retry", None):
-            await self._retry_missing_capabilities()
 
         # Periodically clean up removed appliances (once per day)
         current_time = self.hass.loop.time()
