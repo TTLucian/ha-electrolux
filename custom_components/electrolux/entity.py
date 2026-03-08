@@ -560,6 +560,49 @@ class ElectroluxEntity(CoordinatorEntity):
             # lightweight in-place update (same object reference).
             self.coordinator.async_set_updated_data(self.coordinator.data)
 
+    def _build_full_user_selections(
+        self, changed_attr: str, new_value: Any
+    ) -> dict[str, Any]:
+        """Return a complete ``userSelections`` payload for a command.
+
+        Some appliances (e.g. certain Electrolux dishwashers) treat a partial
+        ``userSelections`` write as a full replacement: any field that is not
+        included in the payload is reset to its default (usually ``false``).
+        This causes sibling options — e.g. ``sanitizeOption`` — to turn off
+        whenever any other option is toggled.
+
+        This helper builds a payload from the current reported ``userSelections``
+        dict, omitting fields whose capability declares ``"access": "read"``
+        (e.g. computed scores like ``ecoScore``, ``energyScore``), and then
+        overrides the changed field so the full current state is preserved.
+        """
+        reported = (
+            cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
+            if self.appliance_status
+            else {}
+        )
+        current: dict[str, Any] = dict(reported.get("userSelections", {}))
+
+        # Determine which fields are read-only so we can exclude them.
+        caps: dict[str, Any] = {}
+        try:
+            appliance = self.get_appliance
+            if hasattr(appliance, "data") and appliance.data:
+                caps = appliance.data.capabilities or {}
+        except Exception:  # noqa: BLE001
+            pass
+
+        merged: dict[str, Any] = {}
+        for key, val in current.items():
+            cap = caps.get(f"userSelections/{key}")
+            if isinstance(cap, dict) and cap.get("access") == "read":
+                continue  # skip computed/read-only fields (ecoScore, energyScore, …)
+            merged[key] = val
+
+        # Always override with the new value (and ensure programUID is present).
+        merged[changed_attr] = new_value
+        return merged
+
     @property
     def is_dam_appliance(self) -> bool:
         """Return True if this is a DAM (One Connected Platform) appliance."""
@@ -994,11 +1037,14 @@ class ElectroluxEntity(CoordinatorEntity):
             return self._is_supported_cache
 
         # Compute support status
-        if self.entity_attr in [
-            "program",
-            "programUID",  # Always support programUID (entity_attr without source prefix)
-            "userSelections/programUID",
-        ]:
+        if (
+            self.entity_attr
+            in [
+                "program",
+                "programUID",  # Always support programUID (entity_attr without source prefix)
+                "userSelections/programUID",
+            ]
+        ):
             self._is_supported_cache = True
             return True
 

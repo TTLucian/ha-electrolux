@@ -108,19 +108,14 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             # Legacy appliances: send as top-level property, but respect entity_source
             # when the capability key has a slash.
             if self.entity_source == "userSelections":
-                reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                # Build the full current userSelections payload so that appliances
+                # which treat partial writes as full replacements (resetting omitted
+                # options to defaults) keep their sibling options intact.
+                full_selections = self._build_full_user_selections(
+                    self.entity_attr, command_value
                 )
-                program_uid = reported.get("userSelections", {}).get("programUID")
-                if program_uid:
-                    command = {
-                        "userSelections": {
-                            "programUID": program_uid,
-                            self.entity_attr: command_value,
-                        }
-                    }
+                if full_selections.get("programUID"):
+                    command = {"userSelections": full_selections}
                 else:
                     command = {self.entity_source: {self.entity_attr: command_value}}
             elif self.entity_source:
@@ -129,19 +124,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 command = {self.entity_attr: command_value}
         elif self.entity_source:
             if self.entity_source == "userSelections":
-                # Safer access to avoid KeyError if userSelections is missing
-                reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                # Build the full current userSelections payload (DAM path).
+                full_selections = self._build_full_user_selections(
+                    self.entity_attr, command_value
                 )
-                program_uid = reported.get("userSelections", {}).get("programUID")
-                command = {
-                    self.entity_source: {
-                        "programUID": program_uid,
-                        self.entity_attr: command_value,
-                    },
-                }
+                command = {self.entity_source: full_selections}
             else:
                 command = {self.entity_source: {self.entity_attr: command_value}}
         else:
