@@ -120,25 +120,25 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.listen_task: Optional[asyncio.Task] = None
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
-        self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
-            {}
-        )  # Track deferred tasks by appliance
+        self._deferred_tasks_by_appliance: dict[
+            str, asyncio.Task
+        ] = {}  # Track deferred tasks by appliance
         self._appliances_lock = asyncio.Lock()  # Shared lock for appliances dict
         self._manual_sync_lock = (
             asyncio.Lock()
         )  # Prevent concurrent manual sync operations
         self._last_cleanup_time = 0  # Track when we last ran appliance cleanup
-        self._last_update_times: dict[str, float] = (
-            {}
-        )  # Track last update time per appliance
-        self._last_known_connectivity: dict[str, str] = (
-            {}
-        )  # Track previous connectivity state per appliance
+        self._last_update_times: dict[
+            str, float
+        ] = {}  # Track last update time per appliance
+        self._last_known_connectivity: dict[
+            str, str
+        ] = {}  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
-        self._last_time_to_end: dict[str, float | None] = (
-            {}
-        )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._last_time_to_end: dict[
+            str, float | None
+        ] = {}  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
         self._consecutive_auth_failures = (
             0  # Track consecutive auth failures before creating repair
         )
@@ -150,12 +150,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._pending_capability_retry: set[str] = (
             set()
         )  # Appliances that need capability re-fetch (initial fetch failed)
-        self._last_remote_control: dict[str, str] = (
-            {}
-        )  # Track remoteControl state per appliance to detect panel interactions
-        self._pending_state_refresh_tasks: dict[str, asyncio.Task] = (
-            {}
-        )  # Deduplicate _refresh_after_appliance_state_change tasks per appliance
+        self._last_remote_control: dict[
+            str, str
+        ] = {}  # Track remoteControl state per appliance to detect panel interactions
+        self._pending_state_refresh_tasks: dict[
+            str, asyncio.Task
+        ] = {}  # Deduplicate _refresh_after_appliance_state_change tasks per appliance
 
         super().__init__(
             hass,
@@ -168,9 +168,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def async_login(self) -> bool:
         """Authenticate with the service."""
-        _LOGGER.info("[AUTH-DEBUG] Starting authentication test")
         _LOGGER.debug(
-            "[AUTH-DEBUG] Token manager state: token_valid=%s",
+            "Authenticating — token_valid=%s",
             (
                 self.api._token_manager.is_token_valid()
                 if hasattr(self.api, "_token_manager")
@@ -178,48 +177,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             ),
         )
         try:
-            # Test authentication by fetching appliances
-            _LOGGER.info("[AUTH-DEBUG] Testing credentials by fetching appliances list")
             await self.api.get_appliances_list()
-            _LOGGER.info("[AUTH-DEBUG] Authentication successful - credentials valid")
+            _LOGGER.debug("Authentication successful")
             return True
         except AuthenticationError as ex:
-            _LOGGER.error(
-                f"[AUTH-DEBUG] Authentication failed - invalid credentials: {ex}"
-            )
-            _LOGGER.debug(
-                f"[AUTH-DEBUG] AuthenticationError details: {type(ex).__name__}: {str(ex)}"
-            )
+            _LOGGER.error("Authentication failed — invalid credentials: %s", ex)
             raise ConfigEntryAuthFailed("Invalid credentials") from ex
         except NetworkError as ex:
-            _LOGGER.error(f"[AUTH-DEBUG] Network error during authentication: {ex}")
-            _LOGGER.debug(
-                f"[AUTH-DEBUG] NetworkError details: {type(ex).__name__}: {str(ex)}"
-            )
+            _LOGGER.error("Network error during authentication: %s", ex)
             raise ConfigEntryNotReady from ex
         except Exception as ex:
-            # Catch-all for unexpected errors
-            _LOGGER.exception(
-                f"[AUTH-DEBUG] Unexpected error during authentication: {ex}"
-            )
-            _LOGGER.debug(
-                f"[AUTH-DEBUG] Exception details: {type(ex).__name__}: {str(ex)}"
-            )
+            _LOGGER.exception("Unexpected error during authentication: %s", ex)
             raise ConfigEntryNotReady from ex
 
     def setup_token_refresh_callback(self) -> None:
         """Set up the token refresh callback to update config entry with new tokens."""
-        _LOGGER.debug("[TOKEN-CALLBACK] Setting up token refresh callback")
         if not hasattr(self, "config_entry") or self.config_entry is None:
             _LOGGER.warning(
-                "[TOKEN-CALLBACK] No config_entry available, cannot setup token refresh callback"
+                "No config_entry available, cannot set up token refresh callback"
             )
             return
 
         # Capture config_entry in local variable to satisfy mypy
         config_entry = self.config_entry
         _LOGGER.debug(
-            f"[TOKEN-CALLBACK] Registering callback for config entry {config_entry.entry_id} (title: {config_entry.title})"
+            "Registering token refresh callback for config entry %s (%s)",
+            config_entry.entry_id,
+            config_entry.title,
         )
 
         def on_token_update(
@@ -231,59 +215,45 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             expiry_time = datetime.datetime.fromtimestamp(expires_at)
             time_until_expiry = expires_at - int(time.time())
 
-            _LOGGER.info(
-                "[TOKEN-CALLBACK] Token refresh callback triggered - new tokens received"
-            )
             _LOGGER.debug(
-                f"[TOKEN-CALLBACK] New token expiry: {expiry_time.isoformat()} ({time_until_expiry / 3600:.1f} hours from now)"
-            )
-            _LOGGER.debug(
-                f"[TOKEN-CALLBACK] Token lengths - access: {len(access_token)}, refresh: {len(refresh_token)}, api_key: {len(api_key)}"
+                "Token refreshed — new expiry: %s (%.1fh from now)",
+                expiry_time.isoformat(),
+                time_until_expiry / 3600,
             )
             # Log last 5 characters of new refresh token for debugging rotation chain
             refresh_suffix = (
                 refresh_token[-5:] if len(refresh_token) >= 5 else "<short>"
             )
-            _LOGGER.debug(
-                f"[TOKEN-CALLBACK] New refresh token suffix: ...{refresh_suffix}"
-            )
+            _LOGGER.debug("New refresh token suffix: ...%s", refresh_suffix)
             new_data = dict(config_entry.data)
             new_data["access_token"] = access_token
             new_data["refresh_token"] = refresh_token
             new_data["token_expires_at"] = expires_at
-            _LOGGER.debug("[TOKEN-CALLBACK] Persisting new tokens to config entry")
 
-            # Handle config entry update failures with retry
             try:
                 # Mark timestamp BEFORE async_update_entry to prevent reload
                 # The update_listener is triggered synchronously by async_update_entry,
                 # so it needs to see this timestamp immediately
                 self._last_token_update = time.time()
-                _LOGGER.debug(
-                    f"[TOKEN-CALLBACK] Marked token update timestamp: {self._last_token_update}"
-                )
 
                 # Update config entry data - update_listener will check timestamp to prevent reload
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
 
                 _LOGGER.info(
-                    f"[TOKEN-CALLBACK] Config entry updated successfully - tokens persisted (valid for {time_until_expiry / 3600:.1f}h)"
+                    "Tokens persisted to config entry (valid for %.1fh)",
+                    time_until_expiry / 3600,
                 )
             except Exception as ex:
                 _LOGGER.error(
-                    f"[TOKEN-CALLBACK] CRITICAL: Failed to persist new tokens to config entry: {ex}. "
-                    f"Tokens are refreshed in memory but will be lost on restart!"
-                )
-                _LOGGER.debug(
-                    f"[TOKEN-CALLBACK] Persistence error details: {type(ex).__name__}: {str(ex)}"
+                    "CRITICAL: Failed to persist new tokens to config entry: %s. "
+                    "Tokens are refreshed in memory but will be lost on restart!",
+                    ex,
                 )
                 # Tokens are still valid in memory, so operation can continue
                 # but user should be aware of persistence failure
 
         self.api.set_token_update_callback_with_expiry(on_token_update)
-        _LOGGER.debug(
-            "[TOKEN-CALLBACK] Token update callback successfully registered with API client"
-        )
+        _LOGGER.debug("Token refresh callback registered")
 
     async def handle_authentication_error(self, exception: Exception) -> None:
         """Handle authentication errors by raising ConfigEntryAuthFailed.
@@ -376,6 +346,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """
         existing = self._pending_state_refresh_tasks.get(appliance_id)
         if existing and not existing.done():
+            _LOGGER.debug(
+                "Cancelling in-flight state-refresh for %s (superseded by new trigger)",
+                appliance_id,
+            )
             existing.cancel()
 
         task = self.hass.async_create_task(
@@ -409,15 +383,20 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             appliance = appliances.get_appliance(appliance_id)
             if not appliance:
                 return
+            _LOGGER.debug(
+                "Polling fresh state for %s after panel/state transition", appliance_id
+            )
             status = await self.api.get_appliance_state(appliance_id)
             appliance.update(status)
             self.async_set_updated_data(self.data)
-            _LOGGER.debug("Post-state-change refresh completed for %s", appliance_id)
+            _LOGGER.debug("State-change refresh completed for %s", appliance_id)
         except asyncio.CancelledError:
             raise
         except Exception as ex:
-            _LOGGER.debug(
-                "Post-state-change refresh failed for %s: %s", appliance_id, ex
+            _LOGGER.warning(
+                "State-change refresh failed for %s — sensor values may be stale until next poll: %s",
+                appliance_id,
+                ex,
             )
 
     def incoming_data(self, data: dict[str, Any]) -> None:
@@ -455,14 +434,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """Process an incremental property update."""
         appliance_id = data[APPLIANCE_ID_KEY]
 
-        # Special logging for timeToEnd to verify Electrolux bug
+        # Track timeToEnd to detect when the appliance skips the deferred-update
+        # trigger window entirely (Electrolux bug: no final-state push on cycle end).
         if data[PROPERTY_KEY] == "timeToEnd":
             new_value = data[VALUE_KEY]
             old_value = self._last_time_to_end.get(appliance_id)
 
             _LOGGER.debug(
-                f"[DEFERRED-DEBUG] SSE timeToEnd update for {appliance_id}: "
-                f"{old_value} -> {new_value}s (type: {type(new_value)})"
+                "timeToEnd for %s: %s → %s",
+                appliance_id,
+                old_value,
+                new_value,
             )
 
             # Detect if we skipped the trigger window entirely (e.g. 120 → 0)
@@ -474,16 +456,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 and new_value == 0
             ):
                 _LOGGER.debug(
-                    f"[DEFERRED-DEBUG] timeToEnd jumped from {old_value}s to 0s "
-                    f"without hitting the trigger range (0, {TIME_ENTITY_THRESHOLD_HIGH}]. Scheduling compensating deferred update. "
-                    f"Appliance: {appliance_id}"
+                    "timeToEnd jumped %s→0 for %s skipping trigger window — scheduling compensating deferred update",
+                    old_value,
+                    appliance_id,
                 )
                 self._schedule_deferred_update(appliance_id)
-            elif old_value is not None and new_value == 0:
-                _LOGGER.debug(
-                    f"[DEFERRED-DEBUG] Normal completion: timeToEnd reached 0 "
-                    f"(previous value: {old_value}). Appliance: {appliance_id}"
-                )
 
             # Track this value for next comparison
             self._last_time_to_end[appliance_id] = new_value
@@ -560,6 +537,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # like displayTemperatureC update accurately even if SSE goes silent in the
         # new state (e.g. the API stops pushing oven temperature when it turns off).
         if data[PROPERTY_KEY] == "applianceState":
+            _LOGGER.debug(
+                "applianceState changed to %s for %s — scheduling state refresh",
+                data[VALUE_KEY],
+                appliance_id,
+            )
             self._schedule_state_refresh(appliance_id)
 
         # When remoteControl transitions OUT of TEMPORARY_LOCKED the user interacted
@@ -593,9 +575,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         appliance_data = {data[PROPERTY_KEY]: data[VALUE_KEY]}
         if self._should_defer_update(appliance_data):
             _LOGGER.debug(
-                f"[DEFERRED-DEBUG] Trigger condition met for {appliance_id}! "
-                f"Property '{data[PROPERTY_KEY]}' = {data[VALUE_KEY]} is in range (0, {TIME_ENTITY_THRESHOLD_HIGH}]. "
-                f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s to check for missing final update."
+                "%s=%s for %s is in deferred-update trigger range (0, %s] — scheduling check in %ds",
+                data[PROPERTY_KEY],
+                data[VALUE_KEY],
+                appliance_id,
+                TIME_ENTITY_THRESHOLD_HIGH,
+                DEFERRED_UPDATE_DELAY,
             )
             self._schedule_deferred_update(appliance_id)
 
@@ -607,9 +592,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     value is not None
                     and TIME_ENTITY_THRESHOLD_LOW < value <= TIME_ENTITY_THRESHOLD_HIGH
                 ):
-                    _LOGGER.debug(
-                        f"[DEFERRED-DEBUG] Threshold check: {key}={value} is in trigger range (0, {TIME_ENTITY_THRESHOLD_HIGH}]"
-                    )
                     return True
         return False
 
@@ -763,8 +745,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Check for deferred update due to Electrolux bug: no data sent when appliance cycle is over
         if self._should_defer_update(appliance_data):
             _LOGGER.debug(
-                f"[DEFERRED-DEBUG] Bulk update trigger for {appliance_id}! "
-                f"Scheduling deferred update in {DEFERRED_UPDATE_DELAY}s."
+                "Bulk update for %s triggered deferred-update check in %ds",
+                appliance_id,
+                DEFERRED_UPDATE_DELAY,
             )
             self._schedule_deferred_update(appliance_id)
 
@@ -908,15 +891,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     _LOGGER.warning("Timeout during websocket renewal")
                     consecutive_failures += 1
                 except Exception as ex:
-                    _LOGGER.error(f"Error during websocket renewal: {ex}")
+                    _LOGGER.error("Error during websocket renewal: %s", ex)
                     consecutive_failures += 1
 
                 # If too many consecutive failures, back off
                 if consecutive_failures >= max_consecutive_failures:
                     _LOGGER.warning(
-                        "Too many websocket renewal failures, backing off for 5 minutes"
+                        "SSE reconnection failed %d times in a row — backing off for %ds before retry",
+                        consecutive_failures,
+                        WEBSOCKET_BACKOFF_DELAY,
                     )
-                    await asyncio.sleep(WEBSOCKET_BACKOFF_DELAY)  # 5 minute backoff
+                    await asyncio.sleep(WEBSOCKET_BACKOFF_DELAY)
                     consecutive_failures = 0
 
             except asyncio.CancelledError:
@@ -1336,9 +1321,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1409,9 +1394,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     # CRITICAL: Call setup() even for minimal appliances
                     # This creates entities from catalog so they persist as "unavailable"
@@ -1482,9 +1467,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                     )
 
                     async with self._appliances_lock:
-                        self.data["appliances"].appliances[
-                            failed_appliance_id
-                        ] = minimal_appliance
+                        self.data["appliances"].appliances[failed_appliance_id] = (
+                            minimal_appliance
+                        )
 
                     _LOGGER.info(
                         "Created minimal appliance entry for %s (%s) after unexpected error, "
