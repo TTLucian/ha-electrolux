@@ -147,6 +147,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         )
         self._last_token_update = 0.0  # Track last token refresh time to prevent reload
         self._appliances_cache = None  # Cache appliances reference for hot path lookups
+        self._pending_capability_retry: set[str] = (
+            set()
+        )  # Appliances that need capability re-fetch (initial fetch failed)
 
         super().__init__(
             hass,
@@ -1176,18 +1179,20 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 return
 
-            # Try to get capabilities (optional)
+            # Try to get capabilities
             appliance_capabilities = None
             try:
                 appliance_capabilities = await capabilities_task
             except Exception as ex:
                 _LOGGER.warning(
-                    "Could not get capabilities for appliance %s (%s): %s - %s (will use catalog fallback for entities)",
+                    "Could not get capabilities for appliance %s (%s): %s - %s. "
+                    "Will retry automatically on the next update cycle.",
                     appliance_id,
                     appliance_name or "Unknown",
                     type(ex).__name__,
                     ex,
                 )
+                self._pending_capability_retry.add(appliance_id)
 
             # Process appliance data
             appliance_info = appliance_infos[0] if appliance_infos else None
@@ -1616,6 +1621,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 f"Some appliances failed to update ({successful}/{len(app_dict)} successful)"
             )
 
+        # Retry capabilities for appliances whose initial fetch failed
+        if getattr(self, "_pending_capability_retry", None):
+            await self._retry_missing_capabilities()
+
         # Periodically clean up removed appliances (once per day)
         current_time = self.hass.loop.time()
         if (
@@ -1633,6 +1642,46 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Return a new dict to ensure coordinator detects change and notifies entities
         # Without this, returning the same object reference prevents entity updates
         return dict(self.data)
+
+    async def _retry_missing_capabilities(self) -> None:
+        """Retry fetching capabilities for appliances whose initial startup fetch failed.
+
+        Called from the update loop on every cycle while there are pending appliances.
+        As soon as any appliance's capabilities become available (API recovered), an
+        integration reload is scheduled so all entities are created correctly.
+        """
+        succeeded: set[str] = set()
+        for app_id in list(self._pending_capability_retry):
+            try:
+                caps = await asyncio.wait_for(
+                    self.api.get_appliance_capabilities(app_id),
+                    timeout=APPLIANCE_CAPABILITY_TIMEOUT,
+                )
+                if caps:
+                    succeeded.add(app_id)
+                    _LOGGER.info(
+                        "Capabilities recovered for appliance %s — scheduling reload to create entities",
+                        app_id,
+                    )
+            except Exception as ex:
+                _LOGGER.debug(
+                    "Capability retry still failing for appliance %s: %s",
+                    app_id,
+                    ex,
+                )
+
+        if succeeded:
+            self._pending_capability_retry -= succeeded
+            _LOGGER.info(
+                "Capabilities restored for %d appliance(s); triggering integration reload",
+                len(succeeded),
+            )
+            if self.config_entry is not None:
+                # Schedule asynchronously so we don't reload while still inside the
+                # update cycle (which would cancel this coordinator mid-execution).
+                self.hass.async_create_task(
+                    self.hass.config_entries.async_reload(self.config_entry.entry_id)
+                )
 
     def _can_restart_sse(self) -> bool:
         """Check if we can restart SSE (debounced to prevent hammering)."""

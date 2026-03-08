@@ -658,52 +658,12 @@ class Appliance:
                         self.state.get(catalog_key) is not None if self.state else False
                     )
 
-                # Detect if we're in capabilities fallback mode (capabilities API failed)
-                # When capabilities_names is None or empty, the capabilities API call failed
-                # and we must rely on the catalog as the source of truth for this appliance type
-                capability_access = catalog_item.capability_info.get("access", "")
-                in_fallback_mode = (
-                    capabilities_names is None or len(capabilities_names) == 0
-                )
-
-                # CRITICAL: Only create catalog entities if:
-                # - They're in the appliance state (entity was used/reported before), OR
-                # - They're in the always-created list (like manualSync), OR
-                # - We're in fallback mode: create type-specific catalog entities so the
-                #   appliance has a full set of entities even when the capabilities API fails.
-                #   The catalog is already filtered per appliance type (WM, OV, RF, etc.) so
-                #   creating all entries won't pollute other appliance types' entity lists.
-                #   Without this, read-only sensors (applianceState, doorState, cyclePhase,
-                #   timeToEnd, …) are missing when the machine was idle at setup time and
-                #   those keys weren't yet present in the reported state.
-                #
-                #   In fallback mode, "readwrite" control entities (e.g. uiLockMode,
-                #   temperatureRepresentation) are NOT created unless they've already
-                #   appeared in reported state. Creating a readwrite control without
-                #   confirmed capability support causes ghost entities: the entity is
-                #   registered but disappears on the next successful capability load,
-                #   leaving HA with "entity no longer provided" warnings.
-                #
-                # This prevents:
-                # 1. Creating entities for capabilities the appliance doesn't have (normal mode)
-                # 2. Missing entities when capabilities API fails and appliance was idle at setup
-                # 3. Ghost "readwrite" entities from fallback mode surviving into normal mode
-                create_in_fallback = in_fallback_mode and (
-                    capability_access != "readwrite"
-                    or attr_in_reported
-                    or attr_at_top_level
-                )
                 if not (
-                    attr_in_reported
-                    or attr_at_top_level
-                    or is_always_created_entity
-                    or create_in_fallback
+                    attr_in_reported or attr_at_top_level or is_always_created_entity
                 ):
                     _LOGGER.debug(
-                        "Skipping catalog entity %s - not in appliance state or capabilities (access: %s, fallback: %s)",
+                        "Skipping catalog entity %s - not in appliance state or API capabilities",
                         catalog_key,
-                        capability_access,
-                        in_fallback_mode,
                     )
                     continue
 

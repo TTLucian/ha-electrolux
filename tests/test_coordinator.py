@@ -38,6 +38,7 @@ def mock_coordinator(mock_api_client):
         coord._last_time_to_end = {}
         coord._deferred_tasks = set()
         coord._deferred_tasks_by_appliance = {}
+        coord._pending_capability_retry = set()
 
         # Mock hass.loop.time() for cleanup timing
         mock_loop = MagicMock()
