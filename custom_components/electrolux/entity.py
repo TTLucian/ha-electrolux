@@ -573,8 +573,10 @@ class ElectroluxEntity(CoordinatorEntity):
 
         This helper builds a payload from the current reported ``userSelections``
         dict, omitting fields whose capability declares ``"access": "read"``
-        (e.g. computed scores like ``ecoScore``, ``energyScore``), and then
-        overrides the changed field so the full current state is preserved.
+        (e.g. computed scores like ``ecoScore``, ``energyScore``), overrides the
+        changed field, and then applies the capability triggers for the changed
+        attribute so that mutually-exclusive options are resolved in the outgoing
+        payload rather than left for the appliance to silently override.
         """
         reported = (
             cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
@@ -608,6 +610,42 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # Always override with the new value (and ensure programUID is present).
         merged[changed_attr] = new_value
+
+        # Apply the capability triggers for the changed attribute so that
+        # mutually-exclusive options are resolved in the command payload itself.
+        # For example, enabling glassCareOption should force extraPowerOption,
+        # extraSilentOption and sanitizeOption to False in the same payload.
+        cap_key = f"userSelections/{changed_attr}"
+        cap_def = caps.get(cap_key, {})
+        for trigger in cap_def.get("triggers", []) if isinstance(cap_def, dict) else []:
+            if not isinstance(trigger, dict):
+                continue
+            condition = trigger.get("condition", {})
+            if condition:
+                operator = condition.get("operator", "eq")
+                op1 = condition.get("operand_1")
+                op2 = condition.get("operand_2")
+                if op1 == "value":
+                    op1 = new_value
+                if op2 == "value":
+                    op2 = new_value
+                if isinstance(op1, dict) or isinstance(op2, dict):
+                    continue
+                if operator == "eq" and op1 != op2:
+                    continue
+                if operator == "ne" and op1 == op2:
+                    continue
+            action = trigger.get("action", {})
+            for affected_key, action_def in action.items():
+                if not isinstance(action_def, dict) or "default" not in action_def:
+                    continue
+                # affected_key is like "userSelections/extraPowerOption"; extract
+                # the leaf name that corresponds to a key in merged.
+                if affected_key.startswith("userSelections/"):
+                    leaf = affected_key[len("userSelections/") :]
+                    if leaf in merged:
+                        merged[leaf] = action_def["default"]
+
         return merged
 
     @property
