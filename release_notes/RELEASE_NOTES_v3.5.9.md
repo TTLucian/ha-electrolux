@@ -75,6 +75,7 @@ preserved on every toggle:
     "xtraDryOption": false
   }
 }
+
 ```
 
 > **⚠ Testing required:** This change affects all dishwasher (and other appliance type)
