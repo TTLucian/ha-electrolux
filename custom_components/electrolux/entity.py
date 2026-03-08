@@ -594,9 +594,16 @@ class ElectroluxEntity(CoordinatorEntity):
 
         merged: dict[str, Any] = {}
         for key, val in current.items():
+            if key == "programUID":
+                merged[key] = val
+                continue
             cap = caps.get(f"userSelections/{key}")
-            if isinstance(cap, dict) and cap.get("access") == "read":
-                continue  # skip computed/read-only fields (ecoScore, energyScore, …)
+            # Skip fields with no capability entry (not known to the API) or
+            # fields that are read-only (computed scores like ecoScore).
+            if not isinstance(cap, dict):
+                continue
+            if cap.get("access") == "read":
+                continue
             merged[key] = val
 
         # Always override with the new value (and ensure programUID is present).
@@ -1037,11 +1044,14 @@ class ElectroluxEntity(CoordinatorEntity):
             return self._is_supported_cache
 
         # Compute support status
-        if self.entity_attr in [
-            "program",
-            "programUID",  # Always support programUID (entity_attr without source prefix)
-            "userSelections/programUID",
-        ]:
+        if (
+            self.entity_attr
+            in [
+                "program",
+                "programUID",  # Always support programUID (entity_attr without source prefix)
+                "userSelections/programUID",
+            ]
+        ):
             self._is_supported_cache = True
             return True
 
