@@ -58,13 +58,21 @@ async def async_setup_entry(
                         .replace("fppn", "")
                         .strip("_")
                     )
+                    # Build a set of candidate bare names to match against.
+                    # fPPN keys often embed a 2-4 char appliance-type abbreviation
+                    # (e.g. "fPPN_OVWaterTankEmpty" → base "ovwatertankempty" → also
+                    # try stripping the "ov" prefix → "watertankempty").
+                    base_attrs_to_try = {base_attr}
+                    for prefix_len in (2, 3, 4):
+                        if len(base_attr) > prefix_len:
+                            base_attrs_to_try.add(base_attr[prefix_len:])
                     # Check if any non-fPPN version exists
                     has_matching_base = any(
                         other_attr.lower()
                         .replace("fppn_", "")
                         .replace("fppn", "")
                         .strip("_")
-                        == base_attr
+                        in base_attrs_to_try
                         for other_attr in entity_attrs
                         if not other_attr.lower().startswith("fppn")
                     )
@@ -529,6 +537,17 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(action_def, dict) or "default" not in action_def:
                     continue
                 triggered_value = action_def["default"]
+                # Only apply scalar defaults; dict/list values are capability-level
+                # metadata (e.g. Workmode triggers that describe Fanspeed constraints)
+                # — writing them directly to reported state would corrupt select
+                # entity options (they would appear as str(dict) option labels).
+                if isinstance(triggered_value, (dict, list)):
+                    _LOGGER.debug(
+                        "Skipping non-scalar trigger default for %s: %s",
+                        affected_key,
+                        triggered_value,
+                    )
+                    continue
 
                 # Write into the shared reported dict (reference shared by all entities
                 # for this appliance) and keep the per-entity cache consistent.

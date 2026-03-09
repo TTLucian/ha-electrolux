@@ -560,6 +560,15 @@ class Appliance:
             )
             if not (attr_in_reported or attr_at_top_level):
                 continue
+            # Skip if covered by the catalog or capabilities loops to avoid duplicate
+            # entities.  The catalog loop handles attrs in catalog that are absent from
+            # the API capabilities list; the capabilities loop handles attrs that ARE in
+            # the API capabilities.  Both paths use catalog_item.capability_info as
+            # fallback, so the capability injection done below is redundant there.
+            if static_attribute in self.catalog or (
+                capabilities_names and static_attribute in capabilities_names
+            ):
+                continue
             if catalog_item := self.catalog.get(static_attribute, None):
                 if not (entity := self.get_entity(static_attribute)):
                     # catalog definition and automatic checks fail to determine type

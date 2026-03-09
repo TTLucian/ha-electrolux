@@ -1,6 +1,6 @@
 """Test platform setup for all Electrolux platforms."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 from homeassistant.const import Platform

@@ -384,6 +384,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
         # Send command to set fan speed
         await self._send_command("Fanspeed", speed_value, fanspeed_cap)
+        self._apply_fanspeed_state(speed_value)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set the preset mode of the fan."""
@@ -421,6 +422,40 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
         await self._send_workmode_command(preset_mode)
 
+    def _apply_workmode_state(self, mode: str) -> None:
+        """Optimistically write Workmode to the shared reported state.
+
+        The fan entity has entity_source="Workmode" and entity_attr="fan" so
+        the regular _apply_optimistic_update would nest the update under
+        reported["Workmode"]["Workmode"], which would turn the Workmode value
+        into a dict.  This helper writes directly to the top-level key.
+        """
+        if (
+            self.appliance_status
+            and isinstance(self.appliance_status, dict)
+            and "properties" in self.appliance_status
+            and "reported" in self.appliance_status["properties"]
+        ):
+            reported = self.appliance_status["properties"]["reported"]
+            reported["Workmode"] = mode
+            self._reported_state_cache["Workmode"] = mode
+            if self.entity_id:
+                self.async_write_ha_state()
+
+    def _apply_fanspeed_state(self, speed: int) -> None:
+        """Optimistically write Fanspeed to the shared reported state."""
+        if (
+            self.appliance_status
+            and isinstance(self.appliance_status, dict)
+            and "properties" in self.appliance_status
+            and "reported" in self.appliance_status["properties"]
+        ):
+            reported = self.appliance_status["properties"]["reported"]
+            reported["Fanspeed"] = speed
+            self._reported_state_cache["Fanspeed"] = speed
+            if self.entity_id:
+                self.async_write_ha_state()
+
     async def _send_workmode_command(self, mode: str) -> None:
         """Send Workmode command to appliance."""
         workmode_cap = self.get_capability("Workmode")
@@ -429,6 +464,11 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             return
 
         await self._send_command("Workmode", mode, workmode_cap)
+        # Optimistic update: reflect new mode immediately without waiting for SSE.
+        # Must NOT use _apply_optimistic_update here — the fan entity has
+        # entity_source="Workmode" which would nest the write under
+        # reported["Workmode"]["Workmode"] instead of reported["Workmode"].
+        self._apply_workmode_state(mode)
 
     async def _send_command(
         self, attr_name: str, value: Any, capability: dict[str, Any]
@@ -492,6 +532,8 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         except Exception:
             # Re-raise any errors from execute_command_with_error_handling
             raise
-
-        # Optimistically update local state
-        self._apply_optimistic_update(attr_name, command_value)
+        # Note: optimistic state updates are handled by the callers (_send_workmode_command
+        # and _set_percentage) via _apply_workmode_state / _apply_fanspeed_state which write
+        # directly to the top-level reported keys.  Calling _apply_optimistic_update here
+        # would corrupt reported["Workmode"] from a string into a nested dict because the
+        # fan entity has entity_source="Workmode" (from the catalog key "Workmode/fan").

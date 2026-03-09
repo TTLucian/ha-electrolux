@@ -738,7 +738,15 @@ class TestSendCommand:
         mock_coord.handle_authentication_error.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_optimistic_update_applied_on_success(self):
+    async def test_optimistic_update_not_called_from_send_command(self):
+        """_send_command must NOT call _apply_optimistic_update.
+
+        The fan entity has entity_source="Workmode".  Calling _apply_optimistic_update
+        from _send_command would nest the write under reported["Workmode"]["Workmode"],
+        corrupting the Workmode state from a string to a dict.  Callers
+        (_send_workmode_command, _set_percentage) use _apply_workmode_state /
+        _apply_fanspeed_state instead.
+        """
         fan = _make_fan(is_dam=False)
         fan.api = MagicMock()
         fan._apply_optimistic_update = MagicMock()
@@ -756,7 +764,28 @@ class TestSendCommand:
         ):
             await fan._send_command("Workmode", "Auto", cap)
 
-        fan._apply_optimistic_update.assert_called_once_with("Workmode", "Auto")
+        fan._apply_optimistic_update.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_send_workmode_command_calls_apply_workmode_state(self):
+        """_send_workmode_command must call _apply_workmode_state after the API call."""
+        fan = _make_fan(is_dam=False)
+        fan.api = MagicMock()
+        fan._apply_workmode_state = MagicMock()
+
+        with (
+            patch(
+                "custom_components.electrolux.fan.format_command_for_appliance",
+                return_value="Auto",
+            ),
+            patch(
+                "custom_components.electrolux.fan.execute_command_with_error_handling",
+                new_callable=AsyncMock,
+            ),
+        ):
+            await fan._send_workmode_command("Auto")
+
+        fan._apply_workmode_state.assert_called_once_with("Auto")
 
 
 # ---------------------------------------------------------------------------

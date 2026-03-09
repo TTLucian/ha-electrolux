@@ -65,6 +65,8 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "applianceMainBoardSwVersion",  # Catalog-only diagnostic info (disabled by default)
     "coolingValveState",  # Catalog-only exposure for refrigerators
     "^applianceCareAndMaintenance",  # Internal maintenance counters/thresholds - cryptic names, no user value
+    "^hideExecuteCommand$",  # Internal API trigger-control flag (governs executeCommand visibility via triggers)
+    "^keyModel$",  # Hardware identity constant, no user-facing value
 ]
 
 ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBReserve"]

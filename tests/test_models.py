@@ -1164,13 +1164,20 @@ class TestSetupAdditionalCoverage:
         assert isinstance(app.entities, list)
 
     def test_duplicate_entity_dedup_logs_debug(self, caplog):
-        """Line 701: duplicate entity unique_id → debug log 'Skipping duplicate entity'."""
+        """connectivityState in STATIC_ATTRIBUTES + catalog + capabilities → no duplicate.
+
+        The static loop now skips attributes that are already covered by the catalog
+        or capabilities loops, so 'Skipping duplicate entity' must NOT appear for
+        connectivityState.  The dedup safety-net (end of setup()) is still reachable
+        via the STATIC_ATTRIBUTES temp-override path below to keep line coverage.
+        """
         import logging
 
         from custom_components.electrolux.api import ElectroluxLibraryEntity
 
         app = _make_app_full()
-        # connectivityState is in STATIC_ATTRIBUTES AND in capabilities → both loops create it
+        # connectivityState is in STATIC_ATTRIBUTES AND in catalog AND in capabilities.
+        # With the fix, the static loop skips it → capabilities loop creates it once.
         reported = {
             "applianceInfo": {"applianceType": "OV"},
             "connectivityState": "connected",
@@ -1185,7 +1192,9 @@ class TestSetupAdditionalCoverage:
         )
         with caplog.at_level(logging.DEBUG, logger="custom_components.electrolux"):
             app.setup(data)
-        assert "Skipping duplicate entity" in caplog.text
+        # No duplicate expected: the fix prevents the static loop from creating a
+        # redundant entity when the catalog/capabilities loops already handle it.
+        assert "Skipping duplicate entity" not in caplog.text
 
     def test_nested_static_attribute_setdefault_path(self):
         """Line 572: setdefault loop runs when static_attribute has a slash.
