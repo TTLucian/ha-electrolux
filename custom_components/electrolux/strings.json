@@ -136,6 +136,12 @@
     },
     "type_mismatch": {
       "message": "Integration error: data type mismatch for {attr}. Expected Boolean."
+    },
+    "fanspeed_disabled": {
+      "message": "Fan speed cannot be adjusted in {mode} mode. Switch to Manual mode first to control fan speed."
+    },
+    "control_disabled_by_mode": {
+      "message": "{attr} cannot be adjusted in the current mode."
     }
   }
 }

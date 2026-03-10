@@ -579,6 +579,65 @@ class ElectroluxEntity(CoordinatorEntity):
             # lightweight in-place update (same object reference).
             self.coordinator.async_set_updated_data(self.coordinator.data)
 
+    def _is_disabled_by_trigger(self) -> bool:
+        """Return True if this entity's attribute is dynamically disabled by a trigger.
+
+        Some appliances declare triggers on one capability (e.g. Workmode) whose
+        actions mark another capability (e.g. Fanspeed) as ``disabled: true``
+        depending on the current state value.  For example, on the Muju air
+        purifier the Workmode=Auto trigger disables Fanspeed — sending a Fanspeed
+        command in that state silently reverts the mode to Manual on the appliance.
+
+        Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions are
+        evaluated — these cover all known trigger shapes in the wild.
+        """
+        attr_name = self.entity_attr
+        if not attr_name:
+            return False
+
+        appliance = self.get_appliance
+        if not (hasattr(appliance, "data") and appliance.data):
+            return False
+        if not (
+            hasattr(appliance.data, "capabilities") and appliance.data.capabilities
+        ):
+            return False
+
+        caps = appliance.data.capabilities
+        reported = self.reported_state
+
+        for cap_key, cap_def in caps.items():
+            # Only check top-level capabilities — sub-keys (e.g. "userSelections/programUID")
+            # are not the driving state for trigger conditions.
+            if "/" in cap_key or not isinstance(cap_def, dict):
+                continue
+            triggers = cap_def.get("triggers", [])
+            if not triggers:
+                continue
+
+            # Get the current value of this driving capability from reported state.
+            current_value = reported.get(cap_key)
+            if current_value is None:
+                continue
+
+            for trigger in triggers:
+                if not isinstance(trigger, dict):
+                    continue
+                condition = trigger.get("condition", {})
+                if (
+                    condition.get("operator") == "eq"
+                    and condition.get("operand_1") == "value"
+                    and str(condition.get("operand_2")) == str(current_value)
+                ):
+                    action = trigger.get("action", {})
+                    action_for_attr = action.get(attr_name)
+                    if isinstance(action_for_attr, dict) and action_for_attr.get(
+                        "disabled"
+                    ):
+                        return True
+
+        return False
+
     def _build_full_user_selections(
         self, changed_attr: str, new_value: Any
     ) -> dict[str, Any]:

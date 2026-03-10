@@ -507,12 +507,23 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
+        # Check if the capability is dynamically disabled by the current appliance
+        # state (e.g. Fanspeed is disabled when Workmode=Auto or Workmode=Quiet).
+        # This mirrors the trigger-based ``disabled: true`` declared in the API
+        # capability definition and prevents commands that the appliance would ignore
+        # or that would silently revert a mode setting.
+        if self._is_disabled_by_trigger():
+            raise HomeAssistantError(
+                f"'{self.entity_attr}' cannot be adjusted in the current mode.",
+                translation_domain=DOMAIN,
+                translation_key="control_disabled_by_mode",
+                translation_placeholders={"attr": self.entity_attr},
+            )
+
         # Check if entity is locked by program (min=max, step=0, or not supported)
         if self._is_locked_by_program():
             current_program = self._get_current_program_name() or "unknown"
             locked_value = self._get_locked_value()
-
-            # Provide specific error message based on lock reason
             if self.entity_attr == "targetFoodProbeTemperatureC":
                 food_probe_state = self.reported_state.get("foodProbeInsertionState")
                 if food_probe_state == FOOD_PROBE_STATE_NOT_INSERTED:

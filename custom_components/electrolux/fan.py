@@ -347,11 +347,20 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             await self.async_turn_off()
             return
 
-        # If Fanspeed is disabled for the current mode (e.g. Auto, Quiet),
-        # switching to Manual first is the correct behaviour — the user is
-        # explicitly requesting speed control.
+        # If Fanspeed is disabled for the current mode (e.g. Auto, Quiet), refuse
+        # the command with a clear error.  Silently auto-switching to Manual is
+        # confusing — the user must choose Manual explicitly.  The ``percentage``
+        # property already returns None in disabled modes so HomeKit Bridge will
+        # not call this method in the first place (see v3.5.8 release notes).
         if self._is_fanspeed_disabled():
-            await self._send_workmode_command("Manual")
+            current_mode = str(self.get_state_attr("Workmode") or "the current mode")
+            raise HomeAssistantError(
+                f"Fan speed cannot be adjusted in {current_mode} mode. "
+                "Switch to Manual mode first to control fan speed.",
+                translation_domain=DOMAIN,
+                translation_key="fanspeed_disabled",
+                translation_placeholders={"mode": current_mode},
+            )
 
         # Turn on if currently off
         if not self.is_on:

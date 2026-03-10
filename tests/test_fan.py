@@ -488,6 +488,21 @@ class TestAsyncSetPercentage:
         fan._send_workmode_command.assert_not_called()
         fan._set_percentage.assert_awaited_once_with(75)
 
+    @pytest.mark.asyncio
+    async def test_set_percentage_in_disabled_mode_raises(self):
+        """When Fanspeed is disabled (Auto/Quiet), async_set_percentage must raise."""
+        fan = _make_fan(workmode="Auto")
+        fan.is_connected = MagicMock(return_value=True)
+        fan._is_fanspeed_disabled = MagicMock(return_value=True)
+        fan.get_state_attr = MagicMock(return_value="Auto")
+        fan._send_workmode_command = AsyncMock()
+        fan._set_percentage = AsyncMock()
+        with pytest.raises(HomeAssistantError, match="Auto"):
+            await fan.async_set_percentage(75)
+        # Must NOT auto-switch to Manual — the error stops execution
+        fan._send_workmode_command.assert_not_called()
+        fan._set_percentage.assert_not_called()
+
 
 # ---------------------------------------------------------------------------
 # async_set_preset_mode
@@ -1236,8 +1251,9 @@ class TestPercentageDisabledFanspeed:
 
 
 class TestAsyncSetPercentageManualFirst:
-    """Tests confirming that ``async_set_percentage`` switches to Manual before
-    setting speed when the current Workmode disables Fanspeed (e.g. Auto)."""
+    """Tests confirming that ``async_set_percentage`` raises HomeAssistantError
+    when the current Workmode disables Fanspeed (e.g. Auto, Quiet).  Automatically
+    switching to Manual was confusing and has been replaced with an explicit error."""
 
     def _fan_in_auto_with_triggers(self) -> "ElectroluxFan":
         caps_with_triggers = _make_capability_workmode_with_triggers()
@@ -1257,35 +1273,22 @@ class TestAsyncSetPercentageManualFirst:
         return fan
 
     @pytest.mark.asyncio
-    async def test_switches_to_manual_before_setting_speed_in_auto_mode(self):
+    async def test_raises_error_in_auto_mode(self):
         """When Workmode == Auto (Fanspeed disabled), ``async_set_percentage``
-        must call ``_send_workmode_command("Manual")`` before ``_set_percentage``."""
+        must raise HomeAssistantError instead of switching to Manual."""
         fan = self._fan_in_auto_with_triggers()
-        mock_workmode: AsyncMock = fan._send_workmode_command  # type: ignore[assignment]
-        mock_set_pct: AsyncMock = fan._set_percentage  # type: ignore[assignment]
-        await fan.async_set_percentage(60)
-
-        mock_workmode.assert_awaited_once_with("Manual")
-        mock_set_pct.assert_awaited_once_with(60)
+        with pytest.raises(HomeAssistantError, match="Auto"):
+            await fan.async_set_percentage(60)
+        # Must not issue any commands
+        fan._send_workmode_command.assert_not_called()
+        fan._set_percentage.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_manual_before_speed_call_order(self):
-        """The Manual switch must happen BEFORE ``_set_percentage`` is called."""
+    async def test_error_message_contains_mode_name(self):
+        """Error message must name the current Workmode so the user knows what to change."""
         fan = self._fan_in_auto_with_triggers()
-        call_order: list[str] = []
-
-        async def record_workmode(mode: str) -> None:
-            call_order.append(f"workmode:{mode}")
-
-        async def record_set_pct(pct: int) -> None:
-            call_order.append(f"set_pct:{pct}")
-
-        fan._send_workmode_command = AsyncMock(side_effect=record_workmode)
-        fan._set_percentage = AsyncMock(side_effect=record_set_pct)
-
-        await fan.async_set_percentage(80)
-
-        assert call_order == ["workmode:Manual", "set_pct:80"]
+        with pytest.raises(HomeAssistantError, match="Auto"):
+            await fan.async_set_percentage(80)
 
     @pytest.mark.asyncio
     async def test_no_extra_workmode_command_in_manual_mode(self):
