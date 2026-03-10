@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -1280,8 +1281,8 @@ class TestAsyncSetPercentageManualFirst:
         with pytest.raises(HomeAssistantError, match="Auto"):
             await fan.async_set_percentage(60)
         # Must not issue any commands
-        fan._send_workmode_command.assert_not_called()
-        fan._set_percentage.assert_not_called()
+        cast(AsyncMock, fan._send_workmode_command).assert_not_called()
+        cast(AsyncMock, fan._set_percentage).assert_not_called()
 
     @pytest.mark.asyncio
     async def test_error_message_contains_mode_name(self):

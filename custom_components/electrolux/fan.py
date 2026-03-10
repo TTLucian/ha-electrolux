@@ -365,8 +365,8 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         # Turn on if currently off
         if not self.is_on:
             # First turn on to Manual mode (or preserve last mode)
-            current_mode = self.get_state_attr("Workmode")
-            if not current_mode or str(current_mode).lower() == "poweroff":
+            current_workmode = self.get_state_attr("Workmode")
+            if not current_workmode or str(current_workmode).lower() == "poweroff":
                 await self._send_workmode_command("Manual")
 
         await self._set_percentage(percentage)
