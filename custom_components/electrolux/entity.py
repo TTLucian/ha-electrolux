@@ -306,7 +306,11 @@ class ElectroluxEntity(CoordinatorEntity):
             return
 
         # Update internal state from SSE stream
-        self.appliance_status = appliances.get_appliance(self.pnc_id).state
+        appliance = appliances.get_appliance(self.pnc_id)
+        if appliance is None:
+            # Appliance was removed from the coordinator; skip update
+            return
+        self.appliance_status = appliance.state
 
         # Performance: Cache reported_state to avoid repeated dict lookups
         if self.appliance_status and isinstance(self.appliance_status, dict):

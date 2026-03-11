@@ -10,6 +10,7 @@ except ImportError:  # pragma: no cover
     pass  # josepy not installed yet
 
 import asyncio
+import datetime
 import logging
 import time
 
@@ -86,8 +87,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _mask_token(refresh_token),
     )
     if token_expires_at:
-        import datetime
-
         expiry_time = datetime.datetime.fromtimestamp(token_expires_at)
         time_until_expiry = token_expires_at - time.time()
         _LOGGER.info(
@@ -226,6 +225,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 coordinator.renew_task.get_name(),
             )
 
+            # Start SSE stale-session health monitor
+            coordinator._sse_monitor_task = hass.async_create_task(
+                coordinator._monitor_sse_health(),
+                name=f"Electrolux SSE monitor - {entry.title}",
+            )
+            _LOGGER.debug(
+                "async_setup_entry SSE health monitor task created: %s",
+                coordinator._sse_monitor_task.get_name(),
+            )
+
             # Bind task cleanup to entry lifecycle - ensures tasks are cancelled when entry is unloaded/reloaded
             def cleanup_tasks():
                 _LOGGER.debug(
@@ -237,6 +246,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.renew_task:
                     coordinator.renew_task.cancel()
                     _LOGGER.debug("[INIT] async_setup_entry renewal task cancelled")
+                if coordinator._sse_monitor_task:
+                    coordinator._sse_monitor_task.cancel()
+                    _LOGGER.debug("[INIT] async_setup_entry SSE monitor task cancelled")
 
             entry.async_on_unload(cleanup_tasks)
             _LOGGER.debug("[INIT] async_setup_entry cleanup handlers registered")
@@ -293,8 +305,6 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
     if coordinator and hasattr(coordinator, "_last_token_update"):
         # Check if this update happened very recently (within last 2 seconds)
         # If so, it's likely the token refresh callback that just updated the config
-        import time
-
         time_since_token_update = time.time() - coordinator._last_token_update
 
         if time_since_token_update < 2.0:

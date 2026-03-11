@@ -1,0 +1,1000 @@
+[31m2026-03-11 20:34:01.800 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:34:12.132 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:34:12.132 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:34:22.456 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:34:22.457 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:34:32.929 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:34:32.930 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:34:43.245 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:34:43.245 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:34:53.596 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:34:53.596 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:03.814 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:03.814 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:14.008 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:14.009 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:24.239 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:24.239 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:34.448 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:34.448 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:44.680 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:44.680 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:35:54.913 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:35:54.914 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:05.258 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:05.259 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:15.585 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:15.586 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:25.921 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:25.921 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:36.275 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:36.276 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:46.609 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:46.610 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:36:56.925 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:36:56.925 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:07.261 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:07.262 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:17.622 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:17.623 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:27.968 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:27.969 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:38.287 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:38.287 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:48.633 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:48.633 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:37:58.967 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:37:58.967 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:38:09.324 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:38:09.325 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:38:19.635 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:38:19.636 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:38:29.984 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:38:29.985 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:38:40.342 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:38:40.343 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:38:50.669 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:38:50.669 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:00.992 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:00.993 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:11.234 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:11.235 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:21.432 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:21.433 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:31.657 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:31.657 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:42.052 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:42.053 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:39:52.292 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:39:52.293 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:02.501 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:02.502 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:12.762 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:12.763 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:22.953 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:22.953 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:33.173 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:33.173 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:43.377 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:43.378 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:40:53.610 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:40:53.610 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:03.827 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:03.828 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:14.189 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:14.189 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:24.505 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:24.505 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:34.835 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:34.835 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:45.543 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:45.543 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:41:55.890 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:41:55.891 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:06.209 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:06.210 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:16.620 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:16.621 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:26.829 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:26.829 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:37.034 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:37.034 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:47.284 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:47.285 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:42:57.512 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:42:57.512 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:07.739 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:07.740 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:18.099 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:18.100 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:28.424 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:28.425 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:38.735 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:38.736 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:49.078 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:49.079 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:43:59.427 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:43:59.428 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:44:09.793 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:44:09.793 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:44:20.134 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:44:20.134 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:44:30.475 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:44:30.475 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:44:40.791 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:44:40.792 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:44:51.251 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:44:51.252 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:01.580 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:01.580 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:11.906 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:11.907 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:22.237 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:22.237 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:32.594 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:32.595 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:42.949 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:42.949 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:45:53.297 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:45:53.298 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:03.638 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:03.639 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:13.984 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:13.984 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:24.309 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:24.310 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:34.639 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:34.639 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:44.948 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:44.949 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:46:55.266 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:46:55.267 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:05.588 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:05.589 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:15.948 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:15.948 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:26.196 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:26.197 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:36.410 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:36.411 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:46.630 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:46.631 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:47:56.855 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:47:56.855 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:07.083 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:07.083 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:17.323 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:17.323 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:27.684 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:27.685 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:37.994 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:37.994 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:48.331 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:48.332 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:48:58.660 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:48:58.660 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:49:09.084 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:49:09.084 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:49:19.431 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:49:19.432 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:49:29.793 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:49:29.793 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:49:40.111 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:49:40.111 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:49:50.467 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:49:50.468 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:00.782 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:00.782 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:11.101 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:11.102 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:21.426 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:21.427 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:31.774 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:31.774 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:42.133 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:42.133 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:50:52.467 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:50:52.467 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:02.808 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:02.809 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:13.139 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:13.139 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:23.486 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:23.487 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:33.810 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:33.810 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:44.136 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:44.137 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:51:54.506 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:51:54.506 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:04.846 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:04.847 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:15.159 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:15.159 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:25.817 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:25.817 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:36.493 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:36.493 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:46.841 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:46.842 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:52:57.183 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:52:57.184 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:07.497 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:07.497 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:17.818 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:17.818 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:28.168 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:28.169 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:38.417 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:38.417 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:48.648 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:48.648 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:53:58.841 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:53:58.842 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:54:09.036 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:54:09.036 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:54:19.398 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:54:19.399 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:54:29.655 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:54:29.656 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:54:40.003 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:54:40.004 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:54:50.321 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:54:50.321 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:00.651 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:00.652 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:11.000 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:11.000 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:21.325 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:21.325 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:31.664 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:31.665 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:42.013 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:42.014 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:55:52.341 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:55:52.341 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:02.676 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:02.676 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:13.028 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:13.029 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:23.369 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:23.369 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:33.729 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:33.730 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:44.123 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:44.123 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:56:54.444 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:56:54.445 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:04.778 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:04.778 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:15.128 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:15.128 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:25.447 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:25.447 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:35.788 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:35.788 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:46.025 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:46.025 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:57:56.265 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:57:56.266 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:06.482 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:06.483 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:09.023 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:09.023 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:19.221 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:19.221 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:29.454 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:29.454 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:39.683 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:39.684 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:58:49.889 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:58:49.890 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:00.124 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:00.124 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:10.387 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:10.388 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:20.778 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:20.778 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:30.985 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:30.985 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:41.215 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:41.215 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 20:59:51.494 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 20:59:51.494 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:01.698 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:01.699 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:11.906 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:11.907 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:22.134 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:22.135 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:32.404 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:32.404 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:42.603 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:42.603 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:00:52.962 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:00:52.963 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:03.306 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:03.306 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:13.651 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:13.652 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:23.989 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:23.990 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:34.303 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:34.303 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:44.651 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:44.652 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:01:54.985 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:01:54.985 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:05.307 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:05.307 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:15.664 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:15.665 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:26.340 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:26.340 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:37.025 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:37.025 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:47.339 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:47.340 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:02:57.704 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:02:57.704 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:08.028 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:08.029 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:18.361 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:18.362 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:28.680 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:28.680 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:39.010 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:39.010 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:49.325 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:49.326 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:03:59.660 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:03:59.660 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:04:10.149 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:04:10.149 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:04:20.467 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:04:20.468 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:04:31.179 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:04:31.180 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:04:41.520 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:04:41.520 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:04:51.854 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:04:51.854 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:02.206 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:02.207 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:12.547 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:12.548 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:22.918 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:22.918 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:33.255 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:33.255 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:43.609 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:43.610 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:05:53.976 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:05:53.976 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:04.337 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:04.338 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:14.686 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:14.687 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:25.060 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:25.060 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:35.394 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:35.394 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:45.721 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:45.722 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:06:56.067 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:06:56.068 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:06.431 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:06.431 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:16.775 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:16.776 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:27.097 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:27.097 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:37.446 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:37.447 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:47.787 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:47.787 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:07:58.127 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:07:58.128 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:08:08.490 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:08:08.490 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:08:18.850 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:08:18.850 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:08:29.174 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:08:29.175 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:08:39.532 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:08:39.532 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:08:49.851 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:08:49.851 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:00.236 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:00.237 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:11.026 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:11.026 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:21.374 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:21.375 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:31.701 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:31.702 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:42.052 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:42.052 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:09:52.394 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:09:52.394 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:02.719 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:02.719 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:13.048 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:13.048 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:23.396 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:23.396 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:33.710 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:33.711 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:44.029 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:44.030 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:10:54.354 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:10:54.355 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:04.745 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:04.745 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:15.146 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:15.146 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:25.493 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:25.494 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:35.823 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:35.823 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:46.166 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:46.167 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:11:56.511 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:11:56.512 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:06.839 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:06.839 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:17.192 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:17.193 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:28.111 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:28.112 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:38.789 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:38.789 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:49.109 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:49.110 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:12:59.469 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:12:59.469 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:13:09.790 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:13:09.791 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:13:20.153 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:13:20.153 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:13:30.479 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:13:30.480 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:13:40.800 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:13:40.801 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:13:51.138 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:13:51.138 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:01.454 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:01.454 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:11.911 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:11.912 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:22.248 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:22.249 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:32.605 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:32.605 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:42.920 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:42.921 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:14:53.250 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:14:53.251 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:03.570 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:03.570 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:13.888 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:13.889 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:24.134 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:24.134 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:34.370 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:34.371 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:44.564 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:44.564 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:15:54.795 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:15:54.795 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:05.023 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:05.024 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:15.272 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:15.273 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:25.606 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:25.606 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:35.948 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:35.948 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:46.268 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:46.268 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:16:56.618 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:16:56.618 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:06.936 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:06.937 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:17.252 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:17.252 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:27.576 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:27.577 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:37.886 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:37.887 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:48.236 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:48.237 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:17:58.557 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:17:58.558 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:18:08.873 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:18:08.873 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:18:19.189 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:18:19.190 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:18:29.435 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:18:29.436 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:18:39.641 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:18:39.642 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:18:49.869 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:18:49.870 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:00.103 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:00.103 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:10.510 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:10.510 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:20.721 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:20.721 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:31.048 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:31.049 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:41.397 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:41.398 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:19:51.720 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:19:51.721 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:02.061 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:02.062 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:12.411 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:12.412 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:22.766 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:22.767 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:33.125 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:33.125 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:43.450 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:43.450 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:20:53.779 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:20:53.780 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:04.110 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:04.111 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:14.460 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:14.460 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:24.811 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:24.812 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:35.171 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:35.171 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:45.497 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:45.498 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:21:55.816 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:21:55.817 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:06.476 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:06.477 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:16.792 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:16.792 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:27.154 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:27.154 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:37.742 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:37.742 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:48.313 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:48.313 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:22:58.510 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:22:58.511 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:23:08.720 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:23:08.721 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:23:18.960 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:23:18.960 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:23:29.201 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:23:29.201 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:23:39.529 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:23:39.530 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:23:49.878 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:23:49.878 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:00.261 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:00.261 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:10.576 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:10.577 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:21.102 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:21.102 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:31.417 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:31.418 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:41.747 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:41.748 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:24:52.077 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:24:52.078 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:02.433 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:02.434 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:12.762 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:12.762 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:23.088 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:23.089 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:33.414 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:33.414 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:43.739 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:43.739 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:25:54.054 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:25:54.055 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:04.405 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:04.406 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:14.732 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:14.733 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:25.061 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:25.062 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:35.377 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:35.377 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:45.734 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:45.734 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:26:56.137 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:26:56.138 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:06.484 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:06.484 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:16.841 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:16.842 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:27.186 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:27.187 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:37.513 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:37.514 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:47.875 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:47.876 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:27:58.191 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:27:58.192 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:28:08.506 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:28:08.506 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:28:18.858 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:28:18.858 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:28:29.168 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:28:29.168 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:28:39.511 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:28:39.512 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:28:49.837 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:28:49.838 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:00.176 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:00.177 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:10.531 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:10.531 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:20.870 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:20.871 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:31.326 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:31.326 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:41.680 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:41.680 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:29:52.010 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:29:52.011 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:02.413 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:02.413 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:12.773 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:12.773 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:23.096 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:23.096 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:33.415 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:33.415 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:43.766 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:43.766 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:30:54.094 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:30:54.094 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:04.429 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:04.430 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:14.744 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:14.745 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:25.067 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:25.067 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:35.398 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:35.398 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:45.740 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:45.740 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:31:56.087 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:31:56.088 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:06.437 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:06.438 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:16.791 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:16.791 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:27.115 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:27.116 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:37.465 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:37.465 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:47.783 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:47.784 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:32:58.459 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:32:58.459 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:33:09.142 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:33:09.143 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:33:19.493 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:33:19.494 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:33:29.850 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:33:29.850 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:33:40.190 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:33:40.190 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:33:50.514 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:33:50.515 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:00.843 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:00.844 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:11.196 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:11.196 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:21.527 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:21.527 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:31.872 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:31.872 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:42.339 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:42.340 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:34:52.648 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:34:52.648 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:02.979 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:02.980 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:13.312 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:13.313 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:23.714 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:23.714 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:34.027 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:34.027 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:44.342 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:44.343 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:35:54.669 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:35:54.669 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:05.132 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:05.133 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:15.453 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:15.453 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:25.810 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:25.811 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:36.129 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:36.130 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:46.442 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:46.443 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:36:56.756 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:36:56.757 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:07.087 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:07.088 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:17.455 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:17.456 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:27.786 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:27.787 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:38.107 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:38.108 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:48.451 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:48.452 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:37:58.767 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:37:58.768 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:38:09.100 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:38:09.100 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:38:19.414 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:38:19.414 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:38:29.764 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:38:29.765 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:38:40.106 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:38:40.107 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:38:50.418 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:38:50.419 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:00.739 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:00.740 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:11.136 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:11.137 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:21.497 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:21.498 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:31.808 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:31.809 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:42.150 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:42.151 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:39:52.614 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:39:52.614 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:02.968 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:02.968 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:13.344 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:13.345 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:23.662 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:23.662 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:34.000 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:34.001 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:44.322 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:44.323 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:40:54.676 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:40:54.676 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:05.009 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:05.010 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:15.217 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:15.217 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:25.469 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:25.469 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:35.701 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:35.702 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:45.901 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:45.901 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:41:56.132 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:41:56.133 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:06.346 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:06.346 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:16.696 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:16.697 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:27.016 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:27.016 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:37.339 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:37.339 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:47.649 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:47.650 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:42:57.974 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:42:57.974 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:08.645 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:08.646 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:18.870 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:18.870 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:29.083 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:29.084 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:39.498 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:39.499 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:49.754 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:49.754 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:43:59.970 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:43:59.971 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:44:10.182 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:44:10.182 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:44:20.516 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:44:20.516 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:44:30.859 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:44:30.860 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:44:41.186 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:44:41.187 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:44:51.505 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:44:51.506 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:02.040 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:02.041 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:12.404 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:12.405 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:22.736 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:22.736 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:33.070 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:33.071 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:43.414 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:43.415 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:45:53.730 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:45:53.730 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:46:04.063 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:46:04.064 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:46:14.377 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:46:14.378 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:46:24.749 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:46:24.750 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[31m2026-03-11 21:46:25.626 ERROR (MainThread) [frontend.js.modern.202603040] Uncaught error from WebKit 605.1.15 on iOS 18.7
+ReferenceError: Can't find variable: elementId
+/config/developer-tools/yaml:24:57
+global code (/config/developer-tools/yaml:28:3)[0m
+s6-rc: info: service legacy-services: stopping
+[31m2026-03-11 21:46:28.659 ERROR (MainThread) [homeassistant.components.asuswrt.router] Error fetching sensors_memory data: ('Data cannot be retrieved. Connection failed', None)[0m
+[31m2026-03-11 21:46:28.660 ERROR (MainThread) [homeassistant.components.asuswrt.router] Error fetching sensors_uptime data: ('Data cannot be retrieved. Connection failed', None)[0m
+[13:46:39] INFO: [32mHome Assistant Core finish process exit code 0[0m
+[13:46:39] INFO: [32mHome Assistant Core service shutdown[0m
+s6-rc: info: service legacy-services successfully stopped
+s6-rc: info: service legacy-cont-init: stopping
+s6-rc: info: service legacy-cont-init successfully stopped
+s6-rc: info: service fix-attrs: stopping
+s6-rc: info: service fix-attrs successfully stopped
+s6-rc: info: service s6rc-oneshot-runner: stopping
+s6-rc: info: service s6rc-oneshot-runner successfully stopped
+s6-rc: info: service s6rc-oneshot-runner: starting
+s6-rc: info: service s6rc-oneshot-runner successfully started
+s6-rc: info: service fix-attrs: starting
+s6-rc: info: service fix-attrs successfully started
+s6-rc: info: service legacy-cont-init: starting
+s6-rc: info: service legacy-cont-init successfully started
+s6-rc: info: service legacy-services: starting
+services-up: info: copying legacy longrun home-assistant (no readiness notification)
+s6-rc: info: service legacy-services successfully started
+[33m2026-03-11 21:46:54.143 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration jcihitachi_tw which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.147 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration smartthinq_sensors which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.150 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration aqara_gateway which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.152 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration edge_tts which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.155 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration electrolux which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.157 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration samsungtv_smart which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.160 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration xiaomi_miot which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.163 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration qingping_cgs1 which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:46:54.165 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration hacs which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-03-11 21:47:40.411 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:47:40.412 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:47:50.692 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:47:50.692 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:00.968 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:00.968 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:11.266 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:11.267 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:21.517 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:21.518 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:31.781 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:31.781 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:42.182 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:42.183 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[33m2026-03-11 21:48:52.559 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:48:52.560 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[36m2026-03-11 21:49:02.142 DEBUG (MainThread) [custom_components.electrolux] Electrolux fan sending command for Workmode: Manual[0m
+[36m2026-03-11 21:49:02.142 DEBUG (MainThread) [custom_components.electrolux] Executing command for Workmode: {'Workmode': 'Manual'}[0m
+[36m2026-03-11 21:49:02.142 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:02.143 DEBUG (MainThread) [custom_components.electrolux] [TOKEN-CHECK] Token valid: 1 hours, 5 minutes remaining[0m
+[32m2026-03-11 21:49:02.561 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:49:02.939 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:02.940 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:02.940 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[36m2026-03-11 21:49:04.126 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:04.129 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:04.129 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for Workmode: None[0m
+[36m2026-03-11 21:49:06.121 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value[0m
+[36m2026-03-11 21:49:06.121 DEBUG (MainThread) [custom_components.electrolux] Executing command for UVState: {'UVState': 'ON'}[0m
+[36m2026-03-11 21:49:06.121 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:07.810 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 202, body: {'message': 'Appliance already in desired state'}[0m
+[36m2026-03-11 21:49:07.813 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:07.813 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for UVState: {'message': 'Appliance already in desired state'}[0m
+[36m2026-03-11 21:49:07.814 DEBUG (MainThread) [custom_components.electrolux] Optimistically updated root/UVState to ON (will be confirmed by SSE)[0m
+[36m2026-03-11 21:49:07.814 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value completed[0m
+[36m2026-03-11 21:49:11.040 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value[0m
+[36m2026-03-11 21:49:11.041 DEBUG (MainThread) [custom_components.electrolux] Executing command for SafetyLock: {'SafetyLock': True}[0m
+[36m2026-03-11 21:49:11.041 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:12.857 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value[0m
+[36m2026-03-11 21:49:12.857 DEBUG (MainThread) [custom_components.electrolux] Executing command for SafetyLock: {'SafetyLock': False}[0m
+[36m2026-03-11 21:49:12.858 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[32m2026-03-11 21:49:12.942 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[36m2026-03-11 21:49:12.986 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:12.989 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:12.989 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for SafetyLock: None[0m
+[36m2026-03-11 21:49:12.990 DEBUG (MainThread) [custom_components.electrolux] Optimistically updated root/SafetyLock to True (will be confirmed by SSE)[0m
+[36m2026-03-11 21:49:12.990 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value completed[0m
+[32m2026-03-11 21:49:13.316 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:13.316 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:13.317 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[36m2026-03-11 21:49:14.272 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 202, body: {'message': 'Appliance already in desired state'}[0m
+[36m2026-03-11 21:49:14.275 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:14.275 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for SafetyLock: {'message': 'Appliance already in desired state'}[0m
+[36m2026-03-11 21:49:14.276 DEBUG (MainThread) [custom_components.electrolux] Optimistically updated root/SafetyLock to False (will be confirmed by SSE)[0m
+[36m2026-03-11 21:49:14.276 DEBUG (MainThread) [custom_components.electrolux] Electrolux set value completed[0m
+[36m2026-03-11 21:49:20.679 DEBUG (MainThread) [custom_components.electrolux] Electrolux fan sending command for Fanspeed: 4[0m
+[36m2026-03-11 21:49:20.679 DEBUG (MainThread) [custom_components.electrolux] Executing command for Fanspeed: {'Fanspeed': 4}[0m
+[36m2026-03-11 21:49:20.679 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:22.640 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:22.643 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:22.643 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for Fanspeed: None[0m
+[32m2026-03-11 21:49:23.318 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:49:23.734 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:23.735 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:23.735 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[36m2026-03-11 21:49:25.862 DEBUG (MainThread) [custom_components.electrolux] Electrolux fan sending command for Fanspeed: 5[0m
+[36m2026-03-11 21:49:25.863 DEBUG (MainThread) [custom_components.electrolux] Executing command for Fanspeed: {'Fanspeed': 5}[0m
+[36m2026-03-11 21:49:25.863 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:27.707 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:27.710 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:27.711 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for Fanspeed: None[0m
+[36m2026-03-11 21:49:28.745 DEBUG (MainThread) [custom_components.electrolux] Electrolux fan sending command for Workmode: Auto[0m
+[36m2026-03-11 21:49:28.745 DEBUG (MainThread) [custom_components.electrolux] Executing command for Workmode: {'Workmode': 'Auto'}[0m
+[36m2026-03-11 21:49:28.745 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:30.733 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:30.736 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:30.736 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for Workmode: None[0m
+[31m2026-03-11 21:49:32.859 ERROR (MainThread) [homeassistant.components.websocket_api.http.connection] [281472397123936] Error during service call to fan.set_percentage: Fan speed cannot be adjusted in Auto mode. Switch to Manual mode first to control fan speed.[0m
+[32m2026-03-11 21:49:33.737 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[36m2026-03-11 21:49:33.740 DEBUG (MainThread) [custom_components.electrolux] [TOKEN-CHECK] Token valid: 1 hours, 4 minutes remaining[0m
+[32m2026-03-11 21:49:34.130 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:34.130 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:34.130 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[36m2026-03-11 21:49:35.833 DEBUG (MainThread) [custom_components.electrolux] Electrolux fan sending command for Workmode: Quiet[0m
+[36m2026-03-11 21:49:35.834 DEBUG (MainThread) [custom_components.electrolux] Executing command for Workmode: {'Workmode': 'Quiet'}[0m
+[36m2026-03-11 21:49:35.834 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: Starting API call wrapper[0m
+[36m2026-03-11 21:49:37.781 DEBUG (MainThread) [electrolux_group_developer_sdk.client.client_util] Response from https://api.developer.electrolux.one/api/v1/appliances/956006959323006505087076/command. status_code: 200, body: None[0m
+[36m2026-03-11 21:49:37.784 DEBUG (MainThread) [custom_components.electrolux] _handle_api_call: API call completed successfully[0m
+[36m2026-03-11 21:49:37.784 DEBUG (MainThread) [custom_components.electrolux] Command succeeded for Workmode: None[0m
+[31m2026-03-11 21:49:38.863 ERROR (MainThread) [homeassistant.components.websocket_api.http.connection] [281472397123936] Error during service call to fan.set_percentage: Fan speed cannot be adjusted in Quiet mode. Switch to Manual mode first to control fan speed.[0m
+[32m2026-03-11 21:49:44.133 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:49:44.517 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:44.517 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:44.518 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[31m2026-03-11 21:49:51.035 ERROR (MainThread) [frontend.js.modern.202603040] Uncaught error from WebKit 605.1.15 on iOS 18.7
+ReferenceError: Can't find variable: elementId
+/config/logs:24:57
+global code (/config/logs:28:3)[0m
+[32m2026-03-11 21:49:54.519 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:49:54.898 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:49:54.898 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:49:54.899 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[31m2026-03-11 21:50:03.395 ERROR (MainThread) [frontend.js.modern.202603040] Uncaught error from WebKit 605.1.15 on iOS 18.7
+ReferenceError: Can't find variable: elementId
+/config/logs:24:57
+global code (/config/logs:28:3)[0m
+[32m2026-03-11 21:50:04.900 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[36m2026-03-11 21:50:04.903 DEBUG (MainThread) [custom_components.electrolux] [TOKEN-CHECK] Token valid: 1 hours, 4 minutes remaining[0m
+[32m2026-03-11 21:50:05.381 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:50:05.381 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:50:05.381 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[31m2026-03-11 21:50:10.554 ERROR (MainThread) [frontend.js.modern.202603040] Uncaught error from WebKit 605.1.15 on iOS 18.7
+ReferenceError: Can't find variable: elementId
+/config/logs:24:57
+global code (/config/logs:28:3)[0m
+[32m2026-03-11 21:50:15.382 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:50:15.762 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:50:15.763 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:50:15.763 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m
+[32m2026-03-11 21:50:25.764 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Close websession[0m
+[32m2026-03-11 21:50:26.144 INFO (MainThread) [electrolux_group_developer_sdk.client.appliance_client] Connected to SSE stream at https://live.ap.developer.electrolux.one/api/v1/events[0m
+[33m2026-03-11 21:50:26.144 WARNING (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection object closed[0m
+[31m2026-03-11 21:50:26.145 ERROR (MainThread) [electrolux_group_developer_sdk.client.appliance_client] SSE connection error: SSE response stream closed unexpectedly[0m

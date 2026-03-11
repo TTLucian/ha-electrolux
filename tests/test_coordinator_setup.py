@@ -47,6 +47,11 @@ def make_coordinator():
     coord.renew_interval = 7200
     coord.platforms = []
     coord.renew_task = None
+    coord.listen_task = None
+    coord._sse_monitor_task = None
+    coord._last_sse_connected = 0.0
+    coord._last_remote_control = {}
+    coord._pending_state_refresh_tasks = {}
 
     # API client mock
     coord.api = MagicMock()

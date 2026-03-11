@@ -8,7 +8,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from custom_components.electrolux.coordinator import ElectroluxCoordinator
 
@@ -91,6 +90,10 @@ def coordinator(mock_hass, mock_api):
         coord.async_set_updated_data = MagicMock()
         coord.async_request_refresh = AsyncMock()
         coord.last_update_success = True
+        coord._sse_monitor_task = None
+        coord._last_sse_connected = 0.0
+        coord._last_remote_control = {}
+        coord._pending_state_refresh_tasks = {}
         return coord
 
 
@@ -189,83 +192,83 @@ class TestDeferredUpdate:
                 await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_connection_error_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts ConnectionError to UpdateFailed."""
+        """deferred_update logs ConnectionError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = ConnectionError("network down")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Network error"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_timeout_error_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts TimeoutError to UpdateFailed."""
+        """deferred_update logs TimeoutError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = TimeoutError("timed out")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Network error"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_asyncio_timeout_error_raises_update_failed(
         self, coordinator, mock_api
     ):
-        """deferred_update converts asyncio.TimeoutError to UpdateFailed."""
+        """deferred_update logs asyncio.TimeoutError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = asyncio.TimeoutError()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Network error"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_key_error_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts KeyError to UpdateFailed."""
+        """deferred_update logs KeyError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = KeyError("missing_key")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Invalid data"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_value_error_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts ValueError to UpdateFailed."""
+        """deferred_update logs ValueError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = ValueError("bad value")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Invalid data"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_type_error_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts TypeError to UpdateFailed."""
+        """deferred_update logs TypeError and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = TypeError("type mismatch")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Invalid data"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_generic_exception_raises_update_failed(self, coordinator, mock_api):
-        """deferred_update converts any other exception to UpdateFailed."""
+        """deferred_update logs generic exceptions and returns (no exception raised)."""
         appliance_id = "APP001"
         appliances = _make_appliances({appliance_id: {}})
         coordinator.data = {"appliances": appliances}
         mock_api.get_appliance_state.side_effect = RuntimeError("unexpected error")
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
-            with pytest.raises(UpdateFailed, match="Unexpected error"):
-                await coordinator.deferred_update(appliance_id, delay=5)
+            # Should not raise
+            await coordinator.deferred_update(appliance_id, delay=5)
 
     async def test_delay_is_awaited(self, coordinator, mock_api):
         """deferred_update awaits sleep with the supplied delay."""

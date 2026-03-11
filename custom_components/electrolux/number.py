@@ -412,7 +412,11 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # This makes min=max, which causes the UI to grey out the control (standard HA pattern)
         # While this prevents showing custom error messages, it provides clear visual feedback
         # that the control is read-only and prevents confusing "adjustable but blocked" UX
-        if self._is_locked_by_program() and key != "step":
+        # _is_disabled_by_trigger covers dynamic trigger-based locks (e.g. Fanspeed in Auto/Quiet
+        # mode on air purifiers) — these follow the same greyed-out pattern as program locks.
+        if (
+            self._is_locked_by_program() or self._is_disabled_by_trigger()
+        ) and key != "step":
             locked_value = self._get_locked_value()
             # For time entities, convert locked value if needed
             if self.unit == UnitOfTime.SECONDS:

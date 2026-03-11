@@ -27,17 +27,17 @@ def get_electrolux_session(
 
 
 async def retry_with_backoff(
-    coro,
+    coro_factory,
     max_retries: int = 3,
     base_delay: float = 1.0,
     max_delay: float = 30.0,
     backoff_factor: float = 2.0,
     logger: logging.Logger | None = None,
 ) -> Any:
-    """Execute a coroutine with exponential backoff retry logic.
+    """Execute a coroutine factory with exponential backoff retry logic.
 
     Args:
-        coro: The coroutine to execute
+        coro_factory: Callable that returns a fresh coroutine on each call
         max_retries: Maximum number of retry attempts
         base_delay: Initial delay between retries in seconds
         max_delay: Maximum delay between retries in seconds
@@ -58,7 +58,7 @@ async def retry_with_backoff(
 
     for attempt in range(max_retries + 1):
         try:
-            return await coro
+            return await coro_factory()
         except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
             last_exception = ex
             if attempt < max_retries:
@@ -90,7 +90,7 @@ async def retry_with_backoff(
 
 
 async def safe_api_call(
-    coro,
+    coro_factory,
     operation_name: str,
     logger: logging.Logger | None = None,
     retry_network_errors: bool = True,
@@ -98,7 +98,7 @@ async def safe_api_call(
     """Execute an API call with comprehensive error handling.
 
     Args:
-        coro: The coroutine to execute
+        coro_factory: Callable that returns a fresh coroutine on each call
         operation_name: Name of the operation for logging
         logger: Logger instance
         retry_network_errors: Whether to retry on network errors
@@ -116,13 +116,13 @@ async def safe_api_call(
     try:
         if retry_network_errors:
             return await retry_with_backoff(
-                coro,
+                coro_factory,
                 max_retries=2,
                 base_delay=1.0,
                 logger=logger,
             )
         else:
-            return await coro
+            return await coro_factory()
 
     except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
         logger.error("Network error during %s: %s", operation_name, ex)
@@ -193,9 +193,11 @@ class _TokenRefreshHandler(logging.Handler):
 
             if is_permanent_token_error:
                 try:
-                    # Schedule the async issue creation on the HA event loop
+                    # Schedule the async reauth on the HA event loop from this
+                    # (possibly off-loop) log emission context.
                     self._hass.loop.call_soon_threadsafe(
-                        lambda: asyncio.create_task(self._client._trigger_reauth(msg))
+                        self._hass.async_create_task,
+                        self._client._trigger_reauth(msg),
                     )
                 except Exception:
                     _LOGGER.exception("Failed to schedule token refresh issue creation")
@@ -266,9 +268,7 @@ class ElectroluxApiClient:
             _LOGGER.debug(
                 "_trigger_reauth: Forcing immediate coordinator refresh to trigger reauth"
             )
-            self.hass.loop.call_soon_threadsafe(
-                lambda: asyncio.create_task(self.coordinator.async_refresh())
-            )
+            self.hass.async_create_task(self.coordinator.async_refresh())
             _LOGGER.debug("_trigger_reauth: Coordinator refresh task scheduled")
         else:
             _LOGGER.debug(
@@ -436,7 +436,7 @@ class ElectroluxApiClient:
             return state
 
         result = await safe_api_call(
-            _get_state(),
+            _get_state,
             f"get appliance state for {appliance_id}",
             logger=_LOGGER,
         )
@@ -472,7 +472,7 @@ class ElectroluxApiClient:
             return details
 
         result = await safe_api_call(
-            _get_capabilities(),
+            _get_capabilities,
             f"get appliance capabilities for {appliance_id}",
             logger=_LOGGER,
         )
@@ -484,8 +484,18 @@ class ElectroluxApiClient:
 
         return result.capabilities
 
-    async def watch_for_appliance_state_updates(self, appliance_ids, callback):
-        """Safely start SSE event stream."""
+    async def watch_for_appliance_state_updates(
+        self, appliance_ids, callback, on_connected=None
+    ):
+        """Safely start SSE event stream.
+
+        Args:
+            appliance_ids: List of appliance IDs to monitor.
+            callback: Called for each incoming SSE event.
+            on_connected: Optional async callable fired each time the SSE stream
+                successfully opens a connection.  Used by the coordinator's stale-
+                session health monitor to track liveness.
+        """
         # Ensure any existing stream is killed first
         if hasattr(self, "_sse_task") and self._sse_task:
             await self.disconnect_websocket()
@@ -498,13 +508,22 @@ class ElectroluxApiClient:
                 self._client.add_listener(appliance_id, callback)
                 _LOGGER.debug("Added SSE listener for appliance %s", appliance_id)
 
+            # Build the optional on-connect callback list for the SDK.
+            on_connect_list = [on_connected] if on_connected is not None else None
+
             # Start the event stream as a background task (it runs indefinitely)
             if self.hass:
                 self._sse_task = self.hass.async_create_task(
-                    self._client.start_event_stream()
+                    self._client.start_event_stream(
+                        do_on_livestream_opening_list=on_connect_list
+                    )
                 )
             else:
-                self._sse_task = asyncio.create_task(self._client.start_event_stream())
+                self._sse_task = asyncio.create_task(
+                    self._client.start_event_stream(
+                        do_on_livestream_opening_list=on_connect_list
+                    )
+                )
 
             # Add callback to handle task failures
             def _handle_sse_failure(task):
@@ -534,11 +553,9 @@ class ElectroluxApiClient:
                             _LOGGER.debug(
                                 f"SSE auth error detected: {task.exception()}"
                             )
-                            self.hass.loop.call_soon_threadsafe(
-                                lambda: asyncio.create_task(
-                                    self._trigger_reauth(
-                                        f"SSE auth error: {task.exception()}"
-                                    )
+                            asyncio.create_task(
+                                self._trigger_reauth(
+                                    f"SSE auth error: {task.exception()}"
                                 )
                             )
                     # Note: We don't mark appliances as offline here because SSE failure

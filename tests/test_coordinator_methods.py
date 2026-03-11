@@ -721,8 +721,7 @@ class TestDeferredUpdate:
 
     @pytest.mark.asyncio
     async def test_raises_update_failed_on_connection_error(self, coordinator):
-        from homeassistant.helpers.update_coordinator import UpdateFailed
-
+        """deferred_update logs ConnectionError and returns (no exception raised)."""
         ap = _make_appliance("app1")
         aps = _make_appliances({"app1": ap})
         coordinator.data = {"appliances": aps}
@@ -731,8 +730,8 @@ class TestDeferredUpdate:
         )
 
         with patch("asyncio.sleep", new=AsyncMock()):
-            with pytest.raises(UpdateFailed, match="Network error"):
-                await coordinator.deferred_update("app1", 1)
+            # Should not raise
+            await coordinator.deferred_update("app1", 1)
 
     @pytest.mark.asyncio
     async def test_raises_cancelled_error_unchanged(self, coordinator):
@@ -749,8 +748,7 @@ class TestDeferredUpdate:
 
     @pytest.mark.asyncio
     async def test_raises_update_failed_on_value_error(self, coordinator):
-        from homeassistant.helpers.update_coordinator import UpdateFailed
-
+        """deferred_update logs ValueError and returns (no exception raised)."""
         ap = _make_appliance("app1")
         aps = _make_appliances({"app1": ap})
         coordinator.data = {"appliances": aps}
@@ -759,8 +757,8 @@ class TestDeferredUpdate:
         )
 
         with patch("asyncio.sleep", new=AsyncMock()):
-            with pytest.raises(UpdateFailed, match="Invalid data"):
-                await coordinator.deferred_update("app1", 1)
+            # Should not raise
+            await coordinator.deferred_update("app1", 1)
 
 
 # ===========================================================================
@@ -1155,9 +1153,7 @@ class TestDeferredUpdateAdditional:
 
     @pytest.mark.asyncio
     async def test_raises_update_failed_on_unexpected_exception(self, coordinator):
-        """Test deferred_update catch-all for RuntimeError."""
-        from homeassistant.helpers.update_coordinator import UpdateFailed
-
+        """Test deferred_update catch-all logs RuntimeError and returns (no exception raised)."""
         ap = _make_appliance("app1")
         aps = _make_appliances({"app1": ap})
         coordinator.data = {"appliances": aps}
@@ -1166,8 +1162,8 @@ class TestDeferredUpdateAdditional:
         )
 
         with patch("asyncio.sleep", new=AsyncMock()):
-            with pytest.raises(UpdateFailed, match="Unexpected error"):
-                await coordinator.deferred_update("app1", 1)
+            # Should not raise
+            await coordinator.deferred_update("app1", 1)
 
     @pytest.mark.asyncio
     async def test_same_time_to_end_logs_no_change(self, coordinator):

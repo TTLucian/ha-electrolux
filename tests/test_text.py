@@ -3,9 +3,8 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from homeassistant.const import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
-from custom_components.electrolux.const import TEXT
 from custom_components.electrolux.text import ElectroluxText
 
 
@@ -42,7 +41,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -71,7 +70,7 @@ class TestElectroluxText:
             name="Original Name",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="ovprogram_name",  # This has a friendly name mapping
             entity_attr="programName",
             entity_source=None,
@@ -99,7 +98,7 @@ class TestElectroluxText:
             name="Original Name",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -128,7 +127,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -157,7 +156,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -187,7 +186,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -273,7 +272,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source="userSelections",
@@ -348,7 +347,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="1:TEST_PNC",  # DAM appliance
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source="airConditioner",
@@ -383,7 +382,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",  # Legacy appliance
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,  # No source for legacy
@@ -424,7 +423,7 @@ class TestElectroluxText:
             name="Test Text",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test_text",
             entity_attr="testAttr",
             entity_source=None,
@@ -464,7 +463,7 @@ class TestTextSetValueAdvancedPaths:
             name="Test",
             config_entry=coordinator.config_entry,
             pnc_id=pnc_id,
-            entity_type=TEXT,
+            entity_type=Platform.TEXT,
             entity_name="test",
             entity_attr="testAttr",
             entity_source=entity_source,

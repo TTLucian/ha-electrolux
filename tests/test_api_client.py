@@ -86,7 +86,7 @@ class TestRetryWithBackoff:
         async def coro():
             return "ok"
 
-        result = await retry_with_backoff(coro(), max_retries=2)
+        result = await retry_with_backoff(coro, max_retries=2)
         assert result == "ok"
 
     @pytest.mark.asyncio
@@ -102,7 +102,7 @@ class TestRetryWithBackoff:
 
         with patch("asyncio.sleep", side_effect=fake_sleep):
             with pytest.raises(Exception):
-                await retry_with_backoff(net_fail(), max_retries=2, base_delay=0.01)
+                await retry_with_backoff(net_fail, max_retries=2, base_delay=0.01)
 
         # Sleep was called at least once (backoff triggered)
         assert len(sleep_called) >= 1
@@ -120,7 +120,7 @@ class TestRetryWithBackoff:
 
         with patch("asyncio.sleep", side_effect=fake_sleep):
             with pytest.raises(Exception):
-                await retry_with_backoff(timeout_fail(), max_retries=2, base_delay=0.01)
+                await retry_with_backoff(timeout_fail, max_retries=2, base_delay=0.01)
 
         assert len(sleep_called) >= 1
 
@@ -138,7 +138,7 @@ class TestRetryWithBackoff:
         with patch("asyncio.sleep", side_effect=fake_sleep):
             with pytest.raises(Exception):
                 await retry_with_backoff(
-                    asyncio_timeout(), max_retries=2, base_delay=0.01
+                    asyncio_timeout, max_retries=2, base_delay=0.01
                 )
 
         assert len(sleep_called) >= 1
@@ -154,7 +154,7 @@ class TestRetryWithBackoff:
         with patch("asyncio.sleep", new_callable=AsyncMock):
             with pytest.raises(Exception):
                 await retry_with_backoff(
-                    always_fails(), max_retries=0, base_delay=0.01, logger=mock_logger
+                    always_fails, max_retries=0, base_delay=0.01, logger=mock_logger
                 )
 
         # With max_retries=0, there's exactly one attempt, error should be logged
@@ -170,7 +170,7 @@ class TestRetryWithBackoff:
             raise ValueError("bad value")
 
         with pytest.raises(ValueError, match="bad value"):
-            await retry_with_backoff(value_error(), max_retries=3)
+            await retry_with_backoff(value_error, max_retries=3)
         assert call_count == 1
 
     @pytest.mark.asyncio
@@ -186,7 +186,7 @@ class TestRetryWithBackoff:
         with patch("asyncio.sleep", side_effect=mock_sleep):
             with pytest.raises(Exception):
                 await retry_with_backoff(
-                    always_fails(),
+                    always_fails,
                     max_retries=5,
                     base_delay=10.0,
                     max_delay=15.0,
@@ -209,7 +209,7 @@ class TestRetryWithBackoff:
         with patch("asyncio.sleep", new_callable=AsyncMock):
             with pytest.raises(Exception):
                 await retry_with_backoff(
-                    always_fails(), max_retries=0, base_delay=0.01, logger=mock_logger
+                    always_fails, max_retries=0, base_delay=0.01, logger=mock_logger
                 )
 
         # Logger.error should have been called (max_retries=0, single attempt)
@@ -227,7 +227,7 @@ class TestSafeApiCall:
         async def ok():
             return 42
 
-        result = await safe_api_call(ok(), "test op", retry_network_errors=True)
+        result = await safe_api_call(ok, "test op", retry_network_errors=True)
         assert result == 42
 
     @pytest.mark.asyncio
@@ -235,7 +235,7 @@ class TestSafeApiCall:
         async def ok():
             return "hello"
 
-        result = await safe_api_call(ok(), "test op", retry_network_errors=False)
+        result = await safe_api_call(ok, "test op", retry_network_errors=False)
         assert result == "hello"
 
     @pytest.mark.asyncio
@@ -246,7 +246,7 @@ class TestSafeApiCall:
             raise ConnectionError("connection refused")
 
         with pytest.raises(HomeAssistantError, match="Network connection failed"):
-            await safe_api_call(net_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(net_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_401_raises_config_entry_auth_failed(self):
@@ -254,7 +254,7 @@ class TestSafeApiCall:
             raise Exception("401 Unauthorized")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_unauthorized_keyword(self):
@@ -262,7 +262,7 @@ class TestSafeApiCall:
             raise Exception("unauthorized access denied")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_invalid_grant(self):
@@ -270,7 +270,7 @@ class TestSafeApiCall:
             raise Exception("invalid grant error")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_token_keyword(self):
@@ -278,7 +278,7 @@ class TestSafeApiCall:
             raise Exception("token expired")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_forbidden_keyword(self):
@@ -286,7 +286,7 @@ class TestSafeApiCall:
             raise Exception("403 forbidden")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_auth_error_auth_keyword(self):
@@ -294,7 +294,7 @@ class TestSafeApiCall:
             raise Exception("authentication failed")
 
         with pytest.raises(ConfigEntryAuthFailed):
-            await safe_api_call(auth_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(auth_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_rate_limit_429(self):
@@ -302,7 +302,7 @@ class TestSafeApiCall:
             raise Exception("429 Too Many Requests")
 
         with pytest.raises(HomeAssistantError, match="Too many requests"):
-            await safe_api_call(rate_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(rate_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_rate_limit_throttled(self):
@@ -310,7 +310,7 @@ class TestSafeApiCall:
             raise Exception("request throttled")
 
         with pytest.raises(HomeAssistantError, match="Too many requests"):
-            await safe_api_call(rate_fail(), "test op", retry_network_errors=False)
+            await safe_api_call(rate_fail, "test op", retry_network_errors=False)
 
     @pytest.mark.asyncio
     async def test_generic_error_raises_home_assistant_error(self):
@@ -319,7 +319,7 @@ class TestSafeApiCall:
 
         with pytest.raises(HomeAssistantError, match="Operation failed"):
             await safe_api_call(
-                generic_fail(), "my operation", retry_network_errors=False
+                generic_fail, "my operation", retry_network_errors=False
             )
 
     @pytest.mark.asyncio
@@ -327,7 +327,7 @@ class TestSafeApiCall:
         async def ok():
             return "result"
 
-        result = await safe_api_call(ok(), "test op", logger=None)
+        result = await safe_api_call(ok, "test op", logger=None)
         assert result == "result"
 
 
@@ -494,8 +494,7 @@ class TestTriggerReauth:
     @pytest.mark.asyncio
     async def test_trigger_reauth_with_coordinator_schedules_refresh(self, monkeypatch):
         hass = MagicMock()
-        hass.loop = MagicMock()
-        hass.loop.call_soon_threadsafe = MagicMock()
+        hass.async_create_task = MagicMock()
         client = _make_client(hass=hass)
         coordinator = MagicMock()
         coordinator.async_refresh = AsyncMock()
@@ -506,7 +505,7 @@ class TestTriggerReauth:
 
         monkeypatch.setattr(client, "_report_token_refresh_error", _noop)
         await client._trigger_reauth("bad token")
-        hass.loop.call_soon_threadsafe.assert_called_once()
+        hass.async_create_task.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_trigger_reauth_without_coordinator_does_not_schedule(
@@ -1014,7 +1013,6 @@ class TestWatchForApplianceStateUpdates:
         """SSE done callback triggers reauth on auth error."""
         hass = MagicMock()
         hass.loop = MagicMock()
-        hass.loop.call_soon_threadsafe = MagicMock()
         config_entry = MagicMock()
 
         captured_cb = {}
@@ -1038,9 +1036,12 @@ class TestWatchForApplianceStateUpdates:
         # Simulate auth error in SSE task
         task.cancelled = MagicMock(return_value=False)
         task.exception = MagicMock(return_value=Exception("401 unauthorized"))
-        captured_cb["cb"](task)
+        with patch(
+            "custom_components.electrolux.api_client.asyncio.create_task"
+        ) as mock_create_task:
+            captured_cb["cb"](task)
 
-        hass.loop.call_soon_threadsafe.assert_called()
+        mock_create_task.assert_called()
 
     @pytest.mark.asyncio
     async def test_sse_failure_callback_regular_error(self):

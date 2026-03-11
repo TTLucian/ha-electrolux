@@ -143,6 +143,8 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             features |= FanEntityFeature.SET_SPEED
         if self._preset_modes:
             features |= FanEntityFeature.PRESET_MODE
+        # Store static capability-based features; supported_features property
+        # will dynamically remove SET_SPEED when the current mode disables it.
         self._attr_supported_features = features
 
     def _is_fanspeed_disabled(self) -> bool:
@@ -170,6 +172,20 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                 if trigger.get("action", {}).get("Fanspeed", {}).get("disabled"):
                     return True
         return False
+
+    @property
+    def supported_features(self) -> FanEntityFeature:
+        """Return supported features, hiding SET_SPEED when fanspeed is mode-locked.
+
+        When the appliance is in Auto or Quiet mode the Fanspeed capability is
+        declared ``disabled: true`` by a Workmode trigger.  Removing SET_SPEED
+        from the feature flags causes the HA fan card to hide the speed slider
+        entirely, preventing the user from dragging it and hitting an error.
+        """
+        features = self._attr_supported_features
+        if self._is_fanspeed_disabled():
+            features &= ~FanEntityFeature.SET_SPEED
+        return features
 
     def get_capability(self, attr_name: str) -> dict[str, Any] | None:
         """Get capability definition for an attribute from appliance.

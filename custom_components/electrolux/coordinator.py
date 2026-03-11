@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Optional, cast
 
 from homeassistant.core import HomeAssistant
@@ -13,6 +13,7 @@ from homeassistant.exceptions import (
     ConfigEntryNotReady,
     HomeAssistantError,
 )
+from homeassistant.helpers import issue_registry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ElectroluxLibraryEntity
@@ -63,6 +64,14 @@ TASK_CANCEL_TIMEOUT = 2.0  # seconds for task cancellation timeouts
 WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
+SSE_RESTART_COOLDOWN = 900  # 15 minutes: cooldown between SSE restart attempts
+
+# SSE health-monitor constants
+# If the SSE stream has not successfully opened a new connection within this many
+# seconds the monitor assumes the SDK's internal retry loop is stuck on a stale
+# livestream URL and forces a full SSE restart (which re-fetches the URL).
+SSE_STALE_THRESHOLD_SECONDS = 300  # 5 minutes
+SSE_HEALTH_CHECK_INTERVAL = 60  # check once per minute
 
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
@@ -118,6 +127,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.platforms: list[str] = []
         self.renew_task: Optional[asyncio.Task] = None
         self.listen_task: Optional[asyncio.Task] = None
+        self._sse_monitor_task: Optional[asyncio.Task] = None
+        self._last_sse_connected: float = 0.0  # epoch of last SSE connect event
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
         self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
@@ -210,9 +221,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             access_token: str, refresh_token: str, api_key: str, expires_at: int
         ) -> None:
             """Callback to update config entry with refreshed tokens and expiration."""
-            import datetime
-
-            expiry_time = datetime.datetime.fromtimestamp(expires_at)
+            expiry_time = datetime.fromtimestamp(expires_at)
             time_until_expiry = expires_at - int(time.time())
 
             _LOGGER.debug(
@@ -320,21 +329,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Always re-raise cancellation
             raise
         except (ConnectionError, TimeoutError, asyncio.TimeoutError) as ex:
-            # Network errors - log and raise UpdateFailed
+            # Network errors during background task — log and return (not UpdateFailed)
             _LOGGER.error(
                 f"Network error during deferred update for {appliance_id}: {ex}"
             )
-            raise UpdateFailed(f"Network error: {ex}") from ex
+            return
         except (KeyError, ValueError, TypeError) as ex:
-            # Data validation errors - log and raise UpdateFailed
+            # Data validation errors during background task — log and return
             _LOGGER.error(f"Data error during deferred update for {appliance_id}: {ex}")
-            raise UpdateFailed(f"Invalid data: {ex}") from ex
-        except Exception as ex:
-            # Catch-all for unexpected errors
+            return
+        except Exception:
+            # Catch-all for unexpected errors in background task
             _LOGGER.exception(
                 f"Unexpected error during deferred update for {appliance_id}"
             )
-            raise UpdateFailed(f"Unexpected error: {ex}") from ex
+            return
 
     def _schedule_state_refresh(self, appliance_id: str) -> None:
         """Schedule a deduped _refresh_after_appliance_state_change task.
@@ -814,11 +823,15 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("No appliances to listen for, skipping SSE setup")
             return
 
+        # Mark start time so the stale monitor doesn't fire immediately after a restart.
+        self._last_sse_connected = time.time()
+
         # watch_for_appliance_state_updates in util.py handles kill-before-restart safely
         try:
-            await asyncio.wait_for(
-                self.api.watch_for_appliance_state_updates(ids, self.incoming_data),
-                timeout=3600,  # 1 hour max for SSE setup
+            await self.api.watch_for_appliance_state_updates(
+                ids,
+                self.incoming_data,
+                on_connected=self._on_sse_connected,
             )
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
@@ -840,6 +853,64 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
+
+    async def _on_sse_connected(self) -> None:
+        """Called by the SDK each time the SSE stream opens successfully.
+
+        Updates the liveness timestamp used by :meth:`_monitor_sse_health` to
+        detect a stale session before the next scheduled renewal.
+        """
+        self._last_sse_connected = time.time()
+        _LOGGER.debug("SSE stream opened – stale-watch timestamp refreshed")
+
+    async def _monitor_sse_health(self) -> None:
+        """Periodically detect and recover from a stale SSE connection.
+
+        The SDK's ``start_event_stream`` fetches the livestream URL *once* then
+        retries the **same** URL indefinitely.  If that URL becomes stale (the
+        SSE server stops accepting it) the SDK loop spins silently every 10 s
+        without ever triggering our ``on_connected`` callback.
+
+        This monitor wakes every ``SSE_HEALTH_CHECK_INTERVAL`` seconds and checks
+        ``_last_sse_connected``.  When more than ``SSE_STALE_THRESHOLD_SECONDS``
+        have elapsed without a successful connection it forces a full SSE restart,
+        which re-fetches the livestream URL from the server.
+        """
+        # Wait one full threshold period before the first check so the initial
+        # connection has time to establish.
+        await asyncio.sleep(SSE_STALE_THRESHOLD_SECONDS)
+        while True:
+            try:
+                await asyncio.sleep(SSE_HEALTH_CHECK_INTERVAL)
+
+                since_last = time.time() - self._last_sse_connected
+                if since_last <= SSE_STALE_THRESHOLD_SECONDS:
+                    continue
+
+                _LOGGER.warning(
+                    "SSE stale: no successful connection for %.0f s — forcing restart",
+                    since_last,
+                )
+                # Reset the timestamp immediately to avoid back-to-back restarts
+                # if the reconnect itself takes time.
+                self._last_sse_connected = time.time()
+                try:
+                    await asyncio.wait_for(
+                        self.api.disconnect_websocket(),
+                        timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
+                    )
+                    await asyncio.wait_for(
+                        self.listen_websocket(), timeout=UPDATE_TIMEOUT
+                    )
+                    _LOGGER.info("SSE stale recovery: reconnect completed")
+                except Exception as ex:
+                    _LOGGER.error("SSE stale recovery failed: %s", ex)
+
+            except asyncio.CancelledError:
+                _LOGGER.debug("SSE health monitor cancelled")
+                raise
+            except Exception as ex:
+                _LOGGER.error("SSE health monitor unexpected error: %s", ex)
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -913,7 +984,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def close_websocket(self):
         """Close SSE event stream."""
-        # Cancel renewal task with shorter timeout
+        # Cancel SSE health monitor
+        if self._sse_monitor_task and not self._sse_monitor_task.done():
+            self._sse_monitor_task.cancel()
+            try:
+                await asyncio.wait_for(
+                    self._sse_monitor_task, timeout=TASK_CANCEL_TIMEOUT
+                )
+            except (asyncio.CancelledError, asyncio.TimeoutError):
+                _LOGGER.debug("SSE health monitor cancelled/timeout during close")
+
+        # Cancel renewal task
         if self.renew_task and not self.renew_task.done():
             self.renew_task.cancel()
             try:
@@ -921,29 +1002,35 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             except (asyncio.CancelledError, asyncio.TimeoutError):
                 _LOGGER.debug("Electrolux renewal task cancelled/timeout during close")
 
-        # Cancel all deferred tasks aggressively
-        tasks_to_cancel = list(self._deferred_tasks.copy())
-        for task in tasks_to_cancel:
+        # Cancel the SSE listen task
+        if self.listen_task and not self.listen_task.done():
+            self.listen_task.cancel()
+            try:
+                await asyncio.wait_for(self.listen_task, timeout=TASK_CANCEL_TIMEOUT)
+            except (asyncio.CancelledError, asyncio.TimeoutError):
+                _LOGGER.debug("SSE listen task cancelled/timeout during close")
+
+        # Cancel all deferred tasks.
+        # Build the union of both tracking structures to handle any edge case where
+        # a task appears in _deferred_tasks_by_appliance but not in _deferred_tasks.
+        all_deferred = set(self._deferred_tasks)
+        all_deferred.update(self._deferred_tasks_by_appliance.values())
+        for task in all_deferred:
             if not task.done():
                 task.cancel()
-
-        # Wait for all tasks to complete cancellation
-        if tasks_to_cancel:
-            await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
-
+        if all_deferred:
+            await asyncio.gather(*all_deferred, return_exceptions=True)
         self._deferred_tasks.clear()
+        self._deferred_tasks_by_appliance.clear()
 
-        # Cancel per-appliance deferred tasks
-        appliance_tasks = list(self._deferred_tasks_by_appliance.values())
-        for task in appliance_tasks:
+        # Cancel all pending state-refresh tasks (memory leak if left running)
+        refresh_tasks = list(self._pending_state_refresh_tasks.values())
+        for task in refresh_tasks:
             if not task.done():
                 task.cancel()
-
-        # Wait for cancellations
-        if appliance_tasks:
-            await asyncio.gather(*appliance_tasks, return_exceptions=True)
-
-        self._deferred_tasks_by_appliance.clear()
+        if refresh_tasks:
+            await asyncio.gather(*refresh_tasks, return_exceptions=True)
+        self._pending_state_refresh_tasks.clear()
 
         # Close API connection - util.py handles SSE stream cleanup
         try:
@@ -1548,8 +1635,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         _LOGGER.error(
                             f"[AUTH-DEBUG] Auth failure threshold exceeded ({self._auth_failure_threshold}), creating repair issue"
                         )
-                        from homeassistant.helpers import issue_registry
-
                         if self.config_entry is not None:
                             entry_id = self.config_entry.entry_id
                             entry_title = self.config_entry.title
@@ -1726,8 +1811,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     def _can_restart_sse(self) -> bool:
         """Check if we can restart SSE (debounced to prevent hammering)."""
         current_time = self.hass.loop.time()
-        # Allow SSE restart only once every 15 minutes
-        SSE_RESTART_COOLDOWN = 900  # 15 minutes
         if current_time - self._last_sse_restart_time > SSE_RESTART_COOLDOWN:
             self._last_sse_restart_time = current_time
             return True
@@ -1834,10 +1917,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         self._last_known_connectivity.pop(appliance_id, None)
                         # Clean up time tracking
                         self._last_time_to_end.pop(appliance_id, None)
+                        # Clean up remote control tracking
+                        self._last_remote_control.pop(appliance_id, None)
                         # Cancel and clean up any deferred tasks
                         if appliance_id in self._deferred_tasks_by_appliance:
                             task = self._deferred_tasks_by_appliance.pop(appliance_id)
                             self._deferred_tasks.discard(task)
+                            if not task.done():
+                                task.cancel()
+                        # Cancel and clean up any pending state-refresh tasks
+                        if appliance_id in self._pending_state_refresh_tasks:
+                            task = self._pending_state_refresh_tasks.pop(appliance_id)
                             if not task.done():
                                 task.cancel()
                         _LOGGER.debug(
