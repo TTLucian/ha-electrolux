@@ -490,17 +490,19 @@ class TestAsyncSetPercentage:
         fan._set_percentage.assert_awaited_once_with(75)
 
     @pytest.mark.asyncio
-    async def test_set_percentage_in_disabled_mode_raises(self):
-        """When Fanspeed is disabled (Auto/Quiet), async_set_percentage must raise."""
+    async def test_set_percentage_in_disabled_mode_warns_and_returns(self):
+        """When Fanspeed is disabled (Auto/Quiet), async_set_percentage must log a
+        warning and return silently — no error popup in the UI."""
         fan = _make_fan(workmode="Auto")
         fan.is_connected = MagicMock(return_value=True)
         fan._is_fanspeed_disabled = MagicMock(return_value=True)
         fan.get_state_attr = MagicMock(return_value="Auto")
         fan._send_workmode_command = AsyncMock()
         fan._set_percentage = AsyncMock()
-        with pytest.raises(HomeAssistantError, match="Auto"):
-            await fan.async_set_percentage(75)
-        # Must NOT auto-switch to Manual — the error stops execution
+        # Should NOT raise — the slider is hidden by dynamic supported_features;
+        # raising here produces a confusing error popup during Safari rendering lag.
+        await fan.async_set_percentage(75)
+        # Must NOT issue any commands
         fan._send_workmode_command.assert_not_called()
         fan._set_percentage.assert_not_called()
 
@@ -1274,22 +1276,23 @@ class TestAsyncSetPercentageManualFirst:
         return fan
 
     @pytest.mark.asyncio
-    async def test_raises_error_in_auto_mode(self):
+    async def test_warns_silently_in_auto_mode(self):
         """When Workmode == Auto (Fanspeed disabled), ``async_set_percentage``
-        must raise HomeAssistantError instead of switching to Manual."""
+        must log a warning and return silently — no HomeAssistantError."""
         fan = self._fan_in_auto_with_triggers()
-        with pytest.raises(HomeAssistantError, match="Auto"):
-            await fan.async_set_percentage(60)
+        # Should NOT raise
+        await fan.async_set_percentage(60)
         # Must not issue any commands
         cast(AsyncMock, fan._send_workmode_command).assert_not_called()
         cast(AsyncMock, fan._set_percentage).assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_error_message_contains_mode_name(self):
-        """Error message must name the current Workmode so the user knows what to change."""
+    async def test_no_error_popup_in_auto_mode(self):
+        """No HomeAssistantError should propagate when Fanspeed is locked — the
+        slider is hidden via dynamic supported_features so errors are confusing."""
         fan = self._fan_in_auto_with_triggers()
-        with pytest.raises(HomeAssistantError, match="Auto"):
-            await fan.async_set_percentage(80)
+        # Must complete without raising
+        await fan.async_set_percentage(80)
 
     @pytest.mark.asyncio
     async def test_no_extra_workmode_command_in_manual_mode(self):

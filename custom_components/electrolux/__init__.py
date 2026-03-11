@@ -225,16 +225,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 coordinator.renew_task.get_name(),
             )
 
-            # Start SSE stale-session health monitor
-            coordinator._sse_monitor_task = hass.async_create_task(
-                coordinator._monitor_sse_health(),
-                name=f"Electrolux SSE monitor - {entry.title}",
-            )
-            _LOGGER.debug(
-                "async_setup_entry SSE health monitor task created: %s",
-                coordinator._sse_monitor_task.get_name(),
-            )
-
             # Bind task cleanup to entry lifecycle - ensures tasks are cancelled when entry is unloaded/reloaded
             def cleanup_tasks():
                 _LOGGER.debug(
@@ -246,9 +236,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.renew_task:
                     coordinator.renew_task.cancel()
                     _LOGGER.debug("[INIT] async_setup_entry renewal task cancelled")
-                if coordinator._sse_monitor_task:
-                    coordinator._sse_monitor_task.cancel()
-                    _LOGGER.debug("[INIT] async_setup_entry SSE monitor task cancelled")
 
             entry.async_on_unload(cleanup_tasks)
             _LOGGER.debug("[INIT] async_setup_entry cleanup handlers registered")

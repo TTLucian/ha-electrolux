@@ -82,8 +82,6 @@ def coordinator(mock_hass, mock_api):
         coord._auth_failure_threshold = 3
         coord._last_token_update = 0.0
         coord._appliances_cache = None
-        coord._sse_monitor_task = None
-        coord._last_sse_connected = 0.0
         coord.config_entry = MagicMock()
         coord.config_entry.entry_id = "test_entry"
         coord.config_entry.title = "Test"

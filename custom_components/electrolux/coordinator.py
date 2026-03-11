@@ -66,13 +66,6 @@ WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
 SSE_RESTART_COOLDOWN = 900  # 15 minutes: cooldown between SSE restart attempts
 
-# SSE health-monitor constants
-# If the SSE stream has not successfully opened a new connection within this many
-# seconds the monitor assumes the SDK's internal retry loop is stuck on a stale
-# livestream URL and forces a full SSE restart (which re-fetches the URL).
-SSE_STALE_THRESHOLD_SECONDS = 300  # 5 minutes
-SSE_HEALTH_CHECK_INTERVAL = 60  # check once per minute
-
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
 APPLIANCE_ID_ALT_KEY = "appliance_id"
@@ -127,8 +120,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self.platforms: list[str] = []
         self.renew_task: Optional[asyncio.Task] = None
         self.listen_task: Optional[asyncio.Task] = None
-        self._sse_monitor_task: Optional[asyncio.Task] = None
-        self._last_sse_connected: float = 0.0  # epoch of last SSE connect event
         self.renew_interval = renew_interval
         self._deferred_tasks: set = set()  # Track deferred update tasks
         self._deferred_tasks_by_appliance: dict[str, asyncio.Task] = (
@@ -823,15 +814,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("No appliances to listen for, skipping SSE setup")
             return
 
-        # Mark start time so the stale monitor doesn't fire immediately after a restart.
-        self._last_sse_connected = time.time()
-
         # watch_for_appliance_state_updates in util.py handles kill-before-restart safely
         try:
             await self.api.watch_for_appliance_state_updates(
                 ids,
                 self.incoming_data,
-                on_connected=self._on_sse_connected,
             )
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
@@ -853,64 +840,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
-
-    async def _on_sse_connected(self) -> None:
-        """Called by the SDK each time the SSE stream opens successfully.
-
-        Updates the liveness timestamp used by :meth:`_monitor_sse_health` to
-        detect a stale session before the next scheduled renewal.
-        """
-        self._last_sse_connected = time.time()
-        _LOGGER.debug("SSE stream opened – stale-watch timestamp refreshed")
-
-    async def _monitor_sse_health(self) -> None:
-        """Periodically detect and recover from a stale SSE connection.
-
-        The SDK's ``start_event_stream`` fetches the livestream URL *once* then
-        retries the **same** URL indefinitely.  If that URL becomes stale (the
-        SSE server stops accepting it) the SDK loop spins silently every 10 s
-        without ever triggering our ``on_connected`` callback.
-
-        This monitor wakes every ``SSE_HEALTH_CHECK_INTERVAL`` seconds and checks
-        ``_last_sse_connected``.  When more than ``SSE_STALE_THRESHOLD_SECONDS``
-        have elapsed without a successful connection it forces a full SSE restart,
-        which re-fetches the livestream URL from the server.
-        """
-        # Wait one full threshold period before the first check so the initial
-        # connection has time to establish.
-        await asyncio.sleep(SSE_STALE_THRESHOLD_SECONDS)
-        while True:
-            try:
-                await asyncio.sleep(SSE_HEALTH_CHECK_INTERVAL)
-
-                since_last = time.time() - self._last_sse_connected
-                if since_last <= SSE_STALE_THRESHOLD_SECONDS:
-                    continue
-
-                _LOGGER.warning(
-                    "SSE stale: no successful connection for %.0f s — forcing restart",
-                    since_last,
-                )
-                # Reset the timestamp immediately to avoid back-to-back restarts
-                # if the reconnect itself takes time.
-                self._last_sse_connected = time.time()
-                try:
-                    await asyncio.wait_for(
-                        self.api.disconnect_websocket(),
-                        timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
-                    )
-                    await asyncio.wait_for(
-                        self.listen_websocket(), timeout=UPDATE_TIMEOUT
-                    )
-                    _LOGGER.info("SSE stale recovery: reconnect completed")
-                except Exception as ex:
-                    _LOGGER.error("SSE stale recovery failed: %s", ex)
-
-            except asyncio.CancelledError:
-                _LOGGER.debug("SSE health monitor cancelled")
-                raise
-            except Exception as ex:
-                _LOGGER.error("SSE health monitor unexpected error: %s", ex)
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -984,16 +913,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def close_websocket(self):
         """Close SSE event stream."""
-        # Cancel SSE health monitor
-        if self._sse_monitor_task and not self._sse_monitor_task.done():
-            self._sse_monitor_task.cancel()
-            try:
-                await asyncio.wait_for(
-                    self._sse_monitor_task, timeout=TASK_CANCEL_TIMEOUT
-                )
-            except (asyncio.CancelledError, asyncio.TimeoutError):
-                _LOGGER.debug("SSE health monitor cancelled/timeout during close")
-
         # Cancel renewal task
         if self.renew_task and not self.renew_task.done():
             self.renew_task.cancel()

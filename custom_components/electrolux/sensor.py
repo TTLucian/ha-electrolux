@@ -40,12 +40,47 @@ async def async_setup_entry(
             entities = [
                 entity for entity in appliance.entities if entity.entity_type == SENSOR
             ]
+            # Filter out fPPN_ prefixed sensor entities when a matching non-fPPN entity
+            # exists anywhere in the appliance (any platform).  fPPN keys are firmware
+            # push-notification IDs, not live sensor data; the real entity (which may be
+            # a binary_sensor, not a sensor) already covers the same attribute.
+            all_entity_attrs = {e.entity_attr for e in appliance.entities}
+            filtered: list[Any] = []
+            for entity in entities:
+                entity_attr_lower = entity.entity_attr.lower()
+                if entity_attr_lower.startswith("fppn"):
+                    base_attr = (
+                        entity_attr_lower.replace("fppn_", "")
+                        .replace("fppn", "")
+                        .strip("_")
+                    )
+                    base_attrs_to_try = {base_attr}
+                    for prefix_len in (2, 3, 4):
+                        if len(base_attr) > prefix_len:
+                            base_attrs_to_try.add(base_attr[prefix_len:])
+                    has_matching_base = any(
+                        other_attr.lower()
+                        .replace("fppn_", "")
+                        .replace("fppn", "")
+                        .strip("_")
+                        in base_attrs_to_try
+                        for other_attr in all_entity_attrs
+                        if not other_attr.lower().startswith("fppn")
+                    )
+                    if has_matching_base:
+                        _LOGGER.debug(
+                            "Skipping duplicate fPPN sensor %s for appliance %s (base entity exists)",
+                            entity.entity_attr,
+                            appliance_id,
+                        )
+                        continue
+                filtered.append(entity)
             _LOGGER.debug(
                 "Electrolux add %d SENSOR entities to registry for appliance %s",
-                len(entities),
+                len(filtered),
                 appliance_id,
             )
-            async_add_entities(entities)
+            async_add_entities(filtered)
     return
 
 

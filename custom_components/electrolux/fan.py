@@ -316,8 +316,12 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         # Turn on with the target preset mode
         await self._send_workmode_command(target_mode)
 
-        # Set speed if provided
-        if percentage is not None:
+        # Set speed only when the new mode permits it.  After
+        # _send_workmode_command applies the optimistic state update,
+        # _is_fanspeed_disabled() correctly reflects whether Fanspeed is
+        # locked by the new mode (e.g. Auto or Quiet).  Silently skip rather
+        # than error — the caller explicitly chose a mode that locks speed.
+        if percentage is not None and not self._is_fanspeed_disabled():
             await self._set_percentage(percentage)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
@@ -370,13 +374,16 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         # not call this method in the first place (see v3.5.8 release notes).
         if self._is_fanspeed_disabled():
             current_mode = str(self.get_state_attr("Workmode") or "the current mode")
-            raise HomeAssistantError(
-                f"Fan speed cannot be adjusted in {current_mode} mode. "
-                "Switch to Manual mode first to control fan speed.",
-                translation_domain=DOMAIN,
-                translation_key="fanspeed_disabled",
-                translation_placeholders={"mode": current_mode},
+            # The speed slider is hidden via dynamic supported_features (v3.6.0)
+            # so this path is only reached during the brief iOS/Safari rendering
+            # lag after a mode switch, or from an automation that passes both
+            # preset_mode=Auto/Quiet and percentage.  Log a warning and bail —
+            # the mode lock is correctly in place, no user-visible error needed.
+            _LOGGER.warning(
+                "Fan speed not adjusted: Fanspeed is disabled in %s mode",
+                current_mode,
             )
+            return
 
         # Turn on if currently off
         if not self.is_on:

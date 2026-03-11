@@ -499,6 +499,12 @@ class Appliance:
                 if catalog_item:
                     if catalog_item.entity_value_named:
                         entity["name"] = command
+                    else:
+                        # Include command value in the name so that each button produces a
+                        # distinct log line and a distinct self._name from the start.
+                        # The button's name property would append the value anyway; setting
+                        # it here avoids the duplicate-looking log messages.
+                        entity["name"] = f"{display_name} {command}"
                     if (
                         catalog_item.entity_icons_value_map
                         and catalog_item.entity_icons_value_map.get(command, None)
@@ -506,6 +512,8 @@ class Appliance:
                         entity["icon"] = catalog_item.entity_icons_value_map.get(
                             command
                         )
+                else:
+                    entity["name"] = f"{display_name} {command}"
                 # Instanciate the new entity and append it
                 entities.append(entity_class(**entity))
             return entities
