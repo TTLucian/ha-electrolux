@@ -533,7 +533,7 @@ def _get_catalog_base():
         "applianceTotalWorkingTime": ElectroluxDevice(
             capability_info={"access": "read", "type": "number"},
             device_class=SensorDeviceClass.DURATION,
-            unit=UnitOfTime.MINUTES,
+            unit=UnitOfTime.SECONDS,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_icon="mdi:timelapse",
         ),
