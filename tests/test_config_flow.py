@@ -12,7 +12,11 @@ from custom_components.electrolux.config_flow import (
     _extract_token_expiry,
     _mask_token,
     _validate_credentials,
+    _validate_credentials_and_capture_rotation,
     async_create_fix_flow,
+)
+from custom_components.electrolux.repairs import (
+    async_create_fix_flow as async_create_repairs_fix_flow,
 )
 
 
@@ -195,6 +199,16 @@ class TestRepairFlow:
         )
         assert flow is not None
         assert isinstance(flow, ElectroluxRepairFlow)
+
+    @pytest.mark.asyncio
+    async def test_repairs_module_passes_issue_id_to_flow(self):
+        """Home Assistant's repairs module passes issue_id outside flow context."""
+        flow = await async_create_repairs_fix_flow(
+            Mock(), "invalid_refresh_token_test_entry", None
+        )
+
+        assert isinstance(flow, ElectroluxRepairFlow)
+        assert flow._get_issue_id() == "invalid_refresh_token_test_entry"
 
     @pytest.mark.asyncio
     async def test_repair_flow_form_shown(self):
@@ -430,6 +444,53 @@ class TestExtractTokenExpiry:
         assert result == 9999999999
 
 
+class TestCredentialValidationRotation:
+    """Tests for credential validation when refresh tokens rotate."""
+
+    @pytest.mark.asyncio
+    async def test_validation_returns_rotated_tokens(self):
+        """Store tokens produced during validation instead of consumed input tokens."""
+
+        callback_holder = {}
+        mock_client = Mock()
+        mock_client.close = AsyncMock()
+
+        def capture_callback(callback):
+            callback_holder["callback"] = callback
+
+        async def get_appliances_list():
+            callback_holder["callback"](
+                "rotated_access_token_1234567890",
+                "rotated_refresh_token_1234567890",
+                "api_key_1234567890",
+                9999999999,
+            )
+            return []
+
+        mock_client.set_token_update_callback_with_expiry = Mock(
+            side_effect=capture_callback
+        )
+        mock_client.get_appliances_list = AsyncMock(side_effect=get_appliances_list)
+
+        with patch(
+            "custom_components.electrolux.config_flow.get_electrolux_session",
+            return_value=mock_client,
+        ):
+            credential_data = await _validate_credentials_and_capture_rotation(
+                "api_key_1234567890",
+                "submitted_access_token_1234567890",
+                "submitted_refresh_token_1234567890",
+            )
+
+        assert credential_data == {
+            "api_key": "api_key_1234567890",
+            "access_token": "rotated_access_token_1234567890",
+            "refresh_token": "rotated_refresh_token_1234567890",
+            "token_expires_at": 9999999999,
+        }
+        mock_client.close.assert_awaited_once()
+
+
 # ---------------------------------------------------------------------------
 # Reauth flow tests
 # ---------------------------------------------------------------------------
@@ -607,6 +668,7 @@ class TestReconfigureFlow:
                 "custom_components.electrolux.config_flow.get_electrolux_session"
             ) as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
+            patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
             patch.object(
                 flow,
                 "async_update_reload_and_abort",
@@ -929,6 +991,7 @@ class TestConfigFlowMissingCoverage:
                 "custom_components.electrolux.config_flow._extract_token_expiry",
                 return_value=9999999999,
             ),
+            patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
             patch.object(
                 flow,
                 "async_update_reload_and_abort",
@@ -978,6 +1041,7 @@ class TestConfigFlowMissingCoverage:
                 "custom_components.electrolux.config_flow._extract_token_expiry",
                 return_value=9999999999,
             ),
+            patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
             patch.object(
                 flow,
                 "async_update_reload_and_abort",

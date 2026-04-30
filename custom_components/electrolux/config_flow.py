@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowHandler, FlowResult
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.aiohttp_client import async_get_clientsession  # noqa: F401
 from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
@@ -108,6 +108,63 @@ def _extract_token_expiry(access_token: str | None) -> int | None:
     return None
 
 
+async def _validate_credentials_and_capture_rotation(
+    api_key: str | None, access_token: str | None, refresh_token: str | None
+) -> dict[str, Any] | None:
+    """Validate credentials and return the final tokens after SDK refresh.
+
+    Electrolux refresh tokens are single-use. During validation the SDK can decide
+    to refresh, which rotates both tokens. If we then save the originally entered
+    refresh token, Home Assistant stores a token that has already been consumed and
+    the next runtime refresh fails with "Refresh token is invalid".
+    """
+    if api_key is None or access_token is None or refresh_token is None:
+        return None
+
+    credential_data: dict[str, Any] = {
+        CONF_API_KEY: api_key,
+        CONF_ACCESS_TOKEN: access_token,
+        CONF_REFRESH_TOKEN: refresh_token,
+    }
+
+    def on_token_update(
+        new_access_token: str,
+        new_refresh_token: str,
+        new_api_key: str,
+        expires_at: int,
+    ) -> None:
+        credential_data[CONF_API_KEY] = new_api_key
+        credential_data[CONF_ACCESS_TOKEN] = new_access_token
+        credential_data[CONF_REFRESH_TOKEN] = new_refresh_token
+        credential_data["token_expires_at"] = expires_at
+
+    client = get_electrolux_session(api_key, access_token, refresh_token)
+    client.set_token_update_callback_with_expiry(on_token_update)
+
+    try:
+        await client.get_appliances_list()
+    except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
+        _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
+        return None
+    except Exception as e:
+        _LOGGER.error(
+            "Unexpected error during Electrolux authentication: %s",
+            type(e).__name__,
+        )
+        return None
+    finally:
+        try:
+            await client.close()
+        except Exception:
+            _LOGGER.debug("Failed to close temporary Electrolux validation client")
+
+    credential_data.setdefault(
+        "token_expires_at",
+        _extract_token_expiry(cast(str | None, credential_data[CONF_ACCESS_TOKEN])),
+    )
+    return credential_data
+
+
 class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]  # HA metaclass requires domain kwarg
     """Config flow for Electrolux."""
 
@@ -143,19 +200,16 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         ):
             return self.async_abort(reason="already_configured_account")
 
-        valid = await self._test_credentials(
+        credential_data = await _validate_credentials_and_capture_rotation(
             user_input.get("api_key"),
             user_input.get("access_token"),
             user_input.get("refresh_token"),
         )
-        if valid:
-            # Extract token expiry from JWT and store it in config entry
-            access_token = user_input.get("access_token")
-            token_expiry = _extract_token_expiry(access_token)
-            if token_expiry:
-                user_input["token_expires_at"] = token_expiry
-                # Log when token will expire for visibility
-                time_remaining = token_expiry - time.time()
+        if credential_data:
+            user_input.update(credential_data)
+            token_expiry = user_input.get("token_expires_at")
+            if token_expiry is not None:
+                time_remaining = cast(int, token_expiry) - time.time()
                 _LOGGER.info(
                     f"Initial token expires in {time_remaining/3600:.1f} hours "
                     f"(at timestamp {token_expiry})"
@@ -208,12 +262,12 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             _mask_token(user_input.get("access_token")),
             _mask_token(user_input.get("refresh_token")),
         )
-        valid = await self._test_credentials(
+        credential_data = await _validate_credentials_and_capture_rotation(
             user_input.get("api_key"),
             user_input.get("access_token"),
             user_input.get("refresh_token"),
         )
-        if valid:
+        if credential_data:
             _LOGGER.info("[AUTH-DEBUG] Reauth credentials validated successfully")
             # Dismiss the token refresh issue since re-authentication succeeded
             from homeassistant.helpers import issue_registry
@@ -230,13 +284,11 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             _LOGGER.info(f"[AUTH-DEBUG] Dismissing repair issue: {issue_id}")
             issue_registry.async_delete_issue(self.hass, DOMAIN, issue_id)
 
-            # Extract token expiry from JWT and store it
-            access_token = user_input.get("access_token")
-            token_expiry = _extract_token_expiry(access_token)
             entry_data = dict(user_input)
-            if token_expiry:
-                entry_data["token_expires_at"] = token_expiry
-                time_remaining = token_expiry - time.time()
+            entry_data.update(credential_data)
+            token_expiry = entry_data.get("token_expires_at")
+            if token_expiry is not None:
+                time_remaining = cast(int, token_expiry) - time.time()
                 _LOGGER.info(
                     f"[AUTH-DEBUG] Reauth: New token expires in {time_remaining/3600:.1f} hours (at timestamp {token_expiry})"
                 )
@@ -305,18 +357,20 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
                     "; ".join(validation_errors),
                 )
             else:
-                valid = await self._test_credentials(
+                credential_data = await _validate_credentials_and_capture_rotation(
                     user_input.get("api_key"),
                     user_input.get("access_token"),
                     user_input.get("refresh_token"),
                 )
-                if valid:
-                    access_token = user_input.get("access_token")
-                    token_expiry = _extract_token_expiry(access_token)
+                if credential_data:
                     new_data = dict(entry.data)
                     new_data.update(user_input)
-                    if token_expiry:
-                        new_data["token_expires_at"] = token_expiry
+                    new_data.update(credential_data)
+                    ir.async_delete_issue(
+                        self.hass,
+                        DOMAIN,
+                        f"invalid_refresh_token_{entry.entry_id}",
+                    )
                     return self.async_update_reload_and_abort(entry, data=new_data)
                 self._errors["base"] = "invalid_auth"
 
@@ -398,24 +452,15 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             _mask_token(refresh_token),
         )
         try:
-            client = get_electrolux_session(
-                api_key,
-                access_token,
-                refresh_token,
-                async_get_clientsession(self.hass),
-                self.hass,
+            return (
+                await _validate_credentials_and_capture_rotation(
+                    api_key, access_token, refresh_token
+                )
+                is not None
             )
-            await client.get_appliances_list()
-        except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
-            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
+        except Exception:
+            _LOGGER.exception("Electrolux credential validation failed")
             return False
-        except Exception as e:  # Fallback for unexpected errors
-            _LOGGER.error(
-                "Unexpected error during Electrolux authentication: %s",
-                type(e).__name__,
-            )
-            return False
-        return True
 
 
 class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
@@ -492,45 +537,43 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
             _mask_token(refresh_token),
         )
         try:
-            client = get_electrolux_session(
-                api_key,
-                access_token,
-                refresh_token,
-                async_get_clientsession(self.hass),
-                self.hass,
+            return (
+                await _validate_credentials_and_capture_rotation(
+                    api_key, access_token, refresh_token
+                )
+                is not None
             )
-            await client.get_appliances_list()
-        except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
-            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
+        except Exception:
+            _LOGGER.exception("Electrolux credential validation failed")
             return False
-        except Exception as e:  # Fallback for unexpected errors
-            _LOGGER.error(
-                "Unexpected error during Electrolux authentication: %s",
-                type(e).__name__,
-            )
-            return False
-        return True
 
     async def _validate_and_update_options(
         self, user_input: dict[str, Any]
     ) -> ConfigFlowResult | None:
         """Validate credentials and update options if provided."""
-        # Test credentials if any API credentials were provided
-        if any(
-            key in user_input
+        credential_input_present = any(
+            user_input.get(key)
             for key in [CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN]
-        ):
+        )
+        credential_data: dict[str, Any] | None = None
+
+        # Test credentials only when the user actually entered credential values.
+        # Empty password fields are normal in the options form.
+        if credential_input_present:
             api_key = user_input.get(
                 CONF_API_KEY, self._config_entry.data.get(CONF_API_KEY)
             )
             access_token = user_input.get(
-                CONF_ACCESS_TOKEN, self._config_entry.data.get(CONF_ACCESS_TOKEN)
-            )
+                CONF_ACCESS_TOKEN
+            ) or self._config_entry.data.get(CONF_ACCESS_TOKEN)
             refresh_token = user_input.get(
-                CONF_REFRESH_TOKEN, self._config_entry.data.get(CONF_REFRESH_TOKEN)
-            )
+                CONF_REFRESH_TOKEN
+            ) or self._config_entry.data.get(CONF_REFRESH_TOKEN)
 
-            if not await self._test_credentials(api_key, access_token, refresh_token):
+            credential_data = await _validate_credentials_and_capture_rotation(
+                api_key, access_token, refresh_token
+            )
+            if credential_data is None:
                 return None  # Invalid, caller will show form with errors
 
         # Update the config entry data with new options
@@ -538,18 +581,18 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         new_options = dict(self._config_entry.options)
 
         # API credentials and notifications go in data (require restart)
-        if "api_key" in user_input:
-            new_data["api_key"] = user_input.get("api_key")
-        if "access_token" in user_input:
-            new_data["access_token"] = user_input.get("access_token")
-        if "refresh_token" in user_input:
-            new_data["refresh_token"] = user_input.get("refresh_token")
-        if "notification_default" in user_input:
-            new_data["notification_default"] = user_input.get("notification_default")
-        if "notification_warning" in user_input:
-            new_data["notification_warning"] = user_input.get("notification_warning")
-        if "notification_diag" in user_input:
-            new_data["notification_diag"] = user_input.get("notification_diag")
+        if credential_data:
+            new_data.update(credential_data)
+        if CONF_NOTIFICATION_DEFAULT in user_input:
+            new_data[CONF_NOTIFICATION_DEFAULT] = user_input.get(
+                CONF_NOTIFICATION_DEFAULT
+            )
+        if CONF_NOTIFICATION_WARNING in user_input:
+            new_data[CONF_NOTIFICATION_WARNING] = user_input.get(
+                CONF_NOTIFICATION_WARNING
+            )
+        if CONF_NOTIFICATION_DIAG in user_input:
+            new_data[CONF_NOTIFICATION_DIAG] = user_input.get(CONF_NOTIFICATION_DIAG)
 
         self.hass.config_entries.async_update_entry(
             self._config_entry, data=new_data, options=new_options
@@ -589,7 +632,7 @@ async def async_create_fix_flow(
     data: dict[str, str | int | float | None] | None,
 ) -> FlowHandler:
     """Create fix flow for Electrolux repair issues."""
-    return ElectroluxRepairFlow()
+    return ElectroluxRepairFlow(issue_id)
 
 
 class ElectroluxRepairFlow(FlowHandler):
@@ -597,9 +640,14 @@ class ElectroluxRepairFlow(FlowHandler):
 
     VERSION = 1
 
-    def __init__(self) -> None:
+    def __init__(self, issue_id: str | None = None) -> None:
         """Initialize repair flow."""
         super().__init__()
+        self._issue_id = issue_id
+
+    def _get_issue_id(self) -> str:
+        """Return the repair issue ID from HA context or constructor."""
+        return cast(str, self.context.get("issue_id") or self._issue_id or "")
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -615,7 +663,7 @@ class ElectroluxRepairFlow(FlowHandler):
 
         if user_input is not None:
             # Extract entry_id from the issue_id
-            issue_id = cast(str, self.context.get("issue_id", ""))
+            issue_id = self._get_issue_id()
             entry_id = issue_id.replace("invalid_refresh_token_", "")
 
             # Get the config entry
@@ -639,19 +687,18 @@ class ElectroluxRepairFlow(FlowHandler):
                     "Credential validation failed: %s", "; ".join(validation_errors)
                 )
             else:
-                # Test credentials
-                if await self._test_credentials(api_key, access_token, refresh_token):
+                # Test credentials and store any rotated tokens produced by validation.
+                credential_data = await _validate_credentials_and_capture_rotation(
+                    api_key, access_token, refresh_token
+                )
+                if credential_data:
                     # Update config entry with new credentials
                     new_data = dict(entry.data)
-                    new_data[CONF_API_KEY] = api_key
-                    new_data[CONF_ACCESS_TOKEN] = access_token
-                    new_data[CONF_REFRESH_TOKEN] = refresh_token
+                    new_data.update(credential_data)
 
-                    # Extract token expiry from JWT
-                    token_expiry = _extract_token_expiry(access_token)
-                    if token_expiry:
-                        new_data["token_expires_at"] = token_expiry
-                        time_remaining = token_expiry - time.time()
+                    token_expiry = new_data.get("token_expires_at")
+                    if token_expiry is not None:
+                        time_remaining = cast(int, token_expiry) - time.time()
                         _LOGGER.info(
                             f"Repair: Token expires in {time_remaining/3600:.1f} hours"
                         )
@@ -673,7 +720,7 @@ class ElectroluxRepairFlow(FlowHandler):
                 _LOGGER.warning("Invalid credentials provided during repair")
 
         # Show the form with current values as defaults (entry_id in issue_id)
-        issue_id = cast(str, self.context.get("issue_id", ""))
+        issue_id = self._get_issue_id()
         entry_id = issue_id.replace("invalid_refresh_token_", "")
         entry = self.hass.config_entries.async_get_entry(entry_id)
 
@@ -731,21 +778,12 @@ class ElectroluxRepairFlow(FlowHandler):
             _mask_token(refresh_token),
         )
         try:
-            client = get_electrolux_session(
-                api_key,
-                access_token,
-                refresh_token,
-                async_get_clientsession(self.hass),
-                self.hass,
+            return (
+                await _validate_credentials_and_capture_rotation(
+                    api_key, access_token, refresh_token
+                )
+                is not None
             )
-            await client.get_appliances_list()
-        except (ConnectionError, TimeoutError, ValueError, KeyError) as e:
-            _LOGGER.error("Authentication to Electrolux failed: %s", type(e).__name__)
+        except Exception:
+            _LOGGER.exception("Electrolux credential validation failed")
             return False
-        except Exception as e:  # Fallback for unexpected errors
-            _LOGGER.error(
-                "Unexpected error during Electrolux authentication: %s",
-                type(e).__name__,
-            )
-            return False
-        return True

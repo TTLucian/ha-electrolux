@@ -238,6 +238,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
                 # Update config entry data - update_listener will check timestamp to prevent reload
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
+                issue_registry.async_delete_issue(
+                    self.hass,
+                    DOMAIN,
+                    f"invalid_refresh_token_{config_entry.entry_id}",
+                )
 
                 _LOGGER.info(
                     "Tokens persisted to config entry (valid for %.1fh)",
