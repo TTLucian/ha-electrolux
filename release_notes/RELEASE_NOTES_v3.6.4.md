@@ -7,7 +7,7 @@
 
 ### Robot vacuum:
    - Implemented Cybele robot vacuum basic entities
-   - Added vacuum entity for "PUREi9", "Gordias", "Cybele" (I don't have diagnostic json files for all these appliances so further testing needed)
+   - Added vacuum entity for "PUREi9", "Gordias", "Cybele" (I don't have diagnostic json files for all these appliances so further testing is needed)
 
 ### Washing machines:
    - Fixed load weight information
@@ -16,7 +16,7 @@
    - Added Appliance Information
 
 ### Air conditioners:
-   - Added climate entity to "CA", "Azul", "Panther", "Bogong", "Telica" appliance types (I don't have diagnostic json files for all these appliances so further testing needed)
+   - Added climate entity to "CA", "Azul", "Panther", "Bogong", "Telica" appliance types (I don't have diagnostic json files for all these appliances so further testing is needed)
 
 
 
