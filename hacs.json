@@ -1,5 +1,8 @@
 {
   "name": "Electrolux",
+  "content_in_root": false,
+  "domains": ["electrolux"],
   "homeassistant": "2026.3.0",
+  "iot_class": "cloud_polling",
   "render_readme": true
 }
