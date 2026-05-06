@@ -42,6 +42,11 @@ jobs:
             echo "found=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Create electrolux.zip asset
+        run: |
+          mkdir -p dist
+          zip -r dist/electrolux.zip custom_components
+
       - name: Create or Update Release with Release Notes
         if: steps.release_notes.outputs.found == 'true'
         env:
@@ -64,13 +69,15 @@ jobs:
             gh release edit "v${VERSION}" \
               --draft \
               --title "$TITLE" \
-              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md"
+              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md" \
+              --attach dist/electrolux.zip
           else
             echo "Creating new draft release v${VERSION}"
             gh release create "v${VERSION}" \
               --draft \
               --title "$TITLE" \
-              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md"
+              --notes-file "release_notes/RELEASE_NOTES_v${VERSION}.md" \
+              dist/electrolux.zip
           fi
 
       - name: Skip Release Creation
