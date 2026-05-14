@@ -5,7 +5,7 @@
 - Updated the get_entity_type() method to properly detect discrete-valued capabilities.
 - Added a filter for execute command on/off. All entities derived from these capabilities will be switches instead of buttons.
 - Added guard in platform logic resolver so that sensors and binary sensors will not have category config. This is not supported by home assistant and will not load.
-- Fix target temperature reset by API after power off for AC units (@netflash)
-- Add some missing entities for AC units (@netflash)
+- Fix target temperature reset by API after power off for AC units (@[netflash](https://github.com/netflash))
+- Add some missing entities for AC units (@[netflash](https://github.com/netflash))
 
 A big thanks to [netflash](https://github.com/netflash) for his PR's fixing AC units 
