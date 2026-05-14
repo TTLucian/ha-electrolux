@@ -270,6 +270,169 @@ class TestCatalogAirConditioner:
 
         assert "mode" in CATALOG_AC or "executeCommand" in CATALOG_AC
 
+    def test_start_stop_time_use_seconds(self):
+        """startTime/stopTime use seconds (max=86400, step=1800), not minutes."""
+        from homeassistant.const import UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        for key in ("startTime", "stopTime"):
+            entry = CATALOG_AC[key]
+            assert entry.capability_info["max"] == 86400
+            assert entry.capability_info["step"] == 1800
+            assert entry.capability_info["min"] == 0
+            assert entry.unit == UnitOfTime.SECONDS
+
+    def test_fan_speed_setting_includes_quiet(self):
+        """fanSpeedSetting accepts QUIET (Bogong device supports it)."""
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        values = CATALOG_AC["fanSpeedSetting"].capability_info["values"]
+        for v in ("AUTO", "QUIET", "LOW", "MIDDLE", "HIGH"):
+            assert v in values
+
+    def test_fan_speed_state_includes_quiet(self):
+        """fanSpeedState reports QUIET (Bogong device reports it)."""
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        values = CATALOG_AC["fanSpeedState"].capability_info["values"]
+        for v in ("QUIET", "LOW", "MIDDLE", "HIGH"):
+            assert v in values
+
+    def test_new_switch_entities(self):
+        """New switch entities exist with correct device_class and icon."""
+        from homeassistant.components.switch import SwitchDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        expected = {
+            "turboFunction": "mdi:fan-plus",
+            "energySavingMode": "mdi:leaf",
+            "autoCleanTrigger": "mdi:air-filter",
+            "displayLight": "mdi:lightbulb",
+            "flapPositionAvoidUser": "mdi:arrow-collapse-horizontal",
+            "horizontalSwing": "mdi:arrow-left-right",
+        }
+        for key, icon in expected.items():
+            entry = CATALOG_AC[key]
+            assert entry.device_class == SwitchDeviceClass.SWITCH
+            assert entry.entity_icon == icon
+            assert entry.capability_info["access"] == "readwrite"
+
+    def test_temperature_representation_select(self):
+        """temperatureRepresentation select with CELSIUS/FAHRENHEIT."""
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["temperatureRepresentation"]
+        values = entry.capability_info["values"]
+        assert "CELSIUS" in values
+        assert "FAHRENHEIT" in values
+        assert entry.entity_icon == "mdi:thermometer"
+
+    def test_vmno_niu_diagnostic_sensor(self):
+        """VmNo_NIU diagnostic string sensor disabled by default."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["VmNo_NIU"]
+        assert entry.entity_category == EntityCategory.DIAGNOSTIC
+        assert entry.entity_registry_enabled_default is False
+        assert entry.entity_icon == "mdi:chip"
+
+    def test_vmno_mcu_diagnostic_sensor(self):
+        """VmNo_MCU diagnostic string sensor disabled by default."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["VmNo_MCU"]
+        assert entry.entity_category == EntityCategory.DIAGNOSTIC
+        assert entry.entity_registry_enabled_default is False
+        assert entry.entity_icon == "mdi:chip"
+
+    def test_scheduler_binary_sensors(self):
+        """schedulerSession and schedulerMode binary sensors with ON/OFF values."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        for key in ("schedulerSession", "schedulerMode"):
+            entry = CATALOG_AC[key]
+            values = entry.capability_info["values"]
+            assert "ON" in values
+            assert "OFF" in values
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_icon == "mdi:calendar-clock"
+
+    def test_compressor_state_reported(self):
+        """compressorState binary sensor has on/off values."""
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["compressorState"]
+        values = entry.capability_info["values"]
+        assert "on" in values
+        assert "off" in values
+        assert entry.entity_icon == "mdi:heat-pump"
+        assert entry.entity_category is None
+
+    def test_runtime_sensors(self):
+        """totalRuntime/compressorCoolingRuntime/compressorHeatingRuntime as duration sensors."""
+        from homeassistant.components.sensor import SensorDeviceClass
+        from homeassistant.const import EntityCategory, UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        runtime_keys = {
+            "totalRuntime": "mdi:timer",
+            "compressorCoolingRuntime": "mdi:snowflake-thermometer",
+            "compressorHeatingRuntime": "mdi:fire",
+        }
+        for key, icon in runtime_keys.items():
+            entry = CATALOG_AC[key]
+            assert entry.device_class == SensorDeviceClass.DURATION
+            assert entry.unit == UnitOfTime.SECONDS
+            assert entry.entity_icon == icon
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+    def test_main_unit_temp_sensor(self):
+        """mainUnitTemp temperature sensor (diagnostic, disabled)."""
+        from homeassistant.components.sensor import SensorDeviceClass
+        from homeassistant.const import EntityCategory, UnitOfTemperature
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["mainUnitTemp"]
+        assert entry.device_class == SensorDeviceClass.TEMPERATURE
+        assert entry.unit == UnitOfTemperature.CELSIUS
+        assert entry.entity_icon == "mdi:thermometer"
+        assert entry.entity_category == EntityCategory.DIAGNOSTIC
+        assert entry.entity_registry_enabled_default is False
+
+    def test_log_counters(self):
+        """logE/logW integer count sensors."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        for key, icon in (("logE", "mdi:alert-circle"), ("logW", "mdi:alert")):
+            entry = CATALOG_AC[key]
+            assert entry.entity_icon == icon
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+    def test_demand_response_au(self):
+        """demandResponseAu string diagnostic sensor."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        entry = CATALOG_AC["demandResponseAu"]
+        assert entry.entity_icon == "mdi:transmission-tower"
+        assert entry.entity_category == EntityCategory.DIAGNOSTIC
+        assert entry.entity_registry_enabled_default is False
+
 
 class TestCatalogStructuredOven:
     """Tests for catalog_so.py."""
