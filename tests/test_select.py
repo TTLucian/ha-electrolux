@@ -947,7 +947,7 @@ class TestSelectMissingCoveragePaths:
         capability = {
             "access": "readwrite",
             "type": "number",
-            "values": {"30": {"label": "30 °C"}},
+            "values": {"30.5": {"label": "30.5 °C"}},
         }
         entity = ElectroluxSelect(
             coordinator=mock_coordinator,
@@ -972,12 +972,12 @@ class TestSelectMissingCoveragePaths:
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock(return_value=None)
 
-        # "30 °C" option → value = "30" → float("30") = 30.0 via contextlib.suppress
+        # "30.5 °C" option → value = "30.5" → float("30.5") = 30.5 via contextlib.suppress
         with patch(
             "custom_components.electrolux.select.format_command_for_appliance",
-            return_value=30.0,
+            return_value=30.5,
         ):
-            await entity.async_select_option("30 °C")
+            await entity.async_select_option("30.5 °C")
 
         entity.api.execute_appliance_command.assert_called_once()
 
