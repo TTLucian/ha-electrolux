@@ -485,6 +485,82 @@ class TestElectroluxClimate:
         assert calls[1][0] == ("mode", "FANONLY")
 
     @pytest.mark.asyncio
+    async def test_async_set_temperature_caches_last_value(self, climate_entity):
+        """Temperature is cached so it can be re-applied on next power-on."""
+        climate_entity._send_command = AsyncMock()
+
+        await climate_entity.async_set_temperature(temperature=22.0)
+
+        assert climate_entity._last_user_temperature == 22.0
+
+    @pytest.mark.asyncio
+    async def test_hvac_mode_on_resends_last_temperature(self, climate_entity):
+        """Turning on re-sends last user temperature to counter device reset to min."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._apply_optimistic_update = MagicMock()
+        climate_entity._last_user_temperature = 22.0
+
+        await climate_entity.async_set_hvac_mode(HVACMode.HEAT)
+
+        assert climate_entity._send_command.call_count == 3
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "HEAT")
+        assert calls[2][0] == ("targetTemperatureC", 22.0)
+
+    @pytest.mark.asyncio
+    async def test_hvac_mode_on_no_cached_temp_skips_resend(self, climate_entity):
+        """No cached temperature → no extra temperature command on turn-on."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._last_user_temperature = None
+
+        await climate_entity.async_set_hvac_mode(HVACMode.COOL)
+
+        assert climate_entity._send_command.call_count == 2
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "COOL")
+
+    @pytest.mark.asyncio
+    async def test_last_temperature_restored_from_state(self, climate_entity):
+        """Restore _last_user_temperature from prior HA state on async_added_to_hass."""
+        last_state = MagicMock()
+        last_state.attributes = {"last_user_temperature": 22.0}
+        climate_entity.async_get_last_state = AsyncMock(return_value=last_state)
+
+        with patch(
+            "homeassistant.helpers.restore_state.RestoreEntity.async_added_to_hass",
+            new=AsyncMock(),
+        ):
+            await climate_entity.async_added_to_hass()
+
+        assert climate_entity._last_user_temperature == 22.0
+
+    def test_extra_state_attributes_includes_last_temperature(self, climate_entity):
+        """extra_state_attributes exposes last_user_temperature for persistence."""
+        climate_entity._last_user_temperature = 22.0
+        assert climate_entity.extra_state_attributes == {"last_user_temperature": 22.0}
+
+        climate_entity._last_user_temperature = None
+        assert climate_entity.extra_state_attributes == {}
+
+    @pytest.mark.asyncio
+    async def test_last_temperature_not_restored_when_no_prior_state(
+        self, climate_entity
+    ):
+        """No prior state → _last_user_temperature stays None."""
+        climate_entity._last_user_temperature = None
+        climate_entity.async_get_last_state = AsyncMock(return_value=None)
+
+        with patch(
+            "homeassistant.helpers.restore_state.RestoreEntity.async_added_to_hass",
+            new=AsyncMock(),
+        ):
+            await climate_entity.async_added_to_hass()
+
+        assert climate_entity._last_user_temperature is None
+
+    @pytest.mark.asyncio
     async def test_async_set_fan_mode(self, climate_entity):
         """Test setting fan mode."""
         climate_entity._send_command = AsyncMock()
