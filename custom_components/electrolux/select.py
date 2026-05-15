@@ -155,19 +155,19 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 value = mapping.get(value, value)
 
         label = None
-        try:
-            if value is not None:
-                str_value = str(value)
-                label = list(self.options_list.keys())[
-                    list(self.options_list.values()).index(str_value)
-                ]
-        except (ValueError, IndexError) as ex:
-            _LOGGER.info(
-                "Electrolux error value %s does not exist in the list %s. %s",
-                value,
-                self.options_list.values(),
-                ex,
-            )
+        if value is not None:
+            str_value = str(value)
+            str_value_upper = str_value.upper()
+            for k, v in self.options_list.items():
+                if v == str_value or v.upper() == str_value_upper:
+                    label = k
+                    break
+            if label is None:
+                _LOGGER.debug(
+                    "Electrolux value %s not in options list %s, will add dynamically",
+                    value,
+                    list(self.options_list.values()),
+                )
         # When value not in the catalog → add the value to the list dynamically.
         # For non-numeric capability types, guard against numeric sentinel values
         # (e.g. "0") that the appliance may report as a transient/default state.
@@ -180,10 +180,23 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 and str_value.lstrip("-").isdigit()
                 and not is_numeric_capability
             )
-            if str_value and not is_numeric_sentinel:
+            cap_values: dict = self.capability.get("values") or {}
+            is_disabled_value = any(
+                k.upper() == str_value.upper()
+                and isinstance(v, dict)
+                and v.get("disabled")
+                for k, v in cap_values.items()
+            )
+            if str_value and not is_numeric_sentinel and not is_disabled_value:
                 label = self.format_label(value)
                 if label is not None and value is not None:
                     self.options_list[label] = str_value
+            elif is_disabled_value:
+                _LOGGER.debug(
+                    "Electrolux skipping disabled capability value %r for %s",
+                    value,
+                    self.entity_attr,
+                )
             else:
                 _LOGGER.debug(
                     "Electrolux skipping numeric sentinel value %r for %s",
