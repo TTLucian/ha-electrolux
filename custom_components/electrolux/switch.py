@@ -1,7 +1,10 @@
 """Switch platform for Electrolux."""
 
 import logging
-from typing import Any, cast
+from typing import (
+    Any,
+    cast,
+)  # cast: CoordinatorEntity lacks ElectroluxCoordinator type param
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -145,8 +148,8 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             )
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
-            coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
-            await coordinator.handle_authentication_error(auth_ex)
+            _coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
+            await _coordinator.handle_authentication_error(auth_ex)
             raise
         except Exception:  # noqa: BLE001
             # Re-raise any errors from execute_command_with_error_handling
@@ -155,9 +158,9 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         # Optimistically update local state using base class helper method
         self._apply_optimistic_update(self.entity_attr, command_value)
 
-        # Schedule a follow-up state refresh — some switch properties (swing, turbo,
-        # eco, sleep, cleanAir) are not pushed via SSE by the Electrolux cloud, so
-        # the optimistic update is the only way HA learns the state without this poll.
+        # Schedule a follow-up state refresh — some switch properties are not pushed
+        # via SSE by the Electrolux cloud, so the optimistic update is the only way
+        # HA learns the state without a follow-up poll.
         cast(ElectroluxCoordinator, self.coordinator)._schedule_state_refresh(
             self.pnc_id
         )
