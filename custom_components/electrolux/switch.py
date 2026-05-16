@@ -1,7 +1,7 @@
 """Switch platform for Electrolux."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -154,6 +154,13 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
         # Optimistically update local state using base class helper method
         self._apply_optimistic_update(self.entity_attr, command_value)
+
+        # Schedule a follow-up state refresh — some switch properties (swing, turbo,
+        # eco, sleep, cleanAir) are not pushed via SSE by the Electrolux cloud, so
+        # the optimistic update is the only way HA learns the state without this poll.
+        cast(ElectroluxCoordinator, self.coordinator)._schedule_state_refresh(
+            self.pnc_id
+        )
 
         _LOGGER.debug("Electrolux set value completed")
 

@@ -510,3 +510,42 @@ class TestElectroluxSwitch:
         ):
             with pytest.raises(HomeAssistantError, match="remote control disabled"):
                 await entity.switch(True)
+
+    @pytest.mark.asyncio
+    async def test_switch_schedules_state_refresh_after_command(
+        self, mock_coordinator, mock_capability
+    ):
+        """State refresh is scheduled after a successful switch command (covers SSE-silent properties)."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source=None,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock(return_value=None)
+        mock_coordinator._schedule_state_refresh = MagicMock()
+
+        with (
+            patch(
+                "custom_components.electrolux.switch.execute_command_with_error_handling",
+                return_value=None,
+            ),
+            patch(
+                "custom_components.electrolux.switch.format_command_for_appliance",
+                return_value="ON",
+            ),
+        ):
+            await entity.switch(True)
+
+        mock_coordinator._schedule_state_refresh.assert_called_once_with("TEST_PNC")
