@@ -63,7 +63,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | `WM` | Washing Machine | Full | `WM-914501128`, `WM-914915144` |
 | `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500` |
 | `TD` | Tumble Dryer | Full | `TD-916098401`, `TD-916098618`, `TD-916099548`, `TD-916099949`, `TD-916099971` |
-| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834` |
 | `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (Muju/Verbier verified) | UltimateHome 500 (EP53); Verbier — PUREA9/Fuji/WELLA5/WELLA7 unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
