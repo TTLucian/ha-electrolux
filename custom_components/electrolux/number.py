@@ -632,9 +632,12 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # climate-entity OFF command optimistically writes ``mode=OFF`` before
         # the ``applianceState=Off`` SSE event arrives.
         if self.entity_attr in _AC_TEMPERATURE_ATTRS:
-            appliance_state = str(self.reported_state.get("applianceState") or "")
-            mode_value = str(self.reported_state.get("mode") or "")
-            if appliance_state.upper() == "OFF" or mode_value.upper() == "OFF":
+            appliance_state = self.reported_state.get("applianceState")
+            mode_value = self.reported_state.get("mode")
+            is_off = (
+                isinstance(appliance_state, str) and appliance_state.upper() == "OFF"
+            ) or (isinstance(mode_value, str) and mode_value.upper() == "OFF")
+            if is_off:
                 raise HomeAssistantError(
                     f"Cannot set '{self.entity_attr}' while appliance is off. "
                     "Turn the appliance on first.",
