@@ -410,19 +410,15 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
                 raise HomeAssistantError(
                     "Cannot set temperature while appliance is off"
                 )
-            # async_set_hvac_mode reads _last_user_temperature mid-call and
-            # re-applies it after powering on, so the new value must be in
-            # place before we await. The pre-write/rollback is asymmetric with
-            # the on-path below (which writes after success); it exists solely
-            # to make the cache atomic with that internal read. Note that
-            # rollback only restores cache coherence — it cannot undo any
-            # partial hardware state if async_set_hvac_mode fails mid-sequence.
-            cached_temp = self._last_user_temperature
+            # async_set_hvac_mode re-applies _last_user_temperature after powering
+            # on, so the new value must be visible to it. Roll back on failure to
+            # avoid leaving a never-applied value in the cache.
+            previous = self._last_user_temperature
             self._last_user_temperature = new_temp
             try:
                 await self.async_set_hvac_mode(hvac_mode)
             except Exception:
-                self._last_user_temperature = cached_temp
+                self._last_user_temperature = previous
                 raise
             return
 
