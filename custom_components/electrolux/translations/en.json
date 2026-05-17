@@ -89,14 +89,26 @@
     }
   },
   "exceptions": {
+    "appliance_disconnected": {
+      "message": "Appliance is disconnected or not available. Check the appliance's network connection."
+    },
     "appliance_offline": {
       "message": "Appliance is offline (current state: {state}). Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
     },
-    "not_supported_by_program": {
-      "message": "Cannot change {attr}: not supported by current program {program}."
+    "appliance_state_incomplete": {
+      "message": "Cannot change setting: the appliance state is incomplete. Please wait for the appliance to initialize."
+    },
+    "command_not_accepted": {
+      "message": "Command not accepted by appliance. Check that the appliance supports this operation."
+    },
+    "command_rate_limited": {
+      "message": "Too many commands sent. Please wait a moment and try again."
     },
     "control_locked": {
       "message": "{attr} is locked at {value} for program {program}."
+    },
+    "food_probe_locked_by_program": {
+      "message": "Food probe temperature is locked at {value}°C for program {program}."
     },
     "food_probe_not_inserted": {
       "message": "Food probe must be inserted to set target temperature."
@@ -104,41 +116,32 @@
     "food_probe_not_supported_by_program": {
       "message": "Food probe temperature is not supported by program {program}."
     },
-    "food_probe_locked_by_program": {
-      "message": "Food probe temperature is locked at {value}\u00b0C for program {program}."
-    },
-    "value_below_minimum": {
-      "message": "Value {value} is below the minimum {min_val} for {attr}."
-    },
-    "value_above_maximum": {
-      "message": "Value {value} is above the maximum {max_val} for {attr}."
-    },
     "invalid_option": {
       "message": "Invalid option selected."
     },
     "invalid_preset_mode": {
       "message": "Invalid preset mode {mode}. Available modes: {modes}."
     },
-    "appliance_state_incomplete": {
-      "message": "Cannot change setting: the appliance state is incomplete. Please wait for the appliance to initialize."
+    "not_supported_by_program": {
+      "message": "Cannot change {attr}: not supported by current program {program}."
     },
     "remote_control_disabled": {
       "message": "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
     },
-    "appliance_disconnected": {
-      "message": "Appliance is disconnected or not available. Check the appliance's network connection."
-    },
     "service_temporarily_unavailable": {
       "message": "Electrolux service is temporarily unavailable, please try again."
     },
-    "command_rate_limited": {
-      "message": "Too many commands sent. Please wait a moment and try again."
-    },
-    "command_not_accepted": {
-      "message": "Command not accepted by appliance. Check that the appliance supports this operation."
+    "set_temperature_while_off": {
+      "message": "Cannot set {attr} while appliance is off. Turn the appliance on first."
     },
     "type_mismatch": {
       "message": "Integration error: data type mismatch for {attr}. Expected Boolean."
+    },
+    "value_above_maximum": {
+      "message": "Value {value} is above the maximum {max_val} for {attr}."
+    },
+    "value_below_minimum": {
+      "message": "Value {value} is below the minimum {min_val} for {attr}."
     }
   }
 }

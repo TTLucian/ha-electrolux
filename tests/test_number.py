@@ -2235,6 +2235,92 @@ class TestNumberMissingCoverage:
         with pytest.raises(HomeAssistantError, match="offline"):
             await entity.async_set_native_value(100.0)
 
+    # Bug 4 / PR #63: AC target temperature off-state guard
+    @pytest.mark.asyncio
+    async def test_set_native_value_target_temp_raises_when_appliance_off(
+        self, mock_coordinator
+    ):
+        """targetTemperatureC slider while applianceState=off must raise.
+
+        Mirrors the climate-entity off-state guard. The Electrolux API returns
+        HTTP 500 when a temperature command is sent to an off device; refuse
+        before the API call so the cache stays clean and the user sees a
+        coherent message.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "off",
+        }
+
+        with pytest.raises(HomeAssistantError, match="appliance is off"):
+            await entity.async_set_native_value(24.0)
+
+    @pytest.mark.asyncio
+    async def test_set_native_value_target_temp_raises_when_mode_off_optimistic(
+        self, mock_coordinator
+    ):
+        """Off-state guard must trip on the optimistic ``mode=OFF`` write too.
+
+        ``async_set_hvac_mode(HVACMode.OFF)`` writes ``mode=OFF`` to the local
+        cache immediately, but the ``applianceState=Off`` SSE event arrives a
+        few seconds later. During that window the guard must already refuse
+        temperature commands; otherwise rapid UI gestures (off → drag temp)
+        slip through and hit the API with HTTP 500.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",  # SSE not yet arrived
+            "mode": "OFF",  # but optimistic update already wrote mode
+        }
+
+        with pytest.raises(HomeAssistantError, match="appliance is off"):
+            await entity.async_set_native_value(24.0)
+
+    @pytest.mark.asyncio
+    async def test_set_native_value_target_temp_passes_guard_when_running(
+        self, mock_coordinator
+    ):
+        """Off-state guard must not raise when the appliance is running.
+
+        We don't assert all the way to _send_command — other gates (connection,
+        formatting, capability checks) may legitimately fail in the bare test
+        fixture. The point is: the off-state guard does not erroneously fire.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",
+        }
+
+        try:
+            await entity.async_set_native_value(24.0)
+        except HomeAssistantError as ex:
+            # The off-state guard must not be the source of the error.
+            assert "appliance is off" not in str(ex)
+        except Exception:
+            # Other errors (e.g. test-fixture limitations) are out of scope.
+            pass
+
     # Line 798: available delegates to ElectroluxEntity.available (True)
     def test_available_delegates_to_entity_super_true(self, mock_coordinator):
         """available delegates to super().available (line 798) — returns True case."""

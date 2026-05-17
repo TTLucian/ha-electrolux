@@ -422,6 +422,89 @@ class TestElectroluxClimate:
         climate_entity._send_command.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_async_set_temperature_off_with_hvac_mode_splits_commands(
+        self, climate_entity, mock_appliance
+    ):
+        """When device is OFF and hvac_mode provided, power on first then set temp.
+
+        The Electrolux API returns HTTP 500 if a combined power-on + temperature
+        command is sent in a single call. The fix sends them as two sequential
+        operations: set_hvac_mode (which also re-applies cached temperature),
+        with the new requested temperature cached first.
+        """
+        mock_appliance.reported_state["mode"] = "OFF"
+        climate_entity._send_command = AsyncMock()
+
+        await climate_entity.async_set_temperature(
+            temperature=26.0, hvac_mode=HVACMode.COOL
+        )
+
+        # Expect three commands: ON, mode=COOL, targetTemperatureC=26.0
+        assert climate_entity._send_command.call_count == 3
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "COOL")
+        assert calls[2][0] == ("targetTemperatureC", 26.0)
+        assert climate_entity._last_user_temperature == 26.0
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_off_without_hvac_mode_raises(
+        self, climate_entity, mock_appliance
+    ):
+        """When device is OFF and no hvac_mode provided, raise HomeAssistantError.
+
+        Setting temperature on an off device returns HTTP 500 from the API.
+        Without an hvac_mode there is no safe way to power on, so refuse.
+        """
+        from homeassistant.exceptions import HomeAssistantError
+
+        mock_appliance.reported_state["mode"] = "OFF"
+        climate_entity._send_command = AsyncMock()
+
+        with pytest.raises(HomeAssistantError, match="appliance is off"):
+            await climate_entity.async_set_temperature(temperature=26.0)
+
+        climate_entity._send_command.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_on_failure_does_not_pollute_cache(
+        self, climate_entity, mock_appliance
+    ):
+        """ON-device path must not write _last_user_temperature on failed command.
+
+        Previously the cache was set before the API call, so a failed command
+        (HTTP 500 off-device, HTTP 406 in fan_only/dry, etc.) left a value that
+        async_set_hvac_mode would later re-apply — propagating a never-accepted
+        setpoint.
+        """
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "COOL"
+        climate_entity._last_user_temperature = 22.0
+        climate_entity._send_command = AsyncMock(side_effect=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError):
+            await climate_entity.async_set_temperature(temperature=19.0)
+
+        assert climate_entity._last_user_temperature == 22.0
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_off_failure_rolls_back_cache(
+        self, climate_entity, mock_appliance
+    ):
+        """OFF + hvac_mode path must roll back cache if async_set_hvac_mode fails."""
+        mock_appliance.reported_state["applianceState"] = "Off"
+        mock_appliance.reported_state["mode"] = "cool"
+        climate_entity._last_user_temperature = 22.0
+        climate_entity._send_command = AsyncMock(side_effect=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError):
+            await climate_entity.async_set_temperature(
+                temperature=19.0, hvac_mode=HVACMode.COOL
+            )
+
+        assert climate_entity._last_user_temperature == 22.0
+
+    @pytest.mark.asyncio
     async def test_async_set_hvac_mode_off(self, climate_entity):
         """Test setting HVAC mode to OFF."""
         climate_entity._send_command = AsyncMock()

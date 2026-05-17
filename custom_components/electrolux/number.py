@@ -618,6 +618,27 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             self.unit,
         )
 
+        # AC target temperature cannot be set while the appliance is off — the
+        # Electrolux API returns HTTP 500 in that case. Mirror the climate-entity
+        # guard for this code path so the number slider behaves consistently.
+        # Both ``applianceState`` and ``mode`` are inspected because the
+        # climate-entity OFF command optimistically writes ``mode=OFF`` before
+        # the ``applianceState=Off`` SSE event arrives.
+        if self.entity_attr in ("targetTemperatureC", "targetTemperatureF"):
+            appliance_state = self.reported_state.get("applianceState")
+            mode_value = self.reported_state.get("mode")
+            is_off = (
+                isinstance(appliance_state, str) and appliance_state.upper() == "OFF"
+            ) or (isinstance(mode_value, str) and mode_value.upper() == "OFF")
+            if is_off:
+                raise HomeAssistantError(
+                    f"Cannot set '{self.entity_attr}' while appliance is off. "
+                    "Turn the appliance on first.",
+                    translation_domain=DOMAIN,
+                    translation_key="set_temperature_while_off",
+                    translation_placeholders={"attr": self.entity_attr},
+                )
+
         # Rate limit commands
         await self._rate_limit_command()
 

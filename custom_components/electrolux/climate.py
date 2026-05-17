@@ -13,6 +13,7 @@ from homeassistant.components.climate.const import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
@@ -385,13 +386,44 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         return 1.0  # Default to 1 degree steps (not 0.5 which HA default)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        """Set new target temperature."""
+        """Set new target temperature.
+
+        Guard for off-state: the Electrolux API returns HTTP 500 when a
+        combined power-on + set-temperature command is sent in a single call.
+        If the appliance is currently off, split into sequential commands
+        (power on via set_hvac_mode, which re-applies the cached temperature)
+        or refuse if no hvac_mode was supplied.
+
+        ``_last_user_temperature`` is only updated after the underlying command
+        succeeds — a failed API call must not pollute the cache that #48's
+        re-apply path reads back.
+        """
         temperature = kwargs.get("temperature")
         if temperature is None:
             return
 
-        self._last_user_temperature = float(temperature)
-        await self._send_command(f"targetTemperature{self._temp_suffix}", temperature)
+        hvac_mode = kwargs.get("hvac_mode")
+        new_temp = float(temperature)
+
+        if self.hvac_mode == HVACMode.OFF:
+            if hvac_mode is None:
+                raise HomeAssistantError(
+                    "Cannot set temperature while appliance is off"
+                )
+            # async_set_hvac_mode re-applies _last_user_temperature after powering
+            # on, so the new value must be visible to it. Roll back on failure to
+            # avoid leaving a never-applied value in the cache.
+            previous = self._last_user_temperature
+            self._last_user_temperature = new_temp
+            try:
+                await self.async_set_hvac_mode(hvac_mode)
+            except Exception:
+                self._last_user_temperature = previous
+                raise
+            return
+
+        await self._send_command(f"targetTemperature{self._temp_suffix}", new_temp)
+        self._last_user_temperature = new_temp
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
