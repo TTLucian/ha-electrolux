@@ -163,11 +163,22 @@ class TestSwitchPlatformSetup:
         from custom_components.electrolux.const import SWITCH  # Use internal constant
         from custom_components.electrolux.switch import async_setup_entry
 
+        # 1. Define a specific attribute name for the test switch
+        test_attr = "userSelections/EWX1493A_preWashPhase"
+
         mock_entity = MagicMock()
         mock_entity.entity_type = SWITCH  # Match the exact constant used in switch.py
+        mock_entity.entity_attr = test_attr
 
         mock_appliance = MagicMock()
         mock_appliance.entities = [mock_entity]
+
+        # 2. Provide a mock state showing that this appliance supports the feature
+        # This covers filtering by either raw capabilities or reported properties
+        mock_appliance.state = {
+            "properties": {"reported": {test_attr: True}},
+            "capabilities": {test_attr: True},
+        }
 
         # Convert appliances to a real dictionary so .items() works properly
         mock_coordinator.data["appliances"].appliances = {
