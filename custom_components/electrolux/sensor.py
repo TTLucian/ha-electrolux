@@ -164,8 +164,13 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if value == TIME_INVALID_SENTINEL or value <= 0:
                 return None
 
-            # Check if appliance is in a state where timer is relevant
+            # Get and normalize appliance state immediately to handle spaced variations (e.g., "End Of Cycle")
             appliance_state = self.reported_state.get("applianceState")
+            if isinstance(appliance_state, str):
+                if appliance_state.lower().replace(" ", "") == "endofcycle":
+                    appliance_state = "END_OF_CYCLE"
+                else:
+                    appliance_state = appliance_state.upper()
 
             # Primary active states where countdown is always valid
             if appliance_state in ["RUNNING", "PAUSED", "DELAYED_START"]:
@@ -197,6 +202,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             # Check if appliance is in a state where elapsed time is relevant
             # Only show elapsed time when RUNNING or PAUSED
             appliance_state = self.reported_state.get("applianceState")
+            if isinstance(appliance_state, str):
+                appliance_state = appliance_state.upper().replace(" ", "_")
+
             if appliance_state not in ["RUNNING", "PAUSED"]:
                 # Appliance is stopped/idle/off - don't show elapsed time
                 return None
@@ -205,31 +213,23 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             return value if value >= 0 else None
 
         # Special handling for sensors that should get live data instead of constants
-        # NOTE: entity_key is normalized (lowercase, fPPN stripped) - camelCase loses underscores!
-        # "fPPN_OVWaterTankEmpty" -> "ovwatertankempty" but this is just a notification ID, not live data
-        # Only handle sensors that have actual live values
         if self.entity_key in [
             "watertankempty",  # waterTankEmpty - live steam tank status
             "display_food_probe_temperature_c",
         ]:
             if self.entity_key == "watertankempty":
-                # waterTankEmpty is the actual live sensor showing steam tank status
                 live_value = self.reported_state.get("waterTankEmpty")
                 if live_value is not None:
-                    # If capability type is boolean, convert string to boolean
                     if get_capability(self.capability, "type") == "boolean":
                         value = live_value != "STEAM_TANK_FULL"
                     else:
-                        # Otherwise return the string value
                         value = str(live_value)
             elif self.entity_key == "display_food_probe_temperature_c":
-                # Point to targetFoodProbeTemperatureC from reported properties
                 live_value = self.reported_state.get("targetFoodProbeTemperatureC")
                 if live_value is not None:
                     value = live_value
         elif get_capability(self.capability, "access") == "constant":
             default_value = get_capability(self.capability, "default")
-            # Type narrow: only assign if it's not a dict
             if default_value is not None and not isinstance(default_value, dict):
                 value = default_value
 
@@ -239,24 +239,15 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if default_value is not None and not isinstance(default_value, dict):
                 value = default_value
 
-        # Temperature sensors: Read directly from API without conversion
-        # If API provides targetTemperatureC, we expose a C sensor
-        # If API provides targetTemperatureF, we expose an F sensor
-        # If API provides both, we expose both - users can choose which to use
-        # No automatic conversion or companion entity creation
-
         if self.entity_attr == "alerts":
             if isinstance(value, list):
                 value = len(value)
             else:
                 value = 0
         elif value is not None and self.unit == UnitOfTime.MINUTES:
-            # Handle timer/duration sensors
             if isinstance(value, (int, float)):
-                # Return None for invalid/unset timers (TIME_INVALID_SENTINEL or 0)
                 if value == TIME_INVALID_SENTINEL or value == 0:
                     return None
-                # Convert to native units (minutes for time)
                 converted = time_seconds_to_minutes(value)
                 if converted is None:
                     _LOGGER.error(
@@ -268,23 +259,26 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 _LOGGER.warning("Unexpected non-numeric value for time unit: %s", value)
 
         if self.catalog_entry and self.catalog_entry.value_mapping:
-            # Electrolux presents as string but returns an int
-            # the mapping entry allows us to correctly display this to the frontend
             mapping = self.catalog_entry.value_mapping
             _LOGGER.debug("Mapping %s: %s to %s", self.json_path, value, mapping)
             if value in mapping:
                 value = mapping.get(value, value)
+
         if isinstance(value, str):
+            # Normalization fix for issue #55: Convert spaced variations like "End Of Cycle"
+            # into unified snake_case format ("End_Of_Cycle") before processing spaces/titles.
+            if value.lower().replace(" ", "") == "endofcycle":
+                value = "END_OF_CYCLE"
+
             if "_" in value:
                 value = value.replace("_", " ")
             value = value.title()
 
-        # If we still don't have a value, return None
         if value is None:
             return None
 
         # Ensure return type is str | int | float | None
-        if value is not None and not isinstance(value, (str, int, float)):
+        if not isinstance(value, (str, int, float)):
             value = str(value)
 
         return value

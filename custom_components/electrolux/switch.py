@@ -39,12 +39,34 @@ async def async_setup_entry(
             entities = [
                 entity for entity in appliance.entities if entity.entity_type == SWITCH
             ]
+
+            filtered_switches: list[Any] = []
+            reported_data = appliance.reported_state or {}
+
+            for entity in entities:
+                # Filter out phantom/ghost capabilities (Issue #55)
+                # If a property path or capability key is absent from the reported state,
+                # the appliance hardware does not support it (e.g., Pod wash, AutoDose)
+                if entity.json_path and entity.json_path not in reported_data:
+                    if entity.entity_attr not in reported_data:
+                        _LOGGER.debug(
+                            "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
+                            entity.entity_attr,
+                            appliance_id,
+                        )
+                        continue
+
+                filtered_switches.append(entity)
+
             _LOGGER.debug(
-                "Electrolux add %d SENSOR entities to registry for appliance %s",
-                len(entities),
+                "Electrolux add %d SWITCH entities to registry for appliance %s (filtered from %d)",
+                len(filtered_switches),
                 appliance_id,
+                len(entities),
             )
-            async_add_entities(entities)
+
+            if filtered_switches:
+                async_add_entities(filtered_switches)
     return
 
 
@@ -80,7 +102,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         # For other types, try to convert to boolean
         return bool(value)
 
-    async def switch(self, value: bool) -> None:
+    async def switch(self, value: bool | str) -> None:
         """Control switch state."""
         # Check if appliance is connected before sending command
         if not self.is_connected():
@@ -169,8 +191,16 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.switch(True)
+        if self.capability and self.capability.get("type") == "string":
+            # String enum toggle (e.g., fastMode)
+            await self.switch("ON")
+        else:
+            # Normal boolean switch
+            await self.switch(True)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
-        await self.switch(False)
+        if self.capability and self.capability.get("type") == "string":
+            await self.switch("OFF")
+        else:
+            await self.switch(False)

@@ -160,13 +160,43 @@ class TestSwitchPlatformSetup:
         self, mock_hass, mock_config_entry, mock_coordinator
     ):
         """Test successful switch platform setup."""
+        from custom_components.electrolux.const import SWITCH  # Use internal constant
         from custom_components.electrolux.switch import async_setup_entry
 
+        # 1. Define a specific attribute name for the test switch
+        test_attr = "userSelections/EWX1493A_preWashPhase"
+
         mock_entity = MagicMock()
-        mock_entity.entity_type = Platform.SWITCH
-        mock_coordinator.data["appliances"].appliances[
-            "test_appliance_123"
-        ].entities = [mock_entity]
+        mock_entity.entity_type = SWITCH  # Match the exact constant used in switch.py
+        mock_entity.entity_attr = test_attr
+        mock_entity.friendly_name = "Pre-Wash"
+        # json_path must be present in reported_state so the phantom-capability
+        # filter in switch.async_setup_entry does not skip this entity.
+        mock_entity.json_path = test_attr
+        # Provide the write/readwrite capabilities required by the switch platform
+        mock_entity.capability_info = {"access": "readwrite", "type": "boolean"}
+        mock_entity.capability = {"access": "readwrite", "type": "boolean"}
+
+        mock_appliance = MagicMock()
+        mock_appliance.entities = [mock_entity]
+
+        # 2. Provide a mock state showing that this appliance supports the feature
+        # Map capabilities directly to the appliance object as well as the state dictionary
+        mock_appliance.capabilities = {
+            test_attr: {"access": "readwrite", "type": "boolean"}
+        }
+        # reported_state is consulted by switch.async_setup_entry to filter out
+        # phantom/ghost capabilities (Issue #55).
+        mock_appliance.reported_state = {test_attr: True}
+        mock_appliance.state = {
+            "properties": {"reported": {test_attr: True}},
+            "capabilities": {test_attr: {"access": "readwrite", "type": "boolean"}},
+        }
+
+        # Convert appliances to a real dictionary so .items() works properly
+        mock_coordinator.data["appliances"].appliances = {
+            "test_appliance_123": mock_appliance
+        }
 
         mock_config_entry.runtime_data = mock_coordinator
         mock_add_entities = MagicMock()

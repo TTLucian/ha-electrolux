@@ -6,7 +6,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 
-from ..const import BINARY_SENSOR
+from ..const import BINARY_SENSOR, BUTTON, SELECT, SWITCH
 from ..model import ElectroluxDevice
 
 CATALOG_CR: dict[str, ElectroluxDevice] = {
@@ -192,7 +192,8 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_platform=BUTTON,
         entity_icon="mdi:water",
         friendly_name="Reset Water Filter",
     ),
@@ -231,7 +232,8 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_platform=BUTTON,
+        entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:air-filter",
         friendly_name="Reset Air Filter",
     ),
@@ -357,7 +359,7 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
     "extraCavity/cloneTargetTemperatureMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "number",
+            "type": "string",
             "values": {"OFF": {}, "FREEZER": {}},
         },
         device_class=None,
@@ -372,9 +374,10 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
             "type": "temperature",
             "values": {"-2.0": {}, "0.0": {}, "3.0": {}, "7.0": {}},
         },
-        device_class=NumberDeviceClass.TEMPERATURE,
+        device_class=None,
         unit=UnitOfTemperature.CELSIUS,
         entity_category=None,
+        entity_platform=SELECT,
         entity_icon="mdi:thermometer",
         friendly_name="Extra Cavity Temperature",
     ),
@@ -566,15 +569,15 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
     ),
     "ecoMode": ElectroluxDevice(
         capability_info={
-            "access": "constant",
+            "access": "readwrite",
             "default": 1,
             "type": "enum",
             "values": {"OFF": {}, "ON": {}},
         },
         device_class=None,
-        entity_platform=BINARY_SENSOR,
+        entity_platform=SWITCH,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:leaf",
         friendly_name="Eco Mode",
     ),
