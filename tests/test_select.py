@@ -296,6 +296,91 @@ class TestElectroluxSelect:
         assert entity.options_list == {}
         assert entity.options == []
 
+    def test_current_option_case_insensitive_match(self, mock_coordinator):
+        """Reported state value 'heat' matches capability option 'HEAT' case-insensitively.
+
+        Bogong AC (and other models) report mode values lowercase while capabilities
+        define them uppercase. Verify correct label is returned without dynamic add.
+        """
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "AUTO": {},
+                "COOL": {},
+                "HEAT": {},
+                "DRY": {},
+                "FANONLY": {},
+                "OFF": {"disabled": True},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Mode",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="mode",
+            entity_attr="mode",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:fan",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {"properties": {"reported": {"mode": "heat"}}}
+        entity.reported_state = {"mode": "heat"}
+
+        label = entity.current_option
+        assert label == "Heat"
+        # 'heat' must NOT be added as a duplicate dynamic entry alongside 'HEAT'
+        assert list(entity.options_list.values()).count("HEAT") == 1
+        assert "heat" not in entity.options_list.values()
+
+    def test_current_option_disabled_value_not_added_to_options(self, mock_coordinator):
+        """Disabled capability value (mode=OFF when AC powered off) must not pollute options list.
+
+        Device sends mode=OFF when powered off. OFF is marked disabled in capabilities
+        and should be silently skipped, not added as a dynamic option.
+        """
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "AUTO": {},
+                "COOL": {},
+                "HEAT": {},
+                "DRY": {},
+                "FANONLY": {},
+                "OFF": {"disabled": True},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Mode",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="mode",
+            entity_attr="mode",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:fan",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {"properties": {"reported": {"mode": "OFF"}}}
+        entity.reported_state = {"mode": "OFF"}
+
+        label = entity.current_option
+        assert label == ""
+        assert "OFF" not in entity.options_list.values()
+        assert "Off" not in entity.options_list
+
 
 class TestSelectAvailableProperty:
     """Test the available property for select entities."""
