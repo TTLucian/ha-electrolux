@@ -242,11 +242,18 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
 
     @property
     def hvac_mode(self) -> HVACMode:
+        """Return current HVAC mode.
+
+        applianceState=Off reliably means the unit is powered off (confirmed via
+        live testing: physical remote off → applianceState=Off; all active modes
+        including fan_only keep applianceState=Running). When the physical remote
+        powers off the unit, the device does NOT update `mode` to OFF — it retains
+        the last active mode. Checking applianceState first handles that case.
         """
-        Electrolux ACs do NOT use applianceState to indicate ON/OFF.
-        They always report applianceState="OFF" unless the compressor is running.
-        Power state must be derived from `mode`, not `applianceState`.
-        """
+        appliance_state = self.get_state_attr("applianceState")
+        if appliance_state and str(appliance_state).upper() == "OFF":
+            return HVACMode.OFF
+
         mode_value = self.get_state_attr("mode")
         if not mode_value:
             return HVACMode.OFF

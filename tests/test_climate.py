@@ -253,6 +253,12 @@ class TestElectroluxClimate:
         mock_appliance.reported_state["mode"] = "OFF"
         assert climate_entity.hvac_mode == HVACMode.OFF
 
+    def test_hvac_mode_off_via_appliance_state(self, climate_entity, mock_appliance):
+        """Physical remote power-off: applianceState=Off, mode retains last value."""
+        mock_appliance.reported_state["applianceState"] = "Off"
+        mock_appliance.reported_state["mode"] = "cool"
+        assert climate_entity.hvac_mode == HVACMode.OFF
+
     def test_hvac_mode_auto(self, climate_entity, mock_appliance):
         """Test HVAC mode returns AUTO."""
         mock_appliance.reported_state["applianceState"] = "RUNNING"
