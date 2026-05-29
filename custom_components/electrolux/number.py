@@ -1,6 +1,7 @@
 """Number platform for Electrolux."""
 
 import logging
+from typing import Any
 
 from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
@@ -31,7 +32,9 @@ from .entity import ElectroluxEntity
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
+    celsius_to_fahrenheit,
     execute_command_with_error_handling,
+    fahrenheit_to_celsius,
     format_command_for_appliance,
     time_minutes_to_seconds,
     time_seconds_to_minutes,
@@ -223,6 +226,25 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             if self.unit == UnitOfTime.SECONDS:
                 locked_value = time_seconds_to_minutes(locked_value) or 0
             return locked_value
+
+        # Derive ``targetTemperatureF`` from ``targetTemperatureC`` when the
+        # device populates only Celsius. Bogong AC catalogs both fields but
+        # the device reports only ``targetTemperatureC`` — without this the
+        # ``_f`` slider is stuck at the catalog default 16°F (#59).
+        # Devices that DO populate ``_f`` directly (e.g. F-locale ovens)
+        # bypass the derive and read their own field.
+        if (
+            self.entity_attr == "targetTemperatureF"
+            and self.reported_state.get("targetTemperatureF") is None
+        ):
+            c_value = self.reported_state.get("targetTemperatureC")
+            if c_value is not None:
+                try:
+                    derived = celsius_to_fahrenheit(float(c_value))
+                except (TypeError, ValueError):
+                    derived = None
+                if derived is not None:
+                    return derived
 
         value = self.extract_value()
 
@@ -665,6 +687,58 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 translation_key="appliance_offline",
                 translation_placeholders={"state": str(connectivity_state)},
             )
+
+        # Redirect ``targetTemperatureF`` writes to ``targetTemperatureC`` when
+        # the device populates only Celsius (Bogong AC). The signal is the
+        # same one the read-derive uses: live ``targetTemperatureC`` in
+        # reported state. Writing ``_f`` directly would be silently ignored
+        # by the device, leaving the slider stuck at the catalog default
+        # (#59). The off-guard above already covers both attrs, and the
+        # rate-limit + connectivity checks ran above this block.
+        if (
+            self.entity_attr == "targetTemperatureF"
+            and self.reported_state.get("targetTemperatureC") is not None
+            and self.reported_state.get("targetTemperatureF") is None
+        ):
+            try:
+                c_target = fahrenheit_to_celsius(float(value))
+            except (TypeError, ValueError):
+                c_target = None
+            if c_target is None:
+                return
+            appliance = self.get_appliance
+            c_capability: dict[str, Any] = self.capability
+            if hasattr(appliance, "data") and appliance.data:
+                caps = getattr(appliance.data, "capabilities", None) or {}
+                c_capability = caps.get("targetTemperatureC", self.capability)
+            formatted = format_command_for_appliance(
+                c_capability, "targetTemperatureC", c_target
+            )
+            _LOGGER.debug(
+                "Redirecting %s write %s°F → targetTemperatureC %s°C (#59)",
+                self.entity_attr,
+                value,
+                c_target,
+            )
+            # AC commands are wrapped under the literal ``airConditioner`` key
+            # for DAM appliances (matches climate.py's hard-coded wrapper).
+            command: dict[str, Any] = {"targetTemperatureC": formatted}
+            if self.is_dam_appliance:
+                command = {"commands": [{"airConditioner": command}]}
+            await execute_command_with_error_handling(
+                self.api,
+                self.pnc_id,
+                command,
+                "targetTemperatureC",
+                _LOGGER,
+                c_capability,
+            )
+            # Optimistically update ``targetTemperatureC`` so the read-derive
+            # picks up the new value before SSE confirms; otherwise the F
+            # slider snaps back to the previous derived value until the
+            # cloud event arrives.
+            self._apply_optimistic_update("targetTemperatureC", c_target)
+            return
 
         # Remote control validation removed - API handles this with precise appliance-specific rules.
         # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
