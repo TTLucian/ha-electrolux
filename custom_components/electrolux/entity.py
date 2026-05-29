@@ -650,10 +650,13 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(trigger, dict):
                     continue
                 condition = trigger.get("condition", {})
-                # Case-insensitive comparison: catalog defines values in
-                # UPPER (e.g. "FANONLY") while device reports them in
-                # camelCase / lowercase (e.g. "fanOnly"). Mirrors the
-                # ``select`` entity's case-insensitive mode lookup (#57).
+                # The Electrolux capability catalog uses UPPER values
+                # (e.g. ``FANONLY``) while the device's reported state
+                # uses camelCase / lowercase (e.g. ``fanOnly`` on Bogong).
+                # Fold both sides for comparison. The select entity's
+                # mode lookup compensates the same way (#57); the proper
+                # fix would be to normalise on ingest, but that's a
+                # broader refactor.
                 if (
                     condition.get("operator") == "eq"
                     and condition.get("operand_1") == "value"
