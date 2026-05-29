@@ -467,6 +467,97 @@ class TestElectroluxClimate:
         climate_entity._send_command.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_async_set_temperature_off_with_hvac_mode_off_raises(
+        self, climate_entity, mock_appliance
+    ):
+        """OFF + hvac_mode=OFF must raise — never fall through to simple-set.
+
+        ``hvac_mode=OFF`` looks like a valid kwarg but cannot power the
+        appliance on, so the simple-set path would hit the very HTTP 500
+        the off-state guard exists to prevent. Refuse it explicitly.
+        """
+        from homeassistant.exceptions import HomeAssistantError
+
+        mock_appliance.reported_state["mode"] = "OFF"
+        climate_entity._send_command = AsyncMock()
+
+        with pytest.raises(HomeAssistantError, match="appliance is off"):
+            await climate_entity.async_set_temperature(
+                temperature=24.0, hvac_mode=HVACMode.OFF
+            )
+
+        climate_entity._send_command.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_on_mode_change_failure_rolls_back_cache(
+        self, climate_entity, mock_appliance
+    ):
+        """ON + hvac_mode-change path must roll back ``_last_user_temperature`` on failure.
+
+        Mirrors the rollback contract already covered for the OFF path, but
+        on the on→on transition introduced by #71. Without this guarantee,
+        a failed ``async_set_hvac_mode`` would leave a never-applied value
+        in the cache that #48's re-apply would pick up later.
+        """
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "COOL"
+        climate_entity._last_user_temperature = 22.0
+        climate_entity._send_command = AsyncMock(side_effect=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError):
+            await climate_entity.async_set_temperature(
+                temperature=28.0, hvac_mode=HVACMode.HEAT
+            )
+
+        assert climate_entity._last_user_temperature == 22.0
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_on_with_different_hvac_mode_routes_through_set_mode(
+        self, climate_entity, mock_appliance
+    ):
+        """On-device + hvac_mode different from current routes via set_hvac_mode (#71).
+
+        The standard ``climate.set_temperature`` service accepts both
+        ``temperature`` and ``hvac_mode``. When the appliance is on, the mode
+        change must still apply — previously it was silently dropped because
+        the integration only handled ``hvac_mode`` in the off-state branch.
+        """
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "COOL"
+        climate_entity._send_command = AsyncMock()
+
+        await climate_entity.async_set_temperature(
+            temperature=28.0, hvac_mode=HVACMode.HEAT
+        )
+
+        # Three commands: ON (idempotent), mode=HEAT, targetTemperatureC=28.0
+        assert climate_entity._send_command.call_count == 3
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "HEAT")
+        assert calls[2][0] == ("targetTemperatureC", 28.0)
+        assert climate_entity._last_user_temperature == 28.0
+
+    @pytest.mark.asyncio
+    async def test_async_set_temperature_on_with_same_hvac_mode_uses_simple_path(
+        self, climate_entity, mock_appliance
+    ):
+        """On-device + hvac_mode equal to current uses the simple set path."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "COOL"
+        climate_entity._send_command = AsyncMock()
+
+        await climate_entity.async_set_temperature(
+            temperature=24.0, hvac_mode=HVACMode.COOL
+        )
+
+        # One command — same-mode case must not trigger the 3-command sequence.
+        climate_entity._send_command.assert_called_once_with(
+            "targetTemperatureC", 24.0
+        )
+        assert climate_entity._last_user_temperature == 24.0
+
+    @pytest.mark.asyncio
     async def test_async_set_temperature_on_failure_does_not_pollute_cache(
         self, climate_entity, mock_appliance
     ):
