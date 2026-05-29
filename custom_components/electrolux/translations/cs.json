@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Nastavení Electrolux",
-                "description": "Připojte své spotřebiče Electrolux pomocí přihlašovacích údajů API z portálu Electrolux Developer Portal.\n\n**Jak získat přihlašovací údaje API:**\n1. Navštivte stránku {url}\n2. Zaregistrujte se a vytvořte aplikaci\n3. Získejte svůj klíč API, přístupový token a obnovovací token\n\nPokud potřebujete pomoc, navštivte integrační dokumentaci.",
+                "description": "Připojte své spotřebiče Electrolux pomocí přihlašovacích údajů API z portálu Electrolux Developer Portal.\n\n**Jak získat přihlašovací údaje API:**\n1. Navštivte {url}\n2. Zaregistrujte se a vytvořte aplikaci\n3. Získejte svůj klíč API, přístupový token a obnovovací token\n\nPokud potřebujete pomoc, navštivte integrační dokumentaci.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Znovu ověřit Electrolux",
-                "description": "Platnost vašich tokenů Electrolux API vypršela nebo jsou neplatné. Aktualizujte je pomocí nových tokenů z portálu Electrolux Developer Portal.\n\nNavštivte stránku {url} a vygenerujte nové tokeny.",
+                "description": "Platnost vašich tokenů Electrolux API vypršela nebo jsou neplatné. Aktualizujte je pomocí nových tokenů z portálu Electrolux Developer Portal.\n\nNavštivte {url} a vygenerujte nové tokeny.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Překonfigurujte Electrolux",
-                "description": "Aktualizujte své přihlašovací údaje Electrolux API.\n\nNavštivte stránku {url} a vygenerujte nové tokeny.",
+                "description": "Aktualizujte své přihlašovací údaje Electrolux API.\n\nNavštivte {url} a vygenerujte nové tokeny.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Možnosti Electrolux",
-                "description": "Aktualizujte své přihlašovací údaje Electrolux API, pokud jejich platnost vypršela.\n\n**Vygenerování nových přihlašovacích údajů:**\n1. Navštivte stránku {url}\n2. Vygenerujte nový klíč API, přístupový token a obnovovací token\n3. Aktualizujte pole níže\n\n**Bezpečnostní poznámka:** Pole Přístupový token a Obnovovací token jsou záměrně ponechána prázdná. Vždy generujte nové tokeny z portálu – nikdy znovu nepoužívejte ani nesdílejte stávající tokeny.",
+                "description": "Aktualizujte své přihlašovací údaje Electrolux API, pokud jejich platnost vypršela.\n\n**Vygenerování nových přihlašovacích údajů:**\n1. Navštivte {url}\n2. Vygenerujte nový klíč API, přístupový token a obnovovací token\n3. Aktualizujte pole níže\n\n**Bezpečnostní poznámka:** Pole Přístupový token a Obnovovací token jsou záměrně ponechána prázdná. Vždy generujte nové tokeny z portálu – nikdy znovu nepoužívejte ani nesdílejte stávající tokeny.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Aktualizujte přihlašovací údaje Electrolux API",
-                        "description": "Platnost vašich tokenů Electrolux API vypršela a automatické obnovení se nezdařilo. Pro obnovení funkčnosti zadejte nové přihlašovací údaje z portálu Electrolux Developer Portal.\n\n**Vygenerování nových přihlašovacích údajů:**\n1. Navštivte stránku {url}\n2. Vygenerujte nový klíč API, přístupový token a obnovovací token\n3. Zadejte je níže",
+                        "description": "Platnost vašich tokenů Electrolux API vypršela a automatické obnovení se nezdařilo. Pro obnovení funkčnosti zadejte nové přihlašovací údaje z portálu Electrolux Developer Portal.\n\n**Vygenerování nových přihlašovacích údajů:**\n1. Navštivte {url}\n2. Vygenerujte nový klíč API, přístupový token a obnovovací token\n3. Zadejte je níže",
                         "data": {
                             "api_key": "Klíč API",
                             "access_token": "Přístupový token",
@@ -80,7 +80,7 @@
                 "error": {
                     "invalid_auth": "Neplatné přihlašovací údaje rozhraní API. Zkontrolujte svůj API klíč, přístupový token a obnovovací token.",
                     "invalid_format": "Neplatný formát pověření. Ujistěte se, že jsou všechna pole správně vyplněna.",
-                    "entry_not_found": "Configuration entry not found."
+                    "entry_not_found": "Záznam konfigurace nebyl nalezen."
                 },
                 "abort": {
                     "entry_not_found": "Záznam konfigurace nebyl nalezen."
@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Spotřebič je odpojený nebo nedostupný. Zkontrolujte síťové připojení spotřebiče."
+        },
         "appliance_offline": {
             "message": "Zařízení je offline (aktuální stav: {state}). Zkontrolujte, zda je zařízení zapojeno, má síťové připojení a je připojeno ke cloudovým službám."
         },
-        "not_supported_by_program": {
-            "message": "Nelze změnit {attr}: aktuální program {program} nepodporuje."
+        "appliance_state_incomplete": {
+            "message": "Nastavení nelze změnit: stav spotřebiče je neúplný. Počkejte, až se zařízení inicializuje."
+        },
+        "command_not_accepted": {
+            "message": "Příkaz nepřijal zařízení. Zkontrolujte, zda spotřebič tuto operaci podporuje."
+        },
+        "command_rate_limited": {
+            "message": "Bylo odesláno příliš mnoho příkazů. Chvíli počkejte a zkuste to znovu."
         },
         "control_locked": {
-            "message": "{attr} je uzamčen na {value} pro program {program}."
+            "message": "{attr} je uzamčeno na {value} pro program {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Teplota potravinové sondy je zablokována na {value}°C pro program {program}."
         },
         "food_probe_not_inserted": {
             "message": "Pro nastavení cílové teploty musí být vložena potravinová sonda."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "Teplota potravinové sondy není podporována programem {program}."
         },
-        "food_probe_locked_by_program": {
-            "message": "Teplota potravinové sondy je uzamčena na {value}°C pro program {program}."
-        },
-        "value_below_minimum": {
-            "message": "Hodnota {value} je nižší než minimální {min_val} pro {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Hodnota {value} je vyšší než maximální {max_val} pro {attr}."
-        },
         "invalid_option": {
             "message": "Vybrána neplatná možnost."
         },
         "invalid_preset_mode": {
             "message": "Neplatný přednastavený režim {mode}. Dostupné režimy: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Nastavení nelze změnit: stav spotřebiče je neúplný. Počkejte, až se zařízení inicializuje."
+        "not_supported_by_program": {
+            "message": "Nelze změnit {attr}: není podporováno aktuálním programem {program}."
         },
         "remote_control_disabled": {
             "message": "Dálkové ovládání je pro tento spotřebič deaktivováno. Aktivujte jej na ovládacím panelu spotřebiče."
         },
-        "appliance_disconnected": {
-            "message": "Spotřebič je odpojený nebo nedostupný. Zkontrolujte síťové připojení spotřebiče."
-        },
         "service_temporarily_unavailable": {
             "message": "Služba Electrolux je dočasně nedostupná, zkuste to prosím znovu."
         },
-        "command_rate_limited": {
-            "message": "Bylo odesláno příliš mnoho příkazů. Chvíli počkejte a zkuste to znovu."
-        },
-        "command_not_accepted": {
-            "message": "Příkaz zařízení nepřijal. Zkontrolujte, zda spotřebič tuto operaci podporuje."
+        "set_temperature_while_off": {
+            "message": "Nelze nastavit {attr}, když je zařízení vypnuté. Nejprve zapněte spotřebič."
         },
         "type_mismatch": {
             "message": "Chyba integrace: Neshoda datového typu pro {attr}. Očekávaná logická hodnota."
+        },
+        "value_above_maximum": {
+            "message": "Hodnota {value} je vyšší než maximum {max_val} pro {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Hodnota {value} je nižší než minimální hodnota {min_val} pro {attr}."
         }
     }
 }

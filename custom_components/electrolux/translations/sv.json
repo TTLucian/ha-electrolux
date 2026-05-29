@@ -59,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, åtkomsttoken och uppdateringstoken."
+            "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, Access Token och Refresh Token."
         }
     },
     "issues": {
@@ -78,7 +78,7 @@
                     }
                 },
                 "error": {
-                    "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, åtkomsttoken och uppdateringstoken.",
+                    "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, Access Token och Refresh Token.",
                     "invalid_format": "Ogiltigt autentiseringsformat. Se till att alla fält är korrekt ifyllda.",
                     "entry_not_found": "Konfigurationsposten hittades inte."
                 },
@@ -89,29 +89,32 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Apparaten är frånkopplad eller inte tillgänglig. Kontrollera apparatens nätverksanslutning."
+        },
         "appliance_offline": {
             "message": "Apparaten är offline (nuvarande tillstånd: {state}). Kontrollera att apparaten är inkopplad, har nätverksanslutning och är ansluten till molntjänster."
         },
-        "not_supported_by_program": {
-            "message": "Kan inte ändra {attr}: stöds inte av det aktuella programmet {program}."
+        "appliance_state_incomplete": {
+            "message": "Kan inte ändra inställning: apparatens tillstånd är ofullständigt. Vänta tills apparaten initieras."
+        },
+        "command_not_accepted": {
+            "message": "Kommandot accepteras inte av apparaten. Kontrollera att apparaten stöder denna operation."
+        },
+        "command_rate_limited": {
+            "message": "För många kommandon skickade. Vänta ett ögonblick och försök igen."
         },
         "control_locked": {
-            "message": "{attr} är låst till {value} för programmet {program}."
+            "message": "{attr} is locked at {value} for program {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Matsondens temperatur är låst till {value}°C för program {program}."
         },
         "food_probe_not_inserted": {
             "message": "Matsonden måste sättas in för att ställa in måltemperaturen."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Matsondens temperatur stöds inte av programmet {program}."
-        },
-        "food_probe_locked_by_program": {
-            "message": "Matsondens temperatur är låst till {value}°C för program {program}."
-        },
-        "value_below_minimum": {
-            "message": "Värdet {value} är under det lägsta {min_val} för {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Värdet {value} är över det maximala {max_val} för {attr}."
+            "message": "Food probe temperature is not supported by program {program}."
         },
         "invalid_option": {
             "message": "Ogiltigt alternativ valt."
@@ -119,26 +122,26 @@
         "invalid_preset_mode": {
             "message": "Ogiltigt förinställt läge {mode}. Tillgängliga lägen: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Kan inte ändra inställning: apparatens tillstånd är ofullständigt. Vänta tills apparaten initieras."
+        "not_supported_by_program": {
+            "message": "Kan inte ändra {attr}: stöds inte av det aktuella programmet {program}."
         },
         "remote_control_disabled": {
             "message": "Fjärrkontrollen är inaktiverad för denna apparat. Aktivera det på apparatens kontrollpanel."
         },
-        "appliance_disconnected": {
-            "message": "Apparaten är frånkopplad eller inte tillgänglig. Kontrollera apparatens nätverksanslutning."
-        },
         "service_temporarily_unavailable": {
-            "message": "Electrolux service är tillfälligt otillgänglig. Vänligen försök igen."
+            "message": "Electrolux tjänst är tillfälligt otillgänglig, försök igen."
         },
-        "command_rate_limited": {
-            "message": "För många kommandon skickade. Vänta ett ögonblick och försök igen."
-        },
-        "command_not_accepted": {
-            "message": "Kommandot accepteras inte av apparaten. Kontrollera att apparaten stöder denna operation."
+        "set_temperature_while_off": {
+            "message": "Det går inte att ställa in {attr} när apparaten är avstängd. Slå på apparaten först."
         },
         "type_mismatch": {
             "message": "Integreringsfel: datatyp matchar inte för {attr}. Förväntat booleskt."
+        },
+        "value_above_maximum": {
+            "message": "Värdet {value} är över maxvärdet {max_val} för {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Värdet {value} är under det lägsta {min_val} för {attr}."
         }
     }
 }

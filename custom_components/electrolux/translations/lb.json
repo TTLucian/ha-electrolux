@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Den Apparat ass ofgeschalt oder net verfügbar. Kontrolléiert d'Netzverbindung vum Apparat."
+        },
         "appliance_offline": {
             "message": "Den Apparat ass offline (aktuelle Staat: {state}). Kontrolléiert w.e.g. datt den Apparat ugeschloss ass, Netzwierkverbindung huet a mat Cloud Servicer ugeschloss ass."
         },
-        "not_supported_by_program": {
-            "message": "Kann {attr} net änneren: net vum aktuelle Programm {program} ënnerstëtzt."
+        "appliance_state_incomplete": {
+            "message": "Kann d'Astellung net änneren: den Apparatzoustand ass onkomplett. Waart w.e.g. bis den Apparat initialiséiert."
+        },
+        "command_not_accepted": {
+            "message": "Kommando net vum Apparat akzeptéiert. Kontrolléiert datt den Apparat dës Operatioun ënnerstëtzt."
+        },
+        "command_rate_limited": {
+            "message": "Ze vill Kommandoen geschéckt. Waart e Moment a probéiert nach eng Kéier."
         },
         "control_locked": {
             "message": "{attr} ass um {value} fir de Programm {program} gespaart."
+        },
+        "food_probe_locked_by_program": {
+            "message": "D'Liewensmëttelsondetemperatur ass bei {value}°C fir de Programm {program} gespaart."
         },
         "food_probe_not_inserted": {
             "message": "D'Liewensmëttelsonde muss agefouert ginn fir d'Zieltemperatur ze setzen."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "Liewensmëttelsondetemperatur gëtt net vum Programm {program} ënnerstëtzt."
         },
-        "food_probe_locked_by_program": {
-            "message": "D'Liewensmëttelsondetemperatur ass bei {value}°C fir Programm {program} gespaart."
-        },
-        "value_below_minimum": {
-            "message": "De Wäert {value} ass ënner dem Minimum {min_val} fir {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Wäert {value} ass iwwer de Maximum {max_val} fir {attr}."
-        },
         "invalid_option": {
             "message": "Invalid Optioun ausgewielt."
         },
         "invalid_preset_mode": {
-            "message": "Invalid Preset Modus {mode}. Verfügbare Modi: {modes}."
+            "message": "Invalid Preset Modus {mode}. Verfügbar Modi: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Kann d'Astellung net änneren: den Apparatzoustand ass onkomplett. Waart w.e.g. bis den Apparat initialiséiert."
+        "not_supported_by_program": {
+            "message": "Kann net änneren {attr}: net ënnerstëtzt vum aktuelle Programm {program}."
         },
         "remote_control_disabled": {
             "message": "Fernsteierung ass fir dësen Apparat ausgeschalt. Aktivéiert et op der Kontrollpanel vum Apparat."
         },
-        "appliance_disconnected": {
-            "message": "Den Apparat ass ofgeschalt oder net verfügbar. Kontrolléiert d'Netzverbindung vum Apparat."
-        },
         "service_temporarily_unavailable": {
-            "message": "Den Electrolux-Service ass temporär net verfügbar, probéiert et w.e.g. nach eng Kéier."
+            "message": "Electrolux Service ass temporär net verfügbar, probéiert w.e.g. nach eng Kéier."
         },
-        "command_rate_limited": {
-            "message": "Ze vill Kommandoen geschéckt. Waart e Moment a probéiert nach eng Kéier."
-        },
-        "command_not_accepted": {
-            "message": "Kommando net vum Apparat akzeptéiert. Kontrolléiert datt den Apparat dës Operatioun ënnerstëtzt."
+        "set_temperature_while_off": {
+            "message": "Kann {attr} net astellen wann den Apparat aus ass. Maacht den Apparat fir d'éischt un."
         },
         "type_mismatch": {
             "message": "Integratiounsfehler: Datentyp Mëssverständnis fir {attr}. Boolean erwaart."
+        },
+        "value_above_maximum": {
+            "message": "De Wäert {value} ass iwwer dem Maximum {max_val} fir {attr}."
+        },
+        "value_below_minimum": {
+            "message": "De Wäert {value} ass ënner dem Minimum {min_val} fir {attr}."
         }
     }
 }

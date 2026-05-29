@@ -8,7 +8,7 @@
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
                     "refresh_token": "Opdater token",
-                    "notifications": "Aktiver notifikationer for kritiske advarsler",
+                    "notifications": "Aktiver meddelelser for kritiske advarsler",
                     "notifications_warning": "Aktiver meddelelser for advarsler",
                     "notifications_diagnostic": "Aktiver meddelelser for diagnostiske meddelelser"
                 }
@@ -89,29 +89,32 @@
         }
     },
     "exceptions": {
-        "appliance_offline": {
-            "message": "Apparatet er offline (nuværende tilstand: {state}). Kontroller venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
+        "appliance_disconnected": {
+            "message": "Apparatet er afbrudt eller ikke tilgængeligt. Kontroller apparatets netværksforbindelse."
         },
-        "not_supported_by_program": {
-            "message": "Kan ikke ændre {attr}: understøttes ikke af det nuværende program {program}."
+        "appliance_offline": {
+            "message": "Apparatet er offline (nuværende tilstand: {state}). Tjek venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
+        },
+        "appliance_state_incomplete": {
+            "message": "Kan ikke ændre indstilling: Apparatets tilstand er ufuldstændig. Vent venligst på, at apparatet initialiseres."
+        },
+        "command_not_accepted": {
+            "message": "Kommandoen accepteres ikke af apparatet. Kontroller, at apparatet understøtter denne handling."
+        },
+        "command_rate_limited": {
+            "message": "Der er sendt for mange kommandoer. Vent et øjeblik, og prøv igen."
         },
         "control_locked": {
-            "message": "{attr} er låst til {value} for program {program}."
+            "message": "{attr} er låst på {value} for programmet {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Madsondetemperaturen er låst til {value}°C for program {program}."
         },
         "food_probe_not_inserted": {
             "message": "Madsonde skal indsættes for at indstille måltemperaturen."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Kodetemperaturen understøttes ikke af programmet {program}."
-        },
-        "food_probe_locked_by_program": {
-            "message": "Koketemperaturen er låst til {value}°C for program {program}."
-        },
-        "value_below_minimum": {
-            "message": "Værdien {value} er under minimumsværdien {min_val} for {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Værdien {value} er over det maksimale {max_val} for {attr}."
+            "message": "Madsondetemperaturen understøttes ikke af programmet {program}."
         },
         "invalid_option": {
             "message": "Ugyldig indstilling valgt."
@@ -119,26 +122,26 @@
         "invalid_preset_mode": {
             "message": "Ugyldig forudindstillet tilstand {mode}. Tilgængelige tilstande: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Kan ikke ændre indstilling: Apparatets tilstand er ufuldstændig. Vent venligst på, at apparatet initialiseres."
+        "not_supported_by_program": {
+            "message": "Kan ikke ændre {attr}: understøttes ikke af det nuværende program {program}."
         },
         "remote_control_disabled": {
             "message": "Fjernbetjeningen er deaktiveret for dette apparat. Aktiver det på apparatets kontrolpanel."
         },
-        "appliance_disconnected": {
-            "message": "Apparatet er afbrudt eller ikke tilgængeligt. Kontroller apparatets netværksforbindelse."
-        },
         "service_temporarily_unavailable": {
-            "message": "Electrolux-kundeservice er midlertidigt utilgængelig. Prøv igen senere."
+            "message": "Electrolux service er midlertidigt utilgængelig, prøv venligst igen."
         },
-        "command_rate_limited": {
-            "message": "Der er sendt for mange kommandoer. Vent et øjeblik, og prøv igen."
-        },
-        "command_not_accepted": {
-            "message": "Kommandoen accepteres ikke af apparatet. Kontroller, at apparatet understøtter denne operation."
+        "set_temperature_while_off": {
+            "message": "Kan ikke indstille {attr}, mens apparatet er slukket. Tænd først for apparatet."
         },
         "type_mismatch": {
             "message": "Integrationsfejl: datatype uoverensstemmelse for {attr}. Forventet boolesk."
+        },
+        "value_above_maximum": {
+            "message": "Værdien {value} er over det maksimale {max_val} for {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Værdien {value} er under minimum {min_val} for {attr}."
         }
     }
 }

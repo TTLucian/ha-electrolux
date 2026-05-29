@@ -2,143 +2,146 @@
     "config": {
         "step": {
             "user": {
-                "title": "Configuração Eletrolux",
-                "description": "Conecte seus dispositivos Electrolux usando credenciais API do Portal do Desenvolvedor Electrolux.\n\n**Para obter credenciais de API:**\n1. Visite {url}\n2. Registre-se e crie um aplicativo\n3. Obtenha sua chave API, token de acesso e token de atualização\n\nSe precisar de ajuda, visite a documentação de integração.",
+                "title": "Electrolux Setup",
+                "description": "Connect your Electrolux appliances using API credentials from the Electrolux Developer Portal.\n\n**To get API credentials:**\n1. Visit {url}\n2. Register and create an application\n3. Obtain your API Key, Access Token, and Refresh Token\n\nIf you need help, visit the integration documentation.",
                 "data": {
-                    "api_key": "Chave de API",
-                    "access_token": "Token de acesso",
-                    "refresh_token": "Atualizar token",
-                    "notifications": "Habilite notificações para alertas críticos",
-                    "notifications_warning": "Habilitar notificações para avisos",
-                    "notifications_diagnostic": "Habilitar notificações para mensagens de diagnóstico"
+                    "api_key": "API Key",
+                    "access_token": "Access Token",
+                    "refresh_token": "Refresh Token",
+                    "notifications": "Enable notifications for critical alerts",
+                    "notifications_warning": "Enable notifications for warnings",
+                    "notifications_diagnostic": "Enable notifications for diagnostic messages"
                 }
             },
             "reauth_validate": {
-                "title": "Reautenticar Electrolux",
-                "description": "Seus tokens da API Electrolux expiraram ou são inválidos. Atualize-os com novos tokens do Portal do Desenvolvedor Electrolux.\n\nVisite {url} para gerar novos tokens.",
+                "title": "Re-authenticate Electrolux",
+                "description": "Your Electrolux API tokens have expired or are invalid. Please update them with fresh tokens from the Electrolux Developer Portal.\n\nVisit {url} to generate new tokens.",
                 "data": {
-                    "api_key": "Chave de API",
-                    "access_token": "Token de acesso",
-                    "refresh_token": "Atualizar token"
+                    "api_key": "API Key",
+                    "access_token": "Access Token",
+                    "refresh_token": "Refresh Token"
                 }
             },
             "reconfigure": {
-                "title": "Reconfigurar Electrolux",
-                "description": "Atualize suas credenciais da API Electrolux.\n\nVisite {url} para gerar novos tokens.",
+                "title": "Reconfigure Electrolux",
+                "description": "Update your Electrolux API credentials.\n\nVisit {url} to generate new tokens.",
                 "data": {
-                    "api_key": "Chave de API",
-                    "access_token": "Token de acesso",
-                    "refresh_token": "Atualizar token"
+                    "api_key": "API Key",
+                    "access_token": "Access Token",
+                    "refresh_token": "Refresh Token"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Credenciais de API inválidas. Verifique sua chave API, token de acesso e token de atualização no Portal do desenvolvedor Electrolux."
+            "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token from the Electrolux Developer Portal."
         },
         "abort": {
-            "single_instance_allowed": "Apenas uma única configuração Electrolux é permitida.",
-            "already_configured": "Este dispositivo já está configurado.",
-            "already_configured_account": "Esta chave de API já está configurada.",
-            "entry_not_found": "A entrada de configuração não foi encontrada.",
-            "reconfigure_successful": "A reconfiguração foi bem-sucedida."
+            "single_instance_allowed": "Only a single Electrolux configuration is allowed.",
+            "already_configured": "This device is already configured.",
+            "already_configured_account": "This API Key is already configured.",
+            "entry_not_found": "The configuration entry could not be found.",
+            "reconfigure_successful": "Re-configuration was successful."
         }
     },
     "options": {
         "step": {
             "user": {
-                "title": "Opções Electrolux",
-                "description": "Atualize suas credenciais da API Electrolux caso elas tenham expirado.\n\n**Para gerar novas credenciais:**\n1. Visite {url}\n2. Gere nova chave de API, token de acesso e token de atualização\n3. Atualize os campos abaixo\n\n**Nota de segurança:** Os campos Token de acesso e Token de atualização são deixados intencionalmente vazios. Sempre gere novos tokens no portal – nunca reutilize ou compartilhe tokens existentes.",
+                "title": "Electrolux Options",
+                "description": "Update your Electrolux API credentials if they have expired.\n\n**To generate new credentials:**\n1. Visit {url}\n2. Generate new API Key, Access Token, and Refresh Token\n3. Update the fields below\n\n**Security Note:** Access Token and Refresh Token fields are intentionally left empty. Always generate fresh tokens from the portal - never reuse or share existing tokens.",
                 "data": {
-                    "api_key": "Chave de API",
-                    "access_token": "Token de acesso",
-                    "refresh_token": "Atualizar token",
-                    "notifications": "Habilite notificações para alertas críticos",
-                    "notifications_warning": "Habilitar notificações para avisos",
-                    "notifications_diagnostic": "Habilitar notificações para mensagens de diagnóstico"
+                    "api_key": "API Key",
+                    "access_token": "Access Token",
+                    "refresh_token": "Refresh Token",
+                    "notifications": "Enable notifications for critical alerts",
+                    "notifications_warning": "Enable notifications for warnings",
+                    "notifications_diagnostic": "Enable notifications for diagnostic messages"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Credenciais de API inválidas. Verifique sua chave API, token de acesso e token de atualização."
+            "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token."
         }
     },
     "issues": {
         "invalid_refresh_token": {
-            "title": "Problema de autenticação Electrolux",
+            "title": "Electrolux authentication problem",
             "fix_flow": {
                 "step": {
                     "confirm_repair": {
-                        "title": "Atualizar credenciais da API Electrolux",
-                        "description": "Seus tokens de API da Electrolux expiraram e a atualização automática falhou. Insira novas credenciais do Portal do Desenvolvedor Electrolux para restaurar a funcionalidade.\n\n**Para gerar novas credenciais:**\n1. Visite {url}\n2. Gere nova chave de API, token de acesso e token de atualização\n3. Insira-os abaixo",
+                        "title": "Update Electrolux API Credentials",
+                        "description": "Your Electrolux API tokens have expired and automatic refresh failed. Please enter new credentials from the Electrolux Developer Portal to restore functionality.\n\n**To generate new credentials:**\n1. Visit {url}\n2. Generate new API Key, Access Token, and Refresh Token\n3. Enter them below",
                         "data": {
-                            "api_key": "Chave de API",
-                            "access_token": "Token de acesso",
-                            "refresh_token": "Atualizar token"
+                            "api_key": "API Key",
+                            "access_token": "Access Token",
+                            "refresh_token": "Refresh Token"
                         }
                     }
                 },
                 "error": {
-                    "invalid_auth": "Credenciais de API inválidas. Verifique sua chave API, token de acesso e token de atualização.",
-                    "invalid_format": "Formato de credencial inválido. Certifique-se de que todos os campos estejam preenchidos corretamente.",
-                    "entry_not_found": "Entrada de configuração não encontrada."
+                    "invalid_auth": "Invalid API credentials. Please check your API Key, Access Token, and Refresh Token.",
+                    "invalid_format": "Invalid credential format. Please ensure all fields are filled correctly.",
+                    "entry_not_found": "Configuration entry not found."
                 },
                 "abort": {
-                    "entry_not_found": "A entrada de configuração não foi encontrada."
+                    "entry_not_found": "The configuration entry could not be found."
                 }
             }
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Appliance is disconnected or not available. Check the appliance's network connection."
+        },
         "appliance_offline": {
-            "message": "O dispositivo está off-line (estado atual: {state}). Verifique se o dispositivo está conectado, tem conectividade de rede e conectado aos serviços de nuvem."
-        },
-        "not_supported_by_program": {
-            "message": "Não é possível alterar {attr}: não é compatível com o programa atual {program}."
-        },
-        "control_locked": {
-            "message": "{attr} está bloqueado em {value} para o programa {program}."
-        },
-        "food_probe_not_inserted": {
-            "message": "A sonda de alimentos deve ser inserida para definir a temperatura alvo."
-        },
-        "food_probe_not_supported_by_program": {
-            "message": "A temperatura da sonda de alimentos não é suportada pelo programa {program}."
-        },
-        "food_probe_locked_by_program": {
-            "message": "A temperatura da sonda de alimentos está bloqueada em {value}°C para o programa {program}."
-        },
-        "value_below_minimum": {
-            "message": "O valor {value} está abaixo do mínimo {min_val} para {attr}."
-        },
-        "value_above_maximum": {
-            "message": "O valor {value} está acima do máximo {max_val} para {attr}."
-        },
-        "invalid_option": {
-            "message": "Opção inválida selecionada."
-        },
-        "invalid_preset_mode": {
-            "message": "Modo predefinido {mode} inválido. Modos disponíveis: {modes}."
+            "message": "Appliance is offline (current state: {state}). Please check that the appliance is plugged in, has network connectivity and is connected to cloud services."
         },
         "appliance_state_incomplete": {
-            "message": "Não é possível alterar a configuração: o estado do aparelho está incompleto. Aguarde a inicialização do aparelho."
-        },
-        "remote_control_disabled": {
-            "message": "O controle remoto está desativado para este aparelho. Ative-o no painel de controle do aparelho."
-        },
-        "appliance_disconnected": {
-            "message": "O aparelho está desligado ou indisponível. Verifique a conexão de rede do aparelho."
-        },
-        "service_temporarily_unavailable": {
-            "message": "O serviço Electrolux está temporariamente indisponível. Por favor, tente novamente."
-        },
-        "command_rate_limited": {
-            "message": "Muitos comandos enviados. Aguarde um momento e tente novamente."
+            "message": "Cannot change setting: the appliance state is incomplete. Please wait for the appliance to initialize."
         },
         "command_not_accepted": {
-            "message": "Comando não aceito pelo aparelho. Verifique se o aparelho suporta esta operação."
+            "message": "Command not accepted by appliance. Check that the appliance supports this operation."
+        },
+        "command_rate_limited": {
+            "message": "Too many commands sent. Please wait a moment and try again."
+        },
+        "control_locked": {
+            "message": "{attr} is locked at {value} for program {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Food probe temperature is locked at {value}°C for program {program}."
+        },
+        "food_probe_not_inserted": {
+            "message": "Food probe must be inserted to set target temperature."
+        },
+        "food_probe_not_supported_by_program": {
+            "message": "Food probe temperature is not supported by program {program}."
+        },
+        "invalid_option": {
+            "message": "Invalid option selected."
+        },
+        "invalid_preset_mode": {
+            "message": "Invalid preset mode {mode}. Available modes: {modes}."
+        },
+        "not_supported_by_program": {
+            "message": "Cannot change {attr}: not supported by current program {program}."
+        },
+        "remote_control_disabled": {
+            "message": "Remote control is disabled for this appliance. Please enable it on the appliance's control panel."
+        },
+        "service_temporarily_unavailable": {
+            "message": "Electrolux service is temporarily unavailable, please try again."
+        },
+        "set_temperature_while_off": {
+            "message": "Cannot set {attr} while appliance is off. Turn the appliance on first."
         },
         "type_mismatch": {
-            "message": "Erro de integração: incompatibilidade de tipo de dados para {attr}. Booleano esperado."
+            "message": "Integration error: data type mismatch for {attr}. Expected Boolean."
+        },
+        "value_above_maximum": {
+            "message": "Value {value} is above the maximum {max_val} for {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Value {value} is below the minimum {min_val} for {attr}."
         }
     }
 }

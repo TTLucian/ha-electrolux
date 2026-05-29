@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
-        "appliance_offline": {
-            "message": "L'appliance est hors ligne (état actuel : {state}). Veuillez vérifier que l'appliance est branchée, dispose d'une connectivité réseau et est connectée aux services cloud."
+        "appliance_disconnected": {
+            "message": "L'appareil est déconnecté ou n'est pas disponible. Vérifiez la connexion réseau de l'appareil."
         },
-        "not_supported_by_program": {
-            "message": "Impossible de modifier {attr} : non pris en charge par le programme actuel {program}."
+        "appliance_offline": {
+            "message": "L'appareil est hors ligne (état actuel : {state}). Veuillez vérifier que l'appliance est branchée, dispose d'une connectivité réseau et est connectée aux services cloud."
+        },
+        "appliance_state_incomplete": {
+            "message": "Impossible de modifier le réglage : l'état de l'appareil est incomplet. Veuillez attendre que l'appareil s'initialise."
+        },
+        "command_not_accepted": {
+            "message": "Commande non acceptée par l'appareil. Vérifiez que l'appareil prend en charge cette opération."
+        },
+        "command_rate_limited": {
+            "message": "Trop de commandes envoyées. Veuillez patienter un moment et réessayer."
         },
         "control_locked": {
             "message": "{attr} est verrouillé à {value} pour le programme {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "La température de la sonde alimentaire est verrouillée à {value}°C pour le programme {program}."
         },
         "food_probe_not_inserted": {
             "message": "La sonde alimentaire doit être insérée pour régler la température cible."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "La température de la sonde alimentaire n'est pas prise en charge par le programme {program}."
         },
-        "food_probe_locked_by_program": {
-            "message": "La température de la sonde alimentaire est verrouillée à {value}°C pour le programme {program}."
-        },
-        "value_below_minimum": {
-            "message": "La valeur {value} est inférieure au minimum {min_val} pour {attr}."
-        },
-        "value_above_maximum": {
-            "message": "La valeur {value} est supérieure au maximum {max_val} pour {attr}."
-        },
         "invalid_option": {
             "message": "Option non valide sélectionnée."
         },
         "invalid_preset_mode": {
             "message": "Mode prédéfini {mode} non valide. Modes disponibles : {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Impossible de modifier le réglage : l'état de l'appareil est incomplet. Veuillez attendre que l'appareil s'initialise."
+        "not_supported_by_program": {
+            "message": "Impossible de modifier {attr} : non pris en charge par le programme actuel {program}."
         },
         "remote_control_disabled": {
             "message": "La télécommande est désactivée pour cet appareil. Veuillez l'activer sur le panneau de commande de l'appareil."
         },
-        "appliance_disconnected": {
-            "message": "L'appareil est déconnecté ou n'est pas disponible. Vérifiez la connexion réseau de l'appareil."
-        },
         "service_temporarily_unavailable": {
-            "message": "Le service Electrolux est temporairement indisponible. Veuillez réessayer."
+            "message": "Le service Electrolux est temporairement indisponible, veuillez réessayer."
         },
-        "command_rate_limited": {
-            "message": "Trop de commandes envoyées. Veuillez patienter un moment et réessayer."
-        },
-        "command_not_accepted": {
-            "message": "Commande non acceptée par l'appareil. Vérifiez que l'appareil prend en charge cette opération."
+        "set_temperature_while_off": {
+            "message": "Impossible de régler {attr} lorsque l'appareil est éteint. Allumez d’abord l’appareil."
         },
         "type_mismatch": {
             "message": "Erreur d'intégration : incompatibilité de type de données pour {attr}. Booléen attendu."
+        },
+        "value_above_maximum": {
+            "message": "La valeur {value} est supérieure au maximum {max_val} pour {attr}."
+        },
+        "value_below_minimum": {
+            "message": "La valeur {value} est inférieure au minimum {min_val} pour {attr}."
         }
     }
 }

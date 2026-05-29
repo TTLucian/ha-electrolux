@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Aggiorna le credenziali API Electrolux",
-                        "description": "I tuoi token API Electrolux sono scaduti e l'aggiornamento automatico non è riuscito. Inserisci le nuove credenziali dal Portale per sviluppatori Electrolux per ripristinare la funzionalità.\n\n**Per generare nuove credenziali:**\n1. Visita {url}\n2. Genera nuova chiave API, token di accesso e token di aggiornamento\n3. Inseriscili qui sotto",
+                        "description": "I tuoi token API Electrolux sono scaduti e l'aggiornamento automatico non è riuscito. Inserisci le nuove credenziali dal Portale per sviluppatori Electrolux per ripristinare la funzionalità.\n\n**Per generare nuove credenziali:**\n1. Visita ___PLACEholder_0___\n2. Genera nuova chiave API, token di accesso e token di aggiornamento\n3. Inseriscili qui sotto",
                         "data": {
                             "api_key": "Chiave API",
                             "access_token": "Gettone di accesso",
@@ -89,56 +89,59 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "L'apparecchio è disconnesso o non disponibile. Controllare la connessione di rete dell'apparecchio."
+        },
         "appliance_offline": {
             "message": "L'appliance è offline (stato attuale: {state}). Verifica che l'apparecchio sia collegato, abbia connettività di rete e sia connesso ai servizi cloud."
         },
-        "not_supported_by_program": {
-            "message": "Impossibile modificare {attr}: non supportato dal programma corrente {program}."
+        "appliance_state_incomplete": {
+            "message": "Impossibile modificare l'impostazione: lo stato dell'appliance è incompleto. Attendere l'inizializzazione dell'appliance."
+        },
+        "command_not_accepted": {
+            "message": "Comando non accettato dall'apparecchio. Verificare che l'apparecchio supporti questa operazione."
+        },
+        "command_rate_limited": {
+            "message": "Troppi comandi inviati. Attendi un attimo e riprova."
         },
         "control_locked": {
-            "message": "{attr} è bloccato su {value} per il programma {program}."
+            "message": "{attr} è bloccato in {value} per il programma {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "La temperatura della sonda dell'alimento è bloccata a {value}°C per il programma {program}."
         },
         "food_probe_not_inserted": {
             "message": "La sonda alimentare deve essere inserita per impostare la temperatura target."
         },
         "food_probe_not_supported_by_program": {
-            "message": "La temperatura della sonda alimentare non è supportata dal programma {program}."
-        },
-        "food_probe_locked_by_program": {
-            "message": "La temperatura della sonda alimentare è bloccata su {value}°C per il programma {program}."
-        },
-        "value_below_minimum": {
-            "message": "Il valore {value} è inferiore al minimo {min_val} per {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Il valore {value} è superiore al massimo {max_val} per {attr}."
+            "message": "La temperatura della sonda cibo non è supportata dal programma {program}."
         },
         "invalid_option": {
             "message": "Opzione selezionata non valida."
         },
         "invalid_preset_mode": {
-            "message": "Modalità preimpostata {mode} non valida. Modalità disponibili: {modes}."
+            "message": "Modalità preimpostata non valida {mode}. Modalità disponibili: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Impossibile modificare l'impostazione: lo stato dell'appliance è incompleto. Attendere l'inizializzazione dell'appliance."
+        "not_supported_by_program": {
+            "message": "Impossibile modificare {attr}: non supportato dal programma corrente {program}."
         },
         "remote_control_disabled": {
             "message": "Il controllo remoto è disabilitato per questo apparecchio. Si prega di abilitarlo sul pannello di controllo dell'apparecchio."
         },
-        "appliance_disconnected": {
-            "message": "L'apparecchio è disconnesso o non disponibile. Controllare la connessione di rete dell'apparecchio."
-        },
         "service_temporarily_unavailable": {
-            "message": "Il servizio Electrolux è temporaneamente non disponibile. Si prega di riprovare."
+            "message": "Il servizio Electrolux è temporaneamente non disponibile, riprova."
         },
-        "command_rate_limited": {
-            "message": "Troppi comandi inviati. Attendi un attimo e riprova."
-        },
-        "command_not_accepted": {
-            "message": "Comando non accettato dall'apparecchio. Verificare che l'apparecchio supporti questa operazione."
+        "set_temperature_while_off": {
+            "message": "Impossibile impostare {attr} mentre l'apparecchio è spento. Accendere prima l'apparecchio."
         },
         "type_mismatch": {
             "message": "Errore di integrazione: tipo di dati non corrispondente per {attr}. Booleano previsto."
+        },
+        "value_above_maximum": {
+            "message": "Il valore {value} è superiore al massimo {max_val} per {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Il valore {value} è inferiore al minimo {min_val} per {attr}."
         }
     }
 }

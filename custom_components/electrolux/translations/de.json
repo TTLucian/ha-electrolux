@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Gerät ist nicht angeschlossen oder nicht verfügbar. Überprüfen Sie die Netzwerkverbindung des Geräts."
+        },
         "appliance_offline": {
             "message": "Appliance ist offline (aktueller Status: {state}). Bitte überprüfen Sie, ob das Gerät angeschlossen ist, über eine Netzwerkverbindung verfügt und mit Cloud-Diensten verbunden ist."
         },
-        "not_supported_by_program": {
-            "message": "{attr} kann nicht geändert werden: wird vom aktuellen Programm {program} nicht unterstützt."
+        "appliance_state_incomplete": {
+            "message": "Einstellung kann nicht geändert werden: Der Gerätestatus ist unvollständig. Bitte warten Sie, bis das Gerät initialisiert ist."
+        },
+        "command_not_accepted": {
+            "message": "Befehl wird von der Appliance nicht akzeptiert. Überprüfen Sie, ob das Gerät diesen Vorgang unterstützt."
+        },
+        "command_rate_limited": {
+            "message": "Zu viele Befehle gesendet. Bitte warten Sie einen Moment und versuchen Sie es erneut."
         },
         "control_locked": {
-            "message": "{attr} ist auf {value} für das Programm {program} gesperrt."
+            "message": "{attr} ist bei {value} für Programm {program} gesperrt."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Die Temperatur des Lebensmittelsensors ist für das Programm {program} auf {value}°C gesperrt."
         },
         "food_probe_not_inserted": {
             "message": "Um die Zieltemperatur einzustellen, muss der Lebensmittelfühler eingeführt werden."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "Die Temperatur des Lebensmittelsensors wird vom Programm {program} nicht unterstützt."
         },
-        "food_probe_locked_by_program": {
-            "message": "Die Temperatur des Lebensmittelfühlers ist für das Programm {program} auf {value}°C gesperrt."
-        },
-        "value_below_minimum": {
-            "message": "Der Wert {value} liegt unter dem Mindestwert {min_val} für {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Der Wert {value} liegt über dem Maximalwert {max_val} für {attr}."
-        },
         "invalid_option": {
             "message": "Ungültige Option ausgewählt."
         },
         "invalid_preset_mode": {
             "message": "Ungültiger voreingestellter Modus {mode}. Verfügbare Modi: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Einstellung kann nicht geändert werden: Der Gerätestatus ist unvollständig. Bitte warten Sie, bis das Gerät initialisiert ist."
+        "not_supported_by_program": {
+            "message": "{attr} kann nicht geändert werden: Wird vom aktuellen Programm {program} nicht unterstützt."
         },
         "remote_control_disabled": {
             "message": "Die Fernbedienung ist für dieses Gerät deaktiviert. Bitte aktivieren Sie es auf dem Bedienfeld des Geräts."
         },
-        "appliance_disconnected": {
-            "message": "Gerät ist nicht angeschlossen oder nicht verfügbar. Überprüfen Sie die Netzwerkverbindung des Geräts."
-        },
         "service_temporarily_unavailable": {
-            "message": "Der Electrolux-Kundendienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut."
+            "message": "Der Electrolux-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es erneut."
         },
-        "command_rate_limited": {
-            "message": "Zu viele Befehle gesendet. Bitte warten Sie einen Moment und versuchen Sie es erneut."
-        },
-        "command_not_accepted": {
-            "message": "Befehl wird von der Appliance nicht akzeptiert. Überprüfen Sie, ob das Gerät diesen Vorgang unterstützt."
+        "set_temperature_while_off": {
+            "message": "{attr} kann nicht eingestellt werden, während das Gerät ausgeschaltet ist. Schalten Sie zuerst das Gerät ein."
         },
         "type_mismatch": {
             "message": "Integrationsfehler: Datentypkonflikt für {attr}. Erwarteter Boolescher Wert."
+        },
+        "value_above_maximum": {
+            "message": "Der Wert {value} liegt über dem Maximalwert {max_val} für {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Der Wert {value} liegt unter dem Mindestwert {min_val} für {attr}."
         }
     }
 }

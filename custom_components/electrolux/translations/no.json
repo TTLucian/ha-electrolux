@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Electrolux oppsett",
-                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**Slik får du API-legitimasjon:**\n1. Gå til {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
+                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**For å få API-legitimasjon:**\n1. Besøk {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
                 "data": {
                     "api_key": "API-nøkkel",
                     "access_token": "Tilgangstoken",
@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Electrolux-alternativer",
-                "description": "Oppdater Electrolux API-legitimasjonen din hvis den har utløpt.\n\n**Slik genererer du ny legitimasjon:**\n1. Gå til {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Oppdater feltene nedenfor\n\n**Sikkerhetsmerknad:** Feltene for tilgangstoken og oppdateringstoken er tomme med hensikt. Generer alltid nye tokens fra portalen - aldri gjenbruk eller del eksisterende tokens.",
+                "description": "Oppdater Electrolux API-legitimasjonen din hvis den har utløpt.\n\n**Slik genererer du ny legitimasjon:**\n1. Besøk {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Oppdater feltene nedenfor\n\n**Sikkerhetsmerknad:** Feltene for tilgangstoken og oppdateringstoken er tomme med hensikt. Generer alltid nye tokens fra portalen - aldri gjenbruk eller del eksisterende tokens.",
                 "data": {
                     "api_key": "API-nøkkel",
                     "access_token": "Tilgangstoken",
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Oppdater Electrolux API-legitimasjon",
-                        "description": "Dine Electrolux API-tokener har utløpt og automatisk oppdatering mislyktes. Vennligst skriv inn ny legitimasjon fra Electrolux Developer Portal for å gjenopprette funksjonaliteten.\n\n**Slik genererer du ny legitimasjon:**\n1. Gå til {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Skriv dem inn nedenfor",
+                        "description": "Dine Electrolux API-tokener har utløpt og automatisk oppdatering mislyktes. Vennligst skriv inn ny legitimasjon fra Electrolux Developer Portal for å gjenopprette funksjonaliteten.\n\n**Slik genererer du ny legitimasjon:**\n1. Besøk {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Skriv dem inn nedenfor",
                         "data": {
                             "api_key": "API-nøkkel",
                             "access_token": "Tilgangstoken",
@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Apparatet er frakoblet eller ikke tilgjengelig. Sjekk apparatets nettverkstilkobling."
+        },
         "appliance_offline": {
             "message": "Enheten er frakoblet (nåværende tilstand: {state}). Kontroller at apparatet er koblet til, har nettverkstilkobling og er koblet til skytjenester."
         },
-        "not_supported_by_program": {
-            "message": "Kan ikke endre {attr}: støttes ikke av gjeldende program {program}."
+        "appliance_state_incomplete": {
+            "message": "Kan ikke endre innstilling: Apparatets tilstand er ufullstendig. Vent til apparatet initialiseres."
+        },
+        "command_not_accepted": {
+            "message": "Kommandoen godtas ikke av apparatet. Kontroller at apparatet støtter denne operasjonen."
+        },
+        "command_rate_limited": {
+            "message": "For mange kommandoer sendt. Vent et øyeblikk og prøv igjen."
         },
         "control_locked": {
-            "message": "{attr} er låst til {value} for program {program}."
+            "message": "{attr} er låst på {value} for programmet {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Matsondetemperaturen er låst til {value}°C for program {program}."
         },
         "food_probe_not_inserted": {
             "message": "Matsonde må settes inn for å stille inn måltemperatur."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "Matsondetemperatur støttes ikke av programmet {program}."
         },
-        "food_probe_locked_by_program": {
-            "message": "Matsondetemperaturen er låst til {value}°C for program {program}."
-        },
-        "value_below_minimum": {
-            "message": "Verdien {value} er under minimumsverdien {min_val} for {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Verdien {value} er over maksimumsverdien {max_val} for {attr}."
-        },
         "invalid_option": {
             "message": "Ugyldig alternativ er valgt."
         },
         "invalid_preset_mode": {
             "message": "Ugyldig forhåndsinnstilt modus {mode}. Tilgjengelige moduser: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Kan ikke endre innstilling: apparatets tilstand er ufullstendig. Vent til apparatet initialiseres."
+        "not_supported_by_program": {
+            "message": "Kan ikke endre {attr}: støttes ikke av gjeldende program {program}."
         },
         "remote_control_disabled": {
             "message": "Fjernkontrollen er deaktivert for dette apparatet. Aktiver den på apparatets kontrollpanel."
         },
-        "appliance_disconnected": {
-            "message": "Apparatet er frakoblet eller ikke tilgjengelig. Sjekk apparatets nettverkstilkobling."
-        },
         "service_temporarily_unavailable": {
-            "message": "Electrolux-kundeservice er midlertidig utilgjengelig. Vennligst prøv igjen."
+            "message": "Electrolux-tjenesten er midlertidig utilgjengelig, prøv igjen."
         },
-        "command_rate_limited": {
-            "message": "For mange kommandoer sendt. Vent et øyeblikk og prøv igjen."
-        },
-        "command_not_accepted": {
-            "message": "Kommandoen godtas ikke av apparatet. Kontroller at apparatet støtter denne operasjonen."
+        "set_temperature_while_off": {
+            "message": "Kan ikke stille inn {attr} mens apparatet er av. Slå på apparatet først."
         },
         "type_mismatch": {
             "message": "Integrasjonsfeil: datatype stemmer ikke overens for {attr}. Forventet boolsk."
+        },
+        "value_above_maximum": {
+            "message": "Verdien {value} er over maksimum {max_val} for {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Verdien {value} er under minimum {min_val} for {attr}."
         }
     }
 }

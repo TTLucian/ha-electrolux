@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Electroluxi seadistamine",
-                "description": "Ühendage oma Electroluxi seadmed, kasutades Electroluxi arendajaportaali API mandaate.\n\n**API mandaatide hankimiseks:**\n1. Külastage aadressi {url}\n2. Registreeru ja loo taotlus\n3. Hankige oma API võti, juurdepääsuluba ja värskendusluba\n\nKui vajate abi, vaadake integreerimise dokumentatsiooni.",
+                "description": "Ühendage oma Electroluxi seadmed, kasutades Electroluxi arendajaportaali API mandaate.\n\n**API mandaatide hankimiseks:**\n1. Külastage {url}\n2. Registreeru ja loo taotlus\n3. Hankige oma API võti, juurdepääsuluba ja värskendusluba\n\nKui vajate abi, vaadake integreerimise dokumentatsiooni.",
                 "data": {
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
@@ -47,12 +47,12 @@
         "step": {
             "user": {
                 "title": "Electroluxi valikud",
-                "description": "Värskendage oma Electroluxi API mandaate, kui need on aegunud.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage aadressi {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Värskendage allolevaid välju\n\n**Turvamärkus:** Access Token ja Refresh Token väljad jäetakse tahtlikult tühjaks. Looge portaalist alati värskeid märke – ärge kunagi kasutage olemasolevaid märke ega jagage neid.",
+                "description": "Värskendage oma Electroluxi API mandaate, kui need on aegunud.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Värskendage allolevaid välju\n\n**Turvamärkus:** Access Token ja Refresh Token väljad jäetakse tahtlikult tühjaks. Looge portaalist alati värskeid märke – ärge kunagi kasutage olemasolevaid märke ega jagage neid.",
                 "data": {
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
                     "refresh_token": "Värskenda märki",
-                    "notifications": "Lubage kriitiliste hoiatuste teatised",
+                    "notifications": "Lubage kriitiliste hoiatusteadete märguanded",
                     "notifications_warning": "Hoiatuste märguannete lubamine",
                     "notifications_diagnostic": "Lubage diagnostikasõnumite märguanded"
                 }
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Värskendage Electroluxi API mandaati",
-                        "description": "Teie Electroluxi API märgid on aegunud ja automaatne värskendamine ebaõnnestus. Funktsionaalsuse taastamiseks sisestage Electroluxi arendajaportaalist uued mandaadid.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage aadressi {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Sisestage need alla",
+                        "description": "Teie Electroluxi API märgid on aegunud ja automaatne värskendamine ebaõnnestus. Funktsionaalsuse taastamiseks sisestage Electroluxi arendajaportaalist uued mandaadid.\n\n**Uute mandaatide loomiseks toimige järgmiselt.**\n1. Külastage {url}\n2. Looge uus API võti, juurdepääsuluba ja värskendusluba\n3. Sisestage need alla",
                         "data": {
                             "api_key": "API võti",
                             "access_token": "Juurdepääsuluba",
@@ -89,14 +89,26 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Seade on lahti ühendatud või pole saadaval. Kontrollige seadme võrguühendust."
+        },
         "appliance_offline": {
             "message": "Seade on võrguühenduseta (praegune olek: {state}). Kontrollige, kas seade on vooluvõrku ühendatud, võrguühendusega ja pilveteenustega ühendatud."
         },
-        "not_supported_by_program": {
-            "message": "Ei saa muuta {attr}: praegune programm {program} ei toeta."
+        "appliance_state_incomplete": {
+            "message": "Seadet ei saa muuta: seadme olek on mittetäielik. Palun oodake, kuni seade initsialiseerub."
+        },
+        "command_not_accepted": {
+            "message": "Seade ei aktsepteeri käsku. Kontrollige, kas seade toetab seda toimingut."
+        },
+        "command_rate_limited": {
+            "message": "Saadeti liiga palju käske. Palun oodake veidi ja proovige uuesti."
         },
         "control_locked": {
-            "message": "{attr} on programmi {program} jaoks lukustatud väärtusega {value}."
+            "message": "{attr} on programmi {program} jaoks lukustatud kohas {value}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Toidusondi temperatuur on programmi {program} jaoks lukustatud {value}°C juures."
         },
         "food_probe_not_inserted": {
             "message": "Sihttemperatuuri seadmiseks tuleb sisestada toidusond."
@@ -104,41 +116,32 @@
         "food_probe_not_supported_by_program": {
             "message": "Programm {program} ei toeta toidusondi temperatuuri."
         },
-        "food_probe_locked_by_program": {
-            "message": "Toidusondi temperatuur on programmi {program} jaoks lukustatud väärtusele {value}°C."
-        },
-        "value_below_minimum": {
-            "message": "Väärtus {value} on alla {attr} miinimumi {min_val}."
-        },
-        "value_above_maximum": {
-            "message": "Väärtus {value} on suurem kui {attr} maksimaalne väärtus {max_val}."
-        },
         "invalid_option": {
             "message": "Valitud on kehtetu valik."
         },
         "invalid_preset_mode": {
             "message": "Kehtetu eelseadistatud režiim {mode}. Saadaolevad režiimid: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Seadet ei saa muuta: seadme olek on mittetäielik. Palun oodake, kuni seade initsialiseerub."
+        "not_supported_by_program": {
+            "message": "Ei saa muuta {attr}: praegune programm {program} ei toeta."
         },
         "remote_control_disabled": {
             "message": "Kaugjuhtimispult on selle seadme jaoks keelatud. Palun lubage see seadme juhtpaneelil."
         },
-        "appliance_disconnected": {
-            "message": "Seade on lahti ühendatud või pole saadaval. Kontrollige seadme võrguühendust."
-        },
         "service_temporarily_unavailable": {
-            "message": "Electroluxi teenus on ajutiselt kättesaamatu, palun proovi uuesti."
+            "message": "Electroluxi teenus pole ajutiselt saadaval, proovige uuesti."
         },
-        "command_rate_limited": {
-            "message": "Saadeti liiga palju käske. Palun oodake veidi ja proovige uuesti."
-        },
-        "command_not_accepted": {
-            "message": "Seade ei aktsepteeri käsku. Kontrollige, kas seade toetab seda toimingut."
+        "set_temperature_while_off": {
+            "message": "Seadet {attr} ei saa seadistada, kui seade on välja lülitatud. Lülitage seade esmalt sisse."
         },
         "type_mismatch": {
             "message": "Integreerimise viga: {attr} andmetüüp ei ühti. Eeldatav Boolean."
+        },
+        "value_above_maximum": {
+            "message": "Väärtus {value} on suurem kui {attr} maksimaalne väärtus {max_val}."
+        },
+        "value_below_minimum": {
+            "message": "Väärtus {value} on madalam kui {attr} miinimum {min_val}."
         }
     }
 }

@@ -21,8 +21,13 @@ def translate_text(text, dest_language):
 
     Placeholders like {variable} are extracted before translation and restored
     after, ensuring they remain in their original form with English names.
+    Text entirely enclosed in braces is skipped from translation.
     """
     if not text or text.strip() == "":
+        return text
+
+    # If the entire text is enclosed in braces, skip translation
+    if re.match(r"^\{.*\}$", text.strip()):
         return text
 
     # Extract all placeholders {variable} and store them

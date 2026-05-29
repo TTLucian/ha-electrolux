@@ -89,29 +89,32 @@
         }
     },
     "exceptions": {
+        "appliance_disconnected": {
+            "message": "Urządzenie jest odłączone lub niedostępne. Sprawdź połączenie sieciowe urządzenia."
+        },
         "appliance_offline": {
             "message": "Urządzenie jest w trybie offline (bieżący stan: {state}). Sprawdź, czy urządzenie jest podłączone do prądu, ma połączenie z siecią i jest połączone z usługami w chmurze."
         },
-        "not_supported_by_program": {
-            "message": "Nie można zmienić {attr}: nie jest obsługiwane przez bieżący program {program}."
+        "appliance_state_incomplete": {
+            "message": "Nie można zmienić ustawienia: stan urządzenia jest niekompletny. Poczekaj na inicjalizację urządzenia."
+        },
+        "command_not_accepted": {
+            "message": "Polecenie nie zostało zaakceptowane przez urządzenie. Sprawdź, czy urządzenie obsługuje tę operację."
+        },
+        "command_rate_limited": {
+            "message": "Wysłano zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie."
         },
         "control_locked": {
-            "message": "{attr} jest zablokowany na {value} dla programu {program}."
+            "message": "{attr} jest zablokowany w {value} dla programu {program}."
+        },
+        "food_probe_locked_by_program": {
+            "message": "Temperatura czujnika żywności jest zablokowana na poziomie {value}_°C dla programu {program}."
         },
         "food_probe_not_inserted": {
             "message": "Aby ustawić temperaturę docelową, należy włożyć sondę do żywności."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Temperatura czujnika temperatury żywności nie jest obsługiwana przez program {program}."
-        },
-        "food_probe_locked_by_program": {
-            "message": "Temperatura czujnika żywności jest zablokowana na poziomie {value}°C dla programu {program}."
-        },
-        "value_below_minimum": {
-            "message": "Wartość {value} jest poniżej minimalnej wartości {min_val} dla {attr}."
-        },
-        "value_above_maximum": {
-            "message": "Wartość {value} przekracza maksymalną wartość {max_val} dla {attr}."
+            "message": "Temperatura sondy do żywności nie jest obsługiwana przez program {program}."
         },
         "invalid_option": {
             "message": "Wybrano nieprawidłową opcję."
@@ -119,26 +122,26 @@
         "invalid_preset_mode": {
             "message": "Nieprawidłowy tryb ustawień wstępnych {mode}. Dostępne tryby: {modes}."
         },
-        "appliance_state_incomplete": {
-            "message": "Nie można zmienić ustawienia: stan urządzenia jest niekompletny. Poczekaj na inicjalizację urządzenia."
+        "not_supported_by_program": {
+            "message": "Nie można zmienić {attr}: nie jest obsługiwane przez bieżący program {program}."
         },
         "remote_control_disabled": {
             "message": "Zdalne sterowanie jest wyłączone dla tego urządzenia. Proszę włączyć tę opcję na panelu sterowania urządzenia."
         },
-        "appliance_disconnected": {
-            "message": "Urządzenie jest odłączone lub niedostępne. Sprawdź połączenie sieciowe urządzenia."
-        },
         "service_temporarily_unavailable": {
-            "message": "Usługi serwisowe firmy Electrolux są chwilowo niedostępne. Proszę spróbować ponownie."
+            "message": "Usługa Electrolux jest chwilowo niedostępna. Spróbuj ponownie."
         },
-        "command_rate_limited": {
-            "message": "Wysłano zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie."
-        },
-        "command_not_accepted": {
-            "message": "Polecenie nie zostało zaakceptowane przez urządzenie. Sprawdź, czy urządzenie obsługuje tę operację."
+        "set_temperature_while_off": {
+            "message": "Nie można ustawić {attr}, gdy urządzenie jest wyłączone. Najpierw włącz urządzenie."
         },
         "type_mismatch": {
-            "message": "Błąd integracji: niezgodność typu danych dla {attr}. Oczekiwano wartości logicznej."
+            "message": "Błąd integracji: niezgodny typ danych dla {attr}. Oczekiwano wartości logicznej."
+        },
+        "value_above_maximum": {
+            "message": "Wartość {value} przekracza maksimum {max_val} dla {attr}."
+        },
+        "value_below_minimum": {
+            "message": "Wartość {value} jest niższa od minimalnej {min_val} dla {attr}."
         }
     }
 }
