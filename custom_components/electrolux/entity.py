@@ -650,10 +650,15 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(trigger, dict):
                     continue
                 condition = trigger.get("condition", {})
+                # Case-insensitive comparison: catalog defines values in
+                # UPPER (e.g. "FANONLY") while device reports them in
+                # camelCase / lowercase (e.g. "fanOnly"). Mirrors the
+                # ``select`` entity's case-insensitive mode lookup (#57).
                 if (
                     condition.get("operator") == "eq"
                     and condition.get("operand_1") == "value"
-                    and str(condition.get("operand_2")) == str(current_value)
+                    and str(condition.get("operand_2")).casefold()
+                    == str(current_value).casefold()
                 ):
                     action = trigger.get("action", {})
                     action_for_attr = action.get(attr_name)

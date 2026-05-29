@@ -2235,6 +2235,71 @@ class TestNumberMissingCoverage:
         with pytest.raises(HomeAssistantError, match="offline"):
             await entity.async_set_native_value(100.0)
 
+    # Issue #72: AC target temperature unavailable when mode disables it
+    def test_available_false_when_target_temp_disabled_by_trigger(
+        self, mock_coordinator
+    ):
+        """``targetTemperatureC`` must be ``unavailable`` when current mode
+        marks the capability ``disabled: true`` via a trigger (e.g. Bogong
+        ``mode=fanOnly`` or ``mode=dry``). HA UI greys out the slider so
+        users do not hit the API HTTP 406 ``Capability disabled`` reject.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=True)
+
+        assert entity.available is False
+
+    def test_available_true_when_target_temp_not_disabled_by_trigger(
+        self, mock_coordinator
+    ):
+        """No trigger-based disabled flag → fall through to base availability."""
+        from unittest.mock import PropertyMock
+
+        from custom_components.electrolux.entity import ElectroluxEntity
+
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+
+        # super().available reads connectivity / coordinator data; just verify
+        # the new branch did not short-circuit it to False.
+        with patch.object(
+            ElectroluxEntity, "available", new_callable=PropertyMock, return_value=True
+        ):
+            assert entity.available is True
+
+    def test_available_non_temp_attr_ignores_trigger_disabled_flag(
+        self, mock_coordinator
+    ):
+        """The trigger-disabled short-circuit only applies to AC temp attrs.
+
+        Other entity attrs (oven temperatures, washer durations) follow the
+        existing "remain available, lock value" rule even if a trigger
+        marks them disabled.
+        """
+        from unittest.mock import PropertyMock
+
+        from custom_components.electrolux.entity import ElectroluxEntity
+
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetDuration",  # not in _AC_TEMPERATURE_ATTRS
+            capability={"type": "time", "min": 0, "max": 86400, "step": 60},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=True)
+
+        with patch.object(
+            ElectroluxEntity, "available", new_callable=PropertyMock, return_value=True
+        ):
+            assert entity.available is True
+
     # Bug 4 / PR #63: AC target temperature off-state guard
     @pytest.mark.asyncio
     async def test_set_native_value_target_temp_raises_when_appliance_off(
