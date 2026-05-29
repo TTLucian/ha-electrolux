@@ -781,6 +781,127 @@ class TestApplyOptimisticUpdateGaps:
 
         set_updated_mock.assert_not_called()
 
+    def test_trigger_skips_default_when_action_declares_constraints(self):
+        """Issue #70: AC mode trigger declares constraints, must NOT override.
+
+        On Bogong AC, switching ``mode`` to COOL/HEAT/AUTO/DRY fires a trigger
+        whose action describes ``targetTemperatureC`` constraints (``access``,
+        ``min``, ``max``, ``step``, ``type``, ``disabled``) along with a
+        ``default``. The device does not actually reset the setpoint, so
+        writing the default into ``reported`` produced phantom UI values
+        until the next coordinator poll.
+
+        The action is now classified as a "constraints declaration" by the
+        presence of any schema metadata key. Default is skipped; live value
+        is preserved.
+        """
+        reported = {
+            "mode": "HEAT",
+            "targetTemperatureC": 28,
+        }
+        capabilities = {
+            "mode": {
+                "access": "readwrite",
+                "type": "string",
+                "triggers": [
+                    {
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": "COOL",
+                            "operator": "eq",
+                        },
+                        "action": {
+                            "targetTemperatureC": {
+                                "access": "readwrite",
+                                "default": 16,
+                                "max": 30,
+                                "min": 16,
+                                "step": 1,
+                                "type": "temperature",
+                                "disabled": False,
+                            },
+                        },
+                    }
+                ],
+            }
+        }
+        entity = make_entity(
+            entity_attr="mode",
+            reported=reported,
+            capability=capabilities["mode"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        set_updated_mock = MagicMock()
+        entity.coordinator.async_set_updated_data = set_updated_mock
+
+        entity._apply_triggered_updates("mode", "COOL")
+
+        # Live value preserved — no phantom 16
+        assert reported["targetTemperatureC"] == 28
+        # Coordinator was not notified because no write happened
+        set_updated_mock.assert_not_called()
+
+    def test_trigger_skips_default_when_disabled_constraint_declared(self):
+        """Issue #70: FANONLY trigger locks targetTemperatureC; default still skipped.
+
+        On Bogong AC, mode=FANONLY declares targetTemperatureC with
+        ``disabled: true`` and ``default: 23``. The previous behaviour wrote
+        23 into ``reported`` on every transition, masking the device's actual
+        setpoint (which the unit retains across mode changes).
+
+        Disabled-vs-enabled is handled separately via ``_is_disabled_by_trigger``
+        for entity availability; this code path does not need to mirror it
+        into reported state.
+        """
+        reported = {
+            "mode": "COOL",
+            "targetTemperatureC": 28,
+        }
+        capabilities = {
+            "mode": {
+                "access": "readwrite",
+                "type": "string",
+                "triggers": [
+                    {
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": "FANONLY",
+                            "operator": "eq",
+                        },
+                        "action": {
+                            "targetTemperatureC": {
+                                "access": "readwrite",
+                                "default": 23,
+                                "max": 23,
+                                "min": 23,
+                                "step": 1,
+                                "type": "temperature",
+                                "disabled": True,
+                            },
+                        },
+                    }
+                ],
+            }
+        }
+        entity = make_entity(
+            entity_attr="mode",
+            reported=reported,
+            capability=capabilities["mode"],
+        )
+        entity.coordinator.data["appliances"].get_appliance(
+            "TEST_APPLIANCE_123"
+        ).data.capabilities = capabilities
+        set_updated_mock = MagicMock()
+        entity.coordinator.async_set_updated_data = set_updated_mock
+
+        entity._apply_triggered_updates("mode", "FANONLY")
+
+        # Live value preserved
+        assert reported["targetTemperatureC"] == 28
+        set_updated_mock.assert_not_called()
+
     def test_trigger_integrates_via_apply_optimistic_update(self):
         """_apply_optimistic_update calls _apply_triggered_updates transparently."""
         reported = {

@@ -481,6 +481,13 @@ class ElectroluxEntity(CoordinatorEntity):
 
         Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions
         are handled — these cover all known DW/WM/dryer option triggers.
+
+        A trigger action's ``default`` is treated as a forced value only when
+        the action contains nothing but ``default``.  Actions that also carry
+        schema metadata (min/max/step/type/access/values/disabled) describe
+        constraints in the new mode but do not mean the device changed the
+        value — writing such defaults into ``reported`` produces phantom UI
+        state until the next coordinator poll (see issue #70).
         """
         if not self.appliance_status:
             return
@@ -550,6 +557,21 @@ class ElectroluxEntity(CoordinatorEntity):
                         "Skipping non-scalar trigger default for %s: %s",
                         affected_key,
                         triggered_value,
+                    )
+                    continue
+
+                # Constraints-declaration shape (issue #70): the action describes
+                # what the affected attribute looks like in the new mode but the
+                # device does not actually reset the value.  A force-value
+                # action contains nothing but ``default``; anything else is a
+                # constraints declaration and the default is informational.
+                # _is_disabled_by_trigger handles availability/lockout via a
+                # separate code path against the same ``action_def``.
+                if action_def.keys() != {"default"}:
+                    _LOGGER.debug(
+                        "Skipping trigger default for %s — action declares "
+                        "constraints, not a forced value",
+                        affected_key,
                     )
                     continue
 
