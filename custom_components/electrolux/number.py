@@ -853,10 +853,21 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     def available(self) -> bool:
         """Check if the entity is supported.
 
-        Number entities must remain available regardless of program support
-        to prevent UI rendering issues (per Entity Availability Rules).
-        They will be clamped/locked at minimum values when not supported.
+        Number entities normally remain available regardless of program
+        support to prevent UI rendering issues (per Entity Availability
+        Rules) — they are clamped/locked at minimum values when not
+        supported.
+
+        AC target temperature is the exception: when the current mode
+        declares the attribute ``disabled: true`` via a capability trigger
+        (e.g. Bogong ``mode=fanOnly`` / ``mode=dry`` for
+        ``targetTemperatureC``), the Electrolux API rejects writes with
+        HTTP 406 ``COMMAND_VALIDATION_ERROR: Capability disabled``. Mark
+        the entity unavailable so HA UI greys out the slider and
+        automations don't try to set it (#72).
         """
+        if self.entity_attr in _AC_TEMPERATURE_ATTRS and self._is_disabled_by_trigger():
+            return False
         return super().available
 
     @property
