@@ -192,9 +192,18 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 if label is not None and value is not None:
                     self.options_list[label] = str_value
             elif is_disabled_value:
+                # Disabled capability values (e.g. AC ``autoClean``, ``OFF``)
+                # are not user-selectable, but the device can be IN that
+                # state — show a read-only label so the UI does not display
+                # ``unknown`` (#58). The label is NOT persisted in
+                # options_list; the ``options`` property injects it
+                # transiently while the value is current.
+                label = self.format_label(value)
                 _LOGGER.debug(
-                    "Electrolux skipping disabled capability value %r for %s",
+                    "Electrolux disabled-value %r shown as transient "
+                    "read-only label %r for %s",
                     value,
+                    label,
                     self.entity_attr,
                 )
             else:
@@ -410,6 +419,11 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         2. Check for program-specific value constraints
         3. Filter options to only include program-allowed values
         4. Fall back to all options if no program constraints exist
+        5. If ``current_option`` resolves to a label not in ``options_list``
+           (a disabled capability value reported by the device), append it
+           so ``SelectEntity``'s ``current_option in options`` invariant
+           holds (#58). Read-only by virtue of being absent from
+           ``options_list`` — the user can see the state but not select it.
 
         Returns:
             list[str]: Filtered list of selectable option labels
@@ -423,11 +437,18 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             if isinstance(program_values, list):
                 # Filter options to only include those allowed by the program
                 allowed_values = set(str(v) for v in program_values)
-                filtered_options = []
-                for label, value in self.options_list.items():
-                    if str(value) in allowed_values:
-                        filtered_options.append(label)
-                return filtered_options
+                all_options = [
+                    label
+                    for label, value in self.options_list.items()
+                    if str(value) in allowed_values
+                ]
 
-        # No program constraints, return all options
+        # Append the current label if it falls outside the persistent
+        # options_list — currently only happens for disabled capability
+        # values (#58). Reusing ``current_option`` keeps the disabled-value
+        # detection in one place.
+        current = self.current_option
+        if current and current not in all_options:
+            all_options.append(current)
+
         return all_options

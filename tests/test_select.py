@@ -339,11 +339,16 @@ class TestElectroluxSelect:
         assert list(entity.options_list.values()).count("HEAT") == 1
         assert "heat" not in entity.options_list.values()
 
-    def test_current_option_disabled_value_not_added_to_options(self, mock_coordinator):
-        """Disabled capability value (mode=OFF when AC powered off) must not pollute options list.
+    def test_current_option_disabled_value_returns_readonly_label(
+        self, mock_coordinator
+    ):
+        """Disabled capability value (e.g. mode=OFF) returns a transient
+        read-only label, not the empty string. The label is NOT persisted
+        in ``options_list`` (#58).
 
-        Device sends mode=OFF when powered off. OFF is marked disabled in capabilities
-        and should be silently skipped, not added as a dynamic option.
+        Background: PR #57 made disabled values silently skipped, which
+        meant ``current_option`` returned ``""`` and HA UI rendered
+        ``unknown`` whenever the device entered such a state on its own.
         """
         capability = {
             "access": "readwrite",
@@ -377,9 +382,105 @@ class TestElectroluxSelect:
         entity.reported_state = {"mode": "OFF"}
 
         label = entity.current_option
-        assert label == ""
+        assert label == "Off"
+        # Persistent options list still excludes disabled values.
         assert "OFF" not in entity.options_list.values()
         assert "Off" not in entity.options_list
+        # The transient label appears in the on-the-fly options list
+        # so SelectEntity does not warn that current_option is missing.
+        assert "Off" in entity.options
+
+    def test_current_option_disabled_autoclean_returns_readonly_label(
+        self, mock_coordinator
+    ):
+        """``mode=autoClean`` is marked disabled in the Bogong AC catalog.
+
+        When the appliance enters autoClean on its own (e.g. user pressed
+        the panel button), HA must show ``Auto Clean`` as a read-only
+        label, not ``unknown``. The label is included in ``options`` only
+        while the value is current, then disappears.
+        """
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "AUTO": {},
+                "COOL": {},
+                "HEAT": {},
+                "DRY": {},
+                "FANONLY": {},
+                "AUTOCLEAN": {"disabled": True},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Mode",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="mode",
+            entity_attr="mode",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:fan",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {"reported": {"mode": "autoClean"}}
+        }
+        entity.reported_state = {"mode": "autoClean"}
+
+        assert entity.current_option == "Autoclean"
+        assert "Autoclean" in entity.options
+        # No persistence in the catalog-derived options list.
+        assert "Autoclean" not in entity.options_list
+
+    def test_options_drops_transient_label_when_value_changes(
+        self, mock_coordinator
+    ):
+        """Transient label is included only while the device is in the
+        disabled state; switching to a normal value drops it."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "COOL": {},
+                "HEAT": {},
+                "AUTOCLEAN": {"disabled": True},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Mode",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="mode",
+            entity_attr="mode",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:fan",
+        )
+        entity.hass = mock_coordinator.hass
+
+        # Start in autoClean → transient label present.
+        entity.appliance_status = {
+            "properties": {"reported": {"mode": "autoClean"}}
+        }
+        entity.reported_state = {"mode": "autoClean"}
+        assert "Autoclean" in entity.options
+
+        # Move to cool → transient gone.
+        entity.appliance_status = {"properties": {"reported": {"mode": "cool"}}}
+        entity.reported_state = {"mode": "cool"}
+        assert "Autoclean" not in entity.options
+        assert "Cool" in entity.options
 
 
 class TestSelectAvailableProperty:
