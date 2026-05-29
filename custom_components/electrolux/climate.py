@@ -388,11 +388,19 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature.
 
+        Honours both ``temperature`` and the optional ``hvac_mode`` kwargs of
+        the standard HA ``climate.set_temperature`` service.
+
         Guard for off-state: the Electrolux API returns HTTP 500 when a
         combined power-on + set-temperature command is sent in a single call.
         If the appliance is currently off, split into sequential commands
         (power on via set_hvac_mode, which re-applies the cached temperature)
         or refuse if no hvac_mode was supplied.
+
+        When the appliance is on and ``hvac_mode`` differs from the current
+        mode, route through ``async_set_hvac_mode`` so the mode change and
+        temperature re-apply happen as one coherent sequence (#71). Same hvac
+        mode (or none supplied) goes through the simple set-temperature path.
 
         ``_last_user_temperature`` is only updated after the underlying command
         succeeds — a failed API call must not pollute the cache that #48's
@@ -404,19 +412,25 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
 
         hvac_mode = kwargs.get("hvac_mode")
         new_temp = float(temperature)
+        current_mode = self.hvac_mode
 
-        if self.hvac_mode == HVACMode.OFF:
+        # Off-state branch: requires an hvac_mode to power on.
+        if current_mode == HVACMode.OFF:
             if hvac_mode is None:
                 raise HomeAssistantError(
                     "Cannot set temperature while appliance is off"
                 )
-            # async_set_hvac_mode reads _last_user_temperature mid-call and
-            # re-applies it after powering on, so the new value must be in
-            # place before we await. The pre-write/rollback is asymmetric with
-            # the on-path below (which writes after success); it exists solely
-            # to make the cache atomic with that internal read. Note that
-            # rollback only restores cache coherence — it cannot undo any
-            # partial hardware state if async_set_hvac_mode fails mid-sequence.
+            # Fall through to the shared mode-change path below.
+
+        # When a mode change is requested (off→on, or on→different mode),
+        # delegate to async_set_hvac_mode. It reads _last_user_temperature
+        # mid-call and re-applies it, so the new value must be in place
+        # before we await. The pre-write/rollback is asymmetric with the
+        # plain set-temperature path below (which writes after success);
+        # it exists solely to make the cache atomic with that internal
+        # read. Rollback only restores cache coherence — it cannot undo any
+        # partial hardware state if async_set_hvac_mode fails mid-sequence.
+        if hvac_mode is not None and hvac_mode != current_mode:
             cached_temp = self._last_user_temperature
             self._last_user_temperature = new_temp
             try:
@@ -426,6 +440,8 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
                 raise
             return
 
+        # Same mode (or no mode supplied) on a running appliance: simple
+        # set-temperature. Cache only after the command succeeds.
         await self._send_command(f"targetTemperature{self._temp_suffix}", new_temp)
         self._last_user_temperature = new_temp
 
