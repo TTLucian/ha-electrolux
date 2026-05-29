@@ -481,6 +481,24 @@ class ElectroluxEntity(CoordinatorEntity):
 
         Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions
         are handled — these cover all known DW/WM/dryer option triggers.
+
+        Two trigger-action shapes are distinguished:
+
+        * **Force value** — ``{"default": X}`` with no schema metadata.  These
+          mean "this attribute is now forced to X by the device" (DW/WM option
+          interactions).  An SSE confirmation will follow, so writing the
+          default into ``reported`` immediately is correct.
+        * **Constraints declaration** — ``{"default": X, "min": ..., "max": ...,
+          "step": ..., "type": ..., "access": ..., "values": ..., "disabled":
+          ...}``.  These describe what the attribute looks like in the new
+          mode but do **not** mean the device has changed it (AC mode triggers
+          on Bogong, for example, declare ``targetTemperatureC`` constraints
+          per mode without the device ever resetting the setpoint).  Writing
+          the default into ``reported`` here would lie about device state until
+          the next coordinator poll because no SSE follows — see issue #70.
+
+        We detect "constraints declaration" by the presence of any schema
+        metadata keys other than ``default``.
         """
         if not self.appliance_status:
             return
@@ -550,6 +568,33 @@ class ElectroluxEntity(CoordinatorEntity):
                         "Skipping non-scalar trigger default for %s: %s",
                         affected_key,
                         triggered_value,
+                    )
+                    continue
+
+                # Constraints-declaration shape (issue #70): the action describes
+                # what the affected attribute looks like in the new mode (min,
+                # max, step, type, access, values, disabled) but the device does
+                # not actually reset the value.  Writing the default would lie
+                # about live state until the next coordinator poll because no
+                # SSE follows.  Skip the write — _is_disabled_by_trigger and
+                # related helpers still consult the same ``action_def`` for
+                # availability/lockout via a separate code path.
+                schema_keys = {
+                    "min",
+                    "max",
+                    "step",
+                    "type",
+                    "access",
+                    "values",
+                    "disabled",
+                }
+                is_constraint_declaration = any(k in action_def for k in schema_keys)
+                if is_constraint_declaration:
+                    _LOGGER.debug(
+                        "Skipping trigger default for %s — action declares "
+                        "constraints (min/max/step/type/access/values/"
+                        "disabled), not a forced value",
+                        affected_key,
                     )
                     continue
 
