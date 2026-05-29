@@ -414,13 +414,17 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         new_temp = float(temperature)
         current_mode = self.hvac_mode
 
-        # Off-state branch: requires an hvac_mode to power on.
+        # Off-state branch: requires a non-OFF hvac_mode to power on. Falling
+        # through to the simple-set path on an off device would hit the API
+        # 500 we are guarding against, so reject ``hvac_mode=None`` *and*
+        # ``hvac_mode=OFF`` here. After this block, an off appliance is
+        # guaranteed to have a live hvac_mode that differs from current_mode,
+        # which the mode-change branch below picks up.
         if current_mode == HVACMode.OFF:
-            if hvac_mode is None:
+            if hvac_mode is None or hvac_mode == HVACMode.OFF:
                 raise HomeAssistantError(
                     "Cannot set temperature while appliance is off"
                 )
-            # Fall through to the shared mode-change path below.
 
         # When a mode change is requested (off→on, or on→different mode),
         # delegate to async_set_hvac_mode. It reads _last_user_temperature
