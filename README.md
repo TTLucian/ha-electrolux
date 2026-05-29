@@ -735,6 +735,7 @@ This repository includes comprehensive testing scripts to help you verify applia
 
 ## 🤝 Contributing
 
+[netflash](https://github.com/netflash)
 [joeblack2k](https://github.com/joeblack2k)
 
 Contributions are welcome! This integration is actively maintained and improved.
