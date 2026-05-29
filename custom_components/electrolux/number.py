@@ -853,10 +853,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     def available(self) -> bool:
         """Check if the entity is supported.
 
-        Number entities must remain available regardless of program support
-        to prevent UI rendering issues (per Entity Availability Rules).
-        They will be clamped/locked at minimum values when not supported.
+        Number entities normally remain available regardless of program
+        *locking* (min=max, step=0) so the UI does not flicker in/out
+        between cycle states. Trigger-driven *disabling* is different:
+        ``_is_disabled_by_trigger`` returns ``True`` when the current
+        capability state marks this attribute ``disabled: true``, which
+        means the Electrolux API will reject writes (HTTP 406
+        ``COMMAND_VALIDATION_ERROR: Capability disabled``). In that case
+        the slider should be unavailable so HA UI greys it out and
+        automations stop trying to write (#72).
         """
+        if self._is_disabled_by_trigger():
+            return False
         return super().available
 
     @property

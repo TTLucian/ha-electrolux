@@ -650,10 +650,18 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(trigger, dict):
                     continue
                 condition = trigger.get("condition", {})
+                # The Electrolux capability catalog uses UPPER values
+                # (e.g. ``FANONLY``) while the device's reported state
+                # uses camelCase / lowercase (e.g. ``fanOnly`` on Bogong).
+                # Fold both sides for comparison. The select entity's
+                # mode lookup compensates the same way (#57); the proper
+                # fix would be to normalise on ingest, but that's a
+                # broader refactor.
                 if (
                     condition.get("operator") == "eq"
                     and condition.get("operand_1") == "value"
-                    and str(condition.get("operand_2")) == str(current_value)
+                    and str(condition.get("operand_2")).casefold()
+                    == str(current_value).casefold()
                 ):
                     action = trigger.get("action", {})
                     action_for_attr = action.get(attr_name)

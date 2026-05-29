@@ -2235,6 +2235,56 @@ class TestNumberMissingCoverage:
         with pytest.raises(HomeAssistantError, match="offline"):
             await entity.async_set_native_value(100.0)
 
+    # Issue #72: number entity unavailable when current state disables it
+    def test_available_false_when_disabled_by_trigger(self, mock_coordinator):
+        """A trigger marking this attribute ``disabled: true`` means the API
+        rejects writes (HTTP 406 ``Capability disabled``); the entity must
+        be unavailable so HA UI greys out the control. Applies to every
+        number entity, not just AC temperature.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=True)
+
+        assert entity.available is False
+
+    def test_available_true_when_not_disabled_by_trigger(self, mock_coordinator):
+        """No trigger-based disabled flag → fall through to base availability."""
+        from unittest.mock import PropertyMock
+
+        from custom_components.electrolux.entity import ElectroluxEntity
+
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureC",
+            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+
+        with patch.object(
+            ElectroluxEntity, "available", new_callable=PropertyMock, return_value=True
+        ):
+            assert entity.available is True
+
+    def test_available_false_for_any_attr_when_disabled_by_trigger(
+        self, mock_coordinator
+    ):
+        """The trigger-disabled rule applies uniformly: a non-temperature
+        attribute (e.g. ``targetDuration``) marked ``disabled: true`` by a
+        trigger must also become unavailable. The Electrolux API rejection
+        contract does not depend on the attr name."""
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetDuration",
+            capability={"type": "time", "min": 0, "max": 86400, "step": 60},
+        )
+        entity._is_disabled_by_trigger = MagicMock(return_value=True)
+
+        assert entity.available is False
+
     # Bug 4 / PR #63: AC target temperature off-state guard
     @pytest.mark.asyncio
     async def test_set_native_value_target_temp_raises_when_appliance_off(
