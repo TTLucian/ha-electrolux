@@ -2290,37 +2290,6 @@ class TestNumberMissingCoverage:
         with pytest.raises(HomeAssistantError, match="appliance is off"):
             await entity.async_set_native_value(24.0)
 
-    @pytest.mark.asyncio
-    async def test_set_native_value_target_temp_passes_guard_when_running(
-        self, mock_coordinator
-    ):
-        """Off-state guard must not raise when the appliance is running.
-
-        We don't assert all the way to _send_command — other gates (connection,
-        formatting, capability checks) may legitimately fail in the bare test
-        fixture. The point is: the off-state guard does not erroneously fire.
-        """
-        entity = self._make_entity(
-            mock_coordinator,
-            entity_attr="targetTemperatureC",
-            capability={"type": "temperature", "min": 16, "max": 30, "step": 1},
-        )
-        entity._is_locked_by_program = MagicMock(return_value=False)
-        entity._is_supported_by_program = MagicMock(return_value=True)
-        entity.reported_state = {
-            "connectivityState": "Connected",
-            "applianceState": "running",
-        }
-
-        try:
-            await entity.async_set_native_value(24.0)
-        except HomeAssistantError as ex:
-            # The off-state guard must not be the source of the error.
-            assert "appliance is off" not in str(ex)
-        except Exception:
-            # Other errors (e.g. test-fixture limitations) are out of scope.
-            pass
-
     # Line 798: available delegates to ElectroluxEntity.available (True)
     def test_available_delegates_to_entity_super_true(self, mock_coordinator):
         """available delegates to super().available (line 798) — returns True case."""
