@@ -2235,6 +2235,162 @@ class TestNumberMissingCoverage:
         with pytest.raises(HomeAssistantError, match="offline"):
             await entity.async_set_native_value(100.0)
 
+    # Issue #59: targetTemperatureF derives from targetTemperatureC when both
+    # are catalogued (e.g. Bogong AC where the device populates only Celsius).
+    def test_native_value_target_temp_f_derives_from_c(self, mock_coordinator):
+        """``_f`` reads convert from the live ``_c`` value rather than the
+        catalog default. Without this the slider was stuck at 16°F (#59).
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureF",
+            capability={
+                "type": "temperature",
+                "min": 60,
+                "max": 86,
+                "step": 1,
+                "default": 16,
+            },
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",
+            "targetTemperatureC": 22,
+        }
+
+        # 22 °C → 71.6 °F
+        assert entity.native_value == 71.6
+
+    def test_native_value_target_temp_f_no_c_falls_through(self, mock_coordinator):
+        """When ``targetTemperatureC`` is absent from reported state (e.g.
+        an oven that catalogs only F), ``_f`` reads its own field as
+        before.
+        """
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureF",
+            capability={
+                "type": "temperature",
+                "min": 60,
+                "max": 86,
+                "step": 1,
+            },
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",
+            "targetTemperatureF": 72,
+        }
+
+        assert entity.native_value == 72
+
+    @pytest.mark.asyncio
+    async def test_set_native_value_target_temp_f_redirects_to_c(
+        self, mock_coordinator
+    ):
+        """Writing ``_f`` redirects to ``_c`` (F→C conversion) when the
+        device's reported state contains a live ``targetTemperatureC``.
+        Mirrors the read-derive contract — the device only honours ``_c``.
+        Optimistic update on ``targetTemperatureC`` keeps the slider stable
+        until SSE confirms.
+        """
+        from custom_components.electrolux import number as number_module
+
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureF",
+            capability={
+                "type": "temperature",
+                "min": 60,
+                "max": 86,
+                "step": 1,
+            },
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        entity._apply_optimistic_update = MagicMock()
+        # Live C value in reported state is the production signal that
+        # triggers the redirect (mirrors the read-derive guard).
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",
+            "targetTemperatureC": 22,
+        }
+
+        sent: list = []
+
+        async def fake_execute(client, pnc_id, command, attr, logger, capability):
+            sent.append((attr, command))
+
+        with patch.object(
+            number_module,
+            "execute_command_with_error_handling",
+            side_effect=fake_execute,
+        ):
+            await entity.async_set_native_value(75.0)
+
+        assert len(sent) == 1
+        attr, command = sent[0]
+        assert attr == "targetTemperatureC"
+        # 75 °F → 23.89 °C (rounded to 2 dp)
+        assert command == {"targetTemperatureC": 23.89}
+        # Optimistic update on the canonical field so the read-derive
+        # picks up the new value before SSE confirms.
+        entity._apply_optimistic_update.assert_called_once_with(
+            "targetTemperatureC", 23.89
+        )
+
+    @pytest.mark.asyncio
+    async def test_set_native_value_target_temp_f_no_c_falls_through(
+        self, mock_coordinator
+    ):
+        """When ``targetTemperatureC`` is absent from reported state, the
+        ``_f`` write does NOT redirect — the device populates F natively
+        (e.g. F-locale oven) and should be written directly."""
+        from custom_components.electrolux import number as number_module
+
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="targetTemperatureF",
+            capability={
+                "type": "temperature",
+                "min": 60,
+                "max": 86,
+                "step": 1,
+            },
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_disabled_by_trigger = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        # No targetTemperatureC in reported state → F entity is canonical.
+        entity.reported_state = {
+            "connectivityState": "Connected",
+            "applianceState": "running",
+            "targetTemperatureF": 70,
+        }
+
+        sent: list = []
+
+        async def fake_execute(client, pnc_id, command, attr, logger, capability):
+            sent.append((attr, command))
+
+        with patch.object(
+            number_module,
+            "execute_command_with_error_handling",
+            side_effect=fake_execute,
+        ):
+            await entity.async_set_native_value(75.0)
+
+        # Non-redirect path: F write goes through unchanged.
+        assert len(sent) == 1
+        attr, _ = sent[0]
+        assert attr == "targetTemperatureF"
+
     # Issue #72: number entity unavailable when current state disables it
     def test_available_false_when_disabled_by_trigger(self, mock_coordinator):
         """A trigger marking this attribute ``disabled: true`` means the API
