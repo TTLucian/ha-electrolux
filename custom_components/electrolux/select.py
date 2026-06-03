@@ -26,6 +26,9 @@ from .util import (
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 PARALLEL_UPDATES = 0
 
+# Storage namespace for persisting discovered program values
+DISCOVERED_PROGRAMS_KEY = "electrolux_discovered_programs"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -106,6 +109,61 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     label = self.format_label(value)
                 if label is not None:
                     self.options_list[label] = value
+
+        # Load previously-discovered program values from entity store
+        self._load_discovered_programs()
+
+    def _load_discovered_programs(self) -> None:
+        """Load previously-discovered program values from entity store.
+
+        Restores program values that were observed in reported state but not
+        present in the initial capabilities, allowing them to remain selectable
+        across restarts (e.g., GUIDED programs on SO ovens).
+        """
+        if not hasattr(self, "hass") or not self.hass:
+            return
+
+        store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
+        discovered = self.hass.data.get(store_key, {})
+        if discovered:
+            for label, value in discovered.items():
+                # Only add if not already in options_list (capabilities take precedence)
+                if value not in self.options_list.values():
+                    self.options_list[label] = value
+                    _LOGGER.debug(
+                        "Restored discovered program %s for %s",
+                        value,
+                        self.entity_attr,
+                    )
+
+    def _persist_discovered_program(self, value: str, label: str) -> None:
+        """Persist a newly-discovered program value to entity store.
+
+        Called when an unknown program value is observed in reported state.
+        Allows it to remain selectable across HA restarts.
+        """
+        if not hasattr(self, "hass") or not self.hass:
+            return
+
+        try:
+            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
+        except (TypeError, AttributeError):
+            # Skip persistence if unique_id cannot be computed (e.g., in tests)
+            return
+
+        if store_key not in self.hass.data:
+            self.hass.data[store_key] = {}
+
+        # Store the discovery
+        self.hass.data[store_key][label] = value
+        _LOGGER.info(
+            "Discovered new program %s (%s) for %s on appliance %s. "
+            "Will remain available after restart.",
+            value,
+            label,
+            self.entity_attr,
+            self.pnc_id,
+        )
 
     @property
     def entity_domain(self):
@@ -191,6 +249,8 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 label = self.format_label(value)
                 if label is not None and value is not None:
                     self.options_list[label] = str_value
+                    # Persist the discovery so it survives HA restart
+                    self._persist_discovered_program(str_value, label)
             elif is_disabled_value:
                 # Disabled capability values (e.g. AC ``autoClean``, ``OFF``)
                 # are not user-selectable, but the device can be IN that
