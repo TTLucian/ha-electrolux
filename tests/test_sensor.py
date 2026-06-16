@@ -693,6 +693,24 @@ class TestSensorMissingCoverage:
         basic_sensor_entity.reported_state = {"fcOptisenseLoadWeight": "OVERLOAD"}
         assert basic_sensor_entity.native_value is None
 
+    def test_load_weight_filters_65535_sentinel(self, basic_sensor_entity):
+        """65535 (0xFFFF) is 'not measured' sentinel — return None."""
+        basic_sensor_entity.entity_attr = "fcOptisenseLoadWeight"
+        basic_sensor_entity.reported_state = {"fcOptisenseLoadWeight": 65535}
+        assert basic_sensor_entity.native_value is None
+
+    def test_measured_load_weight_filters_65535_sentinel(self, basic_sensor_entity):
+        """measuredLoadWeight 65535 = not measured — return None (issue #42)."""
+        basic_sensor_entity.entity_attr = "measuredLoadWeight"
+        basic_sensor_entity.reported_state = {"measuredLoadWeight": 65535}
+        assert basic_sensor_entity.native_value is None
+
+    def test_measured_load_weight_passes_valid_value(self, basic_sensor_entity):
+        """measuredLoadWeight valid reading passes through."""
+        basic_sensor_entity.entity_attr = "measuredLoadWeight"
+        basic_sensor_entity.reported_state = {"measuredLoadWeight": 3200}
+        assert basic_sensor_entity.native_value == 3200
+
     # ── watertankempty boolean type ───────────────────────────────────────────
 
     def test_watertankempty_boolean_capability_type_not_full(self, basic_sensor_entity):

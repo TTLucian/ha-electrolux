@@ -138,19 +138,17 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 get_capability(self.capability, "type"),
             )
 
-        # Special handling for load weight sensors: filter out error codes
-        if self.entity_attr == "fcOptisenseLoadWeight":
+        # Special handling for load weight sensors: filter out error/sentinel codes.
+        # 65535 (0xFFFF) = "not measured", 65408-65532 = error/status codes.
+        if self.entity_attr in ("fcOptisenseLoadWeight", "measuredLoadWeight"):
             if value is not None and isinstance(value, (int, float)):
-                # Values 65408-65532 are error/status codes, not actual weights
-                # Valid weight range is 0-20000 grams per API specification
-                if 65408 <= value <= 65532:
+                if value >= 65408:
                     _LOGGER.debug(
                         "Load weight sensor %s has error/status code: %s (hiding value)",
                         self.entity_attr,
                         value,
                     )
                     return None
-                # Also filter out string error codes
             elif isinstance(value, str) and value in [
                 "NOT_AVAILABLE",
                 "OVERLOAD",
