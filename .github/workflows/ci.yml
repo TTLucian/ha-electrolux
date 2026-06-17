@@ -30,7 +30,7 @@ jobs:
 
       # 3️⃣ Set up that Python version
       - name: Set up Python ${{ steps.ha_python.outputs.version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ steps.ha_python.outputs.version }}"
 
