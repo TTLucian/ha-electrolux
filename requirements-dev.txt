@@ -2,7 +2,7 @@
 # Installing these in a venv will allow Pylance to resolve imports used by the integration.
 aiohttp>=3.12.2,<4.0.0
 deep_translator
-pydantic>=2.11.5,<3.0.0
+pydantic>=2.13.4,<3.0.0
 electrolux-group-developer-sdk
 # Linting/formatting tools — pinned here so CI and pre-commit stay in sync
 mypy==2.1.0
