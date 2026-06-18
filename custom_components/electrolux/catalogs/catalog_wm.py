@@ -951,6 +951,28 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         friendly_name="UI SW Version",
         entity_registry_enabled_default=False,
     ),
+    # Appliance state — binary sensor: on = powered on (any state except OFF)
+    "applianceState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "ALARM": {},
+                "DELAYED_START": {},
+                "END_OF_CYCLE": {},
+                "IDLE": {},
+                "OFF": {},
+                "PAUSED": {},
+                "READY_TO_START": {},
+                "RUNNING": {},
+            },
+        },
+        device_class=BinarySensorDeviceClass.RUNNING,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:washing-machine",
+        friendly_name="Appliance State",
+    ),
     # Appliance mode
     "applianceMode": ElectroluxDevice(
         capability_info={
