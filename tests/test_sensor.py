@@ -816,3 +816,79 @@ class TestSensorMissingCoverage:
     ):
         """Line 291 — extra_state_attributes returns {} for non-alerts sensors."""
         assert basic_sensor_entity.extra_state_attributes == {}
+
+
+class TestWMApplianceStateSensor:
+    """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
+
+    def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
+        capability = {
+            "access": "read",
+            "type": "string",
+            "values": {
+                "ALARM": {},
+                "DELAYED_START": {},
+                "END_OF_CYCLE": {},
+                "IDLE": {},
+                "OFF": {},
+                "PAUSED": {},
+                "READY_TO_START": {},
+                "RUNNING": {},
+            },
+        }
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test WM",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="applianceState",
+            entity_attr="applianceState",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:washing-machine",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {
+                "reported": {"applianceState": "RUNNING"},
+                "desired": {},
+                "metadata": {},
+            },
+        }
+        entity.reported_state = {"applianceState": "RUNNING"}
+        return entity
+
+    def test_running_state(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": "RUNNING"}
+        assert entity.native_value == "Running"
+
+    def test_off_state(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": "OFF"}
+        assert entity.native_value == "Off"
+
+    def test_paused_state(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": "PAUSED"}
+        assert entity.native_value == "Paused"
+
+    def test_end_of_cycle_state(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": "END_OF_CYCLE"}
+        assert entity.native_value == "End Of Cycle"
+
+    def test_alarm_state(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": "ALARM"}
+        assert entity.native_value == "Alarm"
+
+    def test_missing_state_returns_none(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {}
+        assert entity.native_value is None
