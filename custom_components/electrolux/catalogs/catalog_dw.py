@@ -25,7 +25,7 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
     ),
     # Appliance state
     "applianceState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,

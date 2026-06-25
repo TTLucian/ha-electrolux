@@ -847,7 +847,6 @@ class TestWMApplianceStateSensor:
                 "metadata": {},
             },
         }
-        entity.reported_state = {"applianceState": "RUNNING"}
         return entity
 
     @pytest.mark.parametrize("raw,expected", [

@@ -92,7 +92,7 @@ CATALOG_WD: dict[str, ElectroluxDevice] = {
         available_when_states=WASHER_DRYER_EXECUTE_STATES,
     ),
     "applianceState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,

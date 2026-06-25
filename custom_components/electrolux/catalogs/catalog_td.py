@@ -33,7 +33,7 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
     ),
     # Appliance state and cycle information
     "applianceState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,
