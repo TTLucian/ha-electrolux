@@ -822,20 +822,7 @@ class TestWMApplianceStateSensor:
     """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
 
     def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
-        capability = {
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        }
+        capability = {"access": "read", "type": "string"}
         entity = ElectroluxSensor(
             coordinator=mock_coordinator,
             name="Test WM",
@@ -863,30 +850,17 @@ class TestWMApplianceStateSensor:
         entity.reported_state = {"applianceState": "RUNNING"}
         return entity
 
-    def test_running_state(self, mock_coordinator):
+    @pytest.mark.parametrize("raw,expected", [
+        ("RUNNING", "Running"),
+        ("OFF", "Off"),
+        ("PAUSED", "Paused"),
+        ("END_OF_CYCLE", "End Of Cycle"),
+        ("ALARM", "Alarm"),
+    ])
+    def test_native_value_formats_state(self, mock_coordinator, raw, expected):
         entity = self._make_entity(mock_coordinator)
-        entity.reported_state = {"applianceState": "RUNNING"}
-        assert entity.native_value == "Running"
-
-    def test_off_state(self, mock_coordinator):
-        entity = self._make_entity(mock_coordinator)
-        entity.reported_state = {"applianceState": "OFF"}
-        assert entity.native_value == "Off"
-
-    def test_paused_state(self, mock_coordinator):
-        entity = self._make_entity(mock_coordinator)
-        entity.reported_state = {"applianceState": "PAUSED"}
-        assert entity.native_value == "Paused"
-
-    def test_end_of_cycle_state(self, mock_coordinator):
-        entity = self._make_entity(mock_coordinator)
-        entity.reported_state = {"applianceState": "END_OF_CYCLE"}
-        assert entity.native_value == "End Of Cycle"
-
-    def test_alarm_state(self, mock_coordinator):
-        entity = self._make_entity(mock_coordinator)
-        entity.reported_state = {"applianceState": "ALARM"}
-        assert entity.native_value == "Alarm"
+        entity.reported_state = {"applianceState": raw}
+        assert entity.native_value == expected
 
     def test_missing_state_returns_none(self, mock_coordinator):
         entity = self._make_entity(mock_coordinator)
