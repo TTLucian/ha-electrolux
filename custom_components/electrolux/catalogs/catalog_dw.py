@@ -25,24 +25,12 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
     ),
     # Appliance state
     "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
+        capability_info={"access": "read", "type": "string"},
         device_class=None,
         unit=None,
         entity_category=None,
         entity_icon="mdi:dishwasher",
+        friendly_name="Appliance State",
     ),
     # Execute command buttons
     "executeCommand": ElectroluxDevice(

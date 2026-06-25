@@ -952,20 +952,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
     ),
     "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
+        capability_info={"access": "read", "type": "string"},
         device_class=None,
         unit=None,
         entity_category=None,

@@ -24,26 +24,6 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:alert",
         friendly_name="Alerts",
     ),
-    "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
-        device_class=None,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:state-machine",
-    ),
     "cavityLight": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
