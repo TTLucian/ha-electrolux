@@ -1,6 +1,6 @@
 # Development requirements to satisfy editor/Pylance
 # Installing these in a venv will allow Pylance to resolve imports used by the integration.
-aiohttp>=3.12.2,<4.0.0
+aiohttp>=3.14.1,<4.0.0
 deep_translator
 pydantic>=2.13.4,<3.0.0
 electrolux-group-developer-sdk
