@@ -951,6 +951,14 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         friendly_name="UI SW Version",
         entity_registry_enabled_default=False,
     ),
+    "applianceState": ElectroluxDevice(
+        capability_info=CAPABILITY_READ_STRING,
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:washing-machine",
+        friendly_name="Appliance State",
+    ),
     # Appliance mode
     "applianceMode": ElectroluxDevice(
         capability_info={
