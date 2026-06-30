@@ -15,6 +15,7 @@ from ..const import (
     AUTODOSE_OFF,
     AUTODOSE_SOFTENER_OFF,
     AUTODOSE_SOFTENER_ON,
+    CAPABILITY_READ_STRING,
 )
 from ..execute_command_states import WASHER_EXECUTE_STATES
 from ..model import ElectroluxDevice

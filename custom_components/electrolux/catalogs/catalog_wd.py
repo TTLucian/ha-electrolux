@@ -14,6 +14,7 @@ from ..const import (
     AUTODOSE_LINK_ON,
     AUTODOSE_OFF,
     AUTODOSE_SOFTENER_OFF,
+    CAPABILITY_READ_STRING,
 )
 from ..execute_command_states import WASHER_DRYER_EXECUTE_STATES
 from ..model import ElectroluxDevice

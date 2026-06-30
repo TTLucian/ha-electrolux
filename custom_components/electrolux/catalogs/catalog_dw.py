@@ -5,6 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory
 
+from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DISHWASHER_EXECUTE_STATES
 from ..model import ElectroluxDevice
 

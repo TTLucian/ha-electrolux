@@ -7,6 +7,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime
 
+from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DRYER_EXECUTE_STATES
 from ..model import ElectroluxDevice
 
