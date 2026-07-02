@@ -5,6 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory
 
+from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DISHWASHER_EXECUTE_STATES
 from ..model import ElectroluxDevice
 
@@ -25,24 +26,12 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
     ),
     # Appliance state
     "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,
         entity_icon="mdi:dishwasher",
+        friendly_name="Appliance State",
     ),
     # Execute command buttons
     "executeCommand": ElectroluxDevice(

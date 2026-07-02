@@ -834,3 +834,52 @@ class TestSensorMissingCoverage:
     ):
         """Line 291 — extra_state_attributes returns {} for non-alerts sensors."""
         assert basic_sensor_entity.extra_state_attributes == {}
+
+
+class TestWMApplianceStateSensor:
+    """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
+
+    def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
+        capability = {"access": "read", "type": "string"}
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test WM",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="applianceState",
+            entity_attr="applianceState",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:washing-machine",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {
+                "reported": {"applianceState": "RUNNING"},
+                "desired": {},
+                "metadata": {},
+            },
+        }
+        return entity
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("RUNNING", "Running"),
+        ("OFF", "Off"),
+        ("PAUSED", "Paused"),
+        ("END_OF_CYCLE", "End Of Cycle"),
+        ("ALARM", "Alarm"),
+    ])
+    def test_native_value_formats_state(self, mock_coordinator, raw, expected):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": raw}
+        assert entity.native_value == expected
+
+    def test_missing_state_returns_none(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {}
+        assert entity.native_value is None

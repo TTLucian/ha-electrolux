@@ -14,6 +14,7 @@ from ..const import (
     AUTODOSE_LINK_ON,
     AUTODOSE_OFF,
     AUTODOSE_SOFTENER_OFF,
+    CAPABILITY_READ_STRING,
 )
 from ..execute_command_states import WASHER_DRYER_EXECUTE_STATES
 from ..model import ElectroluxDevice
@@ -92,24 +93,12 @@ CATALOG_WD: dict[str, ElectroluxDevice] = {
         available_when_states=WASHER_DRYER_EXECUTE_STATES,
     ),
     "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,
         entity_icon="mdi:washing-machine",
+        friendly_name="Appliance State",
     ),
     "cyclePhase": ElectroluxDevice(
         capability_info={

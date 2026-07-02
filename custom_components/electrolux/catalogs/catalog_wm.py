@@ -15,6 +15,7 @@ from ..const import (
     AUTODOSE_OFF,
     AUTODOSE_SOFTENER_OFF,
     AUTODOSE_SOFTENER_ON,
+    CAPABILITY_READ_STRING,
 )
 from ..execute_command_states import WASHER_EXECUTE_STATES
 from ..model import ElectroluxDevice
@@ -950,6 +951,14 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:application-cog",
         friendly_name="UI SW Version",
         entity_registry_enabled_default=False,
+    ),
+    "applianceState": ElectroluxDevice(
+        capability_info=CAPABILITY_READ_STRING,
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:washing-machine",
+        friendly_name="Appliance State",
     ),
     # Appliance mode
     "applianceMode": ElectroluxDevice(
