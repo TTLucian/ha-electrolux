@@ -50,6 +50,8 @@ def make_coordinator():
     coord.listen_task = None
     coord._last_remote_control = {}
     coord._pending_state_refresh_tasks = {}
+    coord._last_reconnect_refresh_time = 0.0
+    coord._pending_reconnect_refresh_task = None
 
     # API client mock
     coord.api = MagicMock()
@@ -413,6 +415,93 @@ class TestListenWebsocket:
         await coord.listen_websocket()
 
         coord.api.watch_for_appliance_state_updates.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_sse_setup_passes_on_connected_callback(self):
+        """The on_connected hook is wired so SDK-internal reconnects resync state."""
+        coord = make_coordinator()
+        mock_appliances = MagicMock()
+        mock_appliances.get_appliance_ids.return_value = ["APPLIANCE_001"]
+        coord.data = {"appliances": mock_appliances}
+        coord.incoming_data = AsyncMock()
+
+        coord.api.watch_for_appliance_state_updates = AsyncMock(return_value=None)
+
+        await coord.listen_websocket()
+
+        kwargs = coord.api.watch_for_appliance_state_updates.call_args.kwargs
+        assert kwargs["on_connected"] == coord._on_sse_connected
+
+
+# ---------------------------------------------------------------------------
+# _on_sse_connected tests (post-reconnection state resync)
+# ---------------------------------------------------------------------------
+
+
+class TestOnSseConnected:
+    """Test the SSE (re)connection resync callback."""
+
+    @pytest.mark.asyncio
+    async def test_refreshes_immediately_outside_cooldown(self):
+        """First connection triggers an immediate full state refresh."""
+        coord = make_coordinator()
+        coord._refresh_all_appliances = AsyncMock()
+        coord.hass.loop.time = MagicMock(return_value=1000.0)
+
+        await coord._on_sse_connected()
+
+        coord._refresh_all_appliances.assert_awaited_once()
+        assert coord._last_reconnect_refresh_time == 1000.0
+
+    @pytest.mark.asyncio
+    async def test_refresh_exception_is_swallowed(self):
+        """Refresh failures must not propagate into the SDK stream task."""
+        coord = make_coordinator()
+        coord._refresh_all_appliances = AsyncMock(side_effect=RuntimeError("boom"))
+        coord.hass.loop.time = MagicMock(return_value=1000.0)
+
+        await coord._on_sse_connected()  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_reconnect_within_cooldown_schedules_trailing_refresh(self):
+        """A reconnect inside the cooldown defers the resync instead of skipping it."""
+        coord = make_coordinator()
+        coord._refresh_all_appliances = AsyncMock()
+        coord.hass.loop.time = MagicMock(return_value=1000.0)
+        coord._last_reconnect_refresh_time = 990.0  # 10s ago, inside 60s cooldown
+
+        created = []
+
+        def fake_create_task(coro):
+            task = asyncio.get_event_loop().create_task(coro)
+            created.append(task)
+            return task
+
+        coord.hass.async_create_task = fake_create_task
+
+        with patch("custom_components.electrolux.coordinator.asyncio.sleep"):
+            await coord._on_sse_connected()
+            coord._refresh_all_appliances.assert_not_awaited()
+            assert len(created) == 1
+            await created[0]
+
+        coord._refresh_all_appliances.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_pending_trailing_refresh_is_not_duplicated(self):
+        """Multiple reconnects inside the cooldown share one deferred resync."""
+        coord = make_coordinator()
+        coord._refresh_all_appliances = AsyncMock()
+        coord.hass.loop.time = MagicMock(return_value=1000.0)
+        coord._last_reconnect_refresh_time = 990.0
+        pending = MagicMock()
+        pending.done.return_value = False
+        coord._pending_reconnect_refresh_task = pending
+
+        await coord._on_sse_connected()
+
+        coord.hass.async_create_task.assert_not_called()
+        coord._refresh_all_appliances.assert_not_awaited()
 
 
 # ---------------------------------------------------------------------------

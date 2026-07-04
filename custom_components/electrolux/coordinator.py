@@ -65,6 +65,9 @@ WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
 SSE_RESTART_COOLDOWN = 900  # 15 minutes: cooldown between SSE restart attempts
+SSE_RECONNECT_REFRESH_COOLDOWN = (
+    60.0  # seconds between full state resyncs triggered by SSE (re)connections
+)
 
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
@@ -137,6 +140,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             {}
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
+        self._last_reconnect_refresh_time = (
+            0.0  # Track last full resync triggered by an SSE (re)connection
+        )
+        self._pending_reconnect_refresh_task: Optional[asyncio.Task] = (
+            None  # Deferred resync when reconnections happen within the cooldown
+        )
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
         self._last_time_to_end: dict[str, float | None] = (
             {}
@@ -828,30 +837,69 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         # watch_for_appliance_state_updates in util.py handles kill-before-restart safely
         try:
+            # on_connected fires every time the stream actually opens a connection,
+            # including SDK-internal reconnections after transport errors (e.g.
+            # TransferEncodingError), so states are resynced after every gap —
+            # not only when the coordinator itself restarts the stream.
             await self.api.watch_for_appliance_state_updates(
                 ids,
                 self.incoming_data,
+                on_connected=self._on_sse_connected,
             )
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
-
-            # Trigger full state refresh after SSE (re)connects
-            # This ensures we catch any state changes that occurred during disconnection
-            _LOGGER.info(
-                "SSE connected - refreshing all appliance states to sync after reconnection"
-            )
-            try:
-                await self._refresh_all_appliances()
-            except Exception as ex:
-                _LOGGER.warning(
-                    f"Failed to refresh appliance states after SSE reconnection: {ex}"
-                )
-                # Don't raise - SSE is connected and working, refresh failure is not critical
-
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
             raise
+
+    async def _on_sse_connected(self) -> None:
+        """Resync appliance states after the SSE stream (re)opens a connection.
+
+        Runs inside the SDK's stream task, so it must never raise — an escaping
+        exception would tear down the freshly opened stream. Debounced so a
+        flapping stream doesn't hammer the API; when a refresh is skipped, a
+        trailing refresh is scheduled so the last reconnection still resyncs.
+        """
+        elapsed = self.hass.loop.time() - self._last_reconnect_refresh_time
+        if elapsed >= SSE_RECONNECT_REFRESH_COOLDOWN:
+            # Await inline so the resync completes before the SDK starts
+            # dispatching events — a concurrent refresh could overwrite a
+            # newer SSE event with an older API snapshot.
+            await self._reconnect_refresh()
+            return
+
+        if (
+            self._pending_reconnect_refresh_task
+            and not self._pending_reconnect_refresh_task.done()
+        ):
+            return
+        delay = SSE_RECONNECT_REFRESH_COOLDOWN - elapsed
+        _LOGGER.debug(
+            "SSE reconnected within refresh cooldown - scheduling resync in %.0fs",
+            delay,
+        )
+        self._pending_reconnect_refresh_task = self.hass.async_create_task(
+            self._delayed_reconnect_refresh(delay)
+        )
+
+    async def _delayed_reconnect_refresh(self, delay: float) -> None:
+        """Run a deferred post-reconnection resync once the cooldown expires."""
+        await asyncio.sleep(delay)
+        await self._reconnect_refresh()
+
+    async def _reconnect_refresh(self) -> None:
+        """Refresh all appliance states after an SSE (re)connection. Never raises."""
+        self._last_reconnect_refresh_time = self.hass.loop.time()
+        _LOGGER.info(
+            "SSE connected - refreshing all appliance states to sync after reconnection"
+        )
+        try:
+            await self._refresh_all_appliances()
+        except Exception as ex:
+            _LOGGER.warning(
+                f"Failed to refresh appliance states after SSE reconnection: {ex}"
+            )
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -953,6 +1001,18 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await asyncio.gather(*all_deferred, return_exceptions=True)
         self._deferred_tasks.clear()
         self._deferred_tasks_by_appliance.clear()
+
+        # Cancel any deferred post-reconnection resync.
+        # _delayed_reconnect_refresh swallows everything but CancelledError,
+        # so that is the only thing this await can raise.
+        reconnect_refresh = getattr(self, "_pending_reconnect_refresh_task", None)
+        if reconnect_refresh and not reconnect_refresh.done():
+            reconnect_refresh.cancel()
+            try:
+                await reconnect_refresh
+            except asyncio.CancelledError:
+                pass
+        self._pending_reconnect_refresh_task = None
 
         # Cancel all pending state-refresh tasks (memory leak if left running)
         refresh_tasks = list(self._pending_state_refresh_tasks.values())
