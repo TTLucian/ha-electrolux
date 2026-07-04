@@ -328,6 +328,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
                 "UNIVERSAL_PR_MIXEDPLUS": {},
                 "UNIVERSAL_PR_MIXEDPLUSNOTXL": {},
                 "WORKINGCLOTHES_PR_WORKINGCLOTHES": {},
+                # Added from TD-916098759 (issue #67)
+                "MY_DRY_PR_MYDRY": {},
             },
         },
         device_class=None,
@@ -537,6 +539,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
                 "UNIVERSAL_PR_MIXEDPLUS": {},
                 "UNIVERSAL_PR_MIXEDPLUSNOTXL": {},
                 "WORKINGCLOTHES_PR_WORKINGCLOTHES": {},
+                # Added from TD-916098759 (issue #67)
+                "MY_DRY_PR_MYDRY": {},
             },
         },
         device_class=None,
@@ -796,6 +800,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
                 "UNIVERSAL_PR_MIXEDPLUS": {},
                 "UNIVERSAL_PR_MIXEDPLUSNOTXL": {},
                 "WORKINGCLOTHES_PR_WORKINGCLOTHES": {},
+                # Added from TD-916098759 (issue #67)
+                "MY_DRY_PR_MYDRY": {},
             },
         },
         device_class=None,
