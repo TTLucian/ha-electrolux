@@ -79,6 +79,9 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "^applianceCareAndMaintenance",  # Internal maintenance counters/thresholds - cryptic names, no user value
     "^hideExecuteCommand$",  # Internal API trigger-control flag (governs executeCommand visibility via triggers)
     "^keyModel$",  # Hardware identity constant, no user-facing value
+    "^fCPN_",  # Push-notification feature flags (constants), no user-facing value
+    "^fCApplianceFeature_",  # Feature capability flags (constants), no user-facing value
+    "^dummy_for_empty_cycle$",  # Placeholder capability for programs with no options
 ]
 
 ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBReserve"]

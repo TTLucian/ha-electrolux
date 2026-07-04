@@ -147,6 +147,48 @@ class TestKeepSourceLogic:
         assert "parent/child2" in result
         assert "fCMiscellaneous/blocked" not in result
 
+    def test_keep_source_constant_feature_flags_blacklisted(self):
+        """Test that constant feature flags are excluded from sources."""
+        entity = ElectroluxLibraryEntity(
+            name="test",
+            status="connected",
+            state={},
+            appliance_info={},
+            capabilities={
+                "fCPN_TDAlert": {"access": "constant", "default": 1, "type": "int"},
+                "fCPN_TDEndOfCycle": {
+                    "access": "constant",
+                    "default": 1,
+                    "type": "int",
+                },
+                "fCPN_TDMaintenances": {
+                    "access": "constant",
+                    "default": 1,
+                    "type": "int",
+                },
+                "fCApplianceFeature_EUDryWhatWashed": {
+                    "access": "constant",
+                    "default": 1,
+                    "type": "int",
+                },
+                "dummy_for_empty_cycle": {
+                    "access": "constant",
+                    "type": "enum",
+                    "values": {"0": {"disabled": True}},
+                },
+                "valid_source": {"type": "string", "access": "read"},
+            },
+        )
+
+        result = entity.sources_list()
+        assert result is not None
+        assert "fCPN_TDAlert" not in result
+        assert "fCPN_TDEndOfCycle" not in result
+        assert "fCPN_TDMaintenances" not in result
+        assert "fCApplianceFeature_EUDryWhatWashed" not in result
+        assert "dummy_for_empty_cycle" not in result
+        assert "valid_source" in result
+
     def test_sources_list_with_none_capabilities(self):
         """Test sources_list when capabilities is None."""
         entity = ElectroluxLibraryEntity(
