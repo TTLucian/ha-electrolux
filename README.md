@@ -745,13 +745,13 @@ Contributions are welcome! This integration is actively maintained and improved.
 ### 👨‍💻 Development Setup
 1. Fork the repository
 2. Clone your fork
-3. Install development dependencies: `pip install -r requirements-dev.txt`
-4. Install test dependencies: `pip install -r requirements_test.txt`
+3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it already
+4. Install all dependencies: `uv sync --group dev --group test`
 5. Test scripts are available in the `scripts/` directory for API testing
 
 **Optional:** Install pre-commit hooks to run the same checks as CI (ruff, black, mypy, pytest) automatically before each commit/push:
 ```bash
-pip install pre-commit && pre-commit install
+uv run pre-commit install
 ```
 
 ### 🧪 Testing Your Appliances
