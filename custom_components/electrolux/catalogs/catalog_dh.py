@@ -2,12 +2,13 @@
 
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import PERCENTAGE
+from homeassistant.const import PERCENTAGE, Platform
 
 from ..model import ElectroluxDevice
 
 CATALOG_DH: dict[str, ElectroluxDevice] = {
-    # Power control — ON/OFF (button entity; SDK dh_config.py EXECUTE_COMMAND_ON/OFF)
+    # Power control — toggle switch reading state from applianceState (OFF/RUNNING)
+    # and writing ON/OFF via executeCommand.
     "executeCommand": ElectroluxDevice(
         capability_info={
             "access": "write",
@@ -22,6 +23,8 @@ CATALOG_DH: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:power",
         friendly_name="Power",
+        entity_platform=Platform.SWITCH,
+        state_mapping="applianceState",
     ),
     # Current humidity reading (read-only sensor)
     "sensorHumidity": ElectroluxDevice(

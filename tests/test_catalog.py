@@ -7,6 +7,8 @@ coverage on catalog files (which are pure data modules).
 
 from __future__ import annotations
 
+import pytest
+
 from custom_components.electrolux.model import ElectroluxDevice
 
 
@@ -603,3 +605,37 @@ class TestCatalogUtilsFactories:
             icon="mdi:state-machine",
         )
         assert result.entity_icon == "mdi:state-machine"
+
+
+class TestCatalogDehumidifier:
+    """Tests for catalog_dh.py (DH dehumidifier) — focused on the executeCommand switch fix."""
+
+    @pytest.fixture
+    def catalog(self):
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+        return CATALOG_DH
+
+    @pytest.fixture
+    def catalog_by_type(self):
+        from custom_components.electrolux.catalog_core import CATALOG_BY_TYPE
+        return CATALOG_BY_TYPE()
+
+    def test_execute_command_is_switch(self, catalog):
+        """executeCommand must be a switch, not a pair of buttons (fixes issue #96)."""
+        from homeassistant.const import Platform
+        assert catalog["executeCommand"].entity_platform == Platform.SWITCH
+
+    def test_execute_command_reads_state_from_appliance_state(self, catalog):
+        """Switch derives on/off from applianceState (RUNNING=on, OFF=off)."""
+        assert catalog["executeCommand"].state_mapping == "applianceState"
+
+    def test_execute_command_on_off_values(self, catalog):
+        """Capability exposes ON and OFF so the switch can send the right command."""
+        values = catalog["executeCommand"].capability_info.get("values", {})
+        assert "ON" in values
+        assert "OFF" in values
+
+    def test_dh_and_husky_map_to_same_catalog(self, catalog_by_type):
+        """DH and Husky appliance types share the dehumidifier catalog."""
+        assert catalog_by_type["DH"] is catalog_by_type["Husky"]
+        assert "executeCommand" in catalog_by_type["DH"]
