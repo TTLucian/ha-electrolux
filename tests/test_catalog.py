@@ -250,6 +250,87 @@ class TestCatalogDishwasher:
         assert len(CATALOG_DW) > 0
 
 
+class TestCatalogDehumidifier:
+    """Tests for catalog_dh.py (verified against DH-950133061, #106)."""
+
+    def test_catalog_dehumidifier_loads(self):
+        """Dehumidifier catalog loads without error."""
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        assert isinstance(CATALOG_DH, dict)
+        assert len(CATALOG_DH) > 0
+        for key, value in CATALOG_DH.items():
+            assert isinstance(
+                value, ElectroluxDevice
+            ), f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
+
+    def test_mode_values_verified(self):
+        """mode offers the verified DH modes; OFF is present but disabled."""
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        values = CATALOG_DH["mode"].capability_info["values"]
+        for v in ("AUTO", "CONTINUOUS", "DRY", "QUIET"):
+            assert v in values
+            assert not values[v].get("disabled")
+        assert values["OFF"]["disabled"] is True
+
+    def test_fan_speed_values_verified(self):
+        """fanSpeedSetting/fanSpeedState use LOW/MIDDLE/HIGH (no TURBO/MEDIUM)."""
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        for key in ("fanSpeedSetting", "fanSpeedState"):
+            values = CATALOG_DH[key].capability_info["values"]
+            assert set(values) == {"LOW", "MIDDLE", "HIGH"}
+
+    def test_selects_have_platform_override(self):
+        """Read-write string selects declare entity_platform so they are still
+        created from reported state when the capabilities fetch fails (#106)."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        for key in ("mode", "fanSpeedSetting", "displayLight"):
+            assert CATALOG_DH[key].entity_platform == Platform.SELECT
+
+    def test_start_stop_time_use_seconds(self):
+        """startTime/stopTime use seconds (max=86400, step=1800), not minutes."""
+        from homeassistant.const import UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        for key in ("startTime", "stopTime"):
+            entry = CATALOG_DH[key]
+            assert entry.capability_info["max"] == 86400
+            assert entry.capability_info["step"] == 1800
+            assert entry.capability_info["min"] == 0
+            assert entry.unit == UnitOfTime.SECONDS
+
+    def test_target_humidity_range_verified(self):
+        """targetHumidity fallback range matches the device (35–85 %, step 5)."""
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        entry = CATALOG_DH["targetHumidity"]
+        assert entry.capability_info["min"] == 35
+        assert entry.capability_info["max"] == 85
+        assert entry.capability_info["step"] == 5
+
+    def test_diagnostic_entries(self):
+        """filterState is diagnostic; network diagnostics are disabled by default."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        assert CATALOG_DH["filterState"].entity_category == EntityCategory.DIAGNOSTIC
+        for key in (
+            "networkInterface/linkQualityIndicator",
+            "networkInterface/swVersion",
+            "networkInterface/otaState",
+        ):
+            entry = CATALOG_DH[key]
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+
 class TestCatalogAirConditioner:
     """Tests for catalog_ac.py."""
 

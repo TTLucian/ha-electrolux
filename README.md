@@ -67,7 +67,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834` |
 | `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (Muju/Verbier verified) | UltimateHome 500 (EP53); Verbier — PUREA9/Fuji/WELLA5/WELLA7 unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `DH` / `Husky` | Dehumidifier | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DH` / `Husky` | Dehumidifier | Full (`DH` verified) | `DH-950133061` (Frigidaire FGAC5044W1) — `Husky` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `HB` | Induction Hob | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `HD` | Hood / Extractor Fan | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
@@ -84,7 +84,7 @@ If you own one of these appliances, please download your diagnostics from **Sett
 
 | Appliance | Issue title | Status |
 |-----------|-------------|--------|
-| 🌊 **Dehumidifier** (`DH`, `Husky`) | `DH diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| 🌊 **Dehumidifier** (`Husky`) | `DH diagnostics — [your model]` | `DH` verified from `DH-950133061` (see above); `Husky` still unverified |
 | 🤖 **Robot Vacuum** (`PUREi9`, `Gordias`, `Cybele`, `700series`) | `RVC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | 🍳 **Induction Hob** (`HB`) | `HB diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | 💨 **Hood / Extractor Fan** (`HD`) | `HD diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
