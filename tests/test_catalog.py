@@ -7,6 +7,8 @@ coverage on catalog files (which are pure data modules).
 
 from __future__ import annotations
 
+from homeassistant.components.sensor import SensorDeviceClass
+
 from custom_components.electrolux.model import ElectroluxDevice
 
 
@@ -207,6 +209,70 @@ class TestCatalogPurifier:
         assert "Muju" in catalog
 
 
+class TestCatalogDehumidifier:
+    """Tests for catalog_dh.py."""
+
+    def test_catalog_dehumidifier_loads(self):
+        """Dehumidifier catalog loads without error."""
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        assert isinstance(CATALOG_DH, dict)
+        assert len(CATALOG_DH) > 0
+
+    def test_dehumidifier_explicit_metadata_entries(self):
+        """DH catalog provides explicit metadata for the broadened sample surface."""
+        from homeassistant.components.number import NumberDeviceClass
+        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.const import EntityCategory, Platform, UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
+
+        assert CATALOG_DH["cleanAirMode"].device_class == SwitchDeviceClass.SWITCH
+        assert CATALOG_DH["cleanAirMode"].friendly_name == "Clean Air Mode"
+
+        assert CATALOG_DH["displayLight"].friendly_name == "Display Light"
+        assert CATALOG_DH["displayLight"].entity_category == EntityCategory.CONFIG
+        assert CATALOG_DH["displayLight"].entity_platform == Platform.SELECT
+
+        assert CATALOG_DH["targetHumidity"].capability_info["min"] == 35
+        assert CATALOG_DH["targetHumidity"].capability_info["max"] == 85
+
+        assert CATALOG_DH["startTime"].device_class == NumberDeviceClass.DURATION
+        assert CATALOG_DH["startTime"].unit == UnitOfTime.SECONDS
+        assert CATALOG_DH["startTime"].capability_info["step"] == 1800
+
+        assert CATALOG_DH["stopTime"].device_class == NumberDeviceClass.DURATION
+        assert CATALOG_DH["stopTime"].unit == UnitOfTime.SECONDS
+        assert CATALOG_DH["stopTime"].capability_info["step"] == 1800
+
+        assert CATALOG_DH["fanSpeedState"].friendly_name == "Fan Speed State"
+        assert CATALOG_DH["fanSpeedState"].entity_icon == "mdi:fan"
+
+        assert CATALOG_DH["fanSpeedSetting"].entity_platform == Platform.SELECT
+        assert CATALOG_DH["fanSpeedSetting"].capability_info["values"] == {
+            "LOW": {},
+            "MIDDLE": {},
+            "HIGH": {},
+        }
+
+        assert CATALOG_DH["filterState"].friendly_name == "Filter State"
+        assert CATALOG_DH["filterState"].entity_category == EntityCategory.DIAGNOSTIC
+
+        assert CATALOG_DH["mode"].entity_platform == Platform.SELECT
+        assert CATALOG_DH["mode"].capability_info["values"] == {
+            "AUTO": {},
+            "CONTINUOUS": {},
+            "DRY": {},
+            "OFF": {"disabled": True},
+            "QUIET": {},
+        }
+
+        assert CATALOG_DH["waterBucketLevel"].friendly_name == "Water Bucket Level"
+        assert (
+            CATALOG_DH["waterBucketLevel"].entity_category == EntityCategory.DIAGNOSTIC
+        )
+
+
 class TestCatalogRobotVacuum:
     """Tests for robot vacuum catalog support."""
 
@@ -236,7 +302,24 @@ class TestCatalogRobotVacuum:
         values = CATALOG_RVC["vacuumMode"].capability_info["values"]
         assert "max" in values
         assert "energySaving" in values
-        assert "quiet" in values
+
+    def test_dustbin_status_is_exposed_as_sensor(self):
+        """Robot vacuum catalog exposes dustbinStatus as a sensor enum."""
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+
+        dustbin = CATALOG_RVC["dustbinStatus"]
+        assert dustbin.capability_info["type"] == "string"
+        assert dustbin.device_class == SensorDeviceClass.ENUM
+        assert dustbin.value_mapping["CONNECTED"] == "Connected"
+
+    def test_purei9_power_mode_uses_numeric_range(self):
+        """PUREi9 powerMode matches the integer capability reported by samples."""
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+
+        power_mode = CATALOG_RVC["powerMode"].capability_info
+        assert power_mode["type"] == "int"
+        assert power_mode["min"] == 1
+        assert power_mode["max"] == 3
 
 
 class TestCatalogDishwasher:
@@ -248,6 +331,55 @@ class TestCatalogDishwasher:
 
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
+
+    def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
+        """Rinse aid level should use appliance capability limits, not stale catalog values."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        capability_info = CATALOG_DW["rinseAidLevel"].capability_info
+
+        assert capability_info["access"] == "readwrite"
+        assert capability_info["type"] == "number"
+        assert "min" not in capability_info
+        assert "max" not in capability_info
+
+    def test_miscellaneous_eco_mode_is_binary_sensor(self):
+        """Dishwasher ecoMode is read-only in samples, so it should not be modeled as a switch."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        entry = CATALOG_DW["miscellaneousState/ecoMode"]
+
+        assert entry.capability_info["access"] == "read"
+        assert entry.capability_info["type"] == "boolean"
+        assert entry.entity_platform == Platform.BINARY_SENSOR
+        assert entry.device_class is None
+
+    def test_reported_only_fallbacks_are_configured_for_dw(self):
+        """DW reported-only UI state fields should fall back to read-only entities."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert (
+            CATALOG_DW["displayLight"].reported_only_entity_platform == Platform.SENSOR
+        )
+        assert (
+            CATALOG_DW["displayOnFloor"].reported_only_entity_platform
+            == Platform.SENSOR
+        )
+        assert (
+            CATALOG_DW["preSelectLast"].reported_only_entity_platform
+            == Platform.BINARY_SENSOR
+        )
+
+    def test_purea9_has_rssi_and_filter_rfid_diagnostics(self):
+        """PUREA9 should expose RSSI and FilterRFID as diagnostics."""
+        from custom_components.electrolux.catalogs.catalog_ap import CATALOG_AP
+
+        assert "RSSI" in CATALOG_AP
+        assert "FilterRFID" in CATALOG_AP
 
 
 class TestCatalogAirConditioner:

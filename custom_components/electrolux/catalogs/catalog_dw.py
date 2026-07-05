@@ -3,7 +3,7 @@
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
 from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DISHWASHER_EXECUTE_STATES
@@ -77,9 +77,6 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "readwrite",
             "type": "number",
-            "default": 4,
-            "min": 0,
-            "max": 6,
         },
         device_class=None,
         unit=None,
@@ -122,6 +119,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:lightbulb",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     # Display on floor
     "displayOnFloor": ElectroluxDevice(
@@ -139,6 +138,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:projector-screen",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     # Key tone
     "keyTone": ElectroluxDevice(
@@ -190,6 +191,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:refresh",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
+        reported_only_device_class=None,
     ),
     # User selections - program options
     "userSelections/programUID": ElectroluxDevice(
@@ -368,7 +371,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
             "access": "read",
             "type": "boolean",
         },
-        device_class=SwitchDeviceClass.SWITCH,
+        device_class=None,
+        entity_platform=Platform.BINARY_SENSOR,
         unit=None,
         entity_category=None,
         entity_icon="mdi:leaf",

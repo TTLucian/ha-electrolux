@@ -33,12 +33,11 @@ Targets the following uncovered lines identified by coverage report:
 from unittest.mock import MagicMock, patch
 
 import pytest
-from homeassistant.const import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
 from custom_components.electrolux.const import (
     FOOD_PROBE_STATE_NOT_INSERTED,
     NUMBER,
-    SENSOR,
 )
 from custom_components.electrolux.number import ElectroluxNumber
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -82,7 +81,7 @@ def make_entity(
     coordinator, _ = make_coordinator(reported=reported, pnc_id=pnc_id)
     cap = capability or {"access": "readwrite", "type": "number", "min": 0, "max": 100}
     cls = ElectroluxSensor if use_sensor else ElectroluxNumber
-    entity_type = SENSOR if use_sensor else NUMBER
+    entity_type = Platform.SENSOR if use_sensor else Platform.NUMBER
     entity = cls(
         coordinator=coordinator,
         name="Test Entity",
@@ -2004,7 +2003,7 @@ class TestEntityCategoryAndDeviceClass:
             name="Test",
             config_entry=coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="test",
             entity_attr="temperature",
             entity_source=None,

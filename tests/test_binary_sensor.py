@@ -64,6 +64,7 @@ class TestElectroluxBinarySensor:
         coordinator = MagicMock()
         coordinator.hass = MagicMock()
         coordinator.config_entry = MagicMock()
+        coordinator.api = MagicMock()
         return coordinator
 
     @pytest.fixture

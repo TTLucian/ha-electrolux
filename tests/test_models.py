@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from custom_components.electrolux.models import (
     Appliance,
     ApplianceData,
@@ -878,6 +880,30 @@ class TestApplianceSetup:
         entity_names = [e.entity_attr for e in app.entities]
         assert danger_key not in entity_names
 
+    @pytest.mark.parametrize(
+        "ignored_key",
+        [
+            "fCPN_TDAlert",
+            "fCPN_TDEndOfCycle",
+            "fCPN_TDMaintenances",
+            "fCApplianceFeature_EUDryWhatWashed",
+            "hMEPN_DHAlerts",
+            "dummy_for_empty_cycle",
+            "dummy_for_empty_cycle_DW",
+        ],
+    )
+    def test_setup_skips_internal_constant_flags(self, ignored_key):
+        """Internal constant feature flags should be filtered before entity creation."""
+        app = _make_app_full()
+        reported = {"applianceInfo": {"applianceType": "TD"}}
+        caps = {ignored_key: {"access": "constant", "type": "int", "default": 1}}
+
+        data = self._make_data(capabilities=caps, reported=reported)
+        app.setup(data)
+
+        entity_names = [e.entity_attr for e in app.entities]
+        assert ignored_key not in entity_names
+
     def test_setup_capabilities_none_and_no_state_does_not_crash(self):
         """Edge case: capabilities None with empty state."""
         from custom_components.electrolux.api import ElectroluxLibraryEntity
@@ -900,6 +926,102 @@ class TestApplianceSetup:
         )
         app.setup(data)
         assert isinstance(app.entities, list)
+
+    def test_setup_creates_reported_only_display_light_sensor_for_dw(self):
+        """DW displayLight should fall back to a read-only sensor when capability is missing."""
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={
+                "properties": {
+                    "reported": {
+                        "applianceInfo": {"applianceType": "DW"},
+                        "displayLight": "DISPLAY_LIGHT_0",
+                    }
+                }
+            },
+            model="911473025",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        display_light_entities = [
+            entity for entity in app.entities if entity.entity_attr == "displayLight"
+        ]
+        assert len(display_light_entities) == 1
+        assert isinstance(display_light_entities[0], ElectroluxSensor)
+
+    def test_setup_creates_reported_only_preselectlast_binary_sensor_for_dw(self):
+        """DW preSelectLast should fall back to a read-only binary sensor when capability is missing."""
+        from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
+
+        app = _make_app_full(
+            state={
+                "properties": {
+                    "reported": {
+                        "applianceInfo": {"applianceType": "DW"},
+                        "preSelectLast": False,
+                    }
+                }
+            },
+            model="911473025",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        preselect_entities = [
+            entity for entity in app.entities if entity.entity_attr == "preSelectLast"
+        ]
+        assert len(preselect_entities) == 1
+        assert isinstance(preselect_entities[0], ElectroluxBinarySensor)
+
+    def test_setup_creates_reported_only_display_light_sensor_for_wm(self):
+        """WM displayLight should fall back to a read-only sensor when capability is missing."""
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={
+                "properties": {
+                    "reported": {
+                        "applianceInfo": {"applianceType": "WM"},
+                        "displayLight": "DISPLAY_LIGHT_0",
+                    }
+                }
+            },
+            model="914550951",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        display_light_entities = [
+            entity for entity in app.entities if entity.entity_attr == "displayLight"
+        ]
+        assert len(display_light_entities) == 1
+        assert isinstance(display_light_entities[0], ElectroluxSensor)
+
+    def test_setup_creates_reported_only_purea9_rssi_sensor(self):
+        """PUREA9 RSSI should be exposed from reported state even when absent from capabilities."""
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={
+                "properties": {
+                    "reported": {
+                        "applianceInfo": {"applianceType": "PUREA9"},
+                        "RSSI": -63,
+                    }
+                }
+            },
+            model="A9",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        rssi_entities = [
+            entity for entity in app.entities if entity.entity_attr == "RSSI"
+        ]
+        assert len(rssi_entities) == 1
+        assert isinstance(rssi_entities[0], ElectroluxSensor)
 
 
 # ---------------------------------------------------------------------------

@@ -549,9 +549,7 @@ class TestProcessIncrementalUpdate:
             "userId": secret_user_id,
         }
 
-        with caplog.at_level(
-            logging.DEBUG, logger="custom_components.electrolux"
-        ):
+        with caplog.at_level(logging.DEBUG, logger="custom_components.electrolux"):
             coordinator._process_incremental_update(data, aps)
 
         duplicate_logs = [
@@ -559,9 +557,7 @@ class TestProcessIncrementalUpdate:
         ]
         assert duplicate_logs, "expected duplicate-SSE debug log line"
         for msg in duplicate_logs:
-            assert secret_user_id not in msg, (
-                f"userId leaked in duplicate log: {msg}"
-            )
+            assert secret_user_id not in msg, f"userId leaked in duplicate log: {msg}"
             assert "REDACTED" in msg
 
     def test_updates_nested_path_correctly(self, coordinator):

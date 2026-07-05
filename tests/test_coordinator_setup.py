@@ -29,6 +29,10 @@ def make_coordinator():
     # Core HA stuff
     mock_hass = MagicMock()
     mock_hass.loop = asyncio.get_event_loop()
+    mock_hass.async_create_task = MagicMock(
+        side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
+        or MagicMock()
+    )
     coord.hass = mock_hass
     coord.config_entry = MagicMock()
     coord.config_entry.data = {"api_key": "fake-key-1234567890"}
@@ -44,6 +48,8 @@ def make_coordinator():
     coord._consecutive_auth_failures = 0
     coord._auth_failure_threshold = 3
     coord._last_time_to_end = {}
+    coord._pending_capability_retry = set()
+    coord._capability_retry_task = None
     coord.renew_interval = 7200
     coord.platforms = []
     coord.renew_task = None
@@ -186,10 +192,13 @@ class TestSetupSingleAppliance:
         coord.api.get_appliance_capabilities = AsyncMock(
             side_effect=asyncio.TimeoutError()
         )
+        coord._schedule_capability_retry = MagicMock()
 
         await coord._setup_single_appliance(appliance_json())
 
         assert "APPLIANCE_001" in coord.data["appliances"].appliances
+        assert "APPLIANCE_001" in coord._pending_capability_retry
+        coord._schedule_capability_retry.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_capabilities_generic_error_still_creates_appliance(self):
@@ -200,10 +209,13 @@ class TestSetupSingleAppliance:
         coord.api.get_appliance_capabilities = AsyncMock(
             side_effect=ConnectionError("network error")
         )
+        coord._schedule_capability_retry = MagicMock()
 
         await coord._setup_single_appliance(appliance_json())
 
         assert "APPLIANCE_001" in coord.data["appliances"].appliances
+        assert "APPLIANCE_001" in coord._pending_capability_retry
+        coord._schedule_capability_retry.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_network_error_on_required_data_creates_minimal_appliance(self):

@@ -34,7 +34,7 @@ def mock_hass():
     hass = MagicMock()
     hass.loop = mock_loop
     hass.async_create_task = MagicMock(
-        side_effect=lambda coro: asyncio.ensure_future(coro)
+        side_effect=lambda coro, **kwargs: asyncio.ensure_future(coro)
     )
     return hass
 
@@ -93,6 +93,8 @@ def coordinator(mock_hass, mock_api):
         coord.last_update_success = True
         coord._last_remote_control = {}
         coord._pending_state_refresh_tasks = {}
+        coord._last_sse_resync_time = 0.0
+        coord._pending_sse_resync_task = None
         return coord
 
 
@@ -148,6 +150,65 @@ class TestListenWebsocketGaps:
 
         with pytest.raises(asyncio.TimeoutError):
             await coordinator.listen_websocket()
+
+    async def test_listen_websocket_passes_on_connected_hook(
+        self, coordinator, mock_api
+    ):
+        """listen_websocket wires the real SSE on_connected hook into the API client."""
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+
+        await coordinator.listen_websocket()
+
+        mock_api.watch_for_appliance_state_updates.assert_awaited_once()
+        kwargs = mock_api.watch_for_appliance_state_updates.await_args.kwargs
+        assert kwargs["on_connected"] == coordinator._on_sse_connected
+
+
+class TestSseReconnectResync:
+    """Tests for on_connected SSE resync handling."""
+
+    async def test_on_sse_connected_refreshes_immediately(self, coordinator):
+        coordinator._refresh_all_appliances = AsyncMock()
+        coordinator.hass.loop.time.return_value = 1_000_000.0
+
+        await coordinator._on_sse_connected()
+
+        coordinator._refresh_all_appliances.assert_awaited_once()
+        assert coordinator._last_sse_resync_time == 1_000_000.0
+
+    async def test_on_sse_connected_swallows_refresh_errors(self, coordinator):
+        coordinator._refresh_all_appliances = AsyncMock(
+            side_effect=RuntimeError("boom")
+        )
+        coordinator.hass.loop.time.return_value = 1_000_000.0
+
+        await coordinator._on_sse_connected()
+
+        coordinator._refresh_all_appliances.assert_awaited_once()
+
+    async def test_on_sse_connected_debounces_with_trailing_task(self, coordinator):
+        coordinator._refresh_all_appliances = AsyncMock()
+        coordinator._last_sse_resync_time = 1_000_000.0
+        coordinator.hass.loop.time.return_value = 1_000_001.0
+
+        with patch("asyncio.sleep", new_callable=AsyncMock):
+            await coordinator._on_sse_connected()
+            assert coordinator._refresh_all_appliances.await_count == 0
+            task = coordinator._pending_sse_resync_task
+            assert task is not None
+            await task
+
+        coordinator._refresh_all_appliances.assert_awaited_once()
+
+    async def test_close_websocket_cancels_pending_sse_resync(
+        self, coordinator, mock_api
+    ):
+        coordinator._pending_sse_resync_task = asyncio.create_task(asyncio.sleep(3600))
+
+        await coordinator.close_websocket()
+
+        assert coordinator._pending_sse_resync_task is None
 
 
 # ===========================================================================

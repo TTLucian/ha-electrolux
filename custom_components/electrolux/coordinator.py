@@ -54,6 +54,8 @@ APPLIANCE_CAPABILITY_TIMEOUT = 12.0  # seconds
 SETUP_TIMEOUT_TOTAL = 30.0  # seconds
 UPDATE_TIMEOUT = 15.0  # seconds
 FIRST_REFRESH_TIMEOUT = 15.0  # seconds for initial setup refresh
+CAPABILITY_RETRY_DELAY = 30.0  # seconds between startup capability retry attempts
+SSE_RESYNC_DEBOUNCE = 60.0  # seconds between full-state resyncs after SSE reconnect
 DEFERRED_UPDATE_DELAY = 70  # seconds
 DEFERRED_TASK_LIMIT = 5  # maximum concurrent deferred tasks
 STATE_CHANGE_REFRESH_DELAY = (
@@ -152,6 +154,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._pending_capability_retry: set[str] = (
             set()
         )  # Appliances that need capability re-fetch (initial fetch failed)
+        self._capability_retry_task: Optional[asyncio.Task] = None
+        self._last_sse_resync_time = 0.0
+        self._pending_sse_resync_task: Optional[asyncio.Task] = None
         self._last_remote_control: dict[str, str] = (
             {}
         )  # Track remoteControl state per appliance to detect panel interactions
@@ -810,6 +815,55 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Notify HA of state changes
         self.async_set_updated_data(self.data)
 
+    async def _perform_sse_resync(self) -> None:
+        """Refresh all appliance states after a confirmed SSE connection/reconnection."""
+        self._last_sse_resync_time = self.hass.loop.time()
+        _LOGGER.info(
+            "SSE connected - refreshing all appliance states to sync after reconnection"
+        )
+        try:
+            await self._refresh_all_appliances()
+        except Exception as ex:
+            _LOGGER.warning(
+                "Failed to refresh appliance states after SSE reconnection: %s",
+                ex,
+            )
+
+    async def _delayed_sse_resync(self, delay: float) -> None:
+        """Run a trailing SSE resync after the debounce period."""
+        try:
+            await asyncio.sleep(delay)
+            await self._perform_sse_resync()
+        except asyncio.CancelledError:
+            raise
+        finally:
+            self._pending_sse_resync_task = None
+
+    async def _on_sse_connected(self) -> None:
+        """Handle actual SSE connection events, including internal SDK reconnects."""
+        now = self.hass.loop.time()
+        elapsed = now - self._last_sse_resync_time
+
+        if elapsed >= SSE_RESYNC_DEBOUNCE:
+            pending = self._pending_sse_resync_task
+            if pending and not pending.done():
+                pending.cancel()
+                await asyncio.gather(pending, return_exceptions=True)
+            self._pending_sse_resync_task = None
+            await self._perform_sse_resync()
+            return
+
+        delay = max(SSE_RESYNC_DEBOUNCE - elapsed, 0)
+        pending = self._pending_sse_resync_task
+        if pending and not pending.done():
+            pending.cancel()
+            await asyncio.gather(pending, return_exceptions=True)
+
+        self._pending_sse_resync_task = self.hass.async_create_task(
+            self._delayed_sse_resync(delay),
+            name=f"{DOMAIN}-sse-resync",
+        )
+
     async def listen_websocket(self) -> None:
         """Listen for state changes."""
         if self.data is None:
@@ -831,23 +885,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             await self.api.watch_for_appliance_state_updates(
                 ids,
                 self.incoming_data,
+                on_connected=self._on_sse_connected,
             )
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
-
-            # Trigger full state refresh after SSE (re)connects
-            # This ensures we catch any state changes that occurred during disconnection
-            _LOGGER.info(
-                "SSE connected - refreshing all appliance states to sync after reconnection"
-            )
-            try:
-                await self._refresh_all_appliances()
-            except Exception as ex:
-                _LOGGER.warning(
-                    f"Failed to refresh appliance states after SSE reconnection: {ex}"
-                )
-                # Don't raise - SSE is connected and working, refresh failure is not critical
 
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
@@ -962,6 +1004,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if refresh_tasks:
             await asyncio.gather(*refresh_tasks, return_exceptions=True)
         self._pending_state_refresh_tasks.clear()
+
+        pending_sse_resync_task = getattr(self, "_pending_sse_resync_task", None)
+        if pending_sse_resync_task and not pending_sse_resync_task.done():
+            pending_sse_resync_task.cancel()
+            await asyncio.gather(pending_sse_resync_task, return_exceptions=True)
+        self._pending_sse_resync_task = None
 
         # Close API connection - util.py handles SSE stream cleanup
         try:
@@ -1249,6 +1297,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 if appliance_id:
                     self._pending_capability_retry.add(appliance_id)
+                    self._schedule_capability_retry()
 
             # Process appliance data
             appliance_info = appliance_infos[0] if appliance_infos else None
@@ -1643,7 +1692,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # fetch failed at startup.  We only attempt this when state polling succeeds
             # so we don't hammer a still-unavailable API.
             if getattr(self, "_pending_capability_retry", None):
-                await self._retry_missing_capabilities()
+                self._schedule_capability_retry()
 
         # Trigger SSE restart if appliances came back online
         if newly_online_appliances and self._can_restart_sse():
@@ -1699,7 +1748,34 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Without this, returning the same object reference prevents entity updates
         return dict(self.data)
 
-    async def _retry_missing_capabilities(self) -> None:
+    def _schedule_capability_retry(self) -> None:
+        """Ensure a background retry loop exists for appliances missing capabilities."""
+        if not self._pending_capability_retry:
+            return
+
+        task = self._capability_retry_task
+        if task is not None and not task.done():
+            return
+
+        self._capability_retry_task = self.hass.async_create_task(
+            self._retry_missing_capabilities_loop(),
+            name=f"{DOMAIN}-capability-retry",
+        )
+
+    async def _retry_missing_capabilities_loop(self) -> None:
+        """Retry missing capabilities in the background until they recover or unload."""
+        try:
+            while self._pending_capability_retry:
+                await asyncio.sleep(CAPABILITY_RETRY_DELAY)
+                reloaded = await self._retry_missing_capabilities()
+                if reloaded:
+                    return
+        except asyncio.CancelledError:
+            raise
+        finally:
+            self._capability_retry_task = None
+
+    async def _retry_missing_capabilities(self) -> bool:
         """Retry fetching capabilities for appliances whose initial startup fetch failed.
 
         Called from the update loop on every cycle while there are pending appliances.
@@ -1738,6 +1814,18 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 self.hass.async_create_task(
                     self.hass.config_entries.async_reload(self.config_entry.entry_id)
                 )
+            return True
+
+        return False
+
+    async def async_cancel_capability_retry(self) -> None:
+        """Cancel any background capability retry task during unload."""
+        task = self._capability_retry_task
+        if task is None or task.done():
+            return
+
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
 
     def _can_restart_sse(self) -> bool:
         """Check if we can restart SSE (debounced to prevent hammering)."""

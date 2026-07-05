@@ -25,6 +25,10 @@ dev = [
     "pre-commit",
 ]
 
+[tool.black]
+target-version = ["py314"]
+line-length = 88
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

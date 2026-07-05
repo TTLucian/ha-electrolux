@@ -72,6 +72,21 @@ class ElectroluxDevice:
     # once Select entities have a device_class this is not needed
     entity_platform: Platform | None = None
 
+    # Optional fallback used when a model reports a value in reported_state but no
+    # longer advertises a writable capability for it. This lets the integration
+    # expose state visibility without synthesizing unsupported controls.
+    reported_only_entity_platform: Platform | None = None
+
+    # Device class override paired with reported_only_entity_platform.
+    reported_only_device_class: (
+        BinarySensorDeviceClass
+        | ButtonDeviceClass
+        | NumberDeviceClass
+        | SensorDeviceClass
+        | SwitchDeviceClass
+        | None
+    ) = None
+
     # Custom icons map according to values : useful for execute commands buttons
     entity_icons_value_map: dict[str, str] | None = None
 

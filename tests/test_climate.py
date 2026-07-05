@@ -51,6 +51,7 @@ class TestElectroluxClimate:
         coordinator.hass.loop = MagicMock()
         coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
+        coordinator.api = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
 
@@ -552,9 +553,7 @@ class TestElectroluxClimate:
         )
 
         # One command — same-mode case must not trigger the 3-command sequence.
-        climate_entity._send_command.assert_called_once_with(
-            "targetTemperatureC", 24.0
-        )
+        climate_entity._send_command.assert_called_once_with("targetTemperatureC", 24.0)
         assert climate_entity._last_user_temperature == 24.0
 
     @pytest.mark.asyncio
@@ -761,7 +760,7 @@ class TestElectroluxClimate:
     @pytest.mark.asyncio
     async def test_send_command_legacy_appliance(self, climate_entity, mock_appliance):
         """Test sending command to legacy appliance."""
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(
@@ -784,7 +783,7 @@ class TestElectroluxClimate:
     async def test_send_command_dam_appliance(self, climate_entity, mock_appliance):
         """Test sending command to DAM appliance."""
         climate_entity.entity_source = "airConditioner"
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(
@@ -812,7 +811,7 @@ class TestElectroluxClimate:
     @pytest.mark.asyncio
     async def test_send_command_error_handling(self, climate_entity):
         """Test error handling in send command."""
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(

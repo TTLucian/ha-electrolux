@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
+from homeassistant.const import Platform, UnitOfTemperature, UnitOfTime, UnitOfVolume
 
 from custom_components.electrolux.const import SENSOR
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -34,7 +34,7 @@ def basic_sensor_entity(mock_coordinator) -> ElectroluxSensor:
         name="Test Sensor",
         config_entry=mock_coordinator.config_entry,
         pnc_id="TEST_PNC",
-        entity_type=SENSOR,
+        entity_type=Platform.SENSOR,
         entity_name="testAttribute",
         entity_attr="testAttribute",
         entity_source=None,
@@ -78,7 +78,7 @@ class TestElectroluxSensor:
             name="Test Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -151,7 +151,7 @@ class TestTimeToEndSensor:
             name="Time to End",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="timeToEnd",
             entity_attr="timeToEnd",
             entity_source=None,
@@ -289,7 +289,7 @@ class TestRunningTimeSensor:
             name="Running Time",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="runningTime",
             entity_attr="runningTime",
             entity_source=None,
@@ -385,7 +385,7 @@ class TestAlertsSensor:
             name="Alerts",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="alerts",
             entity_attr="alerts",
             entity_source=None,
@@ -502,7 +502,7 @@ class TestValueMapping:
             name="Mapped Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -563,7 +563,7 @@ class TestTimeUnitConversion:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -757,7 +757,7 @@ class TestSensorMissingCoverage:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -785,7 +785,7 @@ class TestSensorMissingCoverage:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -846,7 +846,7 @@ class TestWMApplianceStateSensor:
             name="Test WM",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="applianceState",
             entity_attr="applianceState",
             entity_source=None,
@@ -867,13 +867,16 @@ class TestWMApplianceStateSensor:
         }
         return entity
 
-    @pytest.mark.parametrize("raw,expected", [
-        ("RUNNING", "Running"),
-        ("OFF", "Off"),
-        ("PAUSED", "Paused"),
-        ("END_OF_CYCLE", "End Of Cycle"),
-        ("ALARM", "Alarm"),
-    ])
+    @pytest.mark.parametrize(
+        "raw,expected",
+        [
+            ("RUNNING", "Running"),
+            ("OFF", "Off"),
+            ("PAUSED", "Paused"),
+            ("END_OF_CYCLE", "End Of Cycle"),
+            ("ALARM", "Alarm"),
+        ],
+    )
     def test_native_value_formats_state(self, mock_coordinator, raw, expected):
         entity = self._make_entity(mock_coordinator)
         entity.reported_state = {"applianceState": raw}

@@ -27,6 +27,26 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 PARALLEL_UPDATES = 0
 
 
+def _reported_path_exists(reported_data: dict[str, Any], path: str, attr: str) -> bool:
+    """Return True when a capability path exists in reported state.
+
+    Appliance reported payloads mix flat keys (e.g. ``keyTone``) with nested
+    objects (e.g. ``userSelections/autoDoorOpener``). The switch setup filter
+    needs to recognize both forms so valid nested switches are not dropped as
+    phantom capabilities.
+    """
+    if path in reported_data or attr in reported_data:
+        return True
+
+    current: Any = reported_data
+    for part in path.split("/"):
+        if not isinstance(current, dict) or part not in current:
+            return False
+        current = current[part]
+
+    return True
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -49,20 +69,19 @@ async def async_setup_entry(
                 # the appliance hardware does not support it (e.g., Pod wash, AutoDose).
                 # Write-only caps (access == "write") are exempt: they never appear in
                 # reported state by design, so absence is not evidence of non-support.
-                if entity.json_path and entity.json_path not in reported_data:
-                    if entity.entity_attr not in reported_data:
-                        cap_access = (
-                            entity.capability.get("access")
-                            if entity.capability
-                            else None
+                if entity.json_path and not _reported_path_exists(
+                    reported_data, entity.json_path, entity.entity_attr
+                ):
+                    cap_access = (
+                        entity.capability.get("access") if entity.capability else None
+                    )
+                    if cap_access != "write":
+                        _LOGGER.debug(
+                            "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
+                            entity.entity_attr,
+                            appliance_id,
                         )
-                        if cap_access != "write":
-                            _LOGGER.debug(
-                                "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
-                                entity.entity_attr,
-                                appliance_id,
-                            )
-                            continue
+                        continue
 
                 filtered_switches.append(entity)
 
