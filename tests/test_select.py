@@ -428,9 +428,7 @@ class TestElectroluxSelect:
             icon="mdi:fan",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
 
         assert entity.current_option == "Autoclean"
@@ -438,9 +436,7 @@ class TestElectroluxSelect:
         # No persistence in the catalog-derived options list.
         assert "Autoclean" not in entity.options_list
 
-    def test_options_drops_transient_label_when_value_changes(
-        self, mock_coordinator
-    ):
+    def test_options_drops_transient_label_when_value_changes(self, mock_coordinator):
         """Transient label is included only while the device is in the
         disabled state; switching to a normal value drops it."""
         capability = {
@@ -470,9 +466,7 @@ class TestElectroluxSelect:
         entity.hass = mock_coordinator.hass
 
         # Start in autoClean → transient label present.
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
         assert "Autoclean" in entity.options
 
