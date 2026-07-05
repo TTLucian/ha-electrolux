@@ -1238,6 +1238,7 @@ class TestSelectMissingCoveragePaths:
 
         # Call _handle_coordinator_update - it calls super()._handle_coordinator_update()
         # which reads from coordinator data. We just need to call it without error.
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         entity._handle_coordinator_update()
         # If we got here without error, super() was called successfully

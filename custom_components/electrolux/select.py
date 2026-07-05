@@ -147,7 +147,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         try:
             store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             # Skip persistence if unique_id cannot be computed (e.g., in tests)
             return
 

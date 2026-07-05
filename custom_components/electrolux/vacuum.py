@@ -245,7 +245,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             return None
         try:
             return _PUREI9_STATUS_TO_ACTIVITY.get(int(status_value))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             _LOGGER.debug(
                 "Invalid robotStatus value '%s' for appliance %s",
                 status_value,

@@ -241,7 +241,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             if c_value is not None:
                 try:
                     derived = celsius_to_fahrenheit(float(c_value))
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     derived = None
                 if derived is not None:
                     return derived
@@ -702,7 +702,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         ):
             try:
                 c_target = fahrenheit_to_celsius(float(value))
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 c_target = None
             if c_target is None:
                 return
