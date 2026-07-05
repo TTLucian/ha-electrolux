@@ -689,6 +689,35 @@ class TestSelectCurrentOption:
         # current_option should map "RAW_VAL" → "OPTION1" → find label "Option 1"
         assert entity.current_option == "Option 1"
 
+    def test_current_option_discovers_and_persists_unknown_value(
+        self, mock_coordinator, mock_capability
+    ):
+        """Unknown runtime values should become available options and persist."""
+        mock_coordinator.config_entry.data = {"api_key": "test-api-key"}
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:toaster-oven",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {"reported": {"program": "GUIDED_AIRFRY_PLUS"}}
+        }
+        entity._reported_state_cache = {"program": "GUIDED_AIRFRY_PLUS"}
+
+        assert entity.current_option == "Guided Airfry Plus"
+        assert "Guided Airfry Plus" in entity.options
+
 
 class TestSelectAsyncSelectOptionAdvanced:
     """Test async_select_option advanced paths: program check, offline, DAM paths, auth error."""
