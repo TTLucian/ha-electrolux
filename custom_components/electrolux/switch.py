@@ -46,15 +46,23 @@ async def async_setup_entry(
             for entity in entities:
                 # Filter out phantom/ghost capabilities (Issue #55)
                 # If a property path or capability key is absent from the reported state,
-                # the appliance hardware does not support it (e.g., Pod wash, AutoDose)
+                # the appliance hardware does not support it (e.g., Pod wash, AutoDose).
+                # Write-only caps (access == "write") are exempt: they never appear in
+                # reported state by design, so absence is not evidence of non-support.
                 if entity.json_path and entity.json_path not in reported_data:
                     if entity.entity_attr not in reported_data:
-                        _LOGGER.debug(
-                            "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
-                            entity.entity_attr,
-                            appliance_id,
+                        cap_access = (
+                            entity.capability.get("access")
+                            if entity.capability
+                            else None
                         )
-                        continue
+                        if cap_access != "write":
+                            _LOGGER.debug(
+                                "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
+                                entity.entity_attr,
+                                appliance_id,
+                            )
+                            continue
 
                 filtered_switches.append(entity)
 
