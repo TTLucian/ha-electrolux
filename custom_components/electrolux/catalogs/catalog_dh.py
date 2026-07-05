@@ -22,6 +22,7 @@ CATALOG_DH: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:power",
         friendly_name="Power",
+        state_mapping="applianceState",
     ),
     # Current humidity reading (read-only sensor)
     "sensorHumidity": ElectroluxDevice(

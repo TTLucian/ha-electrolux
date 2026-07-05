@@ -148,6 +148,36 @@ class TestElectroluxSwitch:
         entity.get_state_attr = MagicMock(return_value=True)
         assert entity.is_on is True
 
+    def test_async_setup_entry_keeps_write_only_switches(self, mock_coordinator):
+        """Write-only capabilities should stay available as switches even when absent from reported state."""
+        entity = MagicMock()
+        entity.entity_type = SWITCH
+        entity.json_path = "executeCommand"
+        entity.entity_attr = "executeCommand"
+        entity.capability = {"access": "write", "type": "string"}
+
+        appliance = MagicMock()
+        appliance.entities = [entity]
+        appliance.reported_state = {}
+
+        appliances = MagicMock()
+        appliances.appliances = {"TEST_PNC": appliance}
+
+        coordinator = MagicMock()
+        coordinator.data = {"appliances": appliances}
+
+        entry = MagicMock()
+        entry.runtime_data = coordinator
+
+        add_entities = MagicMock()
+
+        import asyncio
+
+        asyncio.run(async_setup_entry(MagicMock(), entry, add_entities))
+
+        add_entities.assert_called_once()
+        assert add_entities.call_args[0][0][0] is entity
+
     @pytest.mark.asyncio
     async def test_async_turn_on(self, switch_entity):
         """Test turning switch on."""
