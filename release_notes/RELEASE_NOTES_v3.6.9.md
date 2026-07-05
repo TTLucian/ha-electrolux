@@ -8,3 +8,5 @@
 - Many other fixes and improvements that I cannot remember...
 
 NOTE: I can't verify if everything is working corectly for all appliance types, please open issues if any problems appear. Thank you!
+
+SPECIAL THANK YOU to @netflash for all his work on this project!!!!!
