@@ -773,5 +773,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 
 # 👨‍💻 Status update:
-   - The CI run is currently failing due to some missing tests. I don't have the time to properly work on the tests, I do not have access to Copilot subscription and premium requests anymore due to lack of project funds.
-   While I'm still working on this, the reduced access to these tools means development and debugging will be slower and more "manual" for the time being. I appreciate your patience as I work through the remaining blockers at this new pace.
+Due to the recent GitHub Copilot usage price skyrocketing starting from 1st of July 2026, future updates and fixes for this integration will be released at a much slower pace.
+
+In the past, I was able to fully develop major features of this integration with just a $10 Copilot subscription.
+However, the latest update alone required about $40, consuming all existing BuyMeACoffee donations (already fully spent) and additional personal funds. At the current pricing, maintaining the previous fast development cycle is no longer feasible.
+
+The project remains active, but development will continue at a reduced, sustainable pace.

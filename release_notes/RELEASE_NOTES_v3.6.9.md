@@ -10,3 +10,11 @@
 NOTE: I can't verify if everything is working corectly for all appliance types, please open issues if any problems appear. Thank you!
 
 SPECIAL THANK YOU to @netflash for all his work on this project!!!!!
+
+# 👨‍💻 Status update:
+Due to the recent GitHub Copilot usage price skyrocketing starting from 1st of July 2026, future updates and fixes for this integration will be released at a much slower pace.
+
+In the past, I was able to fully develop major features of this integration with just a $10 Copilot subscription.
+However, the latest update alone required about $40, consuming all existing BuyMeACoffee donations (already fully spent) and additional personal funds. At the current pricing, maintaining the previous fast development cycle is no longer feasible.
+
+The project remains active, but development will continue at a reduced, sustainable pace.
