@@ -142,7 +142,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             {}
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
-        self._last_sse_event_time = 0.0  # Track last received SSE event for watchdog
+        self._last_sse_event_time = (
+            hass.loop.time()
+        )  # Track last received SSE event for watchdog
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
         self._last_time_to_end: dict[str, float | None] = (
             {}
@@ -1709,11 +1711,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # arrived within SSE_WATCHDOG_TIMEOUT. This catches the case where the SDK's
         # internal reconnect loop keeps the task alive but TransferEncodingErrors
         # (or other transient failures) prevent events from actually flowing.
-        if (
-            self.listen_task is not None
-            and not self.listen_task.done()
-            and self._last_sse_event_time > 0
-        ):
+        if self.listen_task is not None and not self.listen_task.done():
             silence = self.hass.loop.time() - self._last_sse_event_time
             if silence > SSE_WATCHDOG_TIMEOUT and self._can_restart_sse():
                 _LOGGER.warning(
