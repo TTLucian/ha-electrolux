@@ -28,7 +28,7 @@ def _make_create_task_mock(rv=None):
     """Return a MagicMock for async_create_task that closes passed coroutines."""
     _rv = rv
 
-    def _side_effect(coro):
+    def _side_effect(coro, **kwargs):
         if asyncio.iscoroutine(coro):
             coro.close()
         return _rv
@@ -76,6 +76,8 @@ def coordinator(mock_hass, mock_api):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0.0
+        coord._last_sse_message_time = 0.0
+        coord._sse_stall_monitor_task = None
         coord._last_manual_sync_time = 0.0
         coord._last_time_to_end = {}
         coord._consecutive_auth_failures = 0

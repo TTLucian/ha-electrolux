@@ -79,6 +79,8 @@ def coordinator(mock_hass, mock_api):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0.0
+        coord._last_sse_message_time = 0.0
+        coord._sse_stall_monitor_task = None
         coord._last_manual_sync_time = 0.0
         coord._last_time_to_end = {}
         coord._consecutive_auth_failures = 0
@@ -164,6 +166,26 @@ class TestListenWebsocketGaps:
         kwargs = mock_api.watch_for_appliance_state_updates.await_args.kwargs
         assert kwargs["on_connected"] == coordinator._on_sse_connected
 
+    async def test_listen_websocket_starts_watchdog_monitor_task(
+        self, coordinator, mock_api
+    ):
+        """listen_websocket should start SSE watchdog monitor after successful setup."""
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+
+        started = MagicMock()
+        coordinator._sse_stall_monitor_task = None
+        coordinator.hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kwargs: (
+                coro.close() if asyncio.iscoroutine(coro) else None
+            )
+            or started
+        )
+
+        await coordinator.listen_websocket()
+
+        assert coordinator._sse_stall_monitor_task is started
+
 
 class TestSseReconnectResync:
     """Tests for on_connected SSE resync handling."""
@@ -209,6 +231,98 @@ class TestSseReconnectResync:
         await coordinator.close_websocket()
 
         assert coordinator._pending_sse_resync_task is None
+
+
+class TestSseStallWatchdog:
+    """Tests for connected-but-silent SSE watchdog restart logic."""
+
+    async def test_incoming_data_updates_last_sse_message_time(self, coordinator):
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator._appliances_cache = appliances
+        coordinator.hass.loop.time.return_value = 1_000_123.0
+
+        coordinator.incoming_data(
+            {
+                "applianceId": "APP001",
+                "property": "timeToEnd",
+                "value": 120,
+            }
+        )
+
+        assert coordinator._last_sse_message_time == 1_000_123.0
+
+    async def test_watchdog_restarts_stalled_sse(self, coordinator, mock_api):
+        app = MagicMock()
+        app.state = {"connectivityState": "connected"}
+
+        coordinator.hass.loop.time.return_value = 1_001_000.0
+        coordinator._last_sse_message_time = 1_000_000.0
+        coordinator.listen_task = MagicMock()
+        coordinator.listen_task.done.return_value = False
+        coordinator.listen_websocket = AsyncMock(return_value=None)
+
+        await coordinator._restart_sse_if_stalled({"APP001": app})
+
+        mock_api.disconnect_websocket.assert_awaited_once()
+        coordinator.listen_websocket.assert_awaited_once()
+
+    async def test_watchdog_skips_when_messages_are_recent(self, coordinator, mock_api):
+        app = MagicMock()
+        app.state = {"connectivityState": "connected"}
+
+        coordinator.hass.loop.time.return_value = 1_000_120.0
+        coordinator._last_sse_message_time = 1_000_100.0
+        coordinator.listen_task = MagicMock()
+        coordinator.listen_task.done.return_value = False
+        coordinator.listen_websocket = AsyncMock(return_value=None)
+
+        await coordinator._restart_sse_if_stalled({"APP001": app})
+
+        mock_api.disconnect_websocket.assert_not_awaited()
+        coordinator.listen_websocket.assert_not_awaited()
+
+    async def test_watchdog_respects_restart_cooldown(self, coordinator, mock_api):
+        app = MagicMock()
+        app.state = {"connectivityState": "connected"}
+
+        coordinator.hass.loop.time.return_value = 1_000_200.0
+        coordinator._last_sse_message_time = 1_000_000.0
+        coordinator._last_sse_restart_time = 1_000_100.0
+        coordinator.listen_task = MagicMock()
+        coordinator.listen_task.done.return_value = False
+        coordinator.listen_websocket = AsyncMock(return_value=None)
+
+        await coordinator._restart_sse_if_stalled({"APP001": app})
+
+        mock_api.disconnect_websocket.assert_not_awaited()
+        coordinator.listen_websocket.assert_not_awaited()
+
+    async def test_monitor_loop_runs_cycle_and_checks_stall(self, coordinator):
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator._restart_sse_if_stalled = AsyncMock()
+
+        calls = {"n": 0}
+
+        async def _sleep(_secs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return
+            raise asyncio.CancelledError()
+
+        with patch("asyncio.sleep", side_effect=_sleep):
+            with pytest.raises(asyncio.CancelledError):
+                await coordinator._monitor_sse_stall_loop()
+
+        coordinator._restart_sse_if_stalled.assert_awaited_once()
+
+    async def test_close_websocket_cancels_sse_watchdog_task(self, coordinator):
+        coordinator._sse_stall_monitor_task = asyncio.create_task(asyncio.sleep(3600))
+
+        await coordinator.close_websocket()
+
+        assert coordinator._sse_stall_monitor_task is None
 
 
 # ===========================================================================

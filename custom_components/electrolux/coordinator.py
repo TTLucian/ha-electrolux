@@ -67,6 +67,8 @@ WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
 SSE_RESTART_COOLDOWN = 900  # 15 minutes: cooldown between SSE restart attempts
+SSE_STALL_THRESHOLD = 300.0  # seconds without SSE messages before forced reconnect
+SSE_STALL_CHECK_INTERVAL = 60.0  # seconds between watchdog checks
 
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
@@ -139,6 +141,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             {}
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
+        self._last_sse_message_time = 0.0  # Track last time any SSE event was received
+        self._sse_stall_monitor_task: Optional[asyncio.Task] = None
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
         self._last_time_to_end: dict[str, float | None] = (
             {}
@@ -411,6 +415,24 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
+        # Track stream liveness for stalled-SSE watchdog logic.
+        now = self.hass.loop.time()
+        self._last_sse_message_time = now
+
+        appliance_id_dbg = data.get(APPLIANCE_ID_KEY) or data.get(APPLIANCE_ID_ALT_KEY)
+        property_dbg = data.get(PROPERTY_KEY)
+        if appliance_id_dbg and property_dbg:
+            _LOGGER.debug(
+                "SSE message received: appliance=%s property=%s",
+                appliance_id_dbg,
+                property_dbg,
+            )
+        else:
+            _LOGGER.debug(
+                "SSE message received: non-incremental payload keys=%s",
+                list(data.keys()),
+            )
+
         # Update reported data
         if self.data is None:
             _LOGGER.warning("No coordinator data available for incoming data update")
@@ -842,6 +864,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     async def _on_sse_connected(self) -> None:
         """Handle actual SSE connection events, including internal SDK reconnects."""
         now = self.hass.loop.time()
+        # Seed watchdog timestamp at connection-open time so a fresh stream gets
+        # a full quiet window before being considered stalled.
+        self._last_sse_message_time = now
         elapsed = now - self._last_sse_resync_time
 
         if elapsed >= SSE_RESYNC_DEBOUNCE:
@@ -887,12 +912,69 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 self.incoming_data,
                 on_connected=self._on_sse_connected,
             )
+            self._ensure_sse_stall_monitor_started()
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
 
         except Exception as ex:
             _LOGGER.error(f"Failed to start SSE listening: {ex}")
+            raise
+
+    def _ensure_sse_stall_monitor_started(self) -> None:
+        """Ensure the SSE stall watchdog task is running."""
+        task = getattr(self, "_sse_stall_monitor_task", None)
+        if task is not None and not task.done():
+            return
+
+        self._sse_stall_monitor_task = self.hass.async_create_task(
+            self._monitor_sse_stall_loop()
+        )
+        _LOGGER.debug(
+            "SSE watchdog monitor started (interval=%.0fs threshold=%.0fs)",
+            SSE_STALL_CHECK_INTERVAL,
+            SSE_STALL_THRESHOLD,
+        )
+
+    async def _monitor_sse_stall_loop(self) -> None:
+        """Background loop that checks SSE liveness every minute."""
+        try:
+            while True:
+                await asyncio.sleep(SSE_STALL_CHECK_INTERVAL)
+
+                if not self.data:
+                    _LOGGER.debug("SSE watchdog cycle: skipped (no coordinator data)")
+                    continue
+
+                appliances = self.data.get("appliances")
+                if not appliances:
+                    _LOGGER.debug("SSE watchdog cycle: skipped (no appliances object)")
+                    continue
+
+                app_dict = appliances.get_appliances()
+                if not app_dict:
+                    _LOGGER.debug("SSE watchdog cycle: skipped (empty appliance map)")
+                    continue
+
+                now = self.hass.loop.time()
+                age = (
+                    now - self._last_sse_message_time
+                    if self._last_sse_message_time > 0
+                    else float("inf")
+                )
+                _LOGGER.debug(
+                    "SSE watchdog cycle: app_count=%d last_message_age=%.1fs threshold=%.1fs",
+                    len(app_dict),
+                    age,
+                    SSE_STALL_THRESHOLD,
+                )
+
+                await self._restart_sse_if_stalled(app_dict)
+        except asyncio.CancelledError:
+            _LOGGER.debug("SSE watchdog monitor cancelled")
+            raise
+        except Exception as ex:
+            _LOGGER.warning("SSE watchdog monitor failed unexpectedly: %s", ex)
             raise
 
     async def renew_websocket(self):
@@ -1010,6 +1092,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             pending_sse_resync_task.cancel()
             await asyncio.gather(pending_sse_resync_task, return_exceptions=True)
         self._pending_sse_resync_task = None
+
+        sse_monitor_task = getattr(self, "_sse_stall_monitor_task", None)
+        if sse_monitor_task and not sse_monitor_task.done():
+            sse_monitor_task.cancel()
+            await asyncio.gather(sse_monitor_task, return_exceptions=True)
+        self._sse_stall_monitor_task = None
 
         # Close API connection - util.py handles SSE stream cleanup
         try:
@@ -1716,6 +1804,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
                 # Don't raise - this is not critical, normal renewal will handle it
 
+        # Watchdog for silent stalls: stream appears connected but no incremental
+        # messages have arrived for a long period while at least one appliance is online.
+        await self._restart_sse_if_stalled(app_dict)
+
         # Improved logging for the failure case
         if successful == 0 and len(app_dict) > 0:
             error_detail = (
@@ -1747,6 +1839,59 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Return a new dict to ensure coordinator detects change and notifies entities
         # Without this, returning the same object reference prevents entity updates
         return dict(self.data)
+
+    async def _restart_sse_if_stalled(self, app_dict: dict[str, Any]) -> None:
+        """Restart SSE if stream is stale while at least one appliance is connected."""
+        listen_task = getattr(self, "listen_task", None)
+        if not listen_task or listen_task.done():
+            _LOGGER.debug("SSE stall check skipped: listen task is not running")
+            return
+
+        any_connected = any(
+            str(app.state.get("connectivityState", "")).lower() == STATE_CONNECTED
+            for app in app_dict.values()
+        )
+        if not any_connected:
+            _LOGGER.debug("SSE stall check skipped: no connected appliances")
+            return
+
+        now = self.hass.loop.time()
+        age = (
+            now - self._last_sse_message_time
+            if self._last_sse_message_time > 0
+            else float("inf")
+        )
+
+        if age <= SSE_STALL_THRESHOLD:
+            _LOGGER.debug(
+                "SSE stall check: healthy (last message %.1fs ago, threshold %.1fs)",
+                age,
+                SSE_STALL_THRESHOLD,
+            )
+            return
+
+        if not self._can_restart_sse():
+            _LOGGER.debug(
+                "SSE stall detected (%.1fs since last message) but restart cooldown is active",
+                age,
+            )
+            return
+
+        _LOGGER.info(
+            "SSE stall detected (%.1fs since last message, threshold %.1fs)",
+            age,
+            SSE_STALL_THRESHOLD,
+        )
+        _LOGGER.warning("SSE watchdog initiating stream restart")
+        try:
+            await asyncio.wait_for(
+                self.api.disconnect_websocket(),
+                timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
+            )
+            await asyncio.wait_for(self.listen_websocket(), timeout=UPDATE_TIMEOUT)
+            _LOGGER.info("SSE watchdog restart completed")
+        except Exception as ex:
+            _LOGGER.warning("SSE watchdog restart failed: %s", ex)
 
     def _schedule_capability_retry(self) -> None:
         """Ensure a background retry loop exists for appliances missing capabilities."""
