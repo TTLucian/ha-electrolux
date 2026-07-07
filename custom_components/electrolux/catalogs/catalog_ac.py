@@ -624,31 +624,17 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
     ),
     # Read-only current operating mode (mirrors the writable `mode` field)
     "modeState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "COOL": {},
-                "DRY": {},
-                "FANONLY": {},
-            },
-        },
+        capability_info={"access": "read", "type": "string"},
         device_class=None,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:fan",
         entity_registry_enabled_default=False,
     ),
-    # Sound volume (0 = silent, 1 = on; single-step boolean-style number)
+    # Sound volume: 0 = silent, 1 = on — binary, modeled as a switch
     "soundVolume": ElectroluxDevice(
-        capability_info={
-            "access": "readwrite",
-            "type": "number",
-            "min": 0,
-            "max": 1,
-            "step": 1,
-        },
-        device_class=None,
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:volume-high",
