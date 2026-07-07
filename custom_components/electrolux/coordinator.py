@@ -67,6 +67,9 @@ WEBSOCKET_DISCONNECT_TIMEOUT = 5.0  # seconds for websocket disconnect
 WEBSOCKET_BACKOFF_DELAY = 300  # 5 minutes in seconds for backoff
 API_DISCONNECT_TIMEOUT = 3.0  # seconds for API disconnect
 SSE_RESTART_COOLDOWN = 900  # 15 minutes: cooldown between SSE restart attempts
+SSE_WATCHDOG_TIMEOUT = (
+    600  # 10 minutes: restart SSE if no event received in this window
+)
 
 # String constants for data keys
 APPLIANCE_ID_KEY = "applianceId"
@@ -139,6 +142,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             {}
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
+        self._last_sse_event_time = 0.0  # Track last received SSE event for watchdog
         self._last_manual_sync_time = 0.0  # Track when we last performed manual sync
         self._last_time_to_end: dict[str, float | None] = (
             {}
@@ -475,6 +479,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Track this value for next comparison
             self._last_time_to_end[appliance_id] = new_value
 
+        self._last_sse_event_time = self.hass.loop.time()
+
         _LOGGER.debug(
             "SSE update received for %s: %s",
             appliance_id,
@@ -680,6 +686,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     def _process_bulk_update(self, data: dict[str, Any], appliances: Any) -> None:
         """Process a bulk appliance state update."""
+        self._last_sse_event_time = self.hass.loop.time()
+
         # Extract appliance ID from the SSE payload
         appliance_id = data.get(APPLIANCE_ID_KEY) or data.get(APPLIANCE_ID_ALT_KEY)
         if not appliance_id:
@@ -842,6 +850,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     async def _on_sse_connected(self) -> None:
         """Handle actual SSE connection events, including internal SDK reconnects."""
         now = self.hass.loop.time()
+        # Seed the watchdog so a fresh connection gets a full quiet window before
+        # being considered stale.
+        self._last_sse_event_time = now
         elapsed = now - self._last_sse_resync_time
 
         if elapsed >= SSE_RESYNC_DEBOUNCE:
@@ -1693,6 +1704,33 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # so we don't hammer a still-unavailable API.
             if getattr(self, "_pending_capability_retry", None):
                 self._schedule_capability_retry()
+
+        # SSE liveness watchdog: restart if the task is running but no event has
+        # arrived within SSE_WATCHDOG_TIMEOUT. This catches the case where the SDK's
+        # internal reconnect loop keeps the task alive but TransferEncodingErrors
+        # (or other transient failures) prevent events from actually flowing.
+        if (
+            self.listen_task is not None
+            and not self.listen_task.done()
+            and self._last_sse_event_time > 0
+        ):
+            silence = self.hass.loop.time() - self._last_sse_event_time
+            if silence > SSE_WATCHDOG_TIMEOUT and self._can_restart_sse():
+                _LOGGER.warning(
+                    "SSE watchdog: no event received in %.0fs — restarting stream",
+                    silence,
+                )
+                try:
+                    await asyncio.wait_for(
+                        self.api.disconnect_websocket(),
+                        timeout=WEBSOCKET_DISCONNECT_TIMEOUT,
+                    )
+                    await asyncio.wait_for(
+                        self.listen_websocket(), timeout=UPDATE_TIMEOUT
+                    )
+                    _LOGGER.info("SSE watchdog: stream restarted successfully")
+                except Exception as ex:
+                    _LOGGER.warning("SSE watchdog: restart failed: %s", ex)
 
         # Trigger SSE restart if appliances came back online
         if newly_online_appliances and self._can_restart_sse():

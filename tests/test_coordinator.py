@@ -33,6 +33,8 @@ def mock_coordinator(mock_api_client):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0
+        coord._last_sse_event_time = 0.0
+        coord.listen_task = None
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_time_to_end = {}
@@ -155,6 +157,73 @@ async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
 
     with pytest.raises(ConfigEntryAuthFailed):
         await mock_coordinator._async_update_data()
+
+
+@pytest.mark.asyncio
+async def test_sse_watchdog_triggers_restart(mock_coordinator, mock_api_client):
+    """SSE watchdog restarts stream when task is alive but no event in SSE_WATCHDOG_TIMEOUT."""
+    from unittest.mock import AsyncMock, MagicMock
+
+    mock_state = {"properties": {"reported": {"powerState": "on"}}}
+    mock_api_client.get_appliance_state = AsyncMock(return_value=mock_state)
+
+    mock_appliance = MagicMock()
+    mock_appliance.update = MagicMock()
+    mock_appliance.state = {"connectivityState": "connected"}
+    mock_appliances = MagicMock()
+    mock_appliances.get_appliances.return_value = {"app1": mock_appliance}
+    mock_coordinator.data = {"appliances": mock_appliances}
+
+    # Simulate a running SSE task that hasn't delivered an event in >watchdog window (601s)
+    stale_task = MagicMock()
+    stale_task.done.return_value = False
+    mock_coordinator.listen_task = stale_task
+    mock_coordinator._last_sse_event_time = (
+        mock_coordinator.hass.loop.time.return_value - 601
+    )
+    mock_coordinator._last_sse_restart_time = 0.0  # allow restart
+
+    mock_api_client.disconnect_websocket = AsyncMock()
+    mock_coordinator.listen_websocket = AsyncMock()
+
+    await mock_coordinator._async_update_data()
+
+    mock_api_client.disconnect_websocket.assert_awaited_once()
+    mock_coordinator.listen_websocket.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_sse_watchdog_no_restart_when_events_recent(
+    mock_coordinator, mock_api_client
+):
+    """SSE watchdog does not restart if an event arrived within the timeout window."""
+    from unittest.mock import AsyncMock, MagicMock
+
+    mock_state = {"properties": {"reported": {"powerState": "on"}}}
+    mock_api_client.get_appliance_state = AsyncMock(return_value=mock_state)
+
+    mock_appliance = MagicMock()
+    mock_appliance.update = MagicMock()
+    mock_appliance.state = {"connectivityState": "connected"}
+    mock_appliances = MagicMock()
+    mock_appliances.get_appliances.return_value = {"app1": mock_appliance}
+    mock_coordinator.data = {"appliances": mock_appliances}
+
+    stale_task = MagicMock()
+    stale_task.done.return_value = False
+    mock_coordinator.listen_task = stale_task
+    # Event arrived 60s ago — well within the watchdog window
+    mock_coordinator._last_sse_event_time = (
+        mock_coordinator.hass.loop.time.return_value - 60
+    )
+
+    mock_api_client.disconnect_websocket = AsyncMock()
+    mock_coordinator.listen_websocket = AsyncMock()
+
+    await mock_coordinator._async_update_data()
+
+    mock_api_client.disconnect_websocket.assert_not_awaited()
+    mock_coordinator.listen_websocket.assert_not_awaited()
 
 
 @pytest.mark.asyncio
