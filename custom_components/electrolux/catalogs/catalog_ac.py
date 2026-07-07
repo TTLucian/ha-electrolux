@@ -4,7 +4,13 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
+from homeassistant.const import (
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 
 from ..model import ElectroluxDevice
 
@@ -589,6 +595,115 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:transmission-tower",
+        entity_registry_enabled_default=False,
+    ),
+    # --- Telica (Electrolux 700 multifunctional AC / air purifier combo) ---
+    # Air quality sensors
+    "pm25": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.PM25,
+        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+        friendly_name="PM2.5",
+    ),
+    "pm10": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.PM10,
+        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+        friendly_name="PM10",
+    ),
+    "sensorHumidity": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.HUMIDITY,
+        unit=PERCENTAGE,
+        entity_category=None,
+        entity_icon="mdi:water-percent",
+    ),
+    # Read-only current operating mode (mirrors the writable `mode` field)
+    "modeState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "COOL": {},
+                "DRY": {},
+                "FANONLY": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan",
+        entity_registry_enabled_default=False,
+    ),
+    # Sound volume (0 = silent, 1 = on; single-step boolean-style number)
+    "soundVolume": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 0,
+            "max": 1,
+            "step": 1,
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:volume-high",
+    ),
+    # UI lock (child lock)
+    "uiLockMode": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:lock",
+    ),
+    # Filter maintenance — main air filter
+    "filterRuntime": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+    ),
+    "filterReset": ElectroluxDevice(
+        capability_info={"access": "write", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:air-filter",
+    ),
+    # HEPA filter
+    "hepaFilterInsertedState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"ON": {}, "OFF": {}},
+        },
+        device_class=BinarySensorDeviceClass.PRESENCE,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        friendly_name="HEPA Filter Inserted",
+    ),
+    "hepaFilterReset": ElectroluxDevice(
+        capability_info={"access": "write", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:air-filter",
+    ),
+    # Air quality index (Telica-specific, state-only — not in capabilities)
+    "airQualityLevel": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
         entity_registry_enabled_default=False,
     ),
 }
