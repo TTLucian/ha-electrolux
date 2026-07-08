@@ -23,6 +23,13 @@ from .util import execute_command_with_error_handling, format_command_for_applia
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
+_MODE_TO_ACTION: dict[HVACMode, HVACAction] = {
+    HVACMode.COOL: HVACAction.COOLING,
+    HVACMode.HEAT: HVACAction.HEATING,
+    HVACMode.DRY: HVACAction.DRYING,
+    HVACMode.FAN_ONLY: HVACAction.FAN,
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -299,20 +306,42 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     @property
     def hvac_action(self) -> HVACAction | None:
         """Return the current running hvac operation."""
-        # Check appliance state
         state_value = self.get_state_attr("applianceState")
-        if state_value:
-            state_str = str(state_value).upper()
-            if state_str in ["RUNNING", "COOLING", "HEATING"]:
-                return (
-                    HVACAction.COOLING
-                    if self.hvac_mode == HVACMode.COOL
-                    else HVACAction.HEATING
-                )
-            elif state_str == "IDLE":
-                return HVACAction.IDLE
-            elif state_str == "OFF":
-                return HVACAction.OFF
+        if not state_value:
+            return None
+
+        state_str = str(state_value).upper()
+        if state_str == "OFF":
+            return HVACAction.OFF
+        if state_str == "IDLE":
+            return HVACAction.IDLE
+        # Some models report the action directly in applianceState
+        if state_str == "COOLING":
+            return HVACAction.COOLING
+        if state_str == "HEATING":
+            return HVACAction.HEATING
+        if state_str != "RUNNING":
+            return None
+
+        mode = self.hvac_mode
+        if mode in _MODE_TO_ACTION:
+            return _MODE_TO_ACTION[mode]
+
+        if mode == HVACMode.AUTO:
+            # The device decides between heating/cooling; infer from compressor
+            # telemetry when reported (Azul: compressorState + fourWayValveState,
+            # valve on means reversed refrigerant flow = heating).
+            compressor = self.get_state_attr("compressorState")
+            if compressor is not None:
+                if str(compressor).upper() == "OFF":
+                    return HVACAction.IDLE
+                valve = self.get_state_attr("fourWayValveState")
+                if valve is not None:
+                    return (
+                        HVACAction.HEATING
+                        if str(valve).upper() == "ON"
+                        else HVACAction.COOLING
+                    )
 
         return None
 
