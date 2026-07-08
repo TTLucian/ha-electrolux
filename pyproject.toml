@@ -13,7 +13,7 @@ test = [
     "aiohttp>=3.14.1,<4.0.0",
     "pyjwt>=2.12.1,<3.0.0",
     "electrolux-group-developer-sdk",
-    "mypy>=1.0.0",
+    "mypy>=2.2.0",
     "ruff>=0.15.20",
     "black>=25.0.0",
 ]
