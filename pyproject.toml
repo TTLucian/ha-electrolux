@@ -14,7 +14,7 @@ test = [
     "pyjwt>=2.12.1,<3.0.0",
     "electrolux-group-developer-sdk",
     "mypy>=1.0.0",
-    "ruff>=0.11.0",
+    "ruff>=0.15.20",
     "black>=25.0.0",
 ]
 dev = [
