@@ -311,6 +311,48 @@ class TestElectroluxClimate:
         mock_appliance.reported_state["mode"] = "HEAT"
         assert climate_entity.hvac_action == HVACAction.HEATING
 
+    def test_hvac_action_drying(self, climate_entity, mock_appliance):
+        """DRY mode must report DRYING, not HEATING (#102)."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "DRY"
+        assert climate_entity.hvac_action == HVACAction.DRYING
+
+    def test_hvac_action_fan(self, climate_entity, mock_appliance):
+        """FANONLY mode must report FAN, not HEATING (#102)."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "FANONLY"
+        assert climate_entity.hvac_action == HVACAction.FAN
+
+    def test_hvac_action_auto_cooling(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor on and four-way valve off means cooling."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "on"
+        mock_appliance.reported_state["fourWayValveState"] = "off"
+        assert climate_entity.hvac_action == HVACAction.COOLING
+
+    def test_hvac_action_auto_heating(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor on and four-way valve on means heating."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "on"
+        mock_appliance.reported_state["fourWayValveState"] = "on"
+        assert climate_entity.hvac_action == HVACAction.HEATING
+
+    def test_hvac_action_auto_compressor_off(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor off means the unit is idling."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "off"
+        assert climate_entity.hvac_action == HVACAction.IDLE
+
+    def test_hvac_action_auto_no_telemetry(self, climate_entity, mock_appliance):
+        """AUTO mode without compressor telemetry cannot determine the action."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "AUTO"
+        mock_appliance.reported_state.pop("compressorState", None)
+        assert climate_entity.hvac_action is None
+
     def test_hvac_action_idle(self, climate_entity, mock_appliance):
         """Test HVAC action returns IDLE."""
         mock_appliance.reported_state["applianceState"] = "IDLE"
