@@ -30,7 +30,7 @@ jobs:
 
       # 3️⃣ Set up uv and that Python version
       - name: Set up uv with Python ${{ steps.ha_python.outputs.version }}
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "${{ steps.ha_python.outputs.version }}"
 
