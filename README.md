@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://buymeacoffee.com/ttlucian"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+  <a href="https://ko-fi.com/ttlucian"><img src="https://img.shields.io/badge/Ko--fi-Donate-ff5f5f?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
 </p>
 
 # 📖 Description
@@ -115,7 +115,14 @@ If your model number appears in the table above, your appliance has been verifie
 
 | Contributors | Support Link |
 |-------------|-------------|
-| [TTLucian](https://github.com/TTLucian) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/TTLucian) |
+| [TTLucian](https://github.com/TTLucian) | [<img src="https://storage.ko-fi.com/cdn/kofi5.png?v=3" height="36" alt="Ko-fi">](https://ko-fi.com/ttlucian) |
+
+
+## 🤝 Contributing
+
+- [netflash](https://github.com/netflash)
+
+- [joeblack2k](https://github.com/joeblack2k)
 
 ## 📋 Prerequisites
 
@@ -734,13 +741,6 @@ If the above solutions don't resolve your issue:
 This repository includes comprehensive testing scripts to help you verify appliance compatibility and test API functionality before installing the integration. These scripts allow direct interaction with the Electrolux API to inspect your appliances and test commands.
 
 📖 **[Testing Scripts Documentation](scripts/TESTING_SCRIPTS_README.md)** - Complete guide for using the testing tools
-
-## 🤝 Contributing
-
-[netflash](https://github.com/netflash)
-[joeblack2k](https://github.com/joeblack2k)
-
-Contributions are welcome! This integration is actively maintained and improved.
 
 ## 🤝 Special **Thank You!** to all users who helped fund this project!!!
 
