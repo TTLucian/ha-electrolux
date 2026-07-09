@@ -87,7 +87,6 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "write",
             "type": "string",
-            "values": {"START": {}, "STOPRESET": {}},
         },
         device_class=None,
         unit=None,
