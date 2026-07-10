@@ -639,14 +639,6 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:volume-high",
     ),
-    # UI lock (child lock)
-    "uiLockMode": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "boolean"},
-        device_class=SwitchDeviceClass.SWITCH,
-        unit=None,
-        entity_category=EntityCategory.CONFIG,
-        entity_icon="mdi:lock",
-    ),
     # Filter maintenance — main air filter
     "filterRuntime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
@@ -664,6 +656,23 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:air-filter",
     ),
     # HEPA filter
+    "hepaFilterState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "GOOD": {},
+                "BUY": {},
+                "CHANGE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+        friendly_name="HEPA Filter State",
+    ),
     "hepaFilterInsertedState": ElectroluxDevice(
         capability_info={
             "access": "read",
