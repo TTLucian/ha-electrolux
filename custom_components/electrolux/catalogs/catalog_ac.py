@@ -613,15 +613,8 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:fan",
+        entity_registry_enabled_default=False,
         friendly_name="Mode State",
-    ),
-    "uiLockMode": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "boolean"},
-        device_class=SwitchDeviceClass.SWITCH,
-        unit=None,
-        entity_category=EntityCategory.CONFIG,
-        entity_icon="mdi:lock",
-        friendly_name="Child Lock",
     ),
     "soundVolume": ElectroluxDevice(
         capability_info={
@@ -669,6 +662,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
         friendly_name="HEPA Filter State",
     ),
     "hepaFilterReset": ElectroluxDevice(
@@ -690,6 +684,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
         friendly_name="HEPA Filter Inserted",
     ),
     "sensorHumidity": ElectroluxDevice(
