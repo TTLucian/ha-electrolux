@@ -4,8 +4,15 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
+from homeassistant.const import (
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 
+from ..const import BUTTON
 from ..model import ElectroluxDevice
 
 CATALOG_AC: dict[str, ElectroluxDevice] = {
@@ -590,5 +597,121 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:transmission-tower",
         entity_registry_enabled_default=False,
+    ),
+    # Reported current mode (read-only counterpart to the readwrite `mode`)
+    "modeState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "COOL": {},
+                "DRY": {},
+                "FANONLY": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:fan",
+        friendly_name="Mode State",
+    ),
+    "uiLockMode": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:lock",
+        friendly_name="Child Lock",
+    ),
+    "soundVolume": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 10,
+        },
+        device_class=None,
+        unit=PERCENTAGE,
+        entity_category=EntityCategory.CONFIG,
+        entity_icon="mdi:volume-high",
+        friendly_name="Sound Volume",
+    ),
+    "filterRuntime": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        entity_registry_enabled_default=False,
+        friendly_name="Filter Runtime",
+    ),
+    "filterReset": ElectroluxDevice(
+        capability_info={"access": "write", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_platform=BUTTON,
+        entity_icon="mdi:air-filter",
+        friendly_name="Reset Filter",
+    ),
+    "hepaFilterState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "GOOD": {},
+                "BUY": {},
+                "CHANGE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        friendly_name="HEPA Filter State",
+    ),
+    "hepaFilterReset": ElectroluxDevice(
+        capability_info={"access": "write", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_platform=BUTTON,
+        entity_icon="mdi:air-filter",
+        friendly_name="Reset HEPA Filter",
+    ),
+    "hepaFilterInsertedState": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        friendly_name="HEPA Filter Inserted",
+    ),
+    "sensorHumidity": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.HUMIDITY,
+        unit=PERCENTAGE,
+        entity_category=None,
+        entity_icon="mdi:water-percent",
+        friendly_name="Humidity",
+    ),
+    "pm25": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.PM25,
+        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        entity_category=None,
+        friendly_name="PM2.5",
+    ),
+    "pm10": ElectroluxDevice(
+        capability_info={"access": "read", "type": "int"},
+        device_class=SensorDeviceClass.PM10,
+        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        entity_category=None,
+        friendly_name="PM10",
     ),
 }
