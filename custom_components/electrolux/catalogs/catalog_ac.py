@@ -12,6 +12,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
+from ..const import BUTTON
 from ..model import ElectroluxDevice
 
 CATALOG_AC: dict[str, ElectroluxDevice] = {
@@ -653,6 +654,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         device_class=None,
         unit=None,
         entity_category=EntityCategory.CONFIG,
+        entity_platform=BUTTON,
         entity_icon="mdi:air-filter",
     ),
     # HEPA filter
@@ -690,6 +692,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         device_class=None,
         unit=None,
         entity_category=EntityCategory.CONFIG,
+        entity_platform=BUTTON,
         entity_icon="mdi:air-filter",
     ),
     # Air quality index (Telica-specific, state-only — not in capabilities)
