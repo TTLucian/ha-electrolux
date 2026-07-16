@@ -431,6 +431,15 @@ class TestCatalogAirConditioner:
         for v in ("QUIET", "LOW", "MIDDLE", "HIGH"):
             assert v in values
 
+    def test_filter_reset_entities_are_buttons(self):
+        """filterReset/hepaFilterReset pin BUTTON explicitly, not via inference."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        for key in ("filterReset", "hepaFilterReset"):
+            assert CATALOG_AC[key].entity_platform == Platform.BUTTON
+
     def test_new_switch_entities(self):
         """New switch entities exist with correct device_class and icon."""
         from homeassistant.components.switch import SwitchDeviceClass
