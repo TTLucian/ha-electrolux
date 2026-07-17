@@ -238,6 +238,27 @@ class TestCatalogRobotVacuum:
         assert "energySaving" in values
         assert "quiet" in values
 
+    def test_rvc_has_scalar_map_zone_sensors(self):
+        """Robot vacuum catalog exposes read-only map/session scalar sensors (#130)."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        scalar_keys = [
+            "persistentMapsCreated/mapId",
+            "cleaningSession/sessionId",
+            "cleaningSession/completion",
+            "cleaningSession/areaCovered",
+            "mapData/robotPoseReliable",
+        ]
+        for key in scalar_keys:
+            assert key in CATALOG_RVC, f"missing {key}"
+            entry = CATALOG_RVC[key]
+            assert isinstance(entry, ElectroluxDevice)
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
 
 class TestCatalogDishwasher:
     """Tests for catalog_dw.py."""
