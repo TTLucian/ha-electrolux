@@ -259,6 +259,29 @@ class TestCatalogRobotVacuum:
             assert entry.entity_category == EntityCategory.DIAGNOSTIC
             assert entry.entity_registry_enabled_default is False
 
+    def test_rvc_robot_pose_reliable_is_binary_sensor(self):
+        """robotPoseReliable is a binary sensor via entity_platform (#130)."""
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.const import BINARY_SENSOR
+
+        entry = CATALOG_RVC["mapData/robotPoseReliable"]
+        assert entry.entity_platform == BINARY_SENSOR
+        assert entry.device_class is None
+
+    def test_rvc_has_derived_map_zone_sensors(self):
+        """Derived zone-count and zone-status sensors are DIAGNOSTIC + disabled (#130)."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        for key in ("mapData/mapMatch/zones", "cleaningSession/zoneStatus"):
+            assert key in CATALOG_RVC, f"missing {key}"
+            entry = CATALOG_RVC[key]
+            assert isinstance(entry, ElectroluxDevice)
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
 
 class TestCatalogDishwasher:
     """Tests for catalog_dw.py."""
