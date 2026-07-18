@@ -125,6 +125,10 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
 
         value = self.extract_value()
 
+        # RVC (#130): reduce the persistent-map zone list to a count
+        if self.json_path == "mapData/mapMatch/zones":
+            return len(value) if isinstance(value, list) and value else None
+
         # Debug logging for water tank sensor
         if self.entity_key == "watertankempty":
             live_value = self.reported_state.get("waterTankEmpty")

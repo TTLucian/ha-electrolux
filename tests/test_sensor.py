@@ -871,3 +871,30 @@ class TestRvcMapZoneSensors:
             reported={"persistentMapsCreated": {"mapId": "abc-123"}},
         )
         assert entity.native_value == "Abc-123"
+
+    def test_zone_count_returns_list_length(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {"zones": [{}, {}, {}, {}, {}]}}},
+        )
+        assert entity.native_value == 5
+
+    def test_zone_count_empty_list_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {"zones": []}}},
+        )
+        assert entity.native_value is None
+
+    def test_zone_count_missing_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {}}},
+        )
+        assert entity.native_value is None

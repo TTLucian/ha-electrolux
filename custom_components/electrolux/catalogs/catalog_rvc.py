@@ -712,4 +712,14 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
         friendly_name="Robot Pose Reliable",
     ),
+    # Derived: number of zones on the persistent map (#130)
+    "mapData/mapMatch/zones": ElectroluxDevice(
+        capability_info={"access": "read", "type": "list"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:shape-outline",
+        entity_registry_enabled_default=False,
+        friendly_name="Map Zone Count",
+    ),
 }
