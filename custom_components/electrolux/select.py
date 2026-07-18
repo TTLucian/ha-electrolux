@@ -144,6 +144,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             return
 
         discovered = self.hass.data.get(store_key, {})
+        if not isinstance(discovered, dict):
+            # Defensive: the store key lives in the shared hass.data namespace;
+            # ignore anything that is not the expected label->value mapping.
+            return
         for label, value in discovered.items():
             # Only restore values not already provided by capabilities;
             # capabilities take precedence and are not "discovered".
