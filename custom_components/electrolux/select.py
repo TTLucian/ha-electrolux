@@ -110,7 +110,19 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 if label is not None:
                     self.options_list[label] = value
 
-        # Load previously-discovered program values from entity store
+        # Track which values are discovered (not from catalog) so they survive
+        # program-constraint filtering in the options property (#65). Populated
+        # from the entity store in async_added_to_hass — self.hass is not yet
+        # available during __init__ (HA assigns it after construction).
+        self._discovered_values: set[str] = set()
+
+    async def async_added_to_hass(self) -> None:
+        """Restore discovered program values once hass is available.
+
+        HA assigns ``self.hass`` after ``__init__``, so the entity store can
+        only be read here, not in the constructor (#65).
+        """
+        await super().async_added_to_hass()
         self._load_discovered_programs()
 
     def _load_discovered_programs(self) -> None:
@@ -118,23 +130,31 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         Restores program values that were observed in reported state but not
         present in the initial capabilities, allowing them to remain selectable
-        across restarts (e.g., GUIDED programs on SO ovens).
+        across restarts (e.g., GUIDED programs on SO ovens). Each restored value
+        is added to both ``options_list`` (so it renders) and
+        ``_discovered_values`` (so it survives program-constraint filtering).
         """
         if not hasattr(self, "hass") or not self.hass:
             return
 
-        store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
+        try:
+            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
+        except (TypeError, AttributeError):
+            # Skip restore if unique_id cannot be computed (e.g., in tests)
+            return
+
         discovered = self.hass.data.get(store_key, {})
-        if discovered:
-            for label, value in discovered.items():
-                # Only add if not already in options_list (capabilities take precedence)
-                if value not in self.options_list.values():
-                    self.options_list[label] = value
-                    _LOGGER.debug(
-                        "Restored discovered program %s for %s",
-                        value,
-                        self.entity_attr,
-                    )
+        for label, value in discovered.items():
+            # Only restore values not already provided by capabilities;
+            # capabilities take precedence and are not "discovered".
+            if value not in self.options_list.values():
+                self.options_list[label] = value
+                self._discovered_values.add(value)
+                _LOGGER.debug(
+                    "Restored discovered program %s for %s",
+                    value,
+                    self.entity_attr,
+                )
 
     def _persist_discovered_program(self, value: str, label: str) -> None:
         """Persist a newly-discovered program value to entity store.
@@ -249,6 +269,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 label = self.format_label(value)
                 if label is not None and value is not None:
                     self.options_list[label] = str_value
+                    # Mark as discovered so it survives program-constraint
+                    # filtering in ``options`` within this session (#65)
+                    self._discovered_values.add(str_value)
                     # Persist the discovery so it survives HA restart
                     self._persist_discovered_program(str_value, label)
             elif is_disabled_value:
@@ -502,6 +525,14 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     for label, value in self.options_list.items()
                     if str(value) in allowed_values
                 ]
+                # Re-add discovered programs filtered out by program constraints
+                # (e.g., GUIDED programs on SO ovens — valid but never enumerated
+                # by the API). They are always selectable once discovered. (#65)
+                if self._discovered_values:
+                    for label, value in self.options_list.items():
+                        if value in self._discovered_values:
+                            if label not in all_options:
+                                all_options.append(label)
 
         # Append the current label if it falls outside the persistent
         # options_list — currently only happens for disabled capability
