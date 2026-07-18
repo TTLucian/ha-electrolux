@@ -722,4 +722,14 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
         friendly_name="Map Zone Count",
     ),
+    # Derived: last cleaning-session zone status summary (#130)
+    "cleaningSession/zoneStatus": ElectroluxDevice(
+        capability_info={"access": "read", "type": "list"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:map-marker-check",
+        entity_registry_enabled_default=False,
+        friendly_name="Cleaning Zone Status",
+    ),
 }

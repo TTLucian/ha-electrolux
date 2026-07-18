@@ -898,3 +898,40 @@ class TestRvcMapZoneSensors:
             reported={"mapData": {"mapMatch": {}}},
         )
         assert entity.native_value is None
+
+    ZONE_STATUS = [
+        {"id": "z1", "status": "finished", "powerMode": 1},
+        {"id": "z2", "status": "finished", "powerMode": 1},
+        {"id": "z3", "status": "terminated", "powerMode": 1},
+    ]
+
+    def test_zone_status_summary(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+        )
+        assert entity.native_value == "2/3 finished"
+
+    def test_zone_status_empty_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": []}},
+        )
+        assert entity.native_value is None
+
+    def test_zone_status_extra_attributes(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+        )
+        assert entity.extra_state_attributes == {
+            "z1": "finished",
+            "z2": "finished",
+            "z3": "terminated",
+        }
