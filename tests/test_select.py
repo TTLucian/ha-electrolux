@@ -1701,6 +1701,53 @@ class TestDiscoveredPrograms:
         assert entity.options_list == {"Bake": "BAKE"}
         assert entity._discovered_values == set()
 
+    def test_discovered_store_key_is_per_entity_and_sanitized(self, mock_coordinator):
+        """The Store key derives from unique_id per-entity and has no path separators."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+
+        def _make(entity_attr, entity_source):
+            entity = ElectroluxSelect(
+                coordinator=mock_coordinator,
+                capability=capability,
+                name="Program",
+                config_entry=mock_coordinator.config_entry,
+                pnc_id="OVEN_123",
+                entity_type=SELECT,
+                entity_name=entity_attr,
+                entity_attr=entity_attr,
+                entity_source=entity_source,
+                unit=None,
+                device_class="",
+                entity_category=EntityCategory.CONFIG,
+                icon="mdi:chef-hat",
+            )
+            entity.hass = mock_coordinator.hass
+            return entity
+
+        captured: list[str] = []
+
+        def _capture(hass, version, key):
+            captured.append(key)
+            return _FakeStore({})
+
+        entity_root = _make("program", None)
+        # entity_source with a "/" flows into unique_id and must be sanitized
+        entity_nested = _make("programUID", "userSelections/programUID")
+
+        with patch("custom_components.electrolux.select.Store", new=_capture):
+            assert entity_root._get_discovered_store() is not None
+            assert entity_nested._get_discovered_store() is not None
+
+        # Distinct entities resolve to distinct per-entity keys
+        assert captured[0] != captured[1]
+        assert all(k.startswith("electrolux_discovered_programs_") for k in captured)
+        # Path separators from entity_source are sanitized out of the storage key
+        assert "/" not in captured[1]
+
     def test_options_filtered_by_program_values(self, mock_coordinator):
         """Test options filtering works when _get_program_constraint returns allowed values."""
         capability = {
