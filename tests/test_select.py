@@ -11,6 +11,29 @@ from custom_components.electrolux.entity import ElectroluxEntity
 from custom_components.electrolux.select import ElectroluxSelect
 
 
+class _FakeStore:
+    """Minimal stand-in for homeassistant.helpers.storage.Store in unit tests.
+
+    Reads/writes a shared ``backing`` dict so a second instance (a simulated
+    restart) sees what an earlier one persisted via async_delay_save.
+    """
+
+    def __init__(self, backing):
+        self._backing = backing
+
+    async def async_load(self):
+        return dict(self._backing)
+
+    def async_delay_save(self, data_func, delay=0):
+        self._backing.clear()
+        self._backing.update(data_func())
+
+
+def _fake_store(backing):
+    """Return a Store(...) replacement that always yields a _FakeStore(backing)."""
+    return lambda *args, **kwargs: _FakeStore(backing)
+
+
 class TestElectroluxSelect:
     """Test the Electrolux Select entity."""
 
@@ -1314,8 +1337,9 @@ class TestDiscoveredPrograms:
 
         mock_persist.assert_called_once_with("GUIDED_GRILLTHIN", "Guided Grillthin")
 
-    def test_discovered_program_loaded_on_init(self, mock_coordinator):
-        """Test _load_discovered_programs restores values from hass.data."""
+    @pytest.mark.asyncio
+    async def test_discovered_program_loaded_on_init(self, mock_coordinator):
+        """Persisted programs are restored into options_list + _discovered_values."""
         capability = {
             "access": "readwrite",
             "type": "string",
@@ -1339,22 +1363,20 @@ class TestDiscoveredPrograms:
             icon="mdi:chef-hat",
         )
         entity.hass = mock_coordinator.hass
-        entity.options_list = {"Bake": "BAKE"}
 
-        # Store keyed by the entity's real unique_id (derived from the config
-        # entry api_key + attrs); _load_discovered_programs reads it back.
-        store_key = f"electrolux_discovered_programs_{entity.unique_id}"
-        mock_coordinator.hass.data[store_key] = {
-            "Guided Airfry Plus": "GUIDED_AIRFRY_PLUS",
-        }
-        entity._load_discovered_programs()
+        backing = {"Guided Airfry Plus": "GUIDED_AIRFRY_PLUS"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
 
         assert "Guided Airfry Plus" in entity.options_list
         assert entity.options_list["Guided Airfry Plus"] == "GUIDED_AIRFRY_PLUS"
         assert "GUIDED_AIRFRY_PLUS" in entity._discovered_values
 
-    def test_discovered_program_not_duplicated(self, mock_coordinator):
-        """Test discovered value already in options_list from capabilities is not duplicated."""
+    @pytest.mark.asyncio
+    async def test_discovered_program_not_duplicated(self, mock_coordinator):
+        """A persisted value already provided by capabilities is not re-added."""
         capability = {
             "access": "readwrite",
             "type": "string",
@@ -1379,17 +1401,20 @@ class TestDiscoveredPrograms:
         )
         entity.hass = mock_coordinator.hass
 
-        # Store a value that is already a capability option
-        store_key = f"electrolux_discovered_programs_{entity.unique_id}"
-        mock_coordinator.hass.data[store_key] = {"Bake": "BAKE"}
-        entity._load_discovered_programs()
+        # Persisted store contains a value that is already a capability option
+        backing = {"Bake": "BAKE"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
 
         # BAKE is already in options_list, so _discovered_values should NOT include it
         assert "BAKE" not in entity._discovered_values
         # options_list should have exactly one "Bake" entry
         assert list(entity.options_list.values()).count("BAKE") == 1
 
-    def test_options_preserves_discovered_programs(self, mock_coordinator):
+    @pytest.mark.asyncio
+    async def test_options_preserves_discovered_programs(self, mock_coordinator):
         """Test options includes discovered programs even when program constraints filter."""
         capability = {
             "access": "readwrite",
@@ -1416,11 +1441,11 @@ class TestDiscoveredPrograms:
         )
         entity.hass = mock_coordinator.hass
 
-        store_key = f"electrolux_discovered_programs_{entity.unique_id}"
-        mock_coordinator.hass.data[store_key] = {
-            "Guided Grillthin": "GUIDED_GRILLTHIN",
-        }
-        entity._load_discovered_programs()
+        backing = {"Guided Grillthin": "GUIDED_GRILLTHIN"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
 
         # Simulate program constraint that only allows BAKE, BROIL
         entity._get_program_constraint = MagicMock(return_value=["BAKE", "BROIL"])
@@ -1477,8 +1502,9 @@ class TestDiscoveredPrograms:
         # Value appears in options
         assert "Guided Grillthin" in entity.options
 
-    def test_discovered_programs_survive_restart(self, mock_coordinator):
-        """New entity instance restores discovered programs persisted by a prior one."""
+    @pytest.mark.asyncio
+    async def test_discovered_programs_survive_restart(self, mock_coordinator):
+        """A fresh entity restores, from persistent storage, what a prior one saved."""
         capability = {
             "access": "readwrite",
             "type": "string",
@@ -1486,6 +1512,14 @@ class TestDiscoveredPrograms:
                 "BAKE": {"label": "Bake"},
             },
         }
+        # Shared backing dict simulates the on-disk .storage file across a restart.
+        backing: dict = {}
+        store_patch = patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        )
+        super_patch = patch.object(
+            ElectroluxEntity, "async_added_to_hass", new=AsyncMock()
+        )
 
         # First entity discovers a program at runtime, which persists it to the store.
         entity1 = ElectroluxSelect(
@@ -1506,18 +1540,19 @@ class TestDiscoveredPrograms:
         entity1.hass = mock_coordinator.hass
         assert entity1.options_list == {"Bake": "BAKE"}
 
-        entity1.appliance_status = {
-            "properties": {"reported": {"program": "GUIDED_GRILLTHIN"}}
-        }
-        entity1._reported_state_cache = {"program": "GUIDED_GRILLTHIN"}
-        assert entity1.current_option == "Guided Grillthin"
+        with store_patch, super_patch:
+            await entity1.async_added_to_hass()
+            entity1.appliance_status = {
+                "properties": {"reported": {"program": "GUIDED_GRILLTHIN"}}
+            }
+            entity1._reported_state_cache = {"program": "GUIDED_GRILLTHIN"}
+            assert entity1.current_option == "Guided Grillthin"
+
         assert "GUIDED_GRILLTHIN" in entity1._discovered_values
+        assert backing == {"Guided Grillthin": "GUIDED_GRILLTHIN"}
 
         # A second program was persisted in an earlier session.
-        store_key = f"electrolux_discovered_programs_{entity1.unique_id}"
-        mock_coordinator.hass.data[store_key][
-            "Guided Airfry Plus"
-        ] = "GUIDED_AIRFRY_PLUS"
+        backing["Guided Airfry Plus"] = "GUIDED_AIRFRY_PLUS"
 
         # Second entity — fresh instance (simulates restart), restores from the store.
         entity2 = ElectroluxSelect(
@@ -1539,7 +1574,8 @@ class TestDiscoveredPrograms:
         assert entity2.options_list == {"Bake": "BAKE"}
         assert entity2._discovered_values == set()
 
-        entity2._load_discovered_programs()
+        with store_patch, super_patch:
+            await entity2.async_added_to_hass()
 
         assert "Guided Grillthin" in entity2.options_list
         assert "Guided Airfry Plus" in entity2.options_list
@@ -1575,18 +1611,21 @@ class TestDiscoveredPrograms:
 
         with patch.object(
             ElectroluxEntity, "async_added_to_hass", new=AsyncMock()
-        ) as mock_super, patch.object(entity, "_load_discovered_programs") as mock_load:
+        ) as mock_super, patch.object(
+            entity, "_async_restore_discovered_programs", new=AsyncMock()
+        ) as mock_restore:
             await entity.async_added_to_hass()
 
         mock_super.assert_awaited_once()
-        mock_load.assert_called_once()
+        mock_restore.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_async_added_to_hass_populates_from_store(self, mock_coordinator):
         """End-to-end: async_added_to_hass runs the real restore and populates state.
 
-        Guards the composition (async_added_to_hass -> real _load_discovered_programs
-        -> options_list + _discovered_values), which the mocked wrapper test does not.
+        Guards the composition (async_added_to_hass -> real
+        _async_restore_discovered_programs -> options_list + _discovered_values),
+        which the mocked wrapper test does not.
         """
         capability = {
             "access": "readwrite",
@@ -1611,20 +1650,20 @@ class TestDiscoveredPrograms:
             icon="mdi:chef-hat",
         )
         entity.hass = mock_coordinator.hass
-        store_key = f"electrolux_discovered_programs_{entity.unique_id}"
-        mock_coordinator.hass.data[store_key] = {
-            "Guided Grillthin": "GUIDED_GRILLTHIN",
-        }
+        backing = {"Guided Grillthin": "GUIDED_GRILLTHIN"}
 
-        # Stub only the base lifecycle hook; the real _load must run.
-        with patch.object(ElectroluxEntity, "async_added_to_hass", new=AsyncMock()):
+        # Stub only the base lifecycle hook; the real restore must run.
+        with patch.object(
+            ElectroluxEntity, "async_added_to_hass", new=AsyncMock()
+        ), patch("custom_components.electrolux.select.Store", new=_fake_store(backing)):
             await entity.async_added_to_hass()
 
         assert entity.options_list["Guided Grillthin"] == "GUIDED_GRILLTHIN"
         assert "GUIDED_GRILLTHIN" in entity._discovered_values
 
-    def test_load_discovered_programs_ignores_malformed_store(self, mock_coordinator):
-        """A non-dict store entry is ignored instead of raising during restore."""
+    @pytest.mark.asyncio
+    async def test_restore_ignores_malformed_store(self, mock_coordinator):
+        """A non-dict persisted payload is ignored instead of raising during restore."""
         capability = {
             "access": "readwrite",
             "type": "string",
@@ -1648,11 +1687,16 @@ class TestDiscoveredPrograms:
             icon="mdi:chef-hat",
         )
         entity.hass = mock_coordinator.hass
-        store_key = f"electrolux_discovered_programs_{entity.unique_id}"
-        mock_coordinator.hass.data[store_key] = ["not", "a", "dict"]
 
-        # Must not raise, and must not corrupt existing options.
-        entity._load_discovered_programs()
+        class _BadStore:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def async_load(self):
+                return ["not", "a", "dict"]
+
+        with patch("custom_components.electrolux.select.Store", new=_BadStore):
+            await entity._async_restore_discovered_programs()
 
         assert entity.options_list == {"Bake": "BAKE"}
         assert entity._discovered_values == set()

@@ -10,6 +10,7 @@ from homeassistant.const import EntityCategory, Platform, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.storage import Store
 
 from .api import _filter_numeric_sentinel_values
 from .const import DOMAIN, SELECT
@@ -28,6 +29,10 @@ PARALLEL_UPDATES = 0
 
 # Storage namespace for persisting discovered program values
 DISCOVERED_PROGRAMS_KEY = "electrolux_discovered_programs"
+# Schema version for the discovered-programs Store
+STORAGE_VERSION = 1
+# Debounce window (seconds) for coalescing discovered-program writes to disk
+DISCOVERED_SAVE_DELAY = 10
 
 
 async def async_setup_entry(
@@ -112,43 +117,55 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         # Track which values are discovered (not from catalog) so they survive
         # program-constraint filtering in the options property (#65). Populated
-        # from the entity store in async_added_to_hass — self.hass is not yet
-        # available during __init__ (HA assigns it after construction).
+        # from the persistent store in async_added_to_hass — self.hass is not
+        # yet available during __init__ (HA assigns it after construction).
         self._discovered_values: set[str] = set()
+        # Persistent store for discovered programs (label -> value), backed by
+        # homeassistant.helpers.storage so discoveries survive a full restart.
+        self._discovered_store: Store | None = None
+        self._discovered_data: dict[str, str] = {}
+
+    def _get_discovered_store(self) -> Store | None:
+        """Return the per-entity Store for discovered programs, or None.
+
+        Returns None when hass is unavailable or the unique_id cannot be
+        computed (e.g. in unit tests with a mock config entry).
+        """
+        if not getattr(self, "hass", None):
+            return None
+        try:
+            key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}".replace("/", "_")
+        except (TypeError, AttributeError):
+            return None
+        return Store(self.hass, STORAGE_VERSION, key)
 
     async def async_added_to_hass(self) -> None:
         """Restore discovered program values once hass is available.
 
-        HA assigns ``self.hass`` after ``__init__``, so the entity store can
+        HA assigns ``self.hass`` after ``__init__``, so the persistent store can
         only be read here, not in the constructor (#65).
         """
         await super().async_added_to_hass()
-        self._load_discovered_programs()
+        await self._async_restore_discovered_programs()
 
-    def _load_discovered_programs(self) -> None:
-        """Load previously-discovered program values from entity store.
+    async def _async_restore_discovered_programs(self) -> None:
+        """Load persisted discovered programs and merge them into options.
 
-        Restores program values that were observed in reported state but not
-        present in the initial capabilities, allowing them to remain selectable
-        across restarts (e.g., GUIDED programs on SO ovens). Each restored value
-        is added to both ``options_list`` (so it renders) and
-        ``_discovered_values`` (so it survives program-constraint filtering).
+        Restores program values observed in reported state in a prior session
+        but absent from the initial capabilities (e.g. GUIDED programs on SO
+        ovens). Each restored value is added to ``options_list`` (so it renders)
+        and ``_discovered_values`` (so it survives program-constraint filtering).
         """
-        if not hasattr(self, "hass") or not self.hass:
+        self._discovered_store = self._get_discovered_store()
+        if self._discovered_store is None:
             return
 
-        try:
-            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        except (TypeError, AttributeError):
-            # Skip restore if unique_id cannot be computed (e.g., in tests)
+        data = await self._discovered_store.async_load()
+        if not isinstance(data, dict):
             return
+        self._discovered_data = dict(data)
 
-        discovered = self.hass.data.get(store_key, {})
-        if not isinstance(discovered, dict):
-            # Defensive: the store key lives in the shared hass.data namespace;
-            # ignore anything that is not the expected label->value mapping.
-            return
-        for label, value in discovered.items():
+        for label, value in self._discovered_data.items():
             # Only restore values not already provided by capabilities;
             # capabilities take precedence and are not "discovered".
             if value not in self.options_list.values():
@@ -161,25 +178,21 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 )
 
     def _persist_discovered_program(self, value: str, label: str) -> None:
-        """Persist a newly-discovered program value to entity store.
+        """Persist a newly-discovered program value to the entity store.
 
-        Called when an unknown program value is observed in reported state.
-        Allows it to remain selectable across HA restarts.
+        Called when an unknown program value is observed in reported state, so
+        it remains selectable across HA restarts. Uses a debounced delayed save
+        and is a no-op until the store is initialised in async_added_to_hass.
         """
-        if not hasattr(self, "hass") or not self.hass:
+        if self._discovered_store is None:
+            return
+        if self._discovered_data.get(label) == value:
             return
 
-        try:
-            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        except (TypeError, AttributeError):
-            # Skip persistence if unique_id cannot be computed (e.g., in tests)
-            return
-
-        if store_key not in self.hass.data:
-            self.hass.data[store_key] = {}
-
-        # Store the discovery
-        self.hass.data[store_key][label] = value
+        self._discovered_data[label] = value
+        self._discovered_store.async_delay_save(
+            lambda: self._discovered_data, DISCOVERED_SAVE_DELAY
+        )
         _LOGGER.info(
             "Discovered new program %s (%s) for %s on appliance %s. "
             "Will remain available after restart.",
