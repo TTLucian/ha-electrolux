@@ -125,6 +125,21 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
 
         value = self.extract_value()
 
+        # RVC (#130): reduce the persistent-map zone list to a count
+        if self.json_path == "mapData/mapMatch/zones":
+            return len(value) if isinstance(value, list) and value else None
+
+        # RVC (#130): summarise cleaning-session zone statuses as "<finished>/<total> finished"
+        if self.json_path == "cleaningSession/zoneStatus":
+            if not isinstance(value, list) or not value:
+                return None
+            finished = sum(
+                1
+                for zone in value
+                if isinstance(zone, dict) and zone.get("status") == "finished"
+            )
+            return f"{finished}/{len(value)} finished"
+
         # Debug logging for water tank sensor
         if self.entity_key == "watertankempty":
             live_value = self.reported_state.get("waterTankEmpty")
@@ -294,6 +309,16 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes of the sensor."""
+        # RVC (#130): expose per-zone status detail
+        if self.json_path == "cleaningSession/zoneStatus":
+            value = self.extract_value()
+            if isinstance(value, list):
+                return {
+                    zone["id"]: zone.get("status")
+                    for zone in value
+                    if isinstance(zone, dict) and "id" in zone
+                }
+            return {}
         if self.entity_attr == "alerts":
             alert_types = self.capability.get("values", {})
             # default is nullable - set a value for display to user
