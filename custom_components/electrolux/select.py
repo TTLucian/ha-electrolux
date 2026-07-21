@@ -193,6 +193,19 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         self._discovered_store.async_delay_save(
             lambda: self._discovered_data, DISCOVERED_SAVE_DELAY
         )
+
+        try:
+            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
+        except TypeError, AttributeError:
+            # Skip persistence if unique_id cannot be computed (e.g., in tests)
+            return
+
+        if store_key not in self.hass.data:
+            self.hass.data[store_key] = {}
+
+        # Store the discovery
+        self.hass.data[store_key][label] = value
+
         _LOGGER.info(
             "Discovered new program %s (%s) for %s on appliance %s. "
             "Will remain available after restart.",

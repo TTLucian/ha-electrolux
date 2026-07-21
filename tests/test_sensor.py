@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
+from homeassistant.const import Platform, UnitOfTemperature, UnitOfTime, UnitOfVolume
 
 from custom_components.electrolux.const import SENSOR
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -34,7 +34,7 @@ def basic_sensor_entity(mock_coordinator) -> ElectroluxSensor:
         name="Test Sensor",
         config_entry=mock_coordinator.config_entry,
         pnc_id="TEST_PNC",
-        entity_type=SENSOR,
+        entity_type=Platform.SENSOR,
         entity_name="testAttribute",
         entity_attr="testAttribute",
         entity_source=None,
@@ -78,7 +78,7 @@ class TestElectroluxSensor:
             name="Test Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -151,7 +151,7 @@ class TestTimeToEndSensor:
             name="Time to End",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="timeToEnd",
             entity_attr="timeToEnd",
             entity_source=None,
@@ -289,7 +289,7 @@ class TestRunningTimeSensor:
             name="Running Time",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="runningTime",
             entity_attr="runningTime",
             entity_source=None,
@@ -385,7 +385,7 @@ class TestAlertsSensor:
             name="Alerts",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="alerts",
             entity_attr="alerts",
             entity_source=None,
@@ -502,7 +502,7 @@ class TestValueMapping:
             name="Mapped Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -563,7 +563,7 @@ class TestTimeUnitConversion:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -757,7 +757,7 @@ class TestSensorMissingCoverage:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -785,7 +785,7 @@ class TestSensorMissingCoverage:
             name="Time Sensor",
             config_entry=mock_coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="testAttribute",
             entity_attr="testAttribute",
             entity_source=None,
@@ -834,3 +834,150 @@ class TestSensorMissingCoverage:
     ):
         """Line 291 — extra_state_attributes returns {} for non-alerts sensors."""
         assert basic_sensor_entity.extra_state_attributes == {}
+
+
+class TestRvcMapZoneSensors:
+    """Read-only Pure i9 map/zone sensors (#130)."""
+
+    def _sensor(self, mock_coordinator, entity_attr, entity_source, reported):
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name=entity_attr,
+            entity_attr=entity_attr,
+            entity_source=entity_source,
+            capability={"access": "read", "type": "string"},
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:map",
+class TestWMApplianceStateSensor:
+    """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
+
+    def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
+        capability = {"access": "read", "type": "string"}
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test WM",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=Platform.SENSOR,
+            entity_name="applianceState",
+            entity_attr="applianceState",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:washing-machine",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {"reported": reported, "desired": {}, "metadata": {}},
+        }
+        entity.reported_state = reported
+        return entity
+
+    def test_persistent_map_id_extracts_nested_scalar(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="mapId",
+            entity_source="persistentMapsCreated",
+            reported={"persistentMapsCreated": {"mapId": "abc-123"}},
+        )
+        assert entity.native_value == "Abc-123"
+
+    def test_zone_count_returns_list_length(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {"zones": [{}, {}, {}, {}, {}]}}},
+        )
+        assert entity.native_value == 5
+
+    def test_zone_count_empty_list_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {"zones": []}}},
+        )
+        assert entity.native_value is None
+
+    def test_zone_count_missing_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zones",
+            entity_source="mapData/mapMatch",
+            reported={"mapData": {"mapMatch": {}}},
+        )
+        assert entity.native_value is None
+
+    ZONE_STATUS = [
+        {"id": "z1", "status": "finished", "powerMode": 1},
+        {"id": "z2", "status": "finished", "powerMode": 1},
+        {"id": "z3", "status": "terminated", "powerMode": 1},
+    ]
+
+    def test_zone_status_summary(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+        )
+        assert entity.native_value == "2/3 finished"
+
+    def test_zone_status_empty_is_none(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": []}},
+        )
+        assert entity.native_value is None
+
+    def test_zone_status_extra_attributes(self, mock_coordinator):
+        entity = self._sensor(
+            mock_coordinator,
+            entity_attr="zoneStatus",
+            entity_source="cleaningSession",
+            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+        )
+        assert entity.extra_state_attributes == {
+            "z1": "finished",
+            "z2": "finished",
+            "z3": "terminated",
+        }
+            "properties": {
+                "reported": {"applianceState": "RUNNING"},
+                "desired": {},
+                "metadata": {},
+            },
+        }
+        return entity
+
+    @pytest.mark.parametrize(
+        "raw,expected",
+        [
+            ("RUNNING", "Running"),
+            ("OFF", "Off"),
+            ("PAUSED", "Paused"),
+            ("END_OF_CYCLE", "End Of Cycle"),
+            ("ALARM", "Alarm"),
+        ],
+    )
+    def test_native_value_formats_state(self, mock_coordinator, raw, expected):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {"applianceState": raw}
+        assert entity.native_value == expected
+
+    def test_missing_state_returns_none(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        entity.reported_state = {}
+        assert entity.native_value is None

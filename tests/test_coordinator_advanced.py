@@ -40,7 +40,7 @@ def mock_hass():
     hass = MagicMock()
     hass.loop = mock_loop
     hass.async_create_task = MagicMock(
-        side_effect=lambda coro: asyncio.ensure_future(coro)
+        side_effect=lambda coro, **kwargs: asyncio.ensure_future(coro)
     )
     return hass
 
@@ -92,6 +92,8 @@ def coordinator(mock_hass, mock_api):
         coord.last_update_success = True
         coord._last_remote_control = {}
         coord._pending_state_refresh_tasks = {}
+        coord._last_sse_resync_time = 0.0
+        coord._pending_sse_resync_task = None
         return coord
 
 

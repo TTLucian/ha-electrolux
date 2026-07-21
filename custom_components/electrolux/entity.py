@@ -1435,7 +1435,7 @@ class ElectroluxEntity(CoordinatorEntity):
             # Cache the result (cleared on program change)
             self._constraints_cache[key] = value
             return value
-        except (AttributeError, KeyError):
+        except AttributeError, KeyError:
             return None
 
     def _evaluate_trigger_condition(

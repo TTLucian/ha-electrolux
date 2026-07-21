@@ -25,7 +25,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 # Extend this tuple as new RVC models are confirmed.
 _RVC_TYPES = {"PUREi9", "Gordias", "Cybele"}
 
-# PUREi9 uses a legacy integer robotStatus (1-14), uppercase CleaningCommand, and powerMode.
+# PUREi9 uses a legacy integer robotStatus (1-14), uppercase CleaningCommand, and numeric powerMode.
 # All other types (Gordias, Cybele, 700series) use the modern string state +
 # camelCase cleaningCommand + vacuumMode API.
 _PUREI9_TYPES = {"PUREi9"}
@@ -74,18 +74,14 @@ _PUREI9_STATUS_TO_ACTIVITY: dict[int, VacuumActivity] = {
 
 # ── Fan speed / vacuum mode lists ─────────────────────────────────────────────
 
-# Cybele confirmed from diagnostic dump. Gordias uses the same values minus "max".
-# Listing all known modern values; the device will only accept the ones it
-# actually supports, and unknown values are rejected by execute_command_with_error_handling.
+# Sample-backed modern values only. The current Cybele diagnostic shows these
+# values in reported state; avoid inventing additional labels without proof.
 _MODERN_FAN_SPEEDS: list[str] = [
-    "quiet",
     "energySaving",
-    "standard",
-    "powerful",
     "max",
 ]
 
-_PUREI9_FAN_SPEEDS: list[str] = ["QUIET", "SMART", "POWER"]
+_PUREI9_FAN_SPEEDS: list[str] = ["1", "2", "3"]
 
 
 # ── Platform setup ────────────────────────────────────────────────────────────
@@ -139,7 +135,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     Legacy (PUREi9):
         State:    robotStatus  (int 1-14)
         Commands: CleaningCommand (play / stop / pause / home)
-        Speed:    powerMode (QUIET / SMART / POWER)
+        Speed:    powerMode (int 1-3)
 
     Modern (Cybele, Gordias, 700series):
         State:    state (string: idle / inProgress / goingHome / paused / …)
@@ -245,7 +241,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             return None
         try:
             return _PUREI9_STATUS_TO_ACTIVITY.get(int(status_value))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             _LOGGER.debug(
                 "Invalid robotStatus value '%s' for appliance %s",
                 status_value,
@@ -258,8 +254,51 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         """Return the battery level as a percentage (0-100)."""
         value = self.get_state_attr("batteryStatus")
         if value is not None:
-            return int(value)
+            try:
+                battery_value = float(value)
+            except TypeError, ValueError:
+                _LOGGER.debug(
+                    "Invalid batteryStatus value '%s' for appliance %s",
+                    value,
+                    self.pnc_id,
+                )
+                return None
+
+            battery_min, battery_max = self._battery_status_range()
+            if battery_min is None or battery_max is None or battery_max <= battery_min:
+                return int(round(battery_value))
+
+            if battery_max == 100 and battery_min in (0, 1):
+                return int(round(battery_value))
+
+            battery_value = max(
+                float(battery_min), min(float(battery_max), battery_value)
+            )
+            percentage = (
+                (battery_value - battery_min) / (battery_max - battery_min)
+            ) * 100
+            return int(round(max(0.0, min(100.0, percentage))))
         return None
+
+    def _battery_status_range(self) -> tuple[int | None, int | None]:
+        """Return the min/max range reported for batteryStatus."""
+        try:
+            appliance = self.get_appliance
+            if hasattr(appliance, "data") and appliance.data:
+                capabilities = appliance.data.capabilities or {}
+                battery_capability = capabilities.get("batteryStatus")
+                if isinstance(battery_capability, dict):
+                    battery_min = battery_capability.get("min")
+                    battery_max = battery_capability.get("max")
+                    if battery_min is not None and battery_max is not None:
+                        return int(battery_min), int(battery_max)
+        except Exception:  # noqa: BLE001
+            pass
+
+        if self._is_purei9:
+            return 1, 6
+
+        return None, None
 
     @property
     def fan_speed(self) -> str | None:
@@ -313,7 +352,8 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
         """Set the vacuum mode / suction level."""
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
-        await self._send_command(attr, fan_speed)
+        value: Any = int(fan_speed) if self._is_purei9 else fan_speed
+        await self._send_command(attr, value)
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 

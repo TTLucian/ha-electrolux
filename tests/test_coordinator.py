@@ -302,16 +302,11 @@ async def test_background_token_refresh_with_rate_limit(mock_coordinator):
 @pytest.mark.asyncio
 async def test_auth_error_detection_in_sse():
     """Test auth error detection in SSE failure handling."""
-    from custom_components.electrolux.util import ElectroluxApiClient
-
-    # Create API client
-    client = ElectroluxApiClient(
-        "api", "access", "refresh", hass=MagicMock(), config_entry=MagicMock()
-    )
+    client = MagicMock()
+    client.hass = MagicMock()
+    client.config_entry = MagicMock()
     client.coordinator = MagicMock()
     client.coordinator.async_refresh = AsyncMock()
-
-    # Mock the _trigger_reauth method
     client._trigger_reauth = AsyncMock()
 
     # Simulate SSE failure with auth error
@@ -393,6 +388,7 @@ def test_coordinator_init_sets_attributes():
     assert coordinator._deferred_tasks == set()
     assert coordinator._deferred_tasks_by_appliance == {}
     assert coordinator._last_update_times == {}
+    assert coordinator._capability_retry_task is None
     assert coordinator._last_known_connectivity == {}
     assert coordinator._last_sse_restart_time == 0.0
 

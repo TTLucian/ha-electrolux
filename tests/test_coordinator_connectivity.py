@@ -16,7 +16,9 @@ def mock_hass():
     hass.loop = MagicMock()
     hass.loop.time.return_value = 1000000000
     hass.async_create_task = MagicMock(
-        side_effect=lambda coro: coro.close() if asyncio.iscoroutine(coro) else None
+        side_effect=lambda coro, **kwargs: (
+            coro.close() if asyncio.iscoroutine(coro) else None
+        )
     )
     return hass
 
