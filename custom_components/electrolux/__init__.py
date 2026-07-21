@@ -307,6 +307,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator: ElectroluxCoordinator = entry.runtime_data
     client = coordinator.api if coordinator else None
 
+    if coordinator:
+        await coordinator.async_cancel_capability_retry()
+
     # 2. Trigger the decisive cleanup in util.py
     if client:
         await client.close()

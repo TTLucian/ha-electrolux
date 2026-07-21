@@ -37,7 +37,7 @@ _PUREI9_ROBOT_STATUS_VALUES: dict[float | str, str] = {
 CATALOG_RVC: dict[str, ElectroluxDevice] = {
     # ── Battery ────────────────────────────────────────────────────────────────
     "batteryStatus": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
+        capability_info={"access": "read", "type": "int", "min": 1, "max": 6},
         device_class=SensorDeviceClass.BATTERY,
         unit=PERCENTAGE,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -49,7 +49,7 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
     "robotStatus": ElectroluxDevice(
         capability_info={
             "access": "read",
-            "type": "number",
+            "type": "string",
             "values": {
                 str(k): {"name": v} for k, v in _PUREI9_ROBOT_STATUS_VALUES.items()
             },
@@ -79,16 +79,37 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:robot-vacuum",
         friendly_name="Cleaning Command",
     ),
-    # Power/cleaning intensity mode
+    "dustbinStatus": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "NOTCONNECTED": {"name": "Not connected"},
+                "CONNECTED": {"name": "Connected"},
+                "FULL": {"name": "Full"},
+                "EMPTY": {"name": "Empty"},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:trash-can-outline",
+        friendly_name="Dustbin Status",
+        value_mapping={
+            "NOTCONNECTED": "Not connected",
+            "CONNECTED": "Connected",
+            "FULL": "Full",
+            "EMPTY": "Empty",
+        },
+    ),
+    # Power/cleaning intensity mode. The sample reports an integer range,
+    # so the vacuum platform exposes the raw values instead of stale labels.
     "powerMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
-            "type": "string",
-            "values": {
-                "QUIET": {"icon": "mdi:fan-speed-1"},
-                "SMART": {"icon": "mdi:fan-speed-2"},
-                "POWER": {"icon": "mdi:fan-speed-3"},
-            },
+            "type": "int",
+            "min": 1,
+            "max": 3,
         },
         device_class=None,
         unit=None,
@@ -157,23 +178,14 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Cleaning Command",
     ),
     # Vacuum cleaning mode (select)
-    # NOTE: The values below (QUIET/SMART/POWER) come from the SDK.
-    # The Electrolux API docs describe different values in the per-room cleaning
-    # command context: quiet/energySaving/standard/powerful (Gordias) and
-    # quiet/energySaving/standard/powerful/max (Cybele). The global capability
-    # may differ — these values are unverified until a real diagnostic is provided.
+    # Sample-backed values only. The Cybele diagnostic shows these two values
+    # in reported state; no other vacuumMode labels are currently confirmed.
     "vacuumMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "string",
             "values": {
-                "QUIET": {"icon": "mdi:fan-speed-1"},
-                "SMART": {"icon": "mdi:fan-speed-2"},
-                "POWER": {"icon": "mdi:fan-speed-3"},
-                "quiet": {"icon": "mdi:fan-speed-1"},
                 "energySaving": {"icon": "mdi:leaf"},
-                "standard": {"icon": "mdi:fan-speed-2"},
-                "powerful": {"icon": "mdi:fan-speed-3"},
                 "max": {"icon": "mdi:flash"},
             },
         },

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://buymeacoffee.com/ttlucian"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+  <a href="https://ko-fi.com/ttlucian"><img src="https://img.shields.io/badge/Ko--fi-Donate-ff5f5f?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
 </p>
 
 # 📖 Description
@@ -56,19 +56,19 @@ The table below lists all appliance types and the known-tested diagnostic sample
 
 | Type | Appliance | Status | Known-Tested Samples / Models |
 |------|-----------|--------|-------------------------------|
-| `OV` | Oven | Full | `OV-944188772` |
+| `OV` | Oven | Full | `OV-944188304`, `OV-944188772` |
 | `SO` | Structured Oven | Full | `SO-944035035` |
 | `RF` | Refrigerator | Partial | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `CR` | Combi Refrigerator | Full | `CR-925060324` |
-| `WM` | Washing Machine | Full | `WM-914501128`, `WM-914915144` |
-| `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500` |
-| `TD` | Tumble Dryer | Full | `TD-916098401`, `TD-916098618`, `TD-916099548`, `TD-916099949`, `TD-916099971` |
+| `CR` | Combi Refrigerator | Full | `CR-925060324`, `CR-925060677` |
+| `WM` | Washing Machine | Full | `WM-914501009`, `WM-914501128`, `WM-914505614`, `WM-914550478`, `WM-914550687`, `WM-914550951`, `WM-914580416`, `WM-914915144`, `WM-914922134`, `WM-914922290`, `WM-914922311` |
+| `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500`, `WD-914611703` |
+| `TD` | Tumble Dryer | Full | `TD-916002187`, `TD-916098401`, `TD-916098618`, `TD-916098759`, `TD-916099548`, `TD-916099949`, `TD-916099971` |
 | `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834` |
-| `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (Muju/Verbier verified) | UltimateHome 500 (EP53); Verbier — PUREA9/Fuji/WELLA5/WELLA7 unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `DH` / `Husky` | Dehumidifier | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834`, `DW-911438465`, `DW-911473025` |
+| `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (`Muju` / `Verbier` / `PUREA9` verified) | `Muju-956006959323006505087076`; `Verbier-950011588246002195087076`; `PUREA9-950011384027000695087076` — `Fuji`/`WELLA5`/`WELLA7` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DH` / `Husky` | Dehumidifier | Full (`DH` verified) | `DH-950133061` (Frigidaire FGAC5044W1, SRAC); `Husky` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Full (`PUREi9` + `Cybele` verified) | `RVC - Pure i9`; `RVC - Purei9 2`; `Cybele-900402424543002761139298` — `Gordias`/`700series` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `HB` | Induction Hob | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `HD` | Hood / Extractor Fan | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 
@@ -84,13 +84,15 @@ If you own one of these appliances, please download your diagnostics from **Sett
 
 | Appliance | Issue title | Status |
 |-----------|-------------|--------|
-| 🌊 **Dehumidifier** (`DH`, `Husky`) | `DH diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
-| 🤖 **Robot Vacuum** (`PUREi9`, `Gordias`, `Cybele`, `700series`) | `RVC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
+| 🌊 **Dehumidifier** (`Husky`) | `Husky diagnostics — [your model]` | `DH` verified with `DH-950133061`; `Husky` still unverified |
+| 🤖 **Robot Vacuum** (`Gordias`, `700series`) | `RVC diagnostics — [your model]` | `PUREi9` and `Cybele` verified from root `samples/`; `Gordias` / `700series` still unverified |
 | 🍳 **Induction Hob** (`HB`) | `HB diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | 💨 **Hood / Extractor Fan** (`HD`) | `HD diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | ❄️ **DAM Air Conditioner** (`DAM_AC`) | `DAM_AC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | ❄️ **AC variants** (`CA`, `Azul`, `Panther`, `Telica`) | `AC variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified (`Bogong` now verified — see above) |
-| 💨 **AP variants** (`PUREA9`, `Fuji`, `WELLA5`, `WELLA7`) | `AP variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified |
+| 💨 **AP variants** (`Fuji`, `WELLA5`, `WELLA7`) | `AP variant diagnostics — [your type/model]` | `Muju`, `Verbier`, and `PUREA9` verified from root `samples/`; `Fuji` / `WELLA5` / `WELLA7` still unverified |
+
+Washing machines, tumple dryers, dishwashers, washer dryers, ovens,  diagnostics are already covered by the current sample set, so no further `WM`, `TD`, `DW`, `WD`, `OV` samples are needed at this time. Upload them only if there are problems with their entities.
 
 ### �🔍 Finding Your Model Number
 
@@ -113,7 +115,14 @@ If your model number appears in the table above, your appliance has been verifie
 
 | Contributors | Support Link |
 |-------------|-------------|
-| [TTLucian](https://github.com/TTLucian) | [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/TTLucian) |
+| [TTLucian](https://github.com/TTLucian) | [<img src="https://storage.ko-fi.com/cdn/kofi5.png?v=3" height="36" alt="Ko-fi">](https://ko-fi.com/ttlucian) |
+
+
+## 🤝 Contributing
+
+- [netflash](https://github.com/netflash)
+
+- [joeblack2k](https://github.com/joeblack2k)
 
 ## 📋 Prerequisites
 
@@ -733,25 +742,18 @@ This repository includes comprehensive testing scripts to help you verify applia
 
 📖 **[Testing Scripts Documentation](scripts/TESTING_SCRIPTS_README.md)** - Complete guide for using the testing tools
 
-## 🤝 Contributing
-
-[netflash](https://github.com/netflash)
-[joeblack2k](https://github.com/joeblack2k)
-
-Contributions are welcome! This integration is actively maintained and improved.
-
 ## 🤝 Special **Thank You!** to all users who helped fund this project!!!
 
 ### 👨‍💻 Development Setup
 1. Fork the repository
 2. Clone your fork
-3. Install development dependencies: `pip install -r requirements-dev.txt`
-4. Install test dependencies: `pip install -r requirements_test.txt`
+3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it already
+4. Install all dependencies: `uv sync --group dev --group test`
 5. Test scripts are available in the `scripts/` directory for API testing
 
 **Optional:** Install pre-commit hooks to run the same checks as CI (ruff, black, mypy, pytest) automatically before each commit/push:
 ```bash
-pip install pre-commit && pre-commit install
+uv run pre-commit install
 ```
 
 ### 🧪 Testing Your Appliances
@@ -771,5 +773,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 
 # 👨‍💻 Status update:
-   - The CI run is currently failing due to some missing tests. I don't have the time to properly work on the tests, I do not have access to Copilot subscription and premium requests anymore due to lack of project funds.
-   While I'm still working on this, the reduced access to these tools means development and debugging will be slower and more "manual" for the time being. I appreciate your patience as I work through the remaining blockers at this new pace.
+Due to the recent GitHub Copilot usage price skyrocketing starting from 1st of July 2026, future updates and fixes for this integration will be released at a much slower pace.
+
+In the past, I was able to fully develop major features of this integration with just a $10 Copilot subscription.
+However, the latest update alone required about $40, consuming all existing BuyMeACoffee donations (already fully spent) and additional personal funds. At the current pricing, maintaining the previous fast development cycle is no longer feasible.
+
+The project remains active, but development will continue at a reduced, sustainable pace.

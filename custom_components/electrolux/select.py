@@ -110,32 +110,6 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 if label is not None:
                     self.options_list[label] = value
 
-        # Load previously-discovered program values from entity store
-        self._load_discovered_programs()
-
-    def _load_discovered_programs(self) -> None:
-        """Load previously-discovered program values from entity store.
-
-        Restores program values that were observed in reported state but not
-        present in the initial capabilities, allowing them to remain selectable
-        across restarts (e.g., GUIDED programs on SO ovens).
-        """
-        if not hasattr(self, "hass") or not self.hass:
-            return
-
-        store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        discovered = self.hass.data.get(store_key, {})
-        if discovered:
-            for label, value in discovered.items():
-                # Only add if not already in options_list (capabilities take precedence)
-                if value not in self.options_list.values():
-                    self.options_list[label] = value
-                    _LOGGER.debug(
-                        "Restored discovered program %s for %s",
-                        value,
-                        self.entity_attr,
-                    )
-
     def _persist_discovered_program(self, value: str, label: str) -> None:
         """Persist a newly-discovered program value to entity store.
 
@@ -147,7 +121,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         try:
             store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             # Skip persistence if unique_id cannot be computed (e.g., in tests)
             return
 
@@ -156,6 +130,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
 
         # Store the discovery
         self.hass.data[store_key][label] = value
+
         _LOGGER.info(
             "Discovered new program %s (%s) for %s on appliance %s. "
             "Will remain available after restart.",

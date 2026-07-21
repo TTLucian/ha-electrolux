@@ -19,7 +19,7 @@ class TestElectroluxText:
         coordinator.hass.loop = MagicMock()
         coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
-        coordinator.api = AsyncMock()
+        coordinator.api = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
 
@@ -446,7 +446,7 @@ class TestTextSetValueAdvancedPaths:
         coordinator.hass.loop = MagicMock()
         coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
-        coordinator.api = AsyncMock()
+        coordinator.api = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
 

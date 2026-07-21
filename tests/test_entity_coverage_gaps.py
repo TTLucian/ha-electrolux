@@ -33,12 +33,11 @@ Targets the following uncovered lines identified by coverage report:
 from unittest.mock import MagicMock, patch
 
 import pytest
-from homeassistant.const import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
 from custom_components.electrolux.const import (
     FOOD_PROBE_STATE_NOT_INSERTED,
     NUMBER,
-    SENSOR,
 )
 from custom_components.electrolux.number import ElectroluxNumber
 from custom_components.electrolux.sensor import ElectroluxSensor
@@ -82,7 +81,7 @@ def make_entity(
     coordinator, _ = make_coordinator(reported=reported, pnc_id=pnc_id)
     cap = capability or {"access": "readwrite", "type": "number", "min": 0, "max": 100}
     cls = ElectroluxSensor if use_sensor else ElectroluxNumber
-    entity_type = SENSOR if use_sensor else NUMBER
+    entity_type = Platform.SENSOR if use_sensor else Platform.NUMBER
     entity = cls(
         coordinator=coordinator,
         name="Test Entity",
@@ -374,7 +373,8 @@ class TestHandleCoordinatorUpdateGaps:
             icon="mdi:wash",
         )
         entity.pnc_id = "TEST_PNC"
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         # Set initial program_cache_key to something different
         entity._program_cache_key = "OldProgram"
@@ -409,7 +409,8 @@ class TestHandleCoordinatorUpdateGaps:
             icon="mdi:thermometer",
         )
         entity.pnc_id = "TEST_PNC"
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         entity._program_cache_key = "OldProgram"
         entity._is_supported_cache = True
         entity._constraints_cache = {"max": 90}
@@ -452,7 +453,8 @@ class TestHandleCoordinatorUpdateGaps:
         )
         entity.pnc_id = "TEST_PNC"
         entity._reported_state_cache = {"old": "data"}
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 
@@ -477,7 +479,8 @@ class TestHandleCoordinatorUpdateGaps:
             icon="mdi:thermometer",
         )
         entity.pnc_id = "TEST_PNC"
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         # Same program already in cache
         entity._program_cache_key = "Cotton"
         entity._is_supported_cache = True
@@ -560,29 +563,32 @@ class TestApplyOptimisticUpdateGaps:
         """async_write_ha_state is called when entity has entity_id set."""
         entity = make_entity(reported={"targetTemperatureC": 50})
         entity.entity_id = "number.electrolux_targettemperaturec"
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 60)
 
-        entity.async_write_ha_state.assert_called_once()
+        write_mock.assert_called_once()
         assert entity.reported_state.get("targetTemperatureC") == 60
 
     def test_no_write_ha_state_when_entity_id_not_set(self):
         """async_write_ha_state is NOT called when entity_id is empty."""
         entity = make_entity(reported={"targetTemperatureC": 50})
         entity.entity_id = ""  # Not yet registered (falsy, same as unset)
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 65)
 
-        entity.async_write_ha_state.assert_not_called()
+        write_mock.assert_not_called()
         assert entity.reported_state.get("targetTemperatureC") == 65
 
     def test_custom_log_message_branch(self):
         """log_message provided → custom log branch executes."""
         entity = make_entity(reported={"mode": "cool"})
         entity.entity_id = ""  # Not yet registered (falsy)
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         # Should not raise and should update state
         entity._apply_optimistic_update("mode", "heat", log_message="user changed mode")
@@ -592,11 +598,12 @@ class TestApplyOptimisticUpdateGaps:
         """Nothing happens when appliance_status is None."""
         entity = make_entity()
         entity.appliance_status = None
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 50)
 
-        entity.async_write_ha_state.assert_not_called()
+        write_mock.assert_not_called()
 
     def test_nested_single_level_source_writes_to_correct_path(self):
         """Optimistic update for entity_source='userSelections' updates nested dict."""
@@ -608,7 +615,8 @@ class TestApplyOptimisticUpdateGaps:
             },
         )
         entity.entity_id = ""
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("glassCareOption", True)
 
@@ -629,7 +637,8 @@ class TestApplyOptimisticUpdateGaps:
             },
         )
         entity.entity_id = ""
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         # Optimistically toggle ON
         entity._apply_optimistic_update("extraPowerOption", True)
@@ -653,7 +662,8 @@ class TestApplyOptimisticUpdateGaps:
             reported={"a": {"b": {"mode": "cool"}}},
         )
         entity.entity_id = ""
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("mode", "heat")
 
@@ -703,7 +713,8 @@ class TestApplyOptimisticUpdateGaps:
             "TEST_APPLIANCE_123"
         ).data.capabilities = capabilities
         entity.entity_id = ""
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -939,7 +950,8 @@ class TestApplyOptimisticUpdateGaps:
             "TEST_APPLIANCE_123"
         ).data.capabilities = capabilities
         entity.entity_id = ""
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("extraPowerOption", True)
 
@@ -1908,33 +1920,36 @@ class TestHandleCoordinatorUpdateEarlyExits:
         """Line 294: When coordinator.data is None, _handle_coordinator_update returns."""
         entity = make_entity()
         entity.coordinator.data = None  # type: ignore[assignment]
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         # Should not raise
         entity._handle_coordinator_update()
 
         # async_write_ha_state should NOT be called (returned early)
-        entity.async_write_ha_state.assert_not_called()
+        write_mock.assert_not_called()
 
     def test_appliances_none_returns_early(self):
         """Line 298: When coordinator.data has no appliances key, returns early."""
         entity = make_entity()
         entity.coordinator.data = {"appliances": None}
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 
-        entity.async_write_ha_state.assert_not_called()
+        write_mock.assert_not_called()
 
     def test_appliances_key_missing_returns_early(self):
         """Line 298: When coordinator.data has no appliances, returns early."""
         entity = make_entity()
         entity.coordinator.data = {}  # no "appliances" key
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 
-        entity.async_write_ha_state.assert_not_called()
+        write_mock.assert_not_called()
 
 
 class TestGetStateAttr:
@@ -1988,7 +2003,7 @@ class TestEntityCategoryAndDeviceClass:
             name="Test",
             config_entry=coordinator.config_entry,
             pnc_id="TEST_PNC",
-            entity_type=SENSOR,
+            entity_type=Platform.SENSOR,
             entity_name="test",
             entity_attr="temperature",
             entity_source=None,

@@ -346,12 +346,24 @@ class Appliance:
 
         # get the item definition from the catalog
         catalog_item = self.catalog.get(capability, None)
+        using_reported_only_fallback = False
         if catalog_item:
             # Check if catalog specifies a custom entity_source
             if catalog_item.capability_info.get("entity_source"):
                 category = catalog_item.capability_info["entity_source"]
             if capability_info is None:
                 capability_info = catalog_item.capability_info
+                if (
+                    self.get_state(capability) is not None
+                    and catalog_item.reported_only_entity_platform is not None
+                ):
+                    using_reported_only_fallback = True
+                    capability_info = {
+                        **capability_info,
+                        "access": "read",
+                    }
+                    entity_type = catalog_item.reported_only_entity_platform
+
                 # For catalog-only entities, determine entity type from capability_info
                 if entity_type is None and capability_info:
                     cap_type = capability_info.get("type")
@@ -398,6 +410,9 @@ class Appliance:
             entity_category = catalog_item.entity_category
             entity_icon = catalog_item.entity_icon
 
+            if using_reported_only_fallback:
+                device_class = catalog_item.reported_only_device_class
+
         # Ensure time entities have correct unit for conversion
         if not unit and entity_attr in ["startTime", "targetDuration"]:
             unit = UnitOfTime.SECONDS
@@ -415,7 +430,11 @@ class Appliance:
             entity_type = SWITCH
 
         # override the api determined type by the catalog entity_platform
-        if catalog_item and isinstance(catalog_item.entity_platform, Platform):
+        if (
+            not using_reported_only_fallback
+            and catalog_item
+            and isinstance(catalog_item.entity_platform, Platform)
+        ):
             entity_type = catalog_item.entity_platform
 
         # EntityCategory.CONFIG is only valid for actionable platforms (select, number,

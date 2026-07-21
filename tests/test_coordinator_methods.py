@@ -24,7 +24,7 @@ def _make_create_task_mock(rv=None):
     """Return a MagicMock for async_create_task that closes passed coroutines."""
     _rv = rv
 
-    def _side_effect(coro):
+    def _side_effect(coro, **kwargs):
         if asyncio.iscoroutine(coro):
             coro.close()
         return _rv
@@ -87,6 +87,9 @@ def coordinator(mock_hass, mock_api):
         coord._appliances_cache = None
         coord._last_remote_control = {}
         coord._pending_state_refresh_tasks = {}
+        monitor_task = MagicMock()
+        monitor_task.done.return_value = True
+        coord._sse_stall_monitor_task = monitor_task
         coord.config_entry = None
         coord.last_update_success = True
         return coord
@@ -549,9 +552,7 @@ class TestProcessIncrementalUpdate:
             "userId": secret_user_id,
         }
 
-        with caplog.at_level(
-            logging.DEBUG, logger="custom_components.electrolux"
-        ):
+        with caplog.at_level(logging.DEBUG, logger="custom_components.electrolux"):
             coordinator._process_incremental_update(data, aps)
 
         duplicate_logs = [
@@ -559,9 +560,7 @@ class TestProcessIncrementalUpdate:
         ]
         assert duplicate_logs, "expected duplicate-SSE debug log line"
         for msg in duplicate_logs:
-            assert secret_user_id not in msg, (
-                f"userId leaked in duplicate log: {msg}"
-            )
+            assert secret_user_id not in msg, f"userId leaked in duplicate log: {msg}"
             assert "REDACTED" in msg
 
     def test_updates_nested_path_correctly(self, coordinator):

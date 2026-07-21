@@ -428,9 +428,7 @@ class TestElectroluxSelect:
             icon="mdi:fan",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
 
         assert entity.current_option == "Autoclean"
@@ -438,9 +436,7 @@ class TestElectroluxSelect:
         # No persistence in the catalog-derived options list.
         assert "Autoclean" not in entity.options_list
 
-    def test_options_drops_transient_label_when_value_changes(
-        self, mock_coordinator
-    ):
+    def test_options_drops_transient_label_when_value_changes(self, mock_coordinator):
         """Transient label is included only while the device is in the
         disabled state; switching to a normal value drops it."""
         capability = {
@@ -470,9 +466,7 @@ class TestElectroluxSelect:
         entity.hass = mock_coordinator.hass
 
         # Start in autoClean → transient label present.
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
         assert "Autoclean" in entity.options
 
@@ -688,6 +682,35 @@ class TestSelectCurrentOption:
         entity._reported_state_cache = {"testAttr": "RAW_VAL"}
         # current_option should map "RAW_VAL" → "OPTION1" → find label "Option 1"
         assert entity.current_option == "Option 1"
+
+    def test_current_option_discovers_and_persists_unknown_value(
+        self, mock_coordinator, mock_capability
+    ):
+        """Unknown runtime values should become available options and persist."""
+        mock_coordinator.config_entry.data = {"api_key": "test-api-key"}
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:toaster-oven",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {"reported": {"program": "GUIDED_AIRFRY_PLUS"}}
+        }
+        entity._reported_state_cache = {"program": "GUIDED_AIRFRY_PLUS"}
+
+        assert entity.current_option == "Guided Airfry Plus"
+        assert "Guided Airfry Plus" in entity.options
 
 
 class TestSelectAsyncSelectOptionAdvanced:
@@ -1238,6 +1261,7 @@ class TestSelectMissingCoveragePaths:
 
         # Call _handle_coordinator_update - it calls super()._handle_coordinator_update()
         # which reads from coordinator data. We just need to call it without error.
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         entity._handle_coordinator_update()
         # If we got here without error, super() was called successfully
