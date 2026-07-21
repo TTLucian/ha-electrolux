@@ -81,6 +81,7 @@ def coordinator(mock_hass, mock_api):
         coord._last_sse_restart_time = 0.0
         coord._last_manual_sync_time = 0.0
         coord._last_time_to_end = {}
+        coord._last_time_to_end_seen = {}
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_token_update = 0.0

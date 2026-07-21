@@ -105,6 +105,17 @@ TIME_ENTITY_THRESHOLD_HIGH = (
     60  # seconds (1 minute — covers minute-granularity appliances)
 )
 
+# Some appliance models stop pushing timeToEnd over the SSE stream entirely while
+# still pushing other properties (door, connectivity, etc.) normally — the stream
+# stays alive so the connection-level stall watchdog above never notices (#104).
+# This tracks timeToEnd freshness per appliance instead of per connection, and
+# forces a REST poll when it goes stale while the countdown is actually meaningful.
+ACTIVE_TIME_TO_END_STATES = {"RUNNING", "PAUSED", "DELAYED_START"}
+TIME_TO_END_STALE_THRESHOLD = (
+    240.0  # seconds without a timeToEnd refresh before polling
+)
+TIME_TO_END_STALL_CHECK_INTERVAL = 60.0  # seconds between staleness checks
+
 
 class ElectroluxCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
@@ -147,6 +158,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._last_time_to_end: dict[str, float | None] = (
             {}
         )  # Track timeToEnd values to detect skipped updates (debug for Electrolux bug)
+        self._last_time_to_end_seen: dict[str, float] = (
+            {}
+        )  # Track when timeToEnd was last refreshed (SSE or REST) per appliance (#104)
+        self._time_to_end_monitor_task: Optional[asyncio.Task] = None
         self._consecutive_auth_failures = (
             0  # Track consecutive auth failures before creating repair
         )
@@ -330,6 +345,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
                 appliance.update(appliance_status)
                 self.async_set_updated_data(self.data)
+                self._mark_time_to_end_fresh(appliance_id)
         except asyncio.CancelledError:
             # Always re-raise cancellation
             raise
@@ -349,6 +365,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 f"Unexpected error during deferred update for {appliance_id}"
             )
             return
+
+    def _mark_time_to_end_fresh(self, appliance_id: str) -> None:
+        """Record that timeToEnd was just refreshed (via SSE or REST) for an appliance."""
+        self._last_time_to_end_seen[appliance_id] = self.hass.loop.time()
 
     def _schedule_state_refresh(self, appliance_id: str) -> None:
         """Schedule a deduped _refresh_after_appliance_state_change task.
@@ -403,6 +423,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             status = await self.api.get_appliance_state(appliance_id)
             appliance.update(status)
             self.async_set_updated_data(self.data)
+            self._mark_time_to_end_fresh(appliance_id)
             _LOGGER.debug("State-change refresh completed for %s", appliance_id)
         except asyncio.CancelledError:
             raise
@@ -471,6 +492,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         if data[PROPERTY_KEY] == "timeToEnd":
             new_value = data[VALUE_KEY]
             old_value = self._last_time_to_end.get(appliance_id)
+            self._mark_time_to_end_fresh(appliance_id)
 
             _LOGGER.debug(
                 "timeToEnd for %s: %s → %s",
@@ -818,6 +840,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
                 # Update last seen time
                 self._last_update_times[app_id] = self.hass.loop.time()
+                self._mark_time_to_end_fresh(app_id)
                 return True
             except Exception as ex:
                 _LOGGER.debug(f"Failed to refresh {app_id}: {ex}")
@@ -913,6 +936,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 on_connected=self._on_sse_connected,
             )
             self._ensure_sse_stall_monitor_started()
+            self._ensure_time_to_end_monitor_started()
             _LOGGER.debug(
                 f"Successfully started SSE listening for {len(ids)} appliances"
             )
@@ -976,6 +1000,101 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         except Exception as ex:
             _LOGGER.warning("SSE watchdog monitor failed unexpectedly: %s", ex)
             raise
+
+    def _ensure_time_to_end_monitor_started(self) -> None:
+        """Ensure the timeToEnd staleness watchdog task is running."""
+        task = getattr(self, "_time_to_end_monitor_task", None)
+        if task is not None and not task.done():
+            return
+
+        self._time_to_end_monitor_task = self.hass.async_create_task(
+            self._monitor_time_to_end_staleness_loop()
+        )
+        _LOGGER.debug(
+            "timeToEnd staleness monitor started (interval=%.0fs threshold=%.0fs)",
+            TIME_TO_END_STALL_CHECK_INTERVAL,
+            TIME_TO_END_STALE_THRESHOLD,
+        )
+
+    async def _monitor_time_to_end_staleness_loop(self) -> None:
+        """Background loop that REST-polls actively-running appliances whose
+        timeToEnd hasn't been refreshed recently.
+
+        Some appliance models stop pushing timeToEnd over the SSE stream entirely
+        while still pushing other properties normally (#104). The connection-level
+        stall watchdog can't detect this — the stream stays alive and other
+        properties keep arriving — so this tracks timeToEnd freshness per appliance
+        instead of per connection.
+        """
+        try:
+            while True:
+                await asyncio.sleep(TIME_TO_END_STALL_CHECK_INTERVAL)
+
+                if not self.data:
+                    continue
+                appliances = self.data.get("appliances")
+                if not appliances:
+                    continue
+                app_dict = appliances.get_appliances()
+                if not app_dict:
+                    continue
+
+                now = self.hass.loop.time()
+                for appliance_id, appliance in app_dict.items():
+                    state = appliance.reported_state.get("applianceState")
+                    if isinstance(state, str):
+                        state = state.upper().replace(" ", "_")
+                    if state not in ACTIVE_TIME_TO_END_STATES:
+                        continue
+
+                    last_seen = self._last_time_to_end_seen.get(appliance_id)
+                    age = now - last_seen if last_seen else float("inf")
+                    if age <= TIME_TO_END_STALE_THRESHOLD:
+                        continue
+
+                    pending = self._pending_state_refresh_tasks.get(appliance_id)
+                    if pending and not pending.done():
+                        # Already being refreshed by the state-transition poll
+                        continue
+
+                    _LOGGER.debug(
+                        "timeToEnd stale for %s (%.1fs since last update, state=%s) "
+                        "— polling REST state",
+                        appliance_id,
+                        age,
+                        state,
+                    )
+                    await self._poll_time_to_end(appliance_id)
+        except asyncio.CancelledError:
+            _LOGGER.debug("timeToEnd staleness monitor cancelled")
+            raise
+        except Exception as ex:
+            _LOGGER.warning("timeToEnd staleness monitor failed unexpectedly: %s", ex)
+            raise
+
+    async def _poll_time_to_end(self, appliance_id: str) -> None:
+        """Refresh one appliance's REST state to recover a stale timeToEnd value."""
+        if self.data is None:
+            return
+        appliances: Any = self.data.get("appliances")
+        if not appliances:
+            return
+        appliance = appliances.get_appliance(appliance_id)
+        if not appliance:
+            return
+        try:
+            status = await self.api.get_appliance_state(appliance_id)
+            appliance.update(status)
+            self.async_set_updated_data(self.data)
+            self._mark_time_to_end_fresh(appliance_id)
+        except asyncio.CancelledError:
+            raise
+        except Exception as ex:
+            _LOGGER.warning(
+                "timeToEnd staleness poll failed for %s — will retry next cycle: %s",
+                appliance_id,
+                ex,
+            )
 
     async def renew_websocket(self):
         """Renew SSE event stream."""
@@ -1098,6 +1217,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             sse_monitor_task.cancel()
             await asyncio.gather(sse_monitor_task, return_exceptions=True)
         self._sse_stall_monitor_task = None
+
+        time_to_end_monitor_task = getattr(self, "_time_to_end_monitor_task", None)
+        if time_to_end_monitor_task and not time_to_end_monitor_task.done():
+            time_to_end_monitor_task.cancel()
+            await asyncio.gather(time_to_end_monitor_task, return_exceptions=True)
+        self._time_to_end_monitor_task = None
 
         # Close API connection - util.py handles SSE stream cleanup
         try:
@@ -2081,6 +2206,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         self._last_known_connectivity.pop(appliance_id, None)
                         # Clean up time tracking
                         self._last_time_to_end.pop(appliance_id, None)
+                        self._last_time_to_end_seen.pop(appliance_id, None)
                         # Clean up remote control tracking
                         self._last_remote_control.pop(appliance_id, None)
                         # Cancel and clean up any deferred tasks
