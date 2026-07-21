@@ -10,6 +10,7 @@ from homeassistant.const import EntityCategory, Platform, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.storage import Store
 
 from .api import _filter_numeric_sentinel_values
 from .const import DOMAIN, SELECT
@@ -28,6 +29,10 @@ PARALLEL_UPDATES = 0
 
 # Storage namespace for persisting discovered program values
 DISCOVERED_PROGRAMS_KEY = "electrolux_discovered_programs"
+# Schema version for the discovered-programs Store
+STORAGE_VERSION = 1
+# Debounce window (seconds) for coalescing discovered-program writes to disk
+DISCOVERED_SAVE_DELAY = 10
 
 
 async def async_setup_entry(
@@ -110,14 +115,84 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 if label is not None:
                     self.options_list[label] = value
 
-    def _persist_discovered_program(self, value: str, label: str) -> None:
-        """Persist a newly-discovered program value to entity store.
+        # Track which values are discovered (not from catalog) so they survive
+        # program-constraint filtering in the options property (#65). Populated
+        # from the persistent store in async_added_to_hass — self.hass is not
+        # yet available during __init__ (HA assigns it after construction).
+        self._discovered_values: set[str] = set()
+        # Persistent store for discovered programs (label -> value), backed by
+        # homeassistant.helpers.storage so discoveries survive a full restart.
+        self._discovered_store: Store | None = None
+        self._discovered_data: dict[str, str] = {}
 
-        Called when an unknown program value is observed in reported state.
-        Allows it to remain selectable across HA restarts.
+    def _get_discovered_store(self) -> Store | None:
+        """Return the per-entity Store for discovered programs, or None.
+
+        Returns None when hass is unavailable or the unique_id cannot be
+        computed (e.g. in unit tests with a mock config entry).
         """
-        if not hasattr(self, "hass") or not self.hass:
+        if not getattr(self, "hass", None):
+            return None
+        try:
+            key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}".replace("/", "_")
+        except (TypeError, AttributeError):
+            return None
+        return Store(self.hass, STORAGE_VERSION, key)
+
+    async def async_added_to_hass(self) -> None:
+        """Restore discovered program values once hass is available.
+
+        HA assigns ``self.hass`` after ``__init__``, so the persistent store can
+        only be read here, not in the constructor (#65).
+        """
+        await super().async_added_to_hass()
+        await self._async_restore_discovered_programs()
+
+    async def _async_restore_discovered_programs(self) -> None:
+        """Load persisted discovered programs and merge them into options.
+
+        Restores program values observed in reported state in a prior session
+        but absent from the initial capabilities (e.g. GUIDED programs on SO
+        ovens). Each restored value is added to ``options_list`` (so it renders)
+        and ``_discovered_values`` (so it survives program-constraint filtering).
+        """
+        self._discovered_store = self._get_discovered_store()
+        if self._discovered_store is None:
             return
+
+        data = await self._discovered_store.async_load()
+        if not isinstance(data, dict):
+            return
+        self._discovered_data = dict(data)
+
+        for label, value in self._discovered_data.items():
+            # Only restore values not already provided by capabilities;
+            # capabilities take precedence and are not "discovered".
+            if value not in self.options_list.values():
+                self.options_list[label] = value
+                self._discovered_values.add(value)
+                _LOGGER.debug(
+                    "Restored discovered program %s for %s",
+                    value,
+                    self.entity_attr,
+                )
+
+    def _persist_discovered_program(self, value: str, label: str) -> None:
+        """Persist a newly-discovered program value to the entity store.
+
+        Called when an unknown program value is observed in reported state, so
+        it remains selectable across HA restarts. Uses a debounced delayed save
+        and is a no-op until the store is initialised in async_added_to_hass.
+        """
+        if self._discovered_store is None:
+            return
+        if self._discovered_data.get(label) == value:
+            return
+
+        self._discovered_data[label] = value
+        self._discovered_store.async_delay_save(
+            lambda: self._discovered_data, DISCOVERED_SAVE_DELAY
+        )
 
         try:
             store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
@@ -224,6 +299,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 label = self.format_label(value)
                 if label is not None and value is not None:
                     self.options_list[label] = str_value
+                    # Mark as discovered so it survives program-constraint
+                    # filtering in ``options`` within this session (#65)
+                    self._discovered_values.add(str_value)
                     # Persist the discovery so it survives HA restart
                     self._persist_discovered_program(str_value, label)
             elif is_disabled_value:
@@ -477,6 +555,14 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     for label, value in self.options_list.items()
                     if str(value) in allowed_values
                 ]
+                # Re-add discovered programs filtered out by program constraints
+                # (e.g., GUIDED programs on SO ovens — valid but never enumerated
+                # by the API). They are always selectable once discovered. (#65)
+                if self._discovered_values:
+                    for label, value in self.options_list.items():
+                        if value in self._discovered_values:
+                            if label not in all_options:
+                                all_options.append(label)
 
         # Append the current label if it falls outside the persistent
         # options_list — currently only happens for disabled capability
