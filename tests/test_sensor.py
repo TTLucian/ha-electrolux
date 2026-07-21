@@ -855,25 +855,6 @@ class TestRvcMapZoneSensors:
             device_class=None,
             entity_category=None,
             icon="mdi:map",
-class TestWMApplianceStateSensor:
-    """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
-
-    def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
-        capability = {"access": "read", "type": "string"}
-        entity = ElectroluxSensor(
-            coordinator=mock_coordinator,
-            name="Test WM",
-            config_entry=mock_coordinator.config_entry,
-            pnc_id="TEST_PNC",
-            entity_type=Platform.SENSOR,
-            entity_name="applianceState",
-            entity_attr="applianceState",
-            entity_source=None,
-            capability=capability,
-            unit=None,
-            device_class=None,
-            entity_category=None,
-            icon="mdi:washing-machine",
         )
         entity.hass = mock_coordinator.hass
         entity.appliance_status = {
@@ -955,6 +936,31 @@ class TestWMApplianceStateSensor:
             "z2": "finished",
             "z3": "terminated",
         }
+
+
+class TestWMApplianceStateSensor:
+    """applianceState is a plain sensor on WM — raw state exposed, not on/off."""
+
+    def _make_entity(self, mock_coordinator) -> ElectroluxSensor:
+        capability = {"access": "read", "type": "string"}
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test WM",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=Platform.SENSOR,
+            entity_name="applianceState",
+            entity_attr="applianceState",
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:washing-machine",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
             "properties": {
                 "reported": {"applianceState": "RUNNING"},
                 "desired": {},
