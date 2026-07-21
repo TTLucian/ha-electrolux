@@ -83,6 +83,7 @@ def coordinator(mock_hass, mock_api):
         coord._sse_stall_monitor_task = None
         coord._last_manual_sync_time = 0.0
         coord._last_time_to_end = {}
+        coord._last_time_to_end_seen = {}
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_token_update = 0.0
@@ -113,6 +114,7 @@ def _make_appliances(appliance_ids_states: dict[str, dict]):
 
     appliances_mock.get_appliance_ids = MagicMock(return_value=list(app_dict.keys()))
     appliances_mock.get_appliances = MagicMock(return_value=app_dict)
+    appliances_mock.get_appliance = MagicMock(side_effect=app_dict.get)
     appliances_mock.appliances = app_dict
     return appliances_mock
 
@@ -185,6 +187,40 @@ class TestListenWebsocketGaps:
         await coordinator.listen_websocket()
 
         assert coordinator._sse_stall_monitor_task is started
+
+    async def test_listen_websocket_starts_time_to_end_monitor_task(
+        self, coordinator, mock_api
+    ):
+        """listen_websocket should also start the timeToEnd staleness monitor (#104)."""
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+
+        started = MagicMock()
+        coordinator._time_to_end_monitor_task = None
+        coordinator.hass.async_create_task = MagicMock(
+            side_effect=lambda coro, **kwargs: (
+                coro.close() if asyncio.iscoroutine(coro) else None
+            )
+            or started
+        )
+
+        await coordinator.listen_websocket()
+
+        assert coordinator._time_to_end_monitor_task is started
+
+    async def test_ensure_time_to_end_monitor_skips_when_already_running(
+        self, coordinator
+    ):
+        """A live monitor task should not be replaced by a new one."""
+        existing = MagicMock()
+        existing.done.return_value = False
+        coordinator._time_to_end_monitor_task = existing
+        coordinator.hass.async_create_task = MagicMock()
+
+        coordinator._ensure_time_to_end_monitor_started()
+
+        coordinator.hass.async_create_task.assert_not_called()
+        assert coordinator._time_to_end_monitor_task is existing
 
 
 class TestSseReconnectResync:
@@ -323,6 +359,135 @@ class TestSseStallWatchdog:
         await coordinator.close_websocket()
 
         assert coordinator._sse_stall_monitor_task is None
+
+
+class TestTimeToEndStalenessWatchdog:
+    """Tests for the per-appliance timeToEnd staleness watchdog (#104).
+
+    Some appliance models stop pushing timeToEnd over SSE entirely while still
+    pushing other properties normally, so the connection-level stall watchdog
+    never notices. This watchdog tracks timeToEnd freshness per appliance instead.
+    """
+
+    async def test_incoming_time_to_end_marks_fresh(self, coordinator):
+        appliances = _make_appliances({"APP001": {"connectivityState": "connected"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator._appliances_cache = appliances
+        coordinator.hass.loop.time.return_value = 1_000_500.0
+
+        coordinator.incoming_data(
+            {"applianceId": "APP001", "property": "timeToEnd", "value": 120}
+        )
+
+        assert coordinator._last_time_to_end_seen["APP001"] == 1_000_500.0
+
+    async def test_monitor_polls_stale_running_appliance(self, coordinator):
+        appliances = _make_appliances({"APP001": {"applianceState": "RUNNING"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator.hass.loop.time.return_value = 1_000_400.0
+        coordinator._last_time_to_end_seen = {"APP001": 1_000_000.0}
+        coordinator._poll_time_to_end = AsyncMock()
+
+        calls = {"n": 0}
+
+        async def _sleep(_secs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return
+            raise asyncio.CancelledError()
+
+        with patch("asyncio.sleep", side_effect=_sleep):
+            with pytest.raises(asyncio.CancelledError):
+                await coordinator._monitor_time_to_end_staleness_loop()
+
+        coordinator._poll_time_to_end.assert_awaited_once_with("APP001")
+
+    async def test_monitor_skips_when_recently_refreshed(self, coordinator):
+        appliances = _make_appliances({"APP001": {"applianceState": "RUNNING"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator.hass.loop.time.return_value = 1_000_060.0
+        coordinator._last_time_to_end_seen = {"APP001": 1_000_000.0}
+        coordinator._poll_time_to_end = AsyncMock()
+
+        async def _sleep(_secs):
+            raise asyncio.CancelledError()
+
+        with patch("asyncio.sleep", side_effect=_sleep):
+            with pytest.raises(asyncio.CancelledError):
+                await coordinator._monitor_time_to_end_staleness_loop()
+
+        coordinator._poll_time_to_end.assert_not_awaited()
+
+    async def test_monitor_skips_inactive_appliance_state(self, coordinator):
+        appliances = _make_appliances({"APP001": {"applianceState": "END_OF_CYCLE"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator.hass.loop.time.return_value = 1_000_400.0
+        coordinator._last_time_to_end_seen = {}
+        coordinator._poll_time_to_end = AsyncMock()
+
+        async def _sleep(_secs):
+            raise asyncio.CancelledError()
+
+        with patch("asyncio.sleep", side_effect=_sleep):
+            with pytest.raises(asyncio.CancelledError):
+                await coordinator._monitor_time_to_end_staleness_loop()
+
+        coordinator._poll_time_to_end.assert_not_awaited()
+
+    async def test_monitor_skips_when_state_refresh_already_pending(self, coordinator):
+        appliances = _make_appliances({"APP001": {"applianceState": "RUNNING"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator.hass.loop.time.return_value = 1_000_400.0
+        coordinator._last_time_to_end_seen = {}
+        pending_task = MagicMock()
+        pending_task.done.return_value = False
+        coordinator._pending_state_refresh_tasks = {"APP001": pending_task}
+        coordinator._poll_time_to_end = AsyncMock()
+
+        async def _sleep(_secs):
+            raise asyncio.CancelledError()
+
+        with patch("asyncio.sleep", side_effect=_sleep):
+            with pytest.raises(asyncio.CancelledError):
+                await coordinator._monitor_time_to_end_staleness_loop()
+
+        coordinator._poll_time_to_end.assert_not_awaited()
+
+    async def test_poll_time_to_end_success_updates_state_and_marks_fresh(
+        self, coordinator, mock_api
+    ):
+        appliances = _make_appliances({"APP001": {"applianceState": "RUNNING"}})
+        coordinator.data = {"appliances": appliances}
+        coordinator.hass.loop.time.return_value = 1_000_999.0
+        mock_api.get_appliance_state = AsyncMock(
+            return_value={"applianceState": "RUNNING", "timeToEnd": 900}
+        )
+
+        await coordinator._poll_time_to_end("APP001")
+
+        appliances.get_appliance("APP001").update.assert_called_once_with(
+            {"applianceState": "RUNNING", "timeToEnd": 900}
+        )
+        coordinator.async_set_updated_data.assert_called_once_with(coordinator.data)
+        assert coordinator._last_time_to_end_seen["APP001"] == 1_000_999.0
+
+    async def test_poll_time_to_end_failure_is_logged_not_raised(
+        self, coordinator, mock_api
+    ):
+        appliances = _make_appliances({"APP001": {"applianceState": "RUNNING"}})
+        coordinator.data = {"appliances": appliances}
+        mock_api.get_appliance_state = AsyncMock(side_effect=ConnectionError("boom"))
+
+        await coordinator._poll_time_to_end("APP001")  # must not raise
+
+        assert "APP001" not in coordinator._last_time_to_end_seen
+
+    async def test_close_websocket_cancels_time_to_end_monitor_task(self, coordinator):
+        coordinator._time_to_end_monitor_task = asyncio.create_task(asyncio.sleep(3600))
+
+        await coordinator.close_websocket()
+
+        assert coordinator._time_to_end_monitor_task is None
 
 
 # ===========================================================================

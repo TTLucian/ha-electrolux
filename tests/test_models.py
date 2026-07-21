@@ -365,6 +365,7 @@ def _make_coordinator():
     coordinator._consecutive_auth_failures = 0
     coordinator._auth_failure_threshold = 3
     coordinator._last_time_to_end = {}
+    coordinator._last_time_to_end_seen = {}
     coordinator._deferred_tasks = set()
     coordinator._deferred_tasks_by_appliance = {}
     return coordinator

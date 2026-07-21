@@ -36,6 +36,7 @@ def mock_coordinator(mock_api_client):
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_time_to_end = {}
+        coord._last_time_to_end_seen = {}
         coord._deferred_tasks = set()
         coord._deferred_tasks_by_appliance = {}
         coord._pending_capability_retry = set()
