@@ -148,6 +148,13 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         await super().async_added_to_hass()
         await self._async_restore_discovered_programs()
 
+    async def async_will_remove_from_hass(self) -> None:
+        """Clean up persistent store when entity is removed."""
+        await super().async_will_remove_from_hass()
+        if self._discovered_store is not None:
+            await self._discovered_store.async_remove()
+            self._discovered_store = None
+
     async def _async_restore_discovered_programs(self) -> None:
         """Load persisted discovered programs and merge them into options.
 
