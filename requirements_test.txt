@@ -1,5 +1,5 @@
 # Test requirements
-homeassistant>=2026.7.2
+homeassistant>=2026.7.3
 pytest>=9.1.1
 pytest-asyncio>=1.4.0
 pytest-cov>=4.0.0
