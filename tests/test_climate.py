@@ -730,6 +730,34 @@ class TestElectroluxClimate:
         assert calls[2][0] == ("targetTemperatureC", 22.0)
 
     @pytest.mark.asyncio
+    async def test_hvac_mode_fan_only_skips_temperature_resend(self, climate_entity):
+        """FAN_ONLY must not re-apply cached temperature — API returns 406 Capability disabled."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._apply_optimistic_update = MagicMock()
+        climate_entity._last_user_temperature = 22.0
+
+        await climate_entity.async_set_hvac_mode(HVACMode.FAN_ONLY)
+
+        assert climate_entity._send_command.call_count == 2
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "FANONLY")
+
+    @pytest.mark.asyncio
+    async def test_hvac_mode_dry_skips_temperature_resend(self, climate_entity):
+        """DRY must not re-apply cached temperature — API returns 406 Capability disabled."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._apply_optimistic_update = MagicMock()
+        climate_entity._last_user_temperature = 22.0
+
+        await climate_entity.async_set_hvac_mode(HVACMode.DRY)
+
+        assert climate_entity._send_command.call_count == 2
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "DRY")
+
+    @pytest.mark.asyncio
     async def test_hvac_mode_on_no_cached_temp_skips_resend(self, climate_entity):
         """No cached temperature → no extra temperature command on turn-on."""
         climate_entity._send_command = AsyncMock()
