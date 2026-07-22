@@ -1653,6 +1653,69 @@ class TestDiscoveredPrograms:
         mock_restore.assert_awaited_once()
 
     @pytest.mark.asyncio
+    async def test_async_will_remove_from_hass_removes_store(self, mock_coordinator):
+        """Store is deleted and nulled when entity is removed from hass."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        mock_store = AsyncMock()
+        entity._discovered_store = mock_store
+
+        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()) as mock_super:
+            await entity.async_will_remove_from_hass()
+
+        mock_super.assert_awaited_once()
+        mock_store.async_remove.assert_awaited_once()
+        assert entity._discovered_store is None
+
+    @pytest.mark.asyncio
+    async def test_async_will_remove_from_hass_no_store_is_noop(self, mock_coordinator):
+        """No error when entity has no store (program-unaware entity)."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        entity._discovered_store = None
+
+        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()):
+            await entity.async_will_remove_from_hass()  # must not raise
+
+    @pytest.mark.asyncio
     async def test_async_added_to_hass_populates_from_store(self, mock_coordinator):
         """End-to-end: async_added_to_hass runs the real restore and populates state.
 
