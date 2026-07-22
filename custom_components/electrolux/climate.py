@@ -475,7 +475,12 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
             self._apply_optimistic_update("mode", mode_str)
 
         # Re-apply last user temperature — device resets to min on power-off.
-        if self._last_user_temperature is not None:
+        # Skip for modes where the API disables targetTemperatureC (FAN_ONLY, DRY).
+        _MODES_WITHOUT_TEMPERATURE = frozenset({HVACMode.FAN_ONLY, HVACMode.DRY})
+        if (
+            self._last_user_temperature is not None
+            and hvac_mode not in _MODES_WITHOUT_TEMPERATURE
+        ):
             temp_attr = f"targetTemperature{self._temp_suffix}"
             await self._send_command(temp_attr, self._last_user_temperature)
             self._apply_optimistic_update(temp_attr, self._last_user_temperature)
