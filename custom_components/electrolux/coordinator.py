@@ -1967,9 +1967,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
     async def _restart_sse_if_stalled(self, app_dict: dict[str, Any]) -> None:
         """Restart SSE if stream is stale while at least one appliance is connected."""
-        listen_task = getattr(self, "listen_task", None)
-        if not listen_task or listen_task.done():
-            _LOGGER.debug("SSE stall check skipped: listen task is not running")
+        sse_task = getattr(self.api, "_sse_task", None)
+        if not sse_task or sse_task.done():
+            _LOGGER.debug("SSE stall check skipped: SSE task is not running")
             return
 
         any_connected = any(
