@@ -294,8 +294,8 @@ class TestSseStallWatchdog:
 
         coordinator.hass.loop.time.return_value = 1_001_000.0
         coordinator._last_sse_message_time = 1_000_000.0
-        coordinator.listen_task = MagicMock()
-        coordinator.listen_task.done.return_value = False
+        mock_api._sse_task = MagicMock()
+        mock_api._sse_task.done.return_value = False
         coordinator.listen_websocket = AsyncMock(return_value=None)
 
         await coordinator._restart_sse_if_stalled({"APP001": app})
@@ -309,8 +309,8 @@ class TestSseStallWatchdog:
 
         coordinator.hass.loop.time.return_value = 1_000_120.0
         coordinator._last_sse_message_time = 1_000_100.0
-        coordinator.listen_task = MagicMock()
-        coordinator.listen_task.done.return_value = False
+        mock_api._sse_task = MagicMock()
+        mock_api._sse_task.done.return_value = False
         coordinator.listen_websocket = AsyncMock(return_value=None)
 
         await coordinator._restart_sse_if_stalled({"APP001": app})
@@ -325,8 +325,8 @@ class TestSseStallWatchdog:
         coordinator.hass.loop.time.return_value = 1_000_200.0
         coordinator._last_sse_message_time = 1_000_000.0
         coordinator._last_sse_restart_time = 1_000_100.0
-        coordinator.listen_task = MagicMock()
-        coordinator.listen_task.done.return_value = False
+        mock_api._sse_task = MagicMock()
+        mock_api._sse_task.done.return_value = False
         coordinator.listen_websocket = AsyncMock(return_value=None)
 
         await coordinator._restart_sse_if_stalled({"APP001": app})
