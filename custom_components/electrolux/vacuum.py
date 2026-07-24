@@ -402,9 +402,9 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         Zone UUIDs and the persistent map UUID are found in the integration
         diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).
         """
-        if not self._is_purei9:
+        if not self.get_appliance.data.get_capability("CustomPlay"):
             raise HomeAssistantError(
-                "Zone cleaning via CustomPlay is only supported on PUREi9 appliances."
+                "Zone cleaning requires CustomPlay capability. Not supported on this appliance."
             )
 
         command: dict[str, Any] = {
