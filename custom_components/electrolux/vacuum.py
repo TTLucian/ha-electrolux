@@ -29,20 +29,21 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 SERVICE_START_ZONE_CLEANING = "start_zone_cleaning"
 
-_ZONE_SCHEMA = vol.Schema(
-    {
-        vol.Required("zone_id"): cv.string,
-        vol.Optional("power_mode", default=1): vol.All(
-            vol.Coerce(int), vol.Range(min=1, max=3)
-        ),
-    }
-)
-
 SERVICE_START_ZONE_CLEANING_SCHEMA = vol.Schema(
     {
-        vol.Required("persistent_map_id"): cv.string,
+        vol.Required("persistent_map_id"): vol.All(cv.string, vol.Length(min=1)),
         vol.Required("zones"): vol.All(
-            cv.ensure_list, vol.Length(min=1), [_ZONE_SCHEMA]
+            vol.Length(min=1),
+            [
+                vol.Schema(
+                    {
+                        vol.Required("zone_id"): vol.All(cv.string, vol.Length(min=1)),
+                        vol.Optional("power_mode", default=1): vol.All(
+                            vol.Coerce(int), vol.Range(min=1, max=3)
+                        ),
+                    }
+                )
+            ],
         ),
     }
 )
