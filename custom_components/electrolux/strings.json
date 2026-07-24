@@ -101,7 +101,7 @@
         "zones": {
           "name": "Zones",
           "description": "List of zones to clean. Each entry needs zone_id (UUID from mapData/mapMatch/zones[].uuid) and optional power_mode (1=quiet, 2=smart, 3=power, default 1).",
-          "example": "[{\"zone_id\": \"9082f714-bdba-4f3a-892f-46b2ff2e07de\", \"power_mode\": 1}]"
+          "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
         }
       }
     }

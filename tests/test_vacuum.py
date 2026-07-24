@@ -480,6 +480,13 @@ class TestElectroluxVacuumModern:
 class TestElectroluxVacuumAsyncSetupEntry:
     """Test async_setup_entry platform setup."""
 
+    @pytest.fixture(autouse=True)
+    def mock_platform(self):
+        with patch(
+            "custom_components.electrolux.vacuum.async_get_current_platform"
+        ) as mock:
+            yield mock
+
     @pytest.mark.asyncio
     async def test_async_setup_entry_creates_entities_for_rvc_types(self):
         """async_setup_entry creates vacuum entities for RVC appliance types."""
