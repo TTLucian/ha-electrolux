@@ -6,7 +6,7 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 
-from ..const import BINARY_SENSOR
+from ..const import BINARY_SENSOR, CAPABILITY_READ_STRING
 from ..execute_command_states import OVEN_EXECUTE_STATES
 from ..model import ElectroluxDevice
 
@@ -25,24 +25,12 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         friendly_name="Alerts",
     ),
     "applianceState": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {
-                "ALARM": {},
-                "DELAYED_START": {},
-                "END_OF_CYCLE": {},
-                "IDLE": {},
-                "OFF": {},
-                "PAUSED": {},
-                "READY_TO_START": {},
-                "RUNNING": {},
-            },
-        },
+        capability_info=CAPABILITY_READ_STRING,
         device_class=None,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:state-machine",
+        entity_icon="mdi:stove",
+        friendly_name="Appliance State",
     ),
     "cavityLight": ElectroluxDevice(
         capability_info={
@@ -99,7 +87,6 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "write",
             "type": "string",
-            "values": {"START": {}, "STOPRESET": {}},
         },
         device_class=None,
         unit=None,
@@ -167,7 +154,46 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:state-machine",
     ),
     "program": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "string"},
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "AUGRATIN": {},
+                "BOTTOM": {},
+                "BREAD_BAKING": {},
+                "CLEAN_DESCALING": {},
+                "CLEAN_DRYING": {},
+                "CONVENTIONAL_COOKING": {},
+                "DEFROST": {},
+                "DOUGH_PROVING": {},
+                "DRYING": {},
+                "FROZEN_FOOD": {},
+                "FULL_STEAM": {},
+                "GRILL": {},
+                "GRILL_FAN": {},
+                "HUMIDITY_HIGH": {},
+                "HUMIDITY_LOW": {},
+                "HUMIDITY_MEDIUM": {},
+                "KEEP_WARM": {},
+                "MOIST_FAN_BAKING": {},
+                "PIZZA": {},
+                "PLATE_WARMING": {},
+                "PRESERVING": {},
+                "REGENERATE": {},
+                "SLOW_COOK": {},
+                "SOUS_VIDE": {},
+                "STEAMIFY": {},
+                "STEAM_CLEAN_DESCALE": {},
+                "STEAM_CLEAN_DRY": {},
+                "STEAM_CLEAN_INTENSE": {},
+                "STEAM_CLEAN_LIGHT": {},
+                "STEAM_CLEAN_RINSING": {},
+                "STEAM_CLEAN_TANK_EMPTY": {},
+                "STEAM_REGENERATING": {},
+                "TRUE_FAN": {},
+                "YOGHURT": {},
+            },
+        },
         device_class=None,
         unit=None,
         entity_category=None,

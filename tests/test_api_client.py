@@ -339,7 +339,7 @@ class TestSafeApiCall:
 class TestTokenRefreshHandlerEmit:
     def _make_handler(self, hass=None):
         client = MagicMock()
-        client._trigger_reauth = AsyncMock()
+        client._trigger_reauth = MagicMock(return_value=None)
         if hass is None:
             hass = MagicMock()
             hass.loop = MagicMock()
@@ -429,13 +429,16 @@ class TestApiClientInit:
             patch(
                 "custom_components.electrolux.api_client.ElectroluxTokenManager"
             ) as mock_tm,
-            patch("custom_components.electrolux.api_client.logging") as mock_logging,
+            patch(
+                "custom_components.electrolux.api_client.logging.getLogger"
+            ) as mock_get_logger,
         ):
-            mock_tm.return_value = MagicMock()
+            mock_tm_instance = MagicMock()
+            mock_tm_instance.set_auth_error_callback = MagicMock()
+            mock_tm_instance.set_token_update_callback_with_expiry = MagicMock()
+            mock_tm.return_value = mock_tm_instance
             mock_logger_instance = MagicMock()
-            mock_logging.getLogger.return_value = mock_logger_instance
-            mock_logging.ERROR = logging.ERROR
-            mock_logging.Handler = logging.Handler
+            mock_get_logger.return_value = mock_logger_instance
             client = ElectroluxApiClient("key", "access", "refresh", hass=hass)
         assert client._token_handler is not None
         assert client._token_logger is not None
@@ -921,7 +924,7 @@ class TestWatchForApplianceStateUpdates:
 
         client = _make_client(hass=hass)
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         callback = MagicMock()
         await client.watch_for_appliance_state_updates(["app1"], callback)
@@ -937,7 +940,7 @@ class TestWatchForApplianceStateUpdates:
         async def fake_stream():
             pass
 
-        client._client.start_event_stream = MagicMock(return_value=fake_stream())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         callback = MagicMock()
         with patch("asyncio.create_task") as mock_create_task:
@@ -972,7 +975,7 @@ class TestWatchForApplianceStateUpdates:
         client.disconnect_websocket = AsyncMock()
 
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         callback = MagicMock()
         await client.watch_for_appliance_state_updates(["app1"], callback)
@@ -999,7 +1002,7 @@ class TestWatchForApplianceStateUpdates:
 
         client = _make_client(hass=hass)
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         await client.watch_for_appliance_state_updates(["app1"], MagicMock())
 
@@ -1029,15 +1032,22 @@ class TestWatchForApplianceStateUpdates:
 
         client = _make_client(hass=hass, config_entry=config_entry)
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         await client.watch_for_appliance_state_updates(["app1"], MagicMock())
 
         # Simulate auth error in SSE task
         task.cancelled = MagicMock(return_value=False)
         task.exception = MagicMock(return_value=Exception("401 unauthorized"))
+
+        def _create_task_side_effect(coro):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return MagicMock()
+
         with patch(
-            "custom_components.electrolux.api_client.asyncio.create_task"
+            "custom_components.electrolux.api_client.asyncio.create_task",
+            side_effect=_create_task_side_effect,
         ) as mock_create_task:
             captured_cb["cb"](task)
 
@@ -1064,7 +1074,7 @@ class TestWatchForApplianceStateUpdates:
 
         client = _make_client(hass=hass)
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         await client.watch_for_appliance_state_updates(["app1"], MagicMock())
 
@@ -1094,7 +1104,7 @@ class TestWatchForApplianceStateUpdates:
 
         client = _make_client(hass=hass)
         client._client = MagicMock()
-        client._client.start_event_stream = MagicMock(return_value=AsyncMock()())
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
 
         await client.watch_for_appliance_state_updates(["app1"], MagicMock())
 
@@ -1238,9 +1248,8 @@ class TestRetryWithBackoffNetworkErrorFallback:
         async def dummy():
             return "unreachable"
 
-        coro = dummy()
         with pytest.raises(NetworkError, match="All retry attempts failed"):
-            await retry_with_backoff(coro, max_retries=-1)
+            await retry_with_backoff(dummy, max_retries=-1)
 
 
 # ---------------------------------------------------------------------------

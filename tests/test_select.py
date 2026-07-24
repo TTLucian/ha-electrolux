@@ -7,7 +7,31 @@ from homeassistant.const import EntityCategory
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import SELECT
+from custom_components.electrolux.entity import ElectroluxEntity
 from custom_components.electrolux.select import ElectroluxSelect
+
+
+class _FakeStore:
+    """Minimal stand-in for homeassistant.helpers.storage.Store in unit tests.
+
+    Reads/writes a shared ``backing`` dict so a second instance (a simulated
+    restart) sees what an earlier one persisted via async_delay_save.
+    """
+
+    def __init__(self, backing):
+        self._backing = backing
+
+    async def async_load(self):
+        return dict(self._backing)
+
+    def async_delay_save(self, data_func, delay=0):
+        self._backing.clear()
+        self._backing.update(data_func())
+
+
+def _fake_store(backing):
+    """Return a Store(...) replacement that always yields a _FakeStore(backing)."""
+    return lambda *args, **kwargs: _FakeStore(backing)
 
 
 class TestElectroluxSelect:
@@ -428,9 +452,7 @@ class TestElectroluxSelect:
             icon="mdi:fan",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
 
         assert entity.current_option == "Autoclean"
@@ -438,9 +460,7 @@ class TestElectroluxSelect:
         # No persistence in the catalog-derived options list.
         assert "Autoclean" not in entity.options_list
 
-    def test_options_drops_transient_label_when_value_changes(
-        self, mock_coordinator
-    ):
+    def test_options_drops_transient_label_when_value_changes(self, mock_coordinator):
         """Transient label is included only while the device is in the
         disabled state; switching to a normal value drops it."""
         capability = {
@@ -470,9 +490,7 @@ class TestElectroluxSelect:
         entity.hass = mock_coordinator.hass
 
         # Start in autoClean → transient label present.
-        entity.appliance_status = {
-            "properties": {"reported": {"mode": "autoClean"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"mode": "autoClean"}}}
         entity.reported_state = {"mode": "autoClean"}
         assert "Autoclean" in entity.options
 
@@ -688,6 +706,35 @@ class TestSelectCurrentOption:
         entity._reported_state_cache = {"testAttr": "RAW_VAL"}
         # current_option should map "RAW_VAL" → "OPTION1" → find label "Option 1"
         assert entity.current_option == "Option 1"
+
+    def test_current_option_discovers_and_persists_unknown_value(
+        self, mock_coordinator, mock_capability
+    ):
+        """Unknown runtime values should become available options and persist."""
+        mock_coordinator.config_entry.data = {"api_key": "test-api-key"}
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:toaster-oven",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {"reported": {"program": "GUIDED_AIRFRY_PLUS"}}
+        }
+        entity._reported_state_cache = {"program": "GUIDED_AIRFRY_PLUS"}
+
+        assert entity.current_option == "Guided Airfry Plus"
+        assert "Guided Airfry Plus" in entity.options
 
 
 class TestSelectAsyncSelectOptionAdvanced:
@@ -1238,6 +1285,632 @@ class TestSelectMissingCoveragePaths:
 
         # Call _handle_coordinator_update - it calls super()._handle_coordinator_update()
         # which reads from coordinator data. We just need to call it without error.
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         entity._handle_coordinator_update()
         # If we got here without error, super() was called successfully
+
+
+class TestDiscoveredPrograms:
+    """Test the discovered programs mechanism for programs not enumerated by the API.
+
+    Covers issue #65: GUIDED/MealAssist programs on structured ovens are reported
+    by the appliance but never listed in capabilities. The integration dynamically
+    adds them to options_list and persists them across restarts.
+    """
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        """Create a mock coordinator with hass.data support."""
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.data = {}
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "test_api_key_12345"}
+        coordinator._last_update_times = {}
+
+        # Setup mock appliances structure
+        mock_appliances = MagicMock()
+        mock_appliance = MagicMock()
+        mock_appliances.get_appliance.return_value = mock_appliance
+        coordinator.data = {"appliances": mock_appliances}
+
+        return coordinator
+
+    @pytest.fixture
+    def mock_capability(self):
+        """Capability with only base programs (no GUIDED)."""
+        return {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+                "BROIL": {"label": "Broil"},
+                "STEAM_LOW": {"label": "Steam Low"},
+            },
+        }
+
+    def test_discovered_program_persisted_on_unknown_value(self, mock_coordinator):
+        """Test that unknown reported value triggers _persist_discovered_program."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "properties": {"reported": {"program": "GUIDED_GRILLTHIN"}}
+        }
+        entity._reported_state_cache = {"program": "GUIDED_GRILLTHIN"}
+
+        with patch.object(entity, "_persist_discovered_program") as mock_persist:
+            _ = entity.current_option
+
+        mock_persist.assert_called_once_with("GUIDED_GRILLTHIN", "Guided Grillthin")
+
+    @pytest.mark.asyncio
+    async def test_discovered_program_loaded_on_init(self, mock_coordinator):
+        """Persisted programs are restored into options_list + _discovered_values."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        backing = {"Guided Airfry Plus": "GUIDED_AIRFRY_PLUS"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
+
+        assert "Guided Airfry Plus" in entity.options_list
+        assert entity.options_list["Guided Airfry Plus"] == "GUIDED_AIRFRY_PLUS"
+        assert "GUIDED_AIRFRY_PLUS" in entity._discovered_values
+
+    @pytest.mark.asyncio
+    async def test_discovered_program_not_duplicated(self, mock_coordinator):
+        """A persisted value already provided by capabilities is not re-added."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        # Persisted store contains a value that is already a capability option
+        backing = {"Bake": "BAKE"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
+
+        # BAKE is already in options_list, so _discovered_values should NOT include it
+        assert "BAKE" not in entity._discovered_values
+        # options_list should have exactly one "Bake" entry
+        assert list(entity.options_list.values()).count("BAKE") == 1
+
+    @pytest.mark.asyncio
+    async def test_options_preserves_discovered_programs(self, mock_coordinator):
+        """Test options includes discovered programs even when program constraints filter."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+                "BROIL": {"label": "Broil"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        backing = {"Guided Grillthin": "GUIDED_GRILLTHIN"}
+        with patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        ):
+            await entity._async_restore_discovered_programs()
+
+        # Simulate program constraint that only allows BAKE, BROIL
+        entity._get_program_constraint = MagicMock(return_value=["BAKE", "BROIL"])
+
+        # GUIDED_GRILLTHIN should still appear in options despite not being allowed
+        options = entity.options
+        assert "Bake" in options
+        assert "Broil" in options
+        assert "Guided Grillthin" in options
+
+    def test_guided_program_scenario(self, mock_coordinator):
+        """End-to-end: appliance reports GUIDED_GRILLTHIN, entity adds it to options."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+                "BROIL": {"label": "Broil"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        # No discovered programs yet
+        assert entity.options_list == {"Bake": "BAKE", "Broil": "BROIL"}
+        assert entity._discovered_values == set()
+
+        # Appliance reports GUIDED_GRILLTHIN in reported state
+        entity.appliance_status = {
+            "properties": {"reported": {"program": "GUIDED_GRILLTHIN"}}
+        }
+        entity._reported_state_cache = {"program": "GUIDED_GRILLTHIN"}
+
+        # current_option dynamically adds the unknown value
+        current = entity.current_option
+        assert current == "Guided Grillthin"
+        assert "Guided Grillthin" in entity.options_list
+        assert entity.options_list["Guided Grillthin"] == "GUIDED_GRILLTHIN"
+        assert "GUIDED_GRILLTHIN" in entity._discovered_values
+
+        # Value appears in options
+        assert "Guided Grillthin" in entity.options
+
+    @pytest.mark.asyncio
+    async def test_discovered_programs_survive_restart(self, mock_coordinator):
+        """A fresh entity restores, from persistent storage, what a prior one saved."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        # Shared backing dict simulates the on-disk .storage file across a restart.
+        backing: dict = {}
+        store_patch = patch(
+            "custom_components.electrolux.select.Store", new=_fake_store(backing)
+        )
+        super_patch = patch.object(
+            ElectroluxEntity, "async_added_to_hass", new=AsyncMock()
+        )
+
+        # First entity discovers a program at runtime, which persists it to the store.
+        entity1 = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity1.hass = mock_coordinator.hass
+        assert entity1.options_list == {"Bake": "BAKE"}
+
+        with store_patch, super_patch:
+            await entity1.async_added_to_hass()
+            entity1.appliance_status = {
+                "properties": {"reported": {"program": "GUIDED_GRILLTHIN"}}
+            }
+            entity1._reported_state_cache = {"program": "GUIDED_GRILLTHIN"}
+            assert entity1.current_option == "Guided Grillthin"
+
+        assert "GUIDED_GRILLTHIN" in entity1._discovered_values
+        assert backing == {"Guided Grillthin": "GUIDED_GRILLTHIN"}
+
+        # A second program was persisted in an earlier session.
+        backing["Guided Airfry Plus"] = "GUIDED_AIRFRY_PLUS"
+
+        # Second entity — fresh instance (simulates restart), restores from the store.
+        entity2 = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity2.hass = mock_coordinator.hass
+        assert entity2.options_list == {"Bake": "BAKE"}
+        assert entity2._discovered_values == set()
+
+        with store_patch, super_patch:
+            await entity2.async_added_to_hass()
+
+        assert "Guided Grillthin" in entity2.options_list
+        assert "Guided Airfry Plus" in entity2.options_list
+        assert "GUIDED_GRILLTHIN" in entity2._discovered_values
+        assert "GUIDED_AIRFRY_PLUS" in entity2._discovered_values
+
+    @pytest.mark.asyncio
+    async def test_async_added_to_hass_restores_discovered(self, mock_coordinator):
+        """async_added_to_hass chains to super() and then restores discovered programs."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        with (
+            patch.object(
+                ElectroluxEntity, "async_added_to_hass", new=AsyncMock()
+            ) as mock_super,
+            patch.object(
+                entity, "_async_restore_discovered_programs", new=AsyncMock()
+            ) as mock_restore,
+        ):
+            await entity.async_added_to_hass()
+
+        mock_super.assert_awaited_once()
+        mock_restore.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_async_will_remove_from_hass_removes_store(self, mock_coordinator):
+        """Store is deleted and nulled when entity is removed from hass."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        mock_store = AsyncMock()
+        entity._discovered_store = mock_store
+
+        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()) as mock_super:
+            await entity.async_will_remove_from_hass()
+
+        mock_super.assert_awaited_once()
+        mock_store.async_remove.assert_awaited_once()
+        assert entity._discovered_store is None
+
+    @pytest.mark.asyncio
+    async def test_async_will_remove_from_hass_no_store_is_noop(self, mock_coordinator):
+        """No error when entity has no store (program-unaware entity)."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        entity._discovered_store = None
+
+        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()):
+            await entity.async_will_remove_from_hass()  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_async_added_to_hass_populates_from_store(self, mock_coordinator):
+        """End-to-end: async_added_to_hass runs the real restore and populates state.
+
+        Guards the composition (async_added_to_hass -> real
+        _async_restore_discovered_programs -> options_list + _discovered_values),
+        which the mocked wrapper test does not.
+        """
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+        backing = {"Guided Grillthin": "GUIDED_GRILLTHIN"}
+
+        # Stub only the base lifecycle hook; the real restore must run.
+        with (
+            patch.object(ElectroluxEntity, "async_added_to_hass", new=AsyncMock()),
+            patch(
+                "custom_components.electrolux.select.Store", new=_fake_store(backing)
+            ),
+        ):
+            await entity.async_added_to_hass()
+
+        assert entity.options_list["Guided Grillthin"] == "GUIDED_GRILLTHIN"
+        assert "GUIDED_GRILLTHIN" in entity._discovered_values
+
+    @pytest.mark.asyncio
+    async def test_restore_ignores_malformed_store(self, mock_coordinator):
+        """A non-dict persisted payload is ignored instead of raising during restore."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        class _BadStore:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def async_load(self):
+                return ["not", "a", "dict"]
+
+        with patch("custom_components.electrolux.select.Store", new=_BadStore):
+            await entity._async_restore_discovered_programs()
+
+        assert entity.options_list == {"Bake": "BAKE"}
+        assert entity._discovered_values == set()
+
+    def test_discovered_store_key_is_per_entity_and_sanitized(self, mock_coordinator):
+        """The Store key derives from unique_id per-entity and has no path separators."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"BAKE": {"label": "Bake"}},
+        }
+
+        def _make(entity_attr, entity_source):
+            entity = ElectroluxSelect(
+                coordinator=mock_coordinator,
+                capability=capability,
+                name="Program",
+                config_entry=mock_coordinator.config_entry,
+                pnc_id="OVEN_123",
+                entity_type=SELECT,
+                entity_name=entity_attr,
+                entity_attr=entity_attr,
+                entity_source=entity_source,
+                unit=None,
+                device_class="",
+                entity_category=EntityCategory.CONFIG,
+                icon="mdi:chef-hat",
+            )
+            entity.hass = mock_coordinator.hass
+            return entity
+
+        captured: list[str] = []
+
+        def _capture(hass, version, key):
+            captured.append(key)
+            return _FakeStore({})
+
+        entity_root = _make("program", None)
+        # entity_source with a "/" flows into unique_id and must be sanitized
+        entity_nested = _make("programUID", "userSelections/programUID")
+
+        with patch("custom_components.electrolux.select.Store", new=_capture):
+            assert entity_root._get_discovered_store() is not None
+            assert entity_nested._get_discovered_store() is not None
+
+        # Distinct entities resolve to distinct per-entity keys
+        assert captured[0] != captured[1]
+        assert all(k.startswith("electrolux_discovered_programs_") for k in captured)
+        # Path separators from entity_source are sanitized out of the storage key
+        assert "/" not in captured[1]
+
+    def test_options_filtered_by_program_values(self, mock_coordinator):
+        """Test options filtering works when _get_program_constraint returns allowed values."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+                "BROIL": {"label": "Broil"},
+                "STEAM": {"label": "Steam"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        # Program allows only BAKE and STEAM
+        entity._get_program_constraint = MagicMock(return_value=["BAKE", "STEAM"])
+
+        filtered = entity.options
+        assert "Bake" in filtered
+        assert "Steam" in filtered
+        assert "Broil" not in filtered
+
+    def test_options_no_filter_when_no_constraint(self, mock_coordinator):
+        """Test all options pass through when no program constraint."""
+        capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "BAKE": {"label": "Bake"},
+                "BROIL": {"label": "Broil"},
+            },
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=capability,
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="OVEN_123",
+            entity_type=SELECT,
+            entity_name="program",
+            entity_attr="program",
+            entity_source=None,
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:chef-hat",
+        )
+        entity.hass = mock_coordinator.hass
+
+        # No constraint → all options pass through
+        entity._get_program_constraint = MagicMock(return_value=None)
+
+        assert set(entity.options) == {"Bake", "Broil"}

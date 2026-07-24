@@ -148,6 +148,68 @@ class TestElectroluxSwitch:
         entity.get_state_attr = MagicMock(return_value=True)
         assert entity.is_on is True
 
+    def test_async_setup_entry_keeps_write_only_switches(self, mock_coordinator):
+        """Write-only capabilities should stay available as switches even when absent from reported state."""
+        entity = MagicMock()
+        entity.entity_type = SWITCH
+        entity.json_path = "executeCommand"
+        entity.entity_attr = "executeCommand"
+        entity.capability = {"access": "write", "type": "string"}
+
+        appliance = MagicMock()
+        appliance.entities = [entity]
+        appliance.reported_state = {}
+
+        appliances = MagicMock()
+        appliances.appliances = {"TEST_PNC": appliance}
+
+        coordinator = MagicMock()
+        coordinator.data = {"appliances": appliances}
+
+        entry = MagicMock()
+        entry.runtime_data = coordinator
+
+        add_entities = MagicMock()
+
+        import asyncio
+
+        asyncio.run(async_setup_entry(MagicMock(), entry, add_entities))
+
+        add_entities.assert_called_once()
+        assert add_entities.call_args[0][0][0] is entity
+
+    def test_async_setup_entry_keeps_nested_user_selection_switches(
+        self, mock_coordinator
+    ):
+        """Nested userSelections switches should not be filtered as phantom capabilities."""
+        entity = MagicMock()
+        entity.entity_type = SWITCH
+        entity.json_path = "userSelections/autoDoorOpener"
+        entity.entity_attr = "autoDoorOpener"
+        entity.capability = {"access": "readwrite", "type": "boolean"}
+
+        appliance = MagicMock()
+        appliance.entities = [entity]
+        appliance.reported_state = {"userSelections": {"autoDoorOpener": True}}
+
+        appliances = MagicMock()
+        appliances.appliances = {"TEST_PNC": appliance}
+
+        coordinator = MagicMock()
+        coordinator.data = {"appliances": appliances}
+
+        entry = MagicMock()
+        entry.runtime_data = coordinator
+
+        add_entities = MagicMock()
+
+        import asyncio
+
+        asyncio.run(async_setup_entry(MagicMock(), entry, add_entities))
+
+        add_entities.assert_called_once()
+        assert add_entities.call_args[0][0][0] is entity
+
     @pytest.mark.asyncio
     async def test_async_turn_on(self, switch_entity):
         """Test turning switch on."""
@@ -510,7 +572,8 @@ class TestElectroluxSwitch:
         ):
             with pytest.raises(HomeAssistantError, match="remote control disabled"):
                 await entity.switch(True)
-# ... (existing tests in TestElectroluxSwitch class) ...
+
+    # ... (existing tests in TestElectroluxSwitch class) ...
 
     @pytest.mark.asyncio
     async def test_switch_schedules_state_refresh_after_command(
@@ -590,7 +653,7 @@ class TestElectroluxSwitchSetup:
         entity_phantom.entity_attr = "EWX1493A_pod"
 
         mock_appliance.entities = [entity_valid_path, entity_valid_attr, entity_phantom]
-        
+
         appliances_container = MagicMock()
         appliances_container.appliances = {"appliance_1": mock_appliance}
         coordinator.data = {"appliances": appliances_container}

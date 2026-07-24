@@ -486,7 +486,8 @@ class TestElectroluxNumber:
         }
 
         # Mock async_write_ha_state to avoid hass requirement
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         # Check that the method returns True
         assert entity._is_supported_by_program()
@@ -645,7 +646,8 @@ class TestElectroluxNumber:
         }
 
         # Mock async_write_ha_state to avoid hass requirement
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
 
         with patch(
             "custom_components.electrolux.number.format_command_for_appliance"
@@ -914,7 +916,8 @@ class TestNumberAsyncSetNativeValueAdvanced:
         entity.appliance_status = {
             "properties": {"reported": {"remoteControl": "ENABLED"}}
         }
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         return entity
 
     @pytest.mark.asyncio
@@ -1198,7 +1201,8 @@ class TestNumberMissingCoverage:
         entity.appliance_status = {
             "properties": {"reported": {"remoteControl": "ENABLED"}}
         }
-        entity.async_write_ha_state = MagicMock()
+        write_mock = MagicMock()
+        setattr(entity, "async_write_ha_state", write_mock)
         return entity
 
     # ------------------------------------------------------------------ #

@@ -51,6 +51,7 @@ class TestElectroluxClimate:
         coordinator.hass.loop = MagicMock()
         coordinator.hass.loop.time.return_value = 1000000.0
         coordinator.config_entry = MagicMock()
+        coordinator.api = MagicMock()
         coordinator._last_update_times = {}
         return coordinator
 
@@ -310,6 +311,48 @@ class TestElectroluxClimate:
         mock_appliance.reported_state["mode"] = "HEAT"
         assert climate_entity.hvac_action == HVACAction.HEATING
 
+    def test_hvac_action_drying(self, climate_entity, mock_appliance):
+        """DRY mode must report DRYING, not HEATING (#102)."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "DRY"
+        assert climate_entity.hvac_action == HVACAction.DRYING
+
+    def test_hvac_action_fan(self, climate_entity, mock_appliance):
+        """FANONLY mode must report FAN, not HEATING (#102)."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "FANONLY"
+        assert climate_entity.hvac_action == HVACAction.FAN
+
+    def test_hvac_action_auto_cooling(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor on and four-way valve off means cooling."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "on"
+        mock_appliance.reported_state["fourWayValveState"] = "off"
+        assert climate_entity.hvac_action == HVACAction.COOLING
+
+    def test_hvac_action_auto_heating(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor on and four-way valve on means heating."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "on"
+        mock_appliance.reported_state["fourWayValveState"] = "on"
+        assert climate_entity.hvac_action == HVACAction.HEATING
+
+    def test_hvac_action_auto_compressor_off(self, climate_entity, mock_appliance):
+        """AUTO mode with compressor off means the unit is idling."""
+        mock_appliance.reported_state["applianceState"] = "running"
+        mock_appliance.reported_state["mode"] = "auto"
+        mock_appliance.reported_state["compressorState"] = "off"
+        assert climate_entity.hvac_action == HVACAction.IDLE
+
+    def test_hvac_action_auto_no_telemetry(self, climate_entity, mock_appliance):
+        """AUTO mode without compressor telemetry cannot determine the action."""
+        mock_appliance.reported_state["applianceState"] = "RUNNING"
+        mock_appliance.reported_state["mode"] = "AUTO"
+        mock_appliance.reported_state.pop("compressorState", None)
+        assert climate_entity.hvac_action is None
+
     def test_hvac_action_idle(self, climate_entity, mock_appliance):
         """Test HVAC action returns IDLE."""
         mock_appliance.reported_state["applianceState"] = "IDLE"
@@ -552,9 +595,7 @@ class TestElectroluxClimate:
         )
 
         # One command — same-mode case must not trigger the 3-command sequence.
-        climate_entity._send_command.assert_called_once_with(
-            "targetTemperatureC", 24.0
-        )
+        climate_entity._send_command.assert_called_once_with("targetTemperatureC", 24.0)
         assert climate_entity._last_user_temperature == 24.0
 
     @pytest.mark.asyncio
@@ -689,6 +730,34 @@ class TestElectroluxClimate:
         assert calls[2][0] == ("targetTemperatureC", 22.0)
 
     @pytest.mark.asyncio
+    async def test_hvac_mode_fan_only_skips_temperature_resend(self, climate_entity):
+        """FAN_ONLY must not re-apply cached temperature — API returns 406 Capability disabled."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._apply_optimistic_update = MagicMock()
+        climate_entity._last_user_temperature = 22.0
+
+        await climate_entity.async_set_hvac_mode(HVACMode.FAN_ONLY)
+
+        assert climate_entity._send_command.call_count == 2
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "FANONLY")
+
+    @pytest.mark.asyncio
+    async def test_hvac_mode_dry_skips_temperature_resend(self, climate_entity):
+        """DRY must not re-apply cached temperature — API returns 406 Capability disabled."""
+        climate_entity._send_command = AsyncMock()
+        climate_entity._apply_optimistic_update = MagicMock()
+        climate_entity._last_user_temperature = 22.0
+
+        await climate_entity.async_set_hvac_mode(HVACMode.DRY)
+
+        assert climate_entity._send_command.call_count == 2
+        calls = climate_entity._send_command.call_args_list
+        assert calls[0][0] == ("executeCommand", "ON")
+        assert calls[1][0] == ("mode", "DRY")
+
+    @pytest.mark.asyncio
     async def test_hvac_mode_on_no_cached_temp_skips_resend(self, climate_entity):
         """No cached temperature → no extra temperature command on turn-on."""
         climate_entity._send_command = AsyncMock()
@@ -761,7 +830,7 @@ class TestElectroluxClimate:
     @pytest.mark.asyncio
     async def test_send_command_legacy_appliance(self, climate_entity, mock_appliance):
         """Test sending command to legacy appliance."""
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(
@@ -784,7 +853,7 @@ class TestElectroluxClimate:
     async def test_send_command_dam_appliance(self, climate_entity, mock_appliance):
         """Test sending command to DAM appliance."""
         climate_entity.entity_source = "airConditioner"
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(
@@ -812,7 +881,7 @@ class TestElectroluxClimate:
     @pytest.mark.asyncio
     async def test_send_command_error_handling(self, climate_entity):
         """Test error handling in send command."""
-        mock_api = AsyncMock()
+        mock_api = MagicMock()
         climate_entity.api = mock_api
 
         with patch.object(

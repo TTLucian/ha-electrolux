@@ -28,40 +28,36 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Resolved Python version: $VERSION (HA requires: $REQUIRES)"
 
-      # 3️⃣ Set up that Python version
-      - name: Set up Python ${{ steps.ha_python.outputs.version }}
-        uses: actions/setup-python@v6
+      # 3️⃣ Set up uv and that Python version
+      - name: Set up uv with Python ${{ steps.ha_python.outputs.version }}
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "${{ steps.ha_python.outputs.version }}"
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_test.txt -r requirements-dev.txt
+          uv sync --group test
+          echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
 
       # 5️⃣ Lint with Ruff (no auto-fix — fixes must be committed locally)
       - name: Lint with Ruff
-        run: |
-          ruff check custom_components/electrolux
+        run: ruff check custom_components/electrolux
 
       # 6️⃣ Format code with Black
       - name: Format code with Black
-        run: |
-          black custom_components/electrolux
+        run: black custom_components/electrolux
 
       # 7️⃣ Validate Home Assistant integration
       # Removed due to import issues in CI environment
 
       # 8️⃣ Type checking with mypy
       - name: Run mypy type checks
-        run: |
-          mypy custom_components/electrolux --ignore-missing-imports
+        run: mypy custom_components/electrolux --ignore-missing-imports
 
       # 9️⃣ Run tests with coverage
       - name: Run tests
-        run: |
-          pytest -v --cov=custom_components/electrolux --cov-report=term-missing --cov-fail-under=70
+        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing --cov-fail-under=70
 
       # 🔟 Check for dirty files
       - name: Check for dirty files

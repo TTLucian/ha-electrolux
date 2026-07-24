@@ -518,6 +518,24 @@ CATALOG_AP = {
         entity_icon="mdi:wifi-strength-3",
         friendly_name="Signal Strength",
     ),
+    "RSSI": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:wifi",
+        friendly_name="RSSI",
+        entity_registry_enabled_default=False,
+    ),
+    "FilterRFID": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:nfc",
+        friendly_name="Filter RFID",
+        entity_registry_enabled_default=False,
+    ),
     # Verbier error sensors
     "ErrGasNotResp": ElectroluxDevice(
         capability_info={

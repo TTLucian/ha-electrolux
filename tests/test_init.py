@@ -286,6 +286,7 @@ class TestAsyncUnloadEntry:
 
         mock_coordinator = MagicMock()
         mock_coordinator.api = mock_client
+        mock_coordinator.async_cancel_capability_retry = AsyncMock()
 
         mock_entry = _make_mock_entry()
         mock_entry.runtime_data = mock_coordinator
@@ -293,6 +294,7 @@ class TestAsyncUnloadEntry:
         result = await async_unload_entry(mock_hass, mock_entry)
 
         assert result is True
+        mock_coordinator.async_cancel_capability_retry.assert_awaited_once()
         mock_client.close.assert_awaited_once()
         mock_hass.config_entries.async_unload_platforms.assert_awaited_once()
 

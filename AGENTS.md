@@ -18,14 +18,14 @@
 
 ## Testing
 
-- Run `pytest` before marking any task done
+- Run `uv run pytest` before marking any task done
 - CI requires 70% coverage (`--cov-fail-under=70`)
 - Fix test failures before pushing — no PRs with known failing tests
-- Use `python -m venv` + `pip install -r requirements_test.txt` to set up test env
+- Use `uv sync --group test` to set up the test env (CI does the same)
 
 ## Code style
 
-- Run `ruff check custom_components/electrolux` and `black custom_components/electrolux` before pushing
+- Run `uv run ruff check custom_components/electrolux` and `uv run black custom_components/electrolux` before pushing
 - CI will fail on lint/format errors
 
 ## Pre-commit (optional)

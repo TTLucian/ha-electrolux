@@ -29,4 +29,4 @@ repos:
         language: system
         pass_filenames: false
         args: [--cov=custom_components/electrolux, --cov-fail-under=70, -q]
-        stages: [pre-push]
+        stages: [push]
