@@ -158,19 +158,6 @@ wheels = [
 ]
 
 [[package]]
-name = "aioresponses-ng"
-version = "0.8.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "packaging" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/64/6f/6e317e805995b704894d9fc90ca63a87a567daf567e58db138659bf0abdc/aioresponses_ng-0.8.2.tar.gz", hash = "sha256:0ee168f7bccfcc7990a995fcabf42bb84dd42faafaa30497c7108b093214633f", size = 19394, upload-time = "2026-07-05T16:17:23.065Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/9d/4ad5aebee5771ce0822135b6daaa21b45f44043b15eb1b7afc2faaeabf1c/aioresponses_ng-0.8.2-py3-none-any.whl", hash = "sha256:9de28a0de0ad289c6317b56da2f81c846643e4b9c2fde32023c1509064fbb72d", size = 10760, upload-time = "2026-07-05T16:17:21.807Z" },
-]
-
-[[package]]
 name = "aiosignal"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -857,19 +844,17 @@ wheels = [
 
 [[package]]
 name = "electrolux-group-developer-sdk"
-version = "0.6.0"
+version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
-    { name = "aioresponses-ng" },
-    { name = "freezegun" },
     { name = "pydantic" },
     { name = "pyjwt" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/99/1b/e88bc72de6b609956e551a062297ec5c41ae9f74e61ee508c73d496fec9c/electrolux_group_developer_sdk-0.6.0.tar.gz", hash = "sha256:9d0db7a3add832ea23034f27b402406e0f7640cf0598b90086d660099e9e6d53", size = 38110, upload-time = "2026-07-20T07:54:06.299Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/0f/10dafa55a40f5848fbee10c225848ccc8d49453a53f8c20ba0d0a8baa0e6/electrolux_group_developer_sdk-0.6.1.tar.gz", hash = "sha256:28be39f8895ca01f703127130d1e1e6149476a19f4b696a6ba30d784b4aedfeb", size = 38095, upload-time = "2026-07-24T09:24:15.814Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/e0/002b81ab3a254e6dc19448cc2809d2cafb01123aaa2c0702a990b33d6fe0/electrolux_group_developer_sdk-0.6.0-py3-none-any.whl", hash = "sha256:191b9cb2dc22a6d465ef268f09dea996adf5a294132d8cd7c29b327876ffe028", size = 73201, upload-time = "2026-07-20T07:54:07.248Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/26/0b0e8c23c2b0e597670adcc13abae6d9cbfa4854a43aca46e50f68964ab8/electrolux_group_developer_sdk-0.6.1-py3-none-any.whl", hash = "sha256:6883a89f39529a63cf569bc4e333eb0e151fbc37152227248589e9cf3841f62d", size = 73164, upload-time = "2026-07-24T09:24:16.7Z" },
 ]
 
 [[package]]
@@ -923,18 +908,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/4e/43/30d2dd2b14621b2004f658ba5335e5a6f5a9c1338ed37678d7fd247b7a9c/fnvhash-0.2.1.tar.gz", hash = "sha256:0c7e885f44c8f06de07f442befebc590ee9ca0cc88846681f608496284ce9cd5", size = 19057, upload-time = "2025-05-05T16:59:10.819Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b9/92/7c8abc21a1de7159013c0b0bd2ecf06530959bb14fd5c3bf0045e788c6d9/fnvhash-0.2.1-py3-none-any.whl", hash = "sha256:00fab14bec841e4cb29b4fd2ed9358f8bf9f4600d9d8149cde27a191193a33e8", size = 18115, upload-time = "2025-05-05T16:59:09.269Z" },
-]
-
-[[package]]
-name = "freezegun"
-version = "1.5.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dateutil" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/95/dd/23e2f4e357f8fd3bdff613c1fe4466d21bfb00a6177f238079b17f7b1c84/freezegun-1.5.5.tar.gz", hash = "sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a", size = 35914, upload-time = "2025-08-09T10:39:08.338Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/2e/b41d8a1a917d6581fc27a35d05561037b048e47df50f27f8ac9c7e27a710/freezegun-1.5.5-py3-none-any.whl", hash = "sha256:cd557f4a75cf074e84bc374249b9dd491eaeacd61376b9eb3c423282211619d2", size = 19266, upload-time = "2025-08-09T10:39:06.636Z" },
 ]
 
 [[package]]
