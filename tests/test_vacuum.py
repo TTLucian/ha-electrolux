@@ -751,7 +751,7 @@ class TestElectroluxVacuumZoneCleaning:
         vacuum = _make_purei9_vacuum()
         vacuum.get_appliance.data.get_capability = MagicMock(return_value=None)
 
-        with pytest.raises(HomeAssistantError, match="CustomPlay capability"):
+        with pytest.raises(HomeAssistantError, match="not supported on this device"):
             await vacuum.async_clean_zones(
                 persistent_map_id="afb13c1b-b557-4a11-84a6-5bfaef90304e",
                 zones=[{"zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "power_mode": 1}],

@@ -396,18 +396,16 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         persistent_map_id: str,
         zones: list[dict[str, Any]],
     ) -> None:
-        """Start a zone-based cleaning session (PUREi9 only).
+        """Start a zone-based cleaning session on appliances that support CustomPlay.
 
         Sends a CustomPlay command targeting specific zones on a persistent map.
         Zone UUIDs and the persistent map UUID are found in the integration
         diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).
         """
         if not self.get_appliance.data.get_capability("CustomPlay"):
-            raise HomeAssistantError(
-                "Zone cleaning requires CustomPlay capability. Not supported on this appliance."
-            )
+            raise HomeAssistantError("Zone cleaning is not supported on this device.")
 
-        command: dict[str, Any] = {
+        command = {
             "CustomPlay": {
                 "persistentMapId": persistent_map_id,
                 "zones": [
@@ -419,13 +417,9 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
 
         _LOGGER.debug("Electrolux zone cleaning command: %s", command)
 
-        try:
-            await execute_command_with_error_handling(
-                self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
-            )
-        except Exception as ex:
-            _LOGGER.error("Zone cleaning command failed for %s: %s", self.pnc_id, ex)
-            raise
+        await execute_command_with_error_handling(
+            self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
+        )
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
