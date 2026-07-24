@@ -88,6 +88,24 @@
       }
     }
   },
+  "services": {
+    "start_zone_cleaning": {
+      "name": "Start zone cleaning",
+      "description": "Start a zone-based cleaning session on a PUREi9 robot vacuum. Zone UUIDs and the persistent map UUID are found in the integration diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).",
+      "fields": {
+        "persistent_map_id": {
+          "name": "Persistent map ID",
+          "description": "UUID of the persistent map to use (from diagnostics: persistentMapsCreated/mapId).",
+          "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+        },
+        "zones": {
+          "name": "Zones",
+          "description": "List of zones to clean. Each entry needs zone_id (UUID from mapData/mapMatch/zones[].uuid) and optional power_mode (1=quiet, 2=smart, 3=power, default 1).",
+          "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+        }
+      }
+    }
+  },
   "exceptions": {
     "appliance_disconnected": {
       "message": "Appliance is disconnected or not available. Check the appliance's network connection."

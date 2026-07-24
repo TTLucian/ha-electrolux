@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant.components.vacuum import StateVacuumEntity
 from homeassistant.components.vacuum.const import (
     VacuumActivity,
@@ -10,13 +12,40 @@ from homeassistant.components.vacuum.const import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback,
+    async_get_current_platform,
+)
 
 from .const import VACUUM
 from .entity import ElectroluxEntity
 from .util import execute_command_with_error_handling
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+# ── Zone cleaning service ─────────────────────────────────────────────────────
+
+SERVICE_START_ZONE_CLEANING = "start_zone_cleaning"
+
+_ZONE_SCHEMA = vol.Schema(
+    {
+        vol.Required("zone_id"): cv.string,
+        vol.Optional("power_mode", default=1): vol.All(
+            vol.Coerce(int), vol.Range(min=1, max=3)
+        ),
+    }
+)
+
+SERVICE_START_ZONE_CLEANING_SCHEMA = vol.Schema(
+    {
+        vol.Required("persistent_map_id"): cv.string,
+        vol.Required("zones"): vol.All(
+            cv.ensure_list, vol.Length(min=1), [_ZONE_SCHEMA]
+        ),
+    }
+)
 
 
 # ── Appliance type sets ───────────────────────────────────────────────────────
@@ -62,7 +91,7 @@ _PUREI9_STATUS_TO_ACTIVITY: dict[int, VacuumActivity] = {
     4: VacuumActivity.PAUSED,  # Paused spot cleaning
     5: VacuumActivity.CLEANING,  # Zone cleaning
     6: VacuumActivity.PAUSED,  # Paused zone cleaning
-    7: VacuumActivity.CLEANING,  # Collecting (returning to dock mid-session)
+    7: VacuumActivity.CLEANING,  # Collecting (returning to dock mid-station)
     8: VacuumActivity.PAUSED,  # Paused collecting
     9: VacuumActivity.DOCKED,  # Docked
     10: VacuumActivity.DOCKED,  # Sleeping
@@ -122,6 +151,13 @@ async def async_setup_entry(
                     appliance.appliance_type,
                 )
         async_add_entities(entities)
+
+    platform = async_get_current_platform()
+    platform.async_register_entity_service(
+        SERVICE_START_ZONE_CLEANING,
+        SERVICE_START_ZONE_CLEANING_SCHEMA,
+        "async_clean_zones",
+    )
 
 
 # ── Entity class ──────────────────────────────────────────────────────────────
@@ -354,6 +390,42 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
         value: Any = int(fan_speed) if self._is_purei9 else fan_speed
         await self._send_command(attr, value)
+
+    async def async_clean_zones(
+        self,
+        persistent_map_id: str,
+        zones: list[dict[str, Any]],
+    ) -> None:
+        """Start a zone-based cleaning session (PUREi9 only).
+
+        Sends a CustomPlay command targeting specific zones on a persistent map.
+        Zone UUIDs and the persistent map UUID are found in the integration
+        diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).
+        """
+        if not self._is_purei9:
+            raise HomeAssistantError(
+                "Zone cleaning via CustomPlay is only supported on PUREi9 appliances."
+            )
+
+        command: dict[str, Any] = {
+            "CustomPlay": {
+                "persistentMapId": persistent_map_id,
+                "zones": [
+                    {"goZonesId": z["zone_id"], "powerMode": z["power_mode"]}
+                    for z in zones
+                ],
+            }
+        }
+
+        _LOGGER.debug("Electrolux zone cleaning command: %s", command)
+
+        try:
+            await execute_command_with_error_handling(
+                self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
+            )
+        except Exception as ex:
+            _LOGGER.error("Zone cleaning command failed for %s: %s", self.pnc_id, ex)
+            raise
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
