@@ -738,7 +738,7 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:volume-high",
-        friendly_name="Voice Volume",
+        friendly_name="Voice Volume Level",
     ),
     # --- Pure i9 read-only map / cleaning-session data (#130) ---
     "persistentMapsCreated/mapId": ElectroluxDevice(
