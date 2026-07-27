@@ -2023,6 +2023,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._last_sse_restart_log_count += 1
 
         # Log summary every 5 restarts or on the first few to avoid spam
+        backoff_minutes = (
+            SSE_RESTART_COOLDOWN * min(2**self._consecutive_sse_restarts, 8)
+        ) / 60
         if (
             self._last_sse_restart_log_count <= 3
             or self._last_sse_restart_log_count % 5 == 0
@@ -2030,7 +2033,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.info(
                 "SSE watchdog initiating stream restart (restart #%d, backoff %.0fmin)",
                 self._consecutive_sse_restarts,
-                (SSE_RESTART_COOLDOWN * min(2**self._consecutive_sse_restarts, 8)) / 60,
+                backoff_minutes,
             )
         else:
             _LOGGER.debug(
@@ -2045,8 +2048,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             )
             await asyncio.wait_for(self.listen_websocket(), timeout=UPDATE_TIMEOUT)
             _LOGGER.info("SSE watchdog restart completed")
-            # Reset consecutive restart counter on successful connection
-            # (connection will be considered stable until proven otherwise)
         except Exception as ex:
             _LOGGER.warning("SSE watchdog restart failed: %s", ex)
 
