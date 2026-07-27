@@ -12,7 +12,7 @@ keys in one catalog is safe — each device will only expose its own subset.
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory
 
-from ..const import BINARY_SENSOR
+from ..const import BINARY_SENSOR, BUTTON
 from ..model import ElectroluxDevice
 
 # PUREi9 robotStatus integer values (from SDK rvc_config.py IS_DOCKED_MAP/IS_PAUSED_MAP)
@@ -169,6 +169,9 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
                 "pauseClean": {"icon": "mdi:pause"},
                 "resumeClean": {"icon": "mdi:play-pause"},
                 "startGoToCharger": {"icon": "mdi:home"},
+                "startMoppingClean": {"icon": "mdi:water"},
+                "startEdgeClean": {"icon": "mdi:square-outline"},
+                "startPointClean": {"icon": "mdi:map-marker-radius"},
             },
         },
         device_class=None,
@@ -178,15 +181,19 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Cleaning Command",
     ),
     # Vacuum cleaning mode (select)
-    # Sample-backed values only. The Cybele diagnostic shows these two values
-    # in reported state; no other vacuumMode labels are currently confirmed.
+    # Combined values from multiple models:
+    # - Cybele: energySaving, max
+    # - Gordias/700series: quiet, energySaving, standard, powerful
     "vacuumMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "string",
             "values": {
+                "quiet": {"icon": "mdi:volume-off"},
                 "energySaving": {"icon": "mdi:leaf"},
+                "standard": {"icon": "mdi:fan"},
                 "max": {"icon": "mdi:flash"},
+                "powerful": {"icon": "mdi:flash-alert"},
             },
         },
         device_class=None,
@@ -215,7 +222,7 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         capability_info={
             "access": "read",
             "type": "string",
-            "values": {"low": {}, "medium": {}, "high": {}},
+            "values": {"off": {}, "low": {}, "medium": {}, "high": {}, "max": {}},
         },
         device_class=SensorDeviceClass.ENUM,
         unit=None,
@@ -260,8 +267,8 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Dirt Clean Mode",
     ),
     "faultCode": ElectroluxDevice(
-        capability_info={"access": "read", "type": "number"},
-        device_class=None,
+        capability_info={"access": "read", "type": "string"},
+        device_class=SensorDeviceClass.ENUM,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:alert-circle-outline",
@@ -676,6 +683,62 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:clock",
         friendly_name="Time Zone Standard Name",
+    ),
+    # ── Gordias / 700series additional ─────────────────────────────────────────
+    # Bin/tank configuration (which accessories are installed)
+    "binTank": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "none": {"name": "None"},
+                "dustBox": {"name": "Dust Box"},
+                "waterTank": {"name": "Water Tank"},
+                "both": {"name": "Both"},
+            },
+        },
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:tray-full",
+        friendly_name="Bin Tank",
+        value_mapping={
+            "none": "None",
+            "dustBox": "Dust Box",
+            "waterTank": "Water Tank",
+            "both": "Both",
+        },
+    ),
+    # Find-me / locate robot action (button)
+    "findMe": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "values": {"findMe": {"icon": "mdi:map-marker-account"}},
+        },
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_platform=BUTTON,
+        entity_icon="mdi:map-marker-account",
+        friendly_name="Find Me",
+    ),
+    # Voice volume setting (Gordias string enum, distinct from voiceVolume number)
+    "setVoiceVolume": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {
+                "mute": {"icon": "mdi:volume-off"},
+                "low": {"icon": "mdi:volume-low"},
+                "medium": {"icon": "mdi:volume-medium"},
+                "high": {"icon": "mdi:volume-high"},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:volume-high",
+        friendly_name="Voice Volume",
     ),
     # --- Pure i9 read-only map / cleaning-session data (#130) ---
     "persistentMapsCreated/mapId": ElectroluxDevice(
