@@ -33,6 +33,7 @@ def mock_coordinator(mock_api_client):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0
+        coord._consecutive_sse_restarts = 0
         coord._consecutive_auth_failures = 0
         coord._auth_failure_threshold = 3
         coord._last_time_to_end = {}

@@ -79,6 +79,7 @@ def coordinator(mock_hass, mock_api):
         coord._last_update_times = {}
         coord._last_known_connectivity = {}
         coord._last_sse_restart_time = 0.0
+        coord._consecutive_sse_restarts = 0
         coord._last_manual_sync_time = 0.0
         coord._last_time_to_end = {}
         coord._last_time_to_end_seen = {}

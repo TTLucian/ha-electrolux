@@ -47,6 +47,7 @@ def make_coordinator():
     coord._last_sse_restart_time = 0
     coord._last_sse_message_time = 0.0
     coord._sse_stall_monitor_task = None
+    coord._consecutive_sse_restarts = 0
     coord._consecutive_auth_failures = 0
     coord._auth_failure_threshold = 3
     coord._last_time_to_end = {}

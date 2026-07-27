@@ -66,6 +66,7 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
         coord._last_known_connectivity = {}
         coord._last_update_times = {}
         coord._last_sse_restart_time = 0
+        coord._consecutive_sse_restarts = 0
         coord.renew_task = None
         coord.listen_task = None
         coord._deferred_tasks = set()
