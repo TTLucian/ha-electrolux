@@ -153,6 +153,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         )  # Track previous connectivity state per appliance
         self._last_sse_restart_time = 0.0  # Track when we last restarted SSE
         self._last_sse_message_time = 0.0  # Track last time any SSE event was received
+        self._sse_data_received_since_connect = (
+            False  # Track if data arrived on current connection
+        )
         self._sse_stall_monitor_task: Optional[asyncio.Task] = None
         self._consecutive_sse_restarts = (
             0  # Track consecutive watchdog restarts for backoff
@@ -443,6 +446,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Track stream liveness for stalled-SSE watchdog logic.
         now = self.hass.loop.time()
         self._last_sse_message_time = now
+        self._sse_data_received_since_connect = True
 
         appliance_id_dbg = data.get(APPLIANCE_ID_KEY) or data.get(APPLIANCE_ID_ALT_KEY)
         property_dbg = data.get(PROPERTY_KEY)
@@ -894,14 +898,24 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # Seed watchdog timestamp at connection-open time so a fresh stream gets
         # a full quiet window before being considered stalled.
         self._last_sse_message_time = now
-        # Reset consecutive restart counter since we have a fresh connection
-        if self._consecutive_sse_restarts > 0:
+        # Only reset the consecutive restart counter if the previous connection
+        # actually received data.  If the stream was restarted by the watchdog
+        # but no data arrived (idle appliances + server keep-alives), the
+        # backoff should escalate to avoid a 15-minute restart loop.
+        if self._consecutive_sse_restarts > 0 and self._sse_data_received_since_connect:
             _LOGGER.debug(
-                "SSE connection established, resetting restart counter (was %d)",
+                "SSE connection established with data received, resetting restart counter (was %d)",
                 self._consecutive_sse_restarts,
             )
             self._consecutive_sse_restarts = 0
             self._last_sse_restart_log_count = 0
+        elif self._consecutive_sse_restarts > 0:
+            _LOGGER.debug(
+                "SSE reconnected but no data received on previous connection, "
+                "keeping restart counter at %d for backoff",
+                self._consecutive_sse_restarts,
+            )
+        self._sse_data_received_since_connect = False
         elapsed = now - self._last_sse_resync_time
 
         if elapsed >= SSE_RESYNC_DEBOUNCE:

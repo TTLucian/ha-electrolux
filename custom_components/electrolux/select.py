@@ -115,15 +115,16 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 if label is not None:
                     self.options_list[label] = value
 
-        # Track which values are discovered (not from catalog) so they survive
-        # program-constraint filtering in the options property (#65). Populated
-        # from the persistent store in async_added_to_hass — self.hass is not
-        # yet available during __init__ (HA assigns it after construction).
-        self._discovered_values: set[str] = set()
         # Persistent store for discovered programs (label -> value), backed by
         # homeassistant.helpers.storage so discoveries survive a full restart.
         self._discovered_store: Store | None = None
         self._discovered_data: dict[str, str] = {}
+        # Values that are truly "discovered" (not from catalog). Populated during
+        # restore (only for values not in options_list) and at runtime when new
+        # values are observed. This is a filtered subset of _discovered_data —
+        # the store may contain values later provided by catalog updates, which
+        # should NOT bypass program-constraint filtering.
+        self._discovered_values: set[str] = set()
 
     def _get_discovered_store(self) -> Store | None:
         """Return the per-entity Store for discovered programs, or None.
@@ -200,18 +201,6 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         self._discovered_store.async_delay_save(
             lambda: self._discovered_data, DISCOVERED_SAVE_DELAY
         )
-
-        try:
-            store_key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}"
-        except TypeError, AttributeError:
-            # Skip persistence if unique_id cannot be computed (e.g., in tests)
-            return
-
-        if store_key not in self.hass.data:
-            self.hass.data[store_key] = {}
-
-        # Store the discovery
-        self.hass.data[store_key][label] = value
 
         _LOGGER.info(
             "Discovered new program %s (%s) for %s on appliance %s. "
@@ -567,9 +556,11 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 # by the API). They are always selectable once discovered. (#65)
                 if self._discovered_values:
                     for label, value in self.options_list.items():
-                        if value in self._discovered_values:
-                            if label not in all_options:
-                                all_options.append(label)
+                        if (
+                            value in self._discovered_values
+                            and label not in all_options
+                        ):
+                            all_options.append(label)
 
         # Append the current label if it falls outside the persistent
         # options_list — currently only happens for disabled capability
