@@ -122,10 +122,22 @@ def _make_modern_vacuum(
 
 
 class TestElectroluxVacuumPurei9:
-    def test_fan_speed_list_uses_numeric_power_modes(self):
+    def test_fan_speed_list_uses_human_readable_labels(self):
         vacuum = _make_purei9_vacuum()
 
-        assert vacuum.fan_speed_list == ["1", "2", "3"]
+        assert vacuum.fan_speed_list == ["Eco", "Standard", "Power"]
+
+    def test_fan_speed_list_respects_device_capability_range(self):
+        """fan_speed_list only includes modes within the device's capability range."""
+        vacuum = _make_purei9_vacuum()
+        # Simulate a device that only supports powerMode 1-2 (e.g. ECO + Standard)
+        vacuum.get_appliance.data.get_capability = lambda key: (
+            {"access": "readwrite", "type": "int", "min": 1, "max": 2}
+            if key == "powerMode"
+            else vacuum.get_appliance.data.capabilities.get(key)
+        )
+
+        assert vacuum.fan_speed_list == ["Eco", "Standard"]
 
     def test_battery_level_scales_purei9_levels_to_percentage(self):
         vacuum = _make_purei9_vacuum()
@@ -283,10 +295,11 @@ class TestElectroluxVacuumPurei9:
             vacuum.reported_state = status["properties"]["reported"]
             assert vacuum.battery_level is None
 
-    def test_fan_speed_returns_current_power_mode(self):
-        """fan_speed property returns current powerMode."""
+    def test_fan_speed_returns_mapped_label(self):
+        """fan_speed property returns human-readable label for current powerMode."""
         vacuum = _make_purei9_vacuum()
-        assert vacuum.fan_speed == "2"
+        # powerMode is 2 in the test fixture, which maps to "Standard"
+        assert vacuum.fan_speed == "Standard"
 
     def test_supported_features_includes_all_expected_features(self):
         """Vacuum supports start, stop, pause, return_home, battery, fan_speed."""
@@ -717,7 +730,9 @@ class TestElectroluxVacuumZoneCleaning:
     async def test_clean_zones_sends_custom_play_command(self):
         """async_clean_zones sends correct CustomPlay payload."""
         vacuum = _make_purei9_vacuum()
-        vacuum.get_appliance.data.get_capability = MagicMock(return_value={"access": "readwrite"})
+        vacuum.get_appliance.data.get_capability = MagicMock(
+            return_value={"access": "readwrite"}
+        )
 
         with patch(
             "custom_components.electrolux.vacuum.execute_command_with_error_handling",
@@ -726,8 +741,14 @@ class TestElectroluxVacuumZoneCleaning:
             await vacuum.async_clean_zones(
                 persistent_map_id="afb13c1b-b557-4a11-84a6-5bfaef90304e",
                 zones=[
-                    {"zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "power_mode": 1},
-                    {"zone_id": "5cda7995-d3db-4f5d-bd53-b51099e0674c", "power_mode": 2},
+                    {
+                        "zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de",
+                        "power_mode": 1,
+                    },
+                    {
+                        "zone_id": "5cda7995-d3db-4f5d-bd53-b51099e0674c",
+                        "power_mode": 2,
+                    },
                 ],
             )
 
@@ -737,8 +758,14 @@ class TestElectroluxVacuumZoneCleaning:
             "CustomPlay": {
                 "persistentMapId": "afb13c1b-b557-4a11-84a6-5bfaef90304e",
                 "zones": [
-                    {"goZonesId": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "powerMode": 1},
-                    {"goZonesId": "5cda7995-d3db-4f5d-bd53-b51099e0674c", "powerMode": 2},
+                    {
+                        "goZonesId": "9082f714-bdba-4f3a-892f-46b2ff2e07de",
+                        "powerMode": 1,
+                    },
+                    {
+                        "goZonesId": "5cda7995-d3db-4f5d-bd53-b51099e0674c",
+                        "powerMode": 2,
+                    },
                 ],
             }
         }
@@ -754,14 +781,18 @@ class TestElectroluxVacuumZoneCleaning:
         with pytest.raises(HomeAssistantError, match="not supported on this device"):
             await vacuum.async_clean_zones(
                 persistent_map_id="afb13c1b-b557-4a11-84a6-5bfaef90304e",
-                zones=[{"zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "power_mode": 1}],
+                zones=[
+                    {"zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "power_mode": 1}
+                ],
             )
 
     @pytest.mark.asyncio
     async def test_clean_zones_reraises_execute_exception(self):
         """async_clean_zones propagates errors from execute_command_with_error_handling."""
         vacuum = _make_purei9_vacuum()
-        vacuum.get_appliance.data.get_capability = MagicMock(return_value={"access": "readwrite"})
+        vacuum.get_appliance.data.get_capability = MagicMock(
+            return_value={"access": "readwrite"}
+        )
 
         with patch(
             "custom_components.electrolux.vacuum.execute_command_with_error_handling",
@@ -770,5 +801,10 @@ class TestElectroluxVacuumZoneCleaning:
             with pytest.raises(Exception, match="appliance rejected"):
                 await vacuum.async_clean_zones(
                     persistent_map_id="afb13c1b-b557-4a11-84a6-5bfaef90304e",
-                    zones=[{"zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de", "power_mode": 1}],
+                    zones=[
+                        {
+                            "zone_id": "9082f714-bdba-4f3a-892f-46b2ff2e07de",
+                            "power_mode": 1,
+                        }
+                    ],
                 )

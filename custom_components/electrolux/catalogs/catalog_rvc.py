@@ -10,9 +10,10 @@ keys in one catalog is safe — each device will only expose its own subset.
 """
 
 from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory
 
-from ..const import BINARY_SENSOR, BUTTON
+from ..const import BINARY_SENSOR, BUTTON, SWITCH
 from ..model import ElectroluxDevice
 
 # PUREi9 robotStatus integer values (from SDK rvc_config.py IS_DOCKED_MAP/IS_PAUSED_MAP)
@@ -102,8 +103,12 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
             "EMPTY": "Empty",
         },
     ),
-    # Power/cleaning intensity mode. The sample reports an integer range,
-    # so the vacuum platform exposes the raw values instead of stale labels.
+    # Power/cleaning intensity mode.
+    # The API reports an integer range (min=1, max=3). Human-readable labels
+    # (Eco / Standard / Power) are confirmed by user reports for the Pure i9
+    # line — see https://github.com/TTLucian/ha-electrolux/issues/82.
+    # The vacuum platform reads the device's actual min/max to build the
+    # correct speed list per model (some Pure i9 variants only expose 2 modes).
     "powerMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -116,6 +121,57 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:speedometer",
         friendly_name="Power Mode",
+        value_mapping={
+            1: "Eco",
+            2: "Standard",
+            3: "Power",
+        },
+    ),
+    # ── PUREi9 additional settings ─────────────────────────────────────────────
+    # Eco mode (boolean switch — reduces suction to save battery)
+    "ecoMode": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_platform=SWITCH,
+        entity_icon="mdi:leaf",
+        friendly_name="Eco Mode",
+    ),
+    # Mute (boolean switch — disables robot voice prompts)
+    "mute": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
+        unit=None,
+        entity_category=EntityCategory.CONFIG,
+        entity_platform=SWITCH,
+        entity_icon="mdi:volume-off",
+        friendly_name="Mute",
+    ),
+    # ── PUREi9 maintenance counters (reported in m²) ──────────────────────────
+    "mainBrushSqM": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit="m²",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:brush",
+        friendly_name="Main Brush Usage",
+    ),
+    "sideBrushSqM": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit="m²",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:brush",
+        friendly_name="Side Brush Usage",
+    ),
+    "filterSqM": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit="m²",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        friendly_name="Filter Usage",
     ),
     # ── Gordias / Cybele / 700series ────────────────────────────────────────────
     # String state (inProgress / goingHome / idle / paused / sleeping / …)
@@ -747,7 +803,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:map",
-        entity_registry_enabled_default=False,
         friendly_name="Persistent Map ID",
     ),
     "cleaningSession/sessionId": ElectroluxDevice(
@@ -756,7 +811,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:counter",
-        entity_registry_enabled_default=False,
         friendly_name="Cleaning Session ID",
     ),
     "cleaningSession/completion": ElectroluxDevice(
@@ -765,7 +819,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:flag-checkered",
-        entity_registry_enabled_default=False,
         friendly_name="Cleaning Completion",
     ),
     "cleaningSession/areaCovered": ElectroluxDevice(
@@ -774,7 +827,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit="m²",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:ruler-square",
-        entity_registry_enabled_default=False,
         friendly_name="Area Covered",
     ),
     "mapData/robotPoseReliable": ElectroluxDevice(
@@ -784,7 +836,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:crosshairs-gps",
-        entity_registry_enabled_default=False,
         friendly_name="Robot Pose Reliable",
     ),
     # Derived: number of zones on the persistent map (#130)
@@ -794,7 +845,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:shape-outline",
-        entity_registry_enabled_default=False,
         friendly_name="Map Zone Count",
     ),
     # Derived: last cleaning-session zone status summary (#130)
@@ -804,7 +854,6 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:map-marker-check",
-        entity_registry_enabled_default=False,
         friendly_name="Cleaning Zone Status",
     ),
 }

@@ -1679,7 +1679,9 @@ class TestDiscoveredPrograms:
         mock_store = AsyncMock()
         entity._discovered_store = mock_store
 
-        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()) as mock_super:
+        with patch.object(
+            ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()
+        ) as mock_super:
             await entity.async_will_remove_from_hass()
 
         mock_super.assert_awaited_once()
@@ -1712,7 +1714,9 @@ class TestDiscoveredPrograms:
         entity.hass = mock_coordinator.hass
         entity._discovered_store = None
 
-        with patch.object(ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()):
+        with patch.object(
+            ElectroluxEntity, "async_will_remove_from_hass", new=AsyncMock()
+        ):
             await entity.async_will_remove_from_hass()  # must not raise
 
     @pytest.mark.asyncio

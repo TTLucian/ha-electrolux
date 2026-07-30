@@ -38,8 +38,9 @@ SERVICE_START_ZONE_CLEANING_SCHEMA = vol.Schema(
                 vol.Schema(
                     {
                         vol.Required("zone_id"): vol.All(cv.string, vol.Length(min=1)),
-                        vol.Optional("power_mode", default=1): vol.All(
-                            vol.Coerce(int), vol.Range(min=1, max=3)
+                        vol.Optional("power_mode", default=1): vol.Any(
+                            vol.All(vol.Coerce(int), vol.Range(min=1, max=3)),
+                            vol.In(["Eco", "Standard", "Power"]),
                         ),
                     }
                 )
@@ -111,7 +112,12 @@ _MODERN_FAN_SPEEDS: list[str] = [
     "max",
 ]
 
-_PUREI9_FAN_SPEEDS: list[str] = ["1", "2", "3"]
+# PUREi9 uses integer powerMode (1-3) in the API but we expose human-readable
+# labels to the user.  The bidirectional mapping keeps the vacuum entity and
+# the command sender in sync.
+_PUREI9_FAN_SPEEDS: list[str] = ["Eco", "Standard", "Power"]
+_PUREI9_SPEED_TO_INT: dict[str, int] = {"Eco": 1, "Standard": 2, "Power": 3}
+_PUREI9_INT_TO_SPEED: dict[int, str] = {v: k for k, v in _PUREI9_SPEED_TO_INT.items()}
 
 
 # ── Platform setup ────────────────────────────────────────────────────────────
@@ -339,15 +345,57 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
 
     @property
     def fan_speed(self) -> str | None:
-        """Return the current fan speed / vacuum mode."""
+        """Return the current fan speed / vacuum mode.
+
+        PUREi9 reports an integer powerMode (1-3); translate to the
+        human-readable label (Eco / Standard / Power).
+        """
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
         value = self.get_state_attr(attr)
-        return str(value) if value is not None else None
+        if value is None:
+            return None
+        if self._is_purei9:
+            try:
+                return _PUREI9_INT_TO_SPEED.get(int(value))
+            except ValueError, TypeError:
+                return None
+        return str(value)
 
     @property
     def fan_speed_list(self) -> list[str]:
-        """Return the list of available fan speeds."""
-        return _PUREI9_FAN_SPEEDS if self._is_purei9 else _MODERN_FAN_SPEEDS
+        """Return the list of available fan speeds.
+
+        For PUREi9 the speed list is built dynamically from the device's
+        actual powerMode capability (min/max), so that models with only
+        2 modes (e.g. ECO + POWER) show the correct subset.
+        See https://github.com/TTLucian/ha-electrolux/issues/82
+        """
+        if not self._is_purei9:
+            return _MODERN_FAN_SPEEDS
+
+        pm_min, pm_max = self._purei9_power_mode_range()
+        return [
+            _PUREI9_INT_TO_SPEED[i]
+            for i in range(pm_min, pm_max + 1)
+            if i in _PUREI9_INT_TO_SPEED
+        ]
+
+    def _purei9_power_mode_range(self) -> tuple[int, int]:
+        """Return the (min, max) powerMode range from device capabilities.
+
+        Falls back to (1, 3) when the capability cannot be read.
+        """
+        try:
+            appliance = self.get_appliance
+            if hasattr(appliance, "data") and appliance.data:
+                cap = appliance.data.get_capability("powerMode")
+                if isinstance(cap, dict):
+                    pm_min = int(cap.get("min", 1))
+                    pm_max = int(cap.get("max", 3))
+                    return pm_min, pm_max
+        except Exception:  # noqa: BLE001
+            pass
+        return 1, 3
 
     # ── Commands ───────────────────────────────────────────────────────────────
 
@@ -387,9 +435,27 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             await self._send_command("cleaningCommand", "startGoToCharger")
 
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
-        """Set the vacuum mode / suction level."""
+        """Set the vacuum mode / suction level.
+
+        PUREi9 accepts the human-readable label (Eco / Standard / Power)
+        and translates it back to the integer the API expects.
+        """
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
-        value: Any = int(fan_speed) if self._is_purei9 else fan_speed
+        if self._is_purei9:
+            value: Any = _PUREI9_SPEED_TO_INT.get(fan_speed)
+            if value is None:
+                # Fall back to direct integer for backward compatibility
+                try:
+                    value = int(fan_speed)
+                except ValueError, TypeError:
+                    _LOGGER.error(
+                        "Invalid PUREi9 fan speed '%s' — expected one of %s",
+                        fan_speed,
+                        _PUREI9_FAN_SPEEDS,
+                    )
+                    return
+        else:
+            value = fan_speed
         await self._send_command(attr, value)
 
     async def async_clean_zones(
@@ -402,17 +468,25 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         Sends a CustomPlay command targeting specific zones on a persistent map.
         Zone UUIDs and the persistent map UUID are found in the integration
         diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).
+
+        The power_mode parameter accepts either the integer (1-3) or the
+        human-readable label (Eco / Standard / Power).
         """
         if not self.get_appliance.data.get_capability("CustomPlay"):
             raise HomeAssistantError("Zone cleaning is not supported on this device.")
 
+        # Translate human-readable labels to the integer the API expects
+        api_zones = []
+        for z in zones:
+            pm = z["power_mode"]
+            if isinstance(pm, str):
+                pm = _PUREI9_SPEED_TO_INT.get(pm, 1)
+            api_zones.append({"goZonesId": z["zone_id"], "powerMode": pm})
+
         command = {
             "CustomPlay": {
                 "persistentMapId": persistent_map_id,
-                "zones": [
-                    {"goZonesId": z["zone_id"], "powerMode": z["power_mode"]}
-                    for z in zones
-                ],
+                "zones": api_zones,
             }
         }
 

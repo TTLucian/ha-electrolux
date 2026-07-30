@@ -322,7 +322,10 @@ class TestCatalogRobotVacuum:
         assert power_mode["max"] == 3
 
     def test_rvc_has_scalar_map_zone_sensors(self):
-        """Robot vacuum catalog exposes read-only map/session scalar sensors (#130)."""
+        """Robot vacuum catalog exposes read-only map/session scalar sensors (#82).
+
+        Map entities are enabled by default per issue #82.
+        """
         from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
@@ -340,7 +343,7 @@ class TestCatalogRobotVacuum:
             entry = CATALOG_RVC[key]
             assert isinstance(entry, ElectroluxDevice)
             assert entry.entity_category == EntityCategory.DIAGNOSTIC
-            assert entry.entity_registry_enabled_default is False
+            assert entry.entity_registry_enabled_default is True
 
     def test_rvc_robot_pose_reliable_is_binary_sensor(self):
         """robotPoseReliable is a binary sensor via entity_platform (#130)."""
@@ -352,7 +355,10 @@ class TestCatalogRobotVacuum:
         assert entry.device_class is None
 
     def test_rvc_has_derived_map_zone_sensors(self):
-        """Derived zone-count and zone-status sensors are DIAGNOSTIC + disabled (#130)."""
+        """Derived zone-count and zone-status sensors are DIAGNOSTIC + enabled (#82).
+
+        Map entities are enabled by default per issue #82.
+        """
         from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
@@ -363,7 +369,7 @@ class TestCatalogRobotVacuum:
             entry = CATALOG_RVC[key]
             assert isinstance(entry, ElectroluxDevice)
             assert entry.entity_category == EntityCategory.DIAGNOSTIC
-            assert entry.entity_registry_enabled_default is False
+            assert entry.entity_registry_enabled_default is True
 
 
 class TestCatalogDishwasher:
