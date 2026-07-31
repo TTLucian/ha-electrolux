@@ -36,8 +36,12 @@ class ElectroluxDevice:
         | None
     ) = None
 
-    # suggested unit of measurement
+    # native unit of measurement (matches what the API reports)
     unit: str | None = None
+
+    # suggested display unit override (e.g., suggest minutes while native is seconds)
+    # when None, the sensor platform applies a smart default for duration sensors
+    suggested_unit: str | None = None
 
     # Map the item to a HA category
     entity_category: EntityCategory | None = None

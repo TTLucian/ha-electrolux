@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
@@ -302,7 +302,19 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
 
     @property
     def suggested_unit_of_measurement(self) -> str | None:
-        """Return suggested unit of measurement."""
+        """Return suggested unit of measurement.
+
+        Catalog entries can override via ``suggested_unit``.  For duration sensors
+        that report in seconds, suggest minutes so that e.g. 8820 s displays as
+        147 min by default (users can still change in the HA UI).
+        """
+        if self.catalog_entry and self.catalog_entry.suggested_unit:
+            return self.catalog_entry.suggested_unit
+        if (
+            self.device_class == SensorDeviceClass.DURATION
+            and self.unit == UnitOfTime.SECONDS
+        ):
+            return UnitOfTime.MINUTES
         return self.unit
 
     @property
