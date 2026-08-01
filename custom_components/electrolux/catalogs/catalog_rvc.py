@@ -17,8 +17,8 @@ from ..const import BINARY_SENSOR, BUTTON, SWITCH
 from ..model import ElectroluxDevice
 
 # PUREi9 robotStatus integer values (from SDK rvc_config.py IS_DOCKED_MAP/IS_PAUSED_MAP)
-# Keys are strings because value_mapping expects dict[float | str, str]
-_PUREI9_ROBOT_STATUS_VALUES: dict[float | str, str] = {
+# Keys are strings because the API reports robotStatus as a string value.
+_PUREI9_ROBOT_STATUS_VALUES: dict[int | float | str, str] = {
     "1": "Cleaning",
     "2": "Paused cleaning",
     "3": "Spot cleaning",

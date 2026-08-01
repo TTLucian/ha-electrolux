@@ -595,14 +595,9 @@ class ElectroluxApiClient:
     async def execute_appliance_command(self, appliance_id, command):
         """Execute a command on an appliance."""
         # Use the ApplianceClient's send_command method
-        try:
-            result = await self._handle_api_call(
-                self._client.send_command(appliance_id, command)
-            )
-            return result
-        except Exception:
-            # Re-raise all exceptions to be handled by the calling entity
-            raise
+        return await self._handle_api_call(
+            self._client.send_command(appliance_id, command)
+        )
 
     async def close(self):
         """Decisive cleanup of resources."""

@@ -172,7 +172,6 @@ class TestCoordinatorConnectivity:
 
             # Trigger the failure callback (this would happen automatically in real scenario)
             # For testing, we manually call the callback logic
-            pass
 
         # Note: In the real implementation, SSE reconnection is handled by the
         # renew_websocket task which runs every 6 hours. The test above verifies

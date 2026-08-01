@@ -85,6 +85,42 @@ def _make_purei9_vacuum(
     return vacuum
 
 
+def _make_purei9_gen1_vacuum(
+    battery_status=5, robot_status=10, eco_mode=True
+) -> ElectroluxVacuum:
+    """Create a gen 1 Pure i9 vacuum (ecoMode boolean, no powerMode in state)."""
+    coordinator = _make_coordinator()
+    vacuum = ElectroluxVacuum(
+        coordinator=coordinator,
+        name="Test Vacuum Gen1",
+        config_entry=coordinator.config_entry,
+        pnc_id="RVC_PNC_GEN1",
+        entity_type=VACUUM,
+        entity_name="vacuum",
+        entity_attr="vacuum",
+        entity_source=None,
+        capability={},
+        unit=None,
+        device_class=None,
+        entity_category=None,
+        icon="mdi:robot-vacuum",
+        catalog_entry=None,
+        appliance_type="PUREi9",
+    )
+    vacuum.hass = coordinator.hass
+    vacuum.appliance_status = {
+        "properties": {
+            "reported": {
+                "robotStatus": robot_status,
+                "ecoMode": eco_mode,
+                "batteryStatus": battery_status,
+            }
+        }
+    }
+    vacuum.reported_state = vacuum.appliance_status["properties"]["reported"]
+    return vacuum
+
+
 def _make_modern_vacuum(
     battery_status=50, state="idle", in_charger=False, appliance_type="Gordias"
 ) -> ElectroluxVacuum:
@@ -311,6 +347,142 @@ class TestElectroluxVacuumPurei9:
         assert features & VacuumEntityFeature.RETURN_HOME
         assert features & VacuumEntityFeature.BATTERY
         assert features & VacuumEntityFeature.FAN_SPEED
+
+
+class TestElectroluxVacuumPurei9Gen1:
+    """Test gen 1 Pure i9 (original) that uses boolean ecoMode.
+
+    Gen 1 devices report ecoMode (boolean) in state but NOT powerMode (int).
+    The API still reports a powerMode capability (min=1, max=3) for both gens,
+    so detection is based on the reported state, not capabilities.
+    """
+
+    def test_is_purei9_gen1_true_when_eco_mode_present(self):
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=True)
+        assert vacuum._is_purei9_gen1 is True
+
+    def test_is_purei9_gen1_true_when_eco_mode_false(self):
+        """ecoMode=False is still a valid gen 1 state (Power mode)."""
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=False)
+        assert vacuum._is_purei9_gen1 is True
+
+    def test_is_purei9_gen1_false_when_power_mode_present(self):
+        """Gen 2 devices have powerMode in state — not gen 1."""
+        vacuum = _make_purei9_vacuum()
+        assert vacuum._is_purei9_gen1 is False
+
+    def test_is_purei9_gen1_false_for_modern(self):
+        vacuum = _make_modern_vacuum()
+        assert vacuum._is_purei9_gen1 is False
+
+    def test_fan_speed_list_returns_two_modes(self):
+        """Gen 1 only has Eco and Power (no Standard)."""
+        vacuum = _make_purei9_gen1_vacuum()
+        assert vacuum.fan_speed_list == ["Eco", "Power"]
+
+    def test_fan_speed_returns_eco_when_eco_mode_true(self):
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=True)
+        assert vacuum.fan_speed == "Eco"
+
+    def test_fan_speed_returns_power_when_eco_mode_false(self):
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=False)
+        assert vacuum.fan_speed == "Power"
+
+    def test_fan_speed_returns_none_when_eco_mode_missing(self):
+        vacuum = _make_purei9_gen1_vacuum()
+        status: dict[str, Any] = cast(dict, vacuum.appliance_status)
+        if "properties" in status and "reported" in status["properties"]:
+            del status["properties"]["reported"]["ecoMode"]
+            vacuum.reported_state = status["properties"]["reported"]
+        assert vacuum.fan_speed is None
+
+    @pytest.mark.asyncio
+    async def test_set_fan_speed_eco_sends_power_mode_1(self):
+        """Setting Eco sends powerMode=1 (API rejects direct ecoMode writes)."""
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=False)
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_set_fan_speed("Eco")
+
+        call = mock_execute.await_args
+        assert call is not None
+        _, _, command, attr, _, _ = call.args
+        assert attr == "powerMode"
+        assert command == {"powerMode": 1}
+
+    @pytest.mark.asyncio
+    async def test_set_fan_speed_power_sends_power_mode_3(self):
+        """Setting Power sends powerMode=3."""
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=True)
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_set_fan_speed("Power")
+
+        call = mock_execute.await_args
+        assert call is not None
+        _, _, command, attr, _, _ = call.args
+        assert attr == "powerMode"
+        assert command == {"powerMode": 3}
+
+    @pytest.mark.asyncio
+    async def test_set_fan_speed_eco_updates_eco_mode_optimistically(self):
+        """After setting Eco, ecoMode is optimistically set to True."""
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=False)
+        vacuum._apply_optimistic_update = MagicMock()
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ):
+            await vacuum.async_set_fan_speed("Eco")
+
+        # Should optimistically update ecoMode (not powerMode)
+        calls = vacuum._apply_optimistic_update.call_args_list
+        assert any(c.args[0] == "ecoMode" and c.args[1] is True for c in calls)
+
+    @pytest.mark.asyncio
+    async def test_set_fan_speed_power_updates_eco_mode_optimistically(self):
+        """After setting Power, ecoMode is optimistically set to False."""
+        vacuum = _make_purei9_gen1_vacuum(eco_mode=True)
+        vacuum._apply_optimistic_update = MagicMock()
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ):
+            await vacuum.async_set_fan_speed("Power")
+
+        calls = vacuum._apply_optimistic_update.call_args_list
+        assert any(c.args[0] == "ecoMode" and c.args[1] is False for c in calls)
+
+    @pytest.mark.asyncio
+    async def test_set_fan_speed_invalid_label_does_not_send(self):
+        """Invalid fan speed label is rejected without sending a command."""
+        vacuum = _make_purei9_gen1_vacuum()
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_set_fan_speed("Standard")
+
+        mock_execute.assert_not_awaited()
+
+    def test_battery_level_scales_gen1_levels(self):
+        """Gen 1 battery (1-6) is scaled to percentage."""
+        vacuum = _make_purei9_gen1_vacuum(battery_status=5)
+        assert vacuum.battery_level == 80
+
+    def test_activity_returns_docked_for_gen1(self):
+        """Gen 1 robot status 10 = sleeping/docked."""
+        vacuum = _make_purei9_gen1_vacuum(robot_status=10)
+        assert vacuum.activity == VacuumActivity.DOCKED
 
 
 class TestElectroluxVacuumModern:

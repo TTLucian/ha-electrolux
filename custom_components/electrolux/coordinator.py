@@ -212,7 +212,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             _LOGGER.error("Network error during authentication: %s", ex)
             raise ConfigEntryNotReady from ex
         except Exception as ex:
-            _LOGGER.exception("Unexpected error during authentication: %s", ex)
+            _LOGGER.exception("Unexpected error during authentication")
             raise ConfigEntryNotReady from ex
 
     def setup_token_refresh_callback(self) -> None:
@@ -877,8 +877,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         try:
             await asyncio.sleep(delay)
             await self._perform_sse_resync()
-        except asyncio.CancelledError:
-            raise
         finally:
             self._pending_sse_resync_task = None
 
@@ -1730,13 +1728,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 "applianceName"
             )
 
-            _LOGGER.error(
-                "Unexpected error setting up appliance %s (%s): %s - %s",
+            _LOGGER.exception(
+                "Unexpected error setting up appliance %s (%s): %s",
                 failed_appliance_id,
                 failed_appliance_name or "Unknown",
                 error_type,
-                ex,
-                exc_info=True,
             )
 
             # Create minimal appliance entry if we have an ID
@@ -2078,8 +2074,6 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 reloaded = await self._retry_missing_capabilities()
                 if reloaded:
                     return
-        except asyncio.CancelledError:
-            raise
         finally:
             self._capability_retry_task = None
 
