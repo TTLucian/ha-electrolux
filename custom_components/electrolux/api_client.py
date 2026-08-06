@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import issue_registry
 
+from .auth_errors import is_auth_error
 from .const import DOMAIN
 from .exceptions import NetworkError
 from .token_manager import ElectroluxTokenManager
@@ -134,17 +135,7 @@ async def safe_api_call(
         error_str = str(ex).lower()
 
         # Check for authentication errors
-        if any(
-            keyword in error_str
-            for keyword in [
-                "401",
-                "unauthorized",
-                "invalid grant",
-                "token",
-                "forbidden",
-                "auth",
-            ]
-        ):
+        if is_auth_error(ex):
             logger.warning("Authentication error during %s: %s", operation_name, ex)
             raise ConfigEntryAuthFailed(
                 "Authentication failed - please reauthenticate"
@@ -336,19 +327,9 @@ class ElectroluxApiClient:
             _LOGGER.debug("_handle_api_call: API call completed successfully")
             return result
         except Exception as ex:
-            error_msg = str(ex).lower()
             _LOGGER.debug(f"_handle_api_call: Exception caught: {ex}")
             # Check for authentication-related errors
-            if any(
-                keyword in error_msg
-                for keyword in [
-                    "401",
-                    "unauthorized",
-                    "invalid grant",
-                    "token",
-                    "forbidden",
-                ]
-            ):
+            if is_auth_error(ex):
                 # Trigger token refresh handler by logging the error
                 _LOGGER.error("API call failed with authentication error: %s", ex)
                 _LOGGER.debug(
@@ -548,16 +529,7 @@ class ElectroluxApiClient:
                     )
                     # Check if it's an auth error and trigger reauth
                     if self.hass and self.config_entry:
-                        error_msg = str(task.exception()).lower()
-                        auth_keywords = [
-                            "401",
-                            "unauthorized",
-                            "auth",
-                            "token",
-                            "invalid grant",
-                            "forbidden",
-                        ]
-                        if any(keyword in error_msg for keyword in auth_keywords):
+                        if is_auth_error(task.exception()):
                             _LOGGER.debug(
                                 f"SSE auth error detected: {task.exception()}"
                             )

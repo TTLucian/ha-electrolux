@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 from .api_client import ElectroluxApiClient, get_electrolux_session  # noqa: F401
+from .auth_errors import is_auth_error
 from .const import (
     CONF_NOTIFICATION_DEFAULT,
     CONF_NOTIFICATION_DIAG,
@@ -376,18 +377,9 @@ def map_command_error_to_home_assistant_error(
     """
 
     # Check for authentication errors first - these should be handled differently
-    error_str = str(ex).lower()
-    if any(
-        keyword in error_str
-        for keyword in [
-            "401",
-            "unauthorized",
-            "forbidden",
-            "invalid grant",
-            "token",
-            "auth",
-        ]
-    ):
+    # Only 401 counts here: the command endpoint answers 403 with "remote
+    # control disabled", which the status mapping below reports properly.
+    if is_auth_error(ex, auth_statuses=(401,)):
         logger.warning(
             "Authentication error detected for %s: %s",
             entity_attr,

@@ -17,6 +17,7 @@ from homeassistant.helpers import issue_registry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ElectroluxLibraryEntity
+from .auth_errors import is_auth_error
 from .const import DOMAIN, TIME_ENTITIES_TO_UPDATE
 from .models import Appliance, Appliances, ApplianceState
 from .util import (
@@ -82,16 +83,6 @@ TIMESTAMP_KEY = "timestamp"
 # Connectivity states
 STATE_CONNECTED = "connected"
 STATE_DISCONNECTED = "disconnected"
-
-# Authentication error keywords
-AUTH_ERROR_KEYWORDS = [
-    "401",
-    "unauthorized",
-    "auth",
-    "token",
-    "invalid grant",
-    "forbidden",
-]
 
 # Time entity thresholds
 # NOTE: Appliances like dishwashers count time in minutes but the API reports
@@ -298,8 +289,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         during command execution or other API calls outside the normal update cycle.
         """
         _LOGGER.debug("Handling authentication error: %s", exception)
-        error_msg = str(exception).lower()
-        if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
+        if is_auth_error(exception):
             _LOGGER.warning(f"Authentication failed during operation: {exception}")
             raise ConfigEntryAuthFailed(
                 "Token expired or invalid - please reauthenticate"
@@ -1837,9 +1827,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             except asyncio.CancelledError:
                 raise
             except Exception as ex:
-                error_msg = str(ex).lower()
                 # Check if this is an authentication error - these should still fail the update
-                if any(keyword in error_msg for keyword in AUTH_ERROR_KEYWORDS):
+                if is_auth_error(ex):
                     _LOGGER.warning(
                         f"[AUTH-DEBUG] Authentication error during data update: {ex}"
                     )
