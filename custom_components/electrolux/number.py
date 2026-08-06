@@ -345,7 +345,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             return False
 
         # Program and global duration/time entities are never locked
-        if self.entity_attr in ["program", "targetDuration", "startTime"]:
+        if self.entity_attr in ["program", "targetDuration", "startTime", "stopTime"]:
             return False
 
         # Food probe temperature locked when probe not inserted
