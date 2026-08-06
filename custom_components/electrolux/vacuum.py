@@ -28,7 +28,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 SERVICE_START_ZONE_CLEANING = "start_zone_cleaning"
 
-SERVICE_START_ZONE_CLEANING_SCHEMA = vol.Schema(
+SERVICE_START_ZONE_CLEANING_SCHEMA = cv.make_entity_service_schema(
     {
         vol.Required("persistent_map_id"): vol.All(cv.string, vol.Length(min=1)),
         vol.Required("zones"): vol.All(
