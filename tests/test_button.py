@@ -7,6 +7,10 @@ from homeassistant.const import EntityCategory
 
 from custom_components.electrolux.button import ElectroluxButton
 from custom_components.electrolux.const import BUTTON
+from custom_components.electrolux.execute_command_states import (
+    DRYER_EXECUTE_STATES,
+    execute_states_from_capabilities,
+)
 
 
 class TestElectroluxButton:
@@ -609,6 +613,299 @@ class TestButtonAvailableWhenStates:
         )
         entity = self._make_button(mock_coordinator, mock_capability, catalog_entry)
         # val_to_send="PRESS" not in dict → allowed_states is None → skip, return super().available
+        assert entity.available is True
+
+
+# Trimmed from a live TD-916900511 (AEG dryer) /info response. Note that
+# IDLE accepts ON, not START, which is what DRYER_EXECUTE_STATES claims.
+DRYER_TRIGGERS = {
+    "applianceState": {
+        "access": "read",
+        "triggers": [
+            {
+                "action": {"executeCommand": {"values": {"PAUSE": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "DELAYED_START",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"ON": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "IDLE",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {
+                    "executeCommand": {"values": {"RESUME": {}, "STOPRESET": {}}}
+                },
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "PAUSED",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"START": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "READY_TO_START",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"PAUSE": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"STOPRESET": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "END_OF_CYCLE",
+                    "operator": "eq",
+                },
+            },
+            # Disabled actions carry no values and must be ignored.
+            {
+                "action": {"executeCommand": {"disabled": True}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "END_OF_CYCLE",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"disabled": False}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "END_OF_CYCLE",
+                    "operator": "ne",
+                },
+            },
+        ],
+    }
+}
+
+
+class TestExecuteStatesFromCapabilities:
+    """Test deriving executeCommand rules from an appliance's own triggers."""
+
+    def test_derives_state_machine_from_triggers(self):
+        """Every trigger becomes a command with the states that accept it."""
+        assert execute_states_from_capabilities(DRYER_TRIGGERS) == {
+            "PAUSE": ["DELAYED_START", "RUNNING"],
+            "ON": ["IDLE"],
+            "RESUME": ["PAUSED"],
+            "STOPRESET": ["PAUSED", "END_OF_CYCLE"],
+            "START": ["READY_TO_START"],
+        }
+
+    def test_start_is_not_valid_in_idle_on_this_dryer(self):
+        """Regression: DRYER_EXECUTE_STATES allows START in IDLE, this model does not."""
+        derived = execute_states_from_capabilities(DRYER_TRIGGERS)
+        assert "IDLE" not in derived["START"]
+        assert "IDLE" in DRYER_EXECUTE_STATES["START"]
+
+    @pytest.mark.parametrize(
+        "capabilities",
+        [
+            None,
+            {},
+            {"applianceState": {"access": "read"}},
+            {"applianceState": {"triggers": []}},
+            "not a dict",
+        ],
+        ids=["none", "empty", "no-triggers-key", "empty-triggers", "wrong-type"],
+    )
+    def test_returns_none_without_usable_triggers(self, capabilities):
+        """Nothing to derive means the caller falls back to the catalog table."""
+        assert execute_states_from_capabilities(capabilities) is None
+
+    @pytest.mark.parametrize(
+        "trigger",
+        [
+            {"action": {"executeCommand": {"values": {"START": {}}}}},
+            {
+                "action": {"executeCommand": {"values": {"START": {}}}},
+                "condition": {
+                    "operand_1": {"operand_1": "value"},
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"START": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "ne",
+                },
+            },
+            {
+                "action": {"endOfCycleSound": {"access": "read"}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": {"START": {}}}},
+                "condition": "RUNNING",
+            },
+            {
+                "action": {"executeCommand": {"values": {"START": {}}}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": {"operand_1": "value"},
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": "START",
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": "START"},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            {
+                "action": {"executeCommand": {"values": ["START"]}},
+                "condition": {
+                    "operand_1": "value",
+                    "operand_2": "RUNNING",
+                    "operator": "eq",
+                },
+            },
+            "not a dict",
+        ],
+        ids=[
+            "no-condition",
+            "compound-operand",
+            "ne-operator",
+            "other-action",
+            "condition-not-a-dict",
+            "state-not-a-string",
+            "action-not-a-dict",
+            "command-not-a-dict",
+            "values-not-a-dict",
+            "wrong-type",
+        ],
+    )
+    def test_skips_triggers_it_cannot_read(self, trigger):
+        """Only simple equality conditions on executeCommand values are used."""
+        caps = {"applianceState": {"triggers": [trigger]}}
+        assert execute_states_from_capabilities(caps) is None
+
+
+class TestButtonAvailabilityPrefersAppliance:
+    """Test that button availability follows the appliance over the catalog."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator._last_update_times = {}
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "key"}
+        return coordinator
+
+    def _make_button(self, coordinator, appliance_state, val_to_send, capabilities):
+        """Build a dryer executeCommand button sitting in a given applianceState."""
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        if capabilities is None:
+            coordinator.data = None
+        else:
+            appliance = MagicMock()
+            appliance.data.capabilities = capabilities
+            appliances = MagicMock()
+            appliances.get_appliance.return_value = appliance
+            coordinator.data = {"appliances": appliances}
+
+        entity = ElectroluxButton(
+            coordinator=coordinator,
+            capability={"access": "write", "type": "boolean"},
+            name="Dries",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name="execute_command",
+            entity_attr="executeCommand",
+            entity_source=None,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=ElectroluxDevice(
+                capability_info={"access": "write"},
+                available_when_states=DRYER_EXECUTE_STATES,
+            ),
+            val_to_send=val_to_send,
+        )
+        reported = {
+            "applianceState": appliance_state,
+            "connectivityState": "connected",
+        }
+        entity.appliance_status = {"properties": {"reported": reported}}
+        entity._reported_state_cache = reported
+        return entity
+
+    def test_start_hidden_in_idle_when_appliance_says_so(self, mock_coordinator):
+        """The bug: the catalog allows START in IDLE, the appliance only accepts ON."""
+        caps = DRYER_TRIGGERS
+        entity = self._make_button(mock_coordinator, "IDLE", "START", caps)
+        assert entity.available is False
+
+    def test_on_offered_in_idle_although_catalog_omits_it(self, mock_coordinator):
+        """DRYER_EXECUTE_STATES has no ON entry at all, the appliance does."""
+        caps = DRYER_TRIGGERS
+        entity = self._make_button(mock_coordinator, "IDLE", "ON", caps)
+        assert entity.available is True
+
+    def test_start_offered_in_ready_to_start(self, mock_coordinator):
+        """The normal path still works."""
+        caps = DRYER_TRIGGERS
+        entity = self._make_button(mock_coordinator, "READY_TO_START", "START", caps)
+        assert entity.available is True
+
+    def test_falls_back_to_catalog_without_triggers(self, mock_coordinator):
+        """An appliance publishing no triggers keeps the catalog behaviour."""
+        entity = self._make_button(mock_coordinator, "IDLE", "START", {})
+        assert entity.available is True
+
+    def test_survives_coordinator_without_data(self, mock_coordinator):
+        """available() is also called before the first refresh and after unload."""
+        entity = self._make_button(mock_coordinator, "IDLE", "START", None)
+        assert entity.available is True
+
+    def test_survives_coordinator_without_appliances(self, mock_coordinator):
+        """Coordinator has data but has not populated appliances yet."""
+        entity = self._make_button(mock_coordinator, "IDLE", "START", DRYER_TRIGGERS)
+        mock_coordinator.data = {"appliances": None}
+        assert entity.available is True
+
+    def test_survives_appliance_removed(self, mock_coordinator):
+        """The appliance is gone from the coordinator but its entities still exist."""
+        entity = self._make_button(mock_coordinator, "IDLE", "START", DRYER_TRIGGERS)
+        mock_coordinator.data["appliances"].get_appliance.return_value = None
         assert entity.available is True
 
 
