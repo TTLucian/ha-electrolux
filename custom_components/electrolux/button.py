@@ -46,9 +46,9 @@ async def async_setup_entry(
 
 class ElectroluxButton(ElectroluxEntity, ButtonEntity):
     """Electrolux button class."""
+
     _execute_states_cache: dict[str, list[str]] | None = None
     _execute_states_cache_caps_id: int | None = None
-
 
     def __init__(
         self,
@@ -149,34 +149,21 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         caps_id = id(caps)
 
-        if (
-
-            hasattr(self, "_execute_states_cache")
-
-            and getattr(self, "_execute_states_cache_caps_id", None) == caps_id
-
-        ):
-
+        if hasattr(self, "_execute_states_cache") and getattr(self, "_execute_states_cache_caps_id", None) == caps_id:
             return cast(dict[str, list[str]] | None, self._execute_states_cache)
-
 
         derived = execute_states_from_capabilities(caps, entity_source=self.entity_source)
 
         states = derived
 
         if states is None and self._catalog_entry:
-
             states = self._catalog_entry.available_when_states
-
-
 
         self._execute_states_cache = states
 
         self._execute_states_cache_caps_id = caps_id
 
         return states
-
-
 
     def _appliance_capabilities(self) -> dict[str, Any] | None:
         """Return this appliance's capabilities, or None if not loaded yet.
@@ -193,7 +180,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         if appliance is None:
             return None
         return getattr(getattr(appliance, "data", None), "capabilities", None)
-        
+
     @property
     def available(self) -> bool:
         # Check state restrictions first, appliance-derived or catalog-defined.
@@ -204,9 +191,8 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
                 current_state = self.reported_state.get("applianceState")
                 if current_state not in allowed_states:
                     return False
-        
-        return super().available
 
+        return super().available
 
     @property
     def icon(self) -> str | None:
@@ -232,7 +218,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         # Remote control validation removed - API handles this with precise appliance-specific rules.
         # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
         # that only the API can accurately validate. Error handling in util.py displays friendly messages.
-
+        
         client: ElectroluxApiClient = self.api
         value = self.val_to_send
         command: dict[str, Any]
