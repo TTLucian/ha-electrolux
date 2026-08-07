@@ -48,6 +48,9 @@ async def async_setup_entry(
 
 class ElectroluxButton(ElectroluxEntity, ButtonEntity):
     """Electrolux button class."""
+    _execute_states_cache: dict[str, list[str]] | None = None
+    _execute_states_cache_caps_id: int | None = None
+
 
     def __init__(
         self,
@@ -148,23 +151,39 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         A dryer that only accepts ON in IDLE, for example, would otherwise show
         an enabled Start button that can only ever answer 406.
         """
-        caps = self._appliance_capabilities()
-        caps_id = id(caps)
-        if (
-            hasattr(self, "_execute_states_cache")
-            and getattr(self, "_execute_states_cache_caps_id", None) == caps_id
-        ):
-            return cast(dict[str, list[str]] | None, self._execute_states_cache)
+        caps = self._appliance_capabilities()
 
-        derived = execute_states_from_capabilities(caps, entity_source=self.entity_source)
-        states = derived
-        if states is None and self._catalog_entry:
-            states = self._catalog_entry.available_when_states
-
-        self._execute_states_cache = states
-        self._execute_states_cache_caps_id = caps_id
-        return states
-
+        caps_id = id(caps)
+
+        if (
+
+            hasattr(self, "_execute_states_cache")
+
+            and getattr(self, "_execute_states_cache_caps_id", None) == caps_id
+
+        ):
+
+            return cast(dict[str, list[str]] | None, self._execute_states_cache)
+
+
+        derived = execute_states_from_capabilities(caps, entity_source=self.entity_source)
+
+        states = derived
+
+        if states is None and self._catalog_entry:
+
+            states = self._catalog_entry.available_when_states
+
+
+
+        self._execute_states_cache = states
+
+        self._execute_states_cache_caps_id = caps_id
+
+        return states
+
+
+
     def _appliance_capabilities(self) -> dict[str, Any] | None:
         """Return this appliance's capabilities, or None if not loaded yet.
 
