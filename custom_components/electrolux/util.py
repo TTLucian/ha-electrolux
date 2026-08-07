@@ -841,7 +841,7 @@ def format_command_for_appliance(
 
             return numeric_value
 
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             _LOGGER.warning(
                 "Invalid numeric value %s for attribute %s, using as-is", value, attr
             )

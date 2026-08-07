@@ -283,7 +283,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             return None
         try:
             return _PUREI9_STATUS_TO_ACTIVITY.get(int(status_value))
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             _LOGGER.debug(
                 "Invalid robotStatus value '%s' for appliance %s",
                 status_value,
@@ -298,7 +298,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         if value is not None:
             try:
                 battery_value = float(value)
-            except TypeError, ValueError:
+            except (TypeError, ValueError):
                 _LOGGER.debug(
                     "Invalid batteryStatus value '%s' for appliance %s",
                     value,
@@ -356,7 +356,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         if self._is_purei9:
             try:
                 return _PUREI9_INT_TO_SPEED.get(int(value))
-            except ValueError, TypeError:
+            except (ValueError, TypeError):
                 return None
         return str(value)
 
@@ -446,7 +446,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                 # Fall back to direct integer for backward compatibility
                 try:
                     value = int(fan_speed)
-                except ValueError, TypeError:
+                except (ValueError, TypeError):
                     _LOGGER.error(
                         "Invalid PUREi9 fan speed '%s' — expected one of %s",
                         fan_speed,

@@ -1188,7 +1188,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             self.renew_task.cancel()
             try:
                 await asyncio.wait_for(self.renew_task, timeout=TASK_CANCEL_TIMEOUT)
-            except TimeoutError, asyncio.CancelledError:
+            except (TimeoutError, asyncio.CancelledError):
                 _LOGGER.debug("Electrolux renewal task cancelled/timeout during close")
 
         # Cancel the SSE listen task
@@ -1196,7 +1196,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             self.listen_task.cancel()
             try:
                 await asyncio.wait_for(self.listen_task, timeout=TASK_CANCEL_TIMEOUT)
-            except TimeoutError, asyncio.CancelledError:
+            except (TimeoutError, asyncio.CancelledError):
                 _LOGGER.debug("SSE listen task cancelled/timeout during close")
 
         # Cancel all deferred tasks.
