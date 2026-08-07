@@ -150,6 +150,8 @@ DISHWASHER_EXECUTE_STATES: dict[str, list[str]] = {
 
 def execute_states_from_capabilities(
     capabilities: dict[str, Any] | None,
+    *,
+    entity_source: str | None = None,
 ) -> dict[str, list[str]] | None:
     """Derive the executeCommand rules from an appliance's own capabilities.
 
@@ -168,7 +170,12 @@ def execute_states_from_capabilities(
     """
     if not isinstance(capabilities, dict):
         return None
-    appliance_state = capabilities.get("applianceState")
+
+    appliance_state: Any | None = None
+    if entity_source:
+        appliance_state = capabilities.get(f"{entity_source}/applianceState")
+    if appliance_state is None:
+        appliance_state = capabilities.get("applianceState")
     if not isinstance(appliance_state, dict):
         return None
 
