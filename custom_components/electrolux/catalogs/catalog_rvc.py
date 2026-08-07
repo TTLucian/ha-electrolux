@@ -794,6 +794,47 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:volume-high",
         friendly_name="Voice Volume Level",
     ),
+    # ── Gordias / 700series diagnostic sensors (#159) ────────────────────────────
+    "dockType": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:ev-station",
+        friendly_name="Dock Type",
+    ),
+    "logE": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert-circle",
+        friendly_name="Error Log Count",
+    ),
+    "logW": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:alert",
+        friendly_name="Warning Log Count",
+    ),
+    "niuStatus": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=SensorDeviceClass.ENUM,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:wifi",
+        friendly_name="NIU Status",
+    ),
+    "soundPackFile": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:speaker",
+        friendly_name="Sound Pack File",
+    ),
     # --- Pure i9 read-only map / cleaning-session data (#130) ---
     "persistentMapsCreated/mapId": ElectroluxDevice(
         capability_info={"access": "read", "type": "string"},

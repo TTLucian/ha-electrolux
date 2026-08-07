@@ -371,6 +371,37 @@ class TestCatalogRobotVacuum:
             assert entry.entity_category == EntityCategory.DIAGNOSTIC
             assert entry.entity_registry_enabled_default is True
 
+    def test_rvc_has_gordias_700series_diagnostic_sensors(self):
+        """Gordias 700series diagnostic sensors are in the catalog (#159)."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        expected_keys = {
+            "dockType": ("mdi:ev-station", SensorDeviceClass.ENUM),
+            "logE": ("mdi:alert-circle", None),
+            "logW": ("mdi:alert", None),
+            "niuStatus": ("mdi:wifi", SensorDeviceClass.ENUM),
+            "soundPackFile": ("mdi:speaker", None),
+        }
+        for key, (icon, device_class) in expected_keys.items():
+            assert key in CATALOG_RVC, f"missing {key}"
+            entry = CATALOG_RVC[key]
+            assert isinstance(entry, ElectroluxDevice)
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_icon == icon
+            assert entry.device_class == device_class
+
+    def test_700series_maps_to_rvc_catalog(self):
+        """700series appliance type should use the robot vacuum catalog."""
+        from custom_components.electrolux.catalog_core import CATALOG_BY_TYPE
+
+        catalog = CATALOG_BY_TYPE()
+        assert "700series" in catalog
+        assert "vacuumMode" in catalog["700series"]
+        assert "dockType" in catalog["700series"]
+
 
 class TestCatalogDishwasher:
     """Tests for catalog_dw.py."""

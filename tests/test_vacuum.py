@@ -986,3 +986,57 @@ class TestElectroluxVacuumZoneCleaning:
                     }
                 ],
             )
+
+
+class TestElectroluxVacuum700series:
+    """Test 700series appliance type support (#159)."""
+
+    def test_700series_is_in_rvc_types(self):
+        """700series appliance type is included in _RVC_TYPES."""
+        from custom_components.electrolux.vacuum import _RVC_TYPES
+
+        assert "700series" in _RVC_TYPES
+
+    def test_700series_is_not_purei9(self):
+        """700series uses the modern API, not the legacy PUREi9 API."""
+        from custom_components.electrolux.vacuum import _PUREI9_TYPES
+
+        assert "700series" not in _PUREI9_TYPES
+
+    def test_700series_modern_vacuum_activity(self):
+        """700series vacuum correctly reports activity via modern state mapping."""
+        vacuum = _make_modern_vacuum(state="inProgress", appliance_type="700series")
+        assert vacuum.activity == VacuumActivity.CLEANING
+
+    @pytest.mark.asyncio
+    async def test_async_setup_entry_creates_vacuum_for_700series(self):
+        """async_setup_entry creates a vacuum entity for 700series appliance type."""
+        from custom_components.electrolux.vacuum import async_setup_entry
+
+        hass = MagicMock()
+        entry = MagicMock()
+        async_add_entities = MagicMock()
+
+        coordinator = MagicMock()
+        coordinator.data = {}
+        appliance = MagicMock()
+        appliance.appliance_type = "700series"
+        appliance.name = "Luxxie"
+        appliance.pnc_id = "700_PNC"
+        appliances = MagicMock()
+        appliances.appliances = {"app1": appliance}
+        coordinator.data["appliances"] = appliances
+        entry.runtime_data = coordinator
+
+        with (
+            patch(
+                "custom_components.electrolux.vacuum.ElectroluxVacuum"
+            ) as mock_vacuum_class,
+            patch(
+                "custom_components.electrolux.vacuum.async_get_current_platform"
+            ),
+        ):
+            await async_setup_entry(hass, entry, async_add_entities)
+
+        mock_vacuum_class.assert_called_once()
+        async_add_entities.assert_called_once()
