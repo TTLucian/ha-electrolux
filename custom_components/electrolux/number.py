@@ -698,7 +698,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         ):
             try:
                 c_target = fahrenheit_to_celsius(float(value))
+
             except (TypeError, ValueError):
+
                 c_target = None
             if c_target is None:
                 return

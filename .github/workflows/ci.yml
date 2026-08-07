@@ -44,9 +44,9 @@ jobs:
       - name: Lint with Ruff
         run: ruff check custom_components/electrolux
 
-      # 6️⃣ Format code with Black
-      - name: Format code with Black
-        run: black custom_components/electrolux
+      # 6️⃣ Check formatting with Black (check-only — fixes must be committed locally)
+      - name: Check formatting with Black
+        run: black --check --diff custom_components/electrolux
 
       # 7️⃣ Validate Home Assistant integration
       # Removed due to import issues in CI environment

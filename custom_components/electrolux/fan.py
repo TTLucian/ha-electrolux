@@ -201,6 +201,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                     caps = appliance.data.capabilities
                     if caps:
                         return caps.get(attr_name)
+
         except (KeyError, AttributeError):
             pass
         return None
