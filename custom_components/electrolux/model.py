@@ -28,16 +28,15 @@ class ElectroluxDevice:
     # type used here will override internal definitions / guesstimates
     # entity_platform will override the device_class specified
     device_class: (
-        BinarySensorDeviceClass
-        | ButtonDeviceClass
-        | NumberDeviceClass
-        | SensorDeviceClass
-        | SwitchDeviceClass
-        | None
+        BinarySensorDeviceClass | ButtonDeviceClass | NumberDeviceClass | SensorDeviceClass | SwitchDeviceClass | None
     ) = None
 
-    # suggested unit of measurement
+    # native unit of measurement (matches what the API reports)
     unit: str | None = None
+
+    # suggested display unit override (e.g., suggest minutes while native is seconds)
+    # when None, the sensor platform applies a smart default for duration sensors
+    suggested_unit: str | None = None
 
     # Map the item to a HA category
     entity_category: EntityCategory | None = None
@@ -54,7 +53,7 @@ class ElectroluxDevice:
     # some entities return a string dict in capabilities but
     # an int in the api values. A defined dictionary can convert
     # those values from integer back to dictionary
-    value_mapping: dict[float | str, str] = field(default_factory=dict)
+    value_mapping: dict[int | float | str, str] = field(default_factory=dict)
 
     # some on/off entiites derive their state from different api values
     # for instance, the state of the iceMaker is derived from
@@ -79,12 +78,7 @@ class ElectroluxDevice:
 
     # Device class override paired with reported_only_entity_platform.
     reported_only_device_class: (
-        BinarySensorDeviceClass
-        | ButtonDeviceClass
-        | NumberDeviceClass
-        | SensorDeviceClass
-        | SwitchDeviceClass
-        | None
+        BinarySensorDeviceClass | ButtonDeviceClass | NumberDeviceClass | SensorDeviceClass | SwitchDeviceClass | None
     ) = None
 
     # Custom icons map according to values : useful for execute commands buttons

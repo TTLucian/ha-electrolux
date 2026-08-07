@@ -64,9 +64,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == FAN
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == FAN]
             _LOGGER.debug(
                 "Electrolux add %d FAN entities to registry for appliance %s",
                 len(entities),
@@ -127,9 +125,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         if workmode_cap := self.get_capability("Workmode"):
             if values := workmode_cap.get("values", {}):
                 # Extract all modes except PowerOff (that's handled by on/off)
-                self._preset_modes = [
-                    mode for mode in values if mode.lower() != "poweroff"
-                ]
+                self._preset_modes = [mode for mode in values if mode.lower() != "poweroff"]
 
         self._attr_preset_modes = self._preset_modes if self._preset_modes else None
         self._attr_speed_count = self._speed_range[1] - self._speed_range[0] + 1
@@ -201,7 +197,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                     caps = appliance.data.capabilities
                     if caps:
                         return caps.get(attr_name)
-        except KeyError, AttributeError:
+
+        except KeyError:
+            pass
+        except AttributeError:
             pass
         return None
 
@@ -255,9 +254,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             return percentage
 
         except (ValueError, TypeError) as ex:
-            _LOGGER.warning(
-                "Could not convert Fanspeed value %s to percentage: %s", fanspeed, ex
-            )
+            _LOGGER.warning("Could not convert Fanspeed value %s to percentage: %s", fanspeed, ex)
             return None
 
     @property
@@ -399,9 +396,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         try:
             speed_value = percentage_to_ordered_list_item(speed_range, percentage)
         except ValueError:
-            _LOGGER.warning(
-                "Invalid percentage %s for speed range %s", percentage, speed_range
-            )
+            _LOGGER.warning("Invalid percentage %s for speed range %s", percentage, speed_range)
             return
 
         # Get the Fanspeed capability for the appliance
@@ -498,9 +493,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         # reported["Workmode"]["Workmode"] instead of reported["Workmode"].
         self._apply_workmode_state(mode)
 
-    async def _send_command(
-        self, attr_name: str, value: Any, capability: dict[str, Any]
-    ) -> None:
+    async def _send_command(self, attr_name: str, value: Any, capability: dict[str, Any]) -> None:
         """Send command to appliance."""
         client: ElectroluxApiClient = self.api
 
@@ -522,9 +515,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 command = {
@@ -544,14 +535,10 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         if self.is_dam_appliance:
             command = {"commands": [command]}
 
-        _LOGGER.debug(
-            "Electrolux fan sending command for %s: %s", attr_name, command_value
-        )
+        _LOGGER.debug("Electrolux fan sending command for %s: %s", attr_name, command_value)
 
         try:
-            await execute_command_with_error_handling(
-                client, self.pnc_id, command, attr_name, _LOGGER, capability
-            )
+            await execute_command_with_error_handling(client, self.pnc_id, command, attr_name, _LOGGER, capability)
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]

@@ -374,7 +374,7 @@ class TestHandleCoordinatorUpdateGaps:
         )
         entity.pnc_id = "TEST_PNC"
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         # Set initial program_cache_key to something different
         entity._program_cache_key = "OldProgram"
@@ -410,7 +410,7 @@ class TestHandleCoordinatorUpdateGaps:
         )
         entity.pnc_id = "TEST_PNC"
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
         entity._program_cache_key = "OldProgram"
         entity._is_supported_cache = True
         entity._constraints_cache = {"max": 90}
@@ -454,7 +454,7 @@ class TestHandleCoordinatorUpdateGaps:
         entity.pnc_id = "TEST_PNC"
         entity._reported_state_cache = {"old": "data"}
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 
@@ -480,7 +480,7 @@ class TestHandleCoordinatorUpdateGaps:
         )
         entity.pnc_id = "TEST_PNC"
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
         # Same program already in cache
         entity._program_cache_key = "Cotton"
         entity._is_supported_cache = True
@@ -564,7 +564,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(reported={"targetTemperatureC": 50})
         entity.entity_id = "number.electrolux_targettemperaturec"
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 60)
 
@@ -576,7 +576,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(reported={"targetTemperatureC": 50})
         entity.entity_id = ""  # Not yet registered (falsy, same as unset)
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 65)
 
@@ -588,7 +588,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(reported={"mode": "cool"})
         entity.entity_id = ""  # Not yet registered (falsy)
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         # Should not raise and should update state
         entity._apply_optimistic_update("mode", "heat", log_message="user changed mode")
@@ -599,7 +599,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity()
         entity.appliance_status = None
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("targetTemperatureC", 50)
 
@@ -616,7 +616,7 @@ class TestApplyOptimisticUpdateGaps:
         )
         entity.entity_id = ""
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("glassCareOption", True)
 
@@ -638,7 +638,7 @@ class TestApplyOptimisticUpdateGaps:
         )
         entity.entity_id = ""
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         # Optimistically toggle ON
         entity._apply_optimistic_update("extraPowerOption", True)
@@ -663,7 +663,7 @@ class TestApplyOptimisticUpdateGaps:
         )
         entity.entity_id = ""
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("mode", "heat")
 
@@ -714,7 +714,7 @@ class TestApplyOptimisticUpdateGaps:
         ).data.capabilities = capabilities
         entity.entity_id = ""
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -951,7 +951,7 @@ class TestApplyOptimisticUpdateGaps:
         ).data.capabilities = capabilities
         entity.entity_id = ""
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._apply_optimistic_update("extraPowerOption", True)
 
@@ -1100,16 +1100,16 @@ class TestDeviceInfoGaps:
 
 
 class TestNameProperty:
-    """Cover catalog_entry.friendly_name branch."""
+    """Cover name fallback behavior when localization is not resolved at runtime."""
 
     def test_name_from_catalog_friendly_name(self):
-        """name returns capitalized catalog friendly_name when present."""
+        """name falls back to provided name instead of catalog friendly_name."""
         catalog = MagicMock()
         catalog.friendly_name = "target temperature"
         catalog.entity_icon = None
         catalog.entity_registry_enabled_default = True
         entity = make_entity(catalog_entry=catalog)
-        assert entity.name == "Target temperature"
+        assert entity.name == "Test Entity"
 
     def test_name_fallback_when_no_catalog(self):
         """name returns _name when no catalog entry."""
@@ -1870,15 +1870,17 @@ class TestLine105FallbackWithAttr:
         add_entities = MagicMock()
 
         # First slugify call returns "" (triggers fallback), second returns actual slug
-        with patch(
-            "custom_components.electrolux.entity.slugify",
-            side_effect=["", "device_abc_targettemperaturec"],
-        ):
-            with patch(
+        with (
+            patch(
+                "custom_components.electrolux.entity.slugify",
+                side_effect=["", "device_abc_targettemperaturec"],
+            ),
+            patch(
                 "custom_components.electrolux.entity.er.async_get",
                 return_value=mock_registry,
-            ):
-                await async_setup_entry(MagicMock(), entry, add_entities)
+            ),
+        ):
+            await async_setup_entry(MagicMock(), entry, add_entities)
 
         add_entities.assert_called_once()
         mock_registry.async_get_or_create.assert_called_once()
@@ -1921,7 +1923,7 @@ class TestHandleCoordinatorUpdateEarlyExits:
         entity = make_entity()
         entity.coordinator.data = None  # type: ignore[assignment]
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         # Should not raise
         entity._handle_coordinator_update()
@@ -1934,7 +1936,7 @@ class TestHandleCoordinatorUpdateEarlyExits:
         entity = make_entity()
         entity.coordinator.data = {"appliances": None}
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 
@@ -1945,7 +1947,7 @@ class TestHandleCoordinatorUpdateEarlyExits:
         entity = make_entity()
         entity.coordinator.data = {}  # no "appliances" key
         write_mock = MagicMock()
-        setattr(entity, "async_write_ha_state", write_mock)
+        object.__setattr__(entity, "async_write_ha_state", write_mock)
 
         entity._handle_coordinator_update()
 

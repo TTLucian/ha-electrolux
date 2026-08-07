@@ -35,9 +35,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == BUTTON
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == BUTTON]
             _LOGGER.debug(
                 "Electrolux add %d BUTTON entities to registry for appliance %s",
                 len(entities),
@@ -108,9 +106,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         """Return a unique ID to use for this entity."""
         # Use stable unique_id based on API key hash, including val_to_send for button differentiation
         api_key = self.config_entry.data.get(CONF_API_KEY, "")
-        api_key_hash = (
-            hashlib.sha256(api_key.encode()).hexdigest()[:16] if api_key else "unknown"
-        )
+        api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()[:16] if api_key else "unknown"
         # Normalize entity_attr by removing fPPN prefix for consistent unique_ids
         normalized_attr = self.entity_attr.lower()
         if normalized_attr.startswith("fppn_"):
@@ -131,9 +127,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             if appliances:
                 appliance = appliances.get_appliance(self.pnc_id)
                 if appliance:
-                    name = (
-                        f"{appliance.name} {self.catalog_entry.friendly_name.lower()}"
-                    )
+                    name = f"{appliance.name} {self.catalog_entry.friendly_name.lower()}"
         # Get the last word from the 'name' variable
         # and compare to the command we are sending duplicate names
         # "air filter state reset reset" for instance
@@ -200,25 +194,23 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             return None
         return getattr(getattr(appliance, "data", None), "capabilities", None)
 
-    @property
-    def available(self) -> bool:
-        """Return True only when the button action is valid in the current appliance state."""
-        # Check state restrictions first, appliance-derived or catalog-defined.
-        # A command absent from the rules is left unrestricted, as before.
-        if execute_states := self._execute_states:
-            allowed_states = execute_states.get(self.val_to_send)
-            if allowed_states is not None:
-                current_state = self.reported_state.get("applianceState")
-                if current_state not in allowed_states:
-                    return False
-        return super().available
+# Check state restrictions first, appliance-derived or catalog-defined.
+# A command absent from the rules is left unrestricted, as before.
+if execute_states := self._execute_states:
+    allowed_states = execute_states.get(self.val_to_send)
+
+if allowed_states is not None:
+    current_state = self.reported_state.get("applianceState")
+    if current_state not in allowed_states:
+        return False
+
+return super().available
+
 
     @property
     def icon(self) -> str | None:
         """Return the icon of the entity."""
-        return self._icon or icon_mapping.get(
-            self.val_to_send, "mdi:gesture-tap-button"
-        )
+        return self._icon or icon_mapping.get(self.val_to_send, "mdi:gesture-tap-button")
 
     async def send_command(self) -> bool:
         """Send a command to the device."""
@@ -254,9 +246,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 command = {
@@ -276,9 +266,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         _LOGGER.debug("Electrolux send command %s", command)
         try:
-            result = await execute_command_with_error_handling(
-                client, self.pnc_id, command, self.entity_attr, _LOGGER
-            )
+            result = await execute_command_with_error_handling(client, self.pnc_id, command, self.entity_attr, _LOGGER)
         except AuthenticationError as auth_ex:
             # Handle authentication errors by triggering reauthentication
             coordinator: ElectroluxCoordinator = self.coordinator  # type: ignore[assignment]
@@ -335,9 +323,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             fire_progress(3, "Starting fresh real-time data stream...", "75%")
 
             # Use the coordinator's thread-safe manual sync method
-            await cast(ElectroluxCoordinator, self.coordinator).perform_manual_sync(
-                self.pnc_id, appliance_name
-            )
+            await cast(ElectroluxCoordinator, self.coordinator).perform_manual_sync(self.pnc_id, appliance_name)
 
             # Complete
             fire_progress(4, "Manual sync completed successfully!", "100%")

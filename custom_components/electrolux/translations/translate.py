@@ -7,6 +7,8 @@ import time
 
 from deep_translator import GoogleTranslator
 
+NO_TRANSLATION_FOUND = "No translation was found using the current translator"
+
 
 def load_en_data():
     """Load English translations."""
@@ -16,59 +18,75 @@ def load_en_data():
         return json.load(file)
 
 
-def translate_text(text, dest_language):
+def translate_text(text, translator, cache):
     """Translate text to destination language while preserving placeholders.
 
     Placeholders like {variable} are extracted before translation and restored
     after, ensuring they remain in their original form with English names.
     Text entirely enclosed in braces is skipped from translation.
     """
-    if not text or text.strip() == "":
+    if not isinstance(text, str) or text.strip() == "":
         return text
+
+    if text in cache:
+        return cache[text]
 
     # If the entire text is enclosed in braces, skip translation
     if re.match(r"^\{.*\}$", text.strip()):
         return text
 
-    # Extract all placeholders {variable} and store them
-    placeholders = re.findall(r"\{(\w+)\}", text)
+    # Extract all placeholders like {variable} and store them.
+    # We keep the exact placeholder text to avoid changing placeholder names.
+    placeholders = re.findall(r"\{[^{}]+\}", text)
 
     # Replace placeholders with unique markers to avoid translation
     working_text = text
     placeholder_map = {}
     for i, placeholder in enumerate(placeholders):
-        marker = f"___PLACEHOLDER_{i}___"
-        placeholder_map[marker] = "{" + placeholder + "}"
-        working_text = working_text.replace("{" + placeholder + "}", marker, 1)
+        marker = f"__PH_{i}__"
+        placeholder_map[marker] = placeholder
+        working_text = working_text.replace(placeholder, marker, 1)
 
     try:
-        translator = GoogleTranslator(source="en", target=dest_language)
         result = translator.translate(working_text)
+        if not result:
+            cache[text] = text
+            return text
 
         # Restore original placeholders
         for marker, placeholder in placeholder_map.items():
             result = result.replace(marker, placeholder)
 
+        cache[text] = result
         return result
     except Exception as e:
-        print(f"Translation failed for '{text[:50]}...' to {dest_language}: {e}")
-        # Restore placeholders before returning original text
-        for marker, placeholder in placeholder_map.items():
-            text = text.replace("{" + placeholder.strip("{}") + "}", placeholder)
+        # Some short labels are not translatable for certain language pairs.
+        # Keep the original source text without treating this as fatal.
+        if NO_TRANSLATION_FOUND in str(e):
+            cache[text] = text
+            return text
+        print(f"Translation failed for '{text[:50]}...': {e}")
+        cache[text] = text
         return text
 
 
-def translate_dict(data, dest_language):
-    """Translate dictionary values recursively."""
-    translated = {}
-    for key, value in data.items():
-        if isinstance(value, dict):
-            translated[key] = translate_dict(value, dest_language)
-        else:
-            translated[key] = translate_text(value, dest_language)
-        # Small delay to avoid rate limiting
-        time.sleep(0.1)
-    return translated
+def translate_value(value, translator, cache):
+    """Translate nested values recursively while preserving non-string types."""
+    if isinstance(value, dict):
+        translated = {}
+        for key, nested_value in value.items():
+            translated[key] = translate_value(nested_value, translator, cache)
+            # Small delay to avoid rate limiting
+            time.sleep(0.1)
+        return translated
+
+    if isinstance(value, list):
+        return [translate_value(item, translator, cache) for item in value]
+
+    if isinstance(value, str):
+        return translate_text(value, translator, cache)
+
+    return value
 
 
 def main():
@@ -78,33 +96,33 @@ def main():
 
     # Define the target languages (excluding English)
     languages = {
-        "български": "bg",
-        "český": "cs",
-        "Dansk": "da",
-        "Deutsch": "de",
-        "ελληνικός": "el",
-        "Español": "es",
-        "eesti": "et",
-        "Suomi": "fi",
-        "Français": "fr",
-        "Hrvatski": "hr",
-        "magyar": "hu",
-        "Italiano": "it",
-        "Lëtzebuergesch": "lb",
-        "lietuvių": "lt",
-        "latviešu": "lv",
-        "nederlands": "nl",
-        "norsk": "no",
-        "polski": "pl",
-        "Português Brasil": "pt_br",
-        "Português": "pt",
-        "Română": "ro",
-        "русский": "ru",
-        "slovenský": "sk",
-        "slovenščina": "sl",
-        "Svenska": "sv",
-        "Türkçe": "tr",
-        "Українська": "uk",
+        # "bg": ("български", "bg"),
+        # "cs": ("český", "cs"),
+        # "da": ("Dansk", "da"),
+        # "de": ("Deutsch", "de"),
+        # "el": ("ελληνικός", "el"),
+        # "es": ("Español", "es"),
+        # "et": ("eesti", "et"),
+        # "fi": ("Suomi", "fi"),
+        # "fr": ("Français", "fr"),
+        # "hr": ("Hrvatski", "hr"),
+        # "hu": ("magyar", "hu"),
+        # "it": ("Italiano", "it"),
+        # "lb": ("Lëtzebuergesch", "lb"),
+        # "lt": ("lietuvių", "lt"),
+        # "lv": ("latviešu", "lv"),
+        # "nl": ("nederlands", "nl"),
+        # "no": ("norsk", "no"),
+        # "pl": ("polski", "pl"),
+        # "pt_br": ("Português Brasil", "pt"),
+        # "pt": ("Português", "pt"),
+        # "ro": ("Română", "ro"),
+        "ru": ("русский", "ru"),
+        "sk": ("slovenský", "sk"),
+        "sl": ("slovenščina", "sl"),
+        "sv": ("Svenska", "sv"),
+        "tr": ("Türkçe", "tr"),
+        "uk": ("Українська", "uk"),
     }
 
     # Skip languages that are already manually translated
@@ -121,7 +139,7 @@ def main():
         # "pt",
         # "ru",
     ]
-    for language_name, language_code in languages.items():
+    for language_code, (language_name, translator_target) in languages.items():
         if language_code == "en":
             continue
         # Skip manually translated languages
@@ -133,7 +151,9 @@ def main():
         print(f"Translating {language_name} ({language_code}.json)")
 
         try:
-            translated_data = translate_dict(en_data, language_code)
+            translator = GoogleTranslator(source="en", target=translator_target)
+            cache = {}
+            translated_data = translate_value(en_data, translator, cache)
 
             output_path = os.path.join(
                 os.path.dirname(__file__), f"{language_code}.json"

@@ -120,7 +120,7 @@
             "message": "Invalid Optioun ausgewielt."
         },
         "invalid_preset_mode": {
-            "message": "Invalid Preset Modus {mode}. Verfügbar Modi: {modes}."
+            "message": "Invalid Preset Modus {mode}. Verfügbare Modi: {modes}."
         },
         "not_supported_by_program": {
             "message": "Kann net änneren {attr}: net ënnerstëtzt vum aktuelle Programm {program}."
@@ -142,6 +142,1399 @@
         },
         "value_below_minimum": {
             "message": "De Wäert {value} ass ënner dem Minimum {min_val} fir {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Konnektivitéit Staat"
+            },
+            "doorstate": {
+                "name": "Dier Staat"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Liewensmëttel Sonde"
+            },
+            "foodprobesupported": {
+                "name": "Liewensmëttel Sonde Ënnerstëtzung"
+            },
+            "watertrayinsertionstate": {
+                "name": "Waasser Schacht"
+            },
+            "watertankempty": {
+                "name": "Waassertank eidel"
+            },
+            "cleaningreminder": {
+                "name": "Botzen Erënnerung"
+            },
+            "drawerstatus": {
+                "name": "Tirang"
+            },
+            "humancentriclighteventstate": {
+                "name": "Mënsch-centric Liicht"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Auto ausschalten"
+            },
+            "appliancestate": {
+                "name": "Frigo Staat"
+            },
+            "fanstate": {
+                "name": "Extra Kavitéit Fan Staat"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Ënnerhalt néideg"
+            },
+            "maint2_occured": {
+                "name": "Ënnerhalt Punkt 2 geschitt"
+            },
+            "maint3_occured": {
+                "name": "Ënnerhalt Punkt 3 geschitt"
+            },
+            "maint4_occured": {
+                "name": "Ënnerhalt Punkt 4 geschitt"
+            },
+            "maint5_occured": {
+                "name": "Ënnerhalt Punkt 5 geschitt"
+            },
+            "maint6_occured": {
+                "name": "Ënnerhalt Punkt 6 geschitt"
+            },
+            "maint7_occured": {
+                "name": "Ënnerhalt Punkt 7 geschitt"
+            },
+            "maint8_occured": {
+                "name": "Ënnerhalt Punkt 8 geschitt"
+            },
+            "maint9_occured": {
+                "name": "Ënnerhalt Punkt 9 geschitt"
+            },
+            "maint10_occured": {
+                "name": "Ënnerhalt Punkt 10 geschitt"
+            },
+            "occured": {
+                "name": "Ënnerhalt 1 geschitt"
+            },
+            "ecomode": {
+                "name": "Eco-Modus"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Loftfilter propper néideg"
+            },
+            "hmepn_acalerts": {
+                "name": "Ac Alarmer ënnerstëtzt"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa Filter agebaut"
+            },
+            "dooropen": {
+                "name": "Dier op"
+            },
+            "watertraylevellow": {
+                "name": "Waasser Schacht Niveau niddereg"
+            },
+            "autodustcollection": {
+                "name": "Auto Stëbs Kollektioun"
+            },
+            "automoparmextension": {
+                "name": "Auto Mop Arm Extensioun"
+            },
+            "automopdry": {
+                "name": "Auto mop dréchen"
+            },
+            "automopwash": {
+                "name": "Automatesch Wäschmaschinn"
+            },
+            "autodetergentusage": {
+                "name": "Auto Detergent Notzung"
+            },
+            "mopinstalled": {
+                "name": "Mop installéiert"
+            },
+            "incharger": {
+                "name": "Am Chargeur"
+            },
+            "returntowash": {
+                "name": "Zréck ze wäschen"
+            },
+            "roomselected": {
+                "name": "Sall ausgewielt"
+            },
+            "carpetboost": {
+                "name": "Teppech Boost"
+            },
+            "carpetavoid": {
+                "name": "Teppech vermeiden"
+            },
+            "carpetdisplay": {
+                "name": "Teppech Display"
+            },
+            "obstacleavoidance": {
+                "name": "Hindernisser vermeiden"
+            },
+            "dndenabled": {
+                "name": "Net stéieren aktivéiert"
+            },
+            "dnddisableairdry": {
+                "name": "Dnd auszeschalten Loftdrock"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd Paus Loft dréchen"
+            },
+            "multifloormap": {
+                "name": "Multi-Stäck Kaart"
+            },
+            "multifloormapautoswitch": {
+                "name": "Multi-Floor Kaart Auto Schalter"
+            },
+            "robotposereliable": {
+                "name": "Roboter Pose zouverlässeg"
+            },
+            "ovwater_tank_empty": {
+                "name": "Waasser Tank Status"
+            },
+            "ovcleaning_ended": {
+                "name": "Botzen Status"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonde Enn vum Kachen"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Reseau Kommando"
+            },
+            "startupcommand": {
+                "name": "Start op Kommando"
+            },
+            "manualsync": {
+                "name": "Manuell synchroniséiert"
+            },
+            "executecommand": {
+                "name": "Muecht"
+            },
+            "waterfilterstatereset": {
+                "name": "Waasserfilter zrécksetzen"
+            },
+            "airfilterstatereset": {
+                "name": "Loftfilter zrécksetzen"
+            },
+            "saveappfavorite": {
+                "name": "Retten Léifsten"
+            },
+            "shortcutproglistcmd": {
+                "name": "Ofkiirzung Programm Lëscht Kommando"
+            },
+            "filterreset": {
+                "name": "Filter zréckgesat"
+            },
+            "hepafilterreset": {
+                "name": "Hepa Filter zréckgesat"
+            },
+            "findme": {
+                "name": "Fannt mech"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Loftreiniger"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Start Zäit"
+            },
+            "targetduration": {
+                "name": "Zil Dauer"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Ziltemperatur fir Liewensmëttelsonde c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Ziltemperatur fir Liewensmëttelsonde f"
+            },
+            "targettemperaturec": {
+                "name": "Ziltemperatur c"
+            },
+            "targettemperaturef": {
+                "name": "Ziltemperatur f"
+            },
+            "remindertime": {
+                "name": "Ieweschte Uewen Erënnerung Zäit"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Apparat lokal Zäit Offset"
+            },
+            "lightintensity": {
+                "name": "Liicht Intensitéit"
+            },
+            "lightcolortemperature": {
+                "name": "Liicht Faarf Temperatur"
+            },
+            "stoptime": {
+                "name": "Stop Zäit"
+            },
+            "adtankadetstandarddose": {
+                "name": "Tank eng Standarddosis Detergent"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Tank b Detergent Standard Dosis"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tank b softener Standard Dosis"
+            },
+            "adfinetunedetlevel": {
+                "name": "Den Niveau vun der Wäschmëttelen finjustéieren"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Fine Tune softener Niveau"
+            },
+            "extrarinsenumber": {
+                "name": "Extra Spülen"
+            },
+            "maint1_id": {
+                "name": "Ënnerhalt Artikel 1 ID"
+            },
+            "maint2_id": {
+                "name": "Ënnerhalt Artikel 2 ID"
+            },
+            "maint2_threshold": {
+                "name": "Ënnerhalt Punkt 2 Schwell"
+            },
+            "maint3_id": {
+                "name": "Ënnerhalt Artikel 3 ID"
+            },
+            "maint3_threshold": {
+                "name": "Ënnerhalt Punkt 3 Schwell"
+            },
+            "maint4_id": {
+                "name": "Ënnerhalt Artikel 4 ID"
+            },
+            "maint4_threshold": {
+                "name": "Ënnerhalt Punkt 4 Schwell"
+            },
+            "maint5_id": {
+                "name": "Ënnerhalt Artikel 5 ID"
+            },
+            "maint5_threshold": {
+                "name": "Ënnerhalt Punkt 5 Schwell"
+            },
+            "maint6_id": {
+                "name": "Ënnerhalt Artikel 6 ID"
+            },
+            "maint6_threshold": {
+                "name": "Ënnerhalt Punkt 6 Schwell"
+            },
+            "maint7_id": {
+                "name": "Ënnerhalt Artikel 7 ID"
+            },
+            "maint7_threshold": {
+                "name": "Ënnerhalt Punkt 7 Schwell"
+            },
+            "maint8_id": {
+                "name": "Ënnerhalt Artikel 8 ID"
+            },
+            "maint8_threshold": {
+                "name": "Ënnerhalt Punkt 8 Schwell"
+            },
+            "maint9_id": {
+                "name": "Ënnerhalt Artikel 9 ID"
+            },
+            "maint9_threshold": {
+                "name": "Ënnerhalt Punkt 9 Schwell"
+            },
+            "maint10_id": {
+                "name": "Ënnerhalt Artikel 10 ID"
+            },
+            "maint10_threshold": {
+                "name": "Ënnerhalt Punkt 10 Schwell"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Kloer Zyklus Personaliséierung"
+            },
+            "memoryid": {
+                "name": "Erënnerung Slot"
+            },
+            "dryingtime": {
+                "name": "Zäittrocknung (aktiv)"
+            },
+            "timetonotify": {
+                "name": "Zäit fir z'informéieren"
+            },
+            "anticreasevalue": {
+                "name": "Anti-Kriibs (aktiv)"
+            },
+            "rinseaidlevel": {
+                "name": "Spullmëttel Niveau"
+            },
+            "targethumidity": {
+                "name": "Zil Fiichtegkeet"
+            },
+            "targettemperature": {
+                "name": "Ziltemperatur"
+            },
+            "fanspeed": {
+                "name": "Fan Vitesse"
+            },
+            "humiditytarget": {
+                "name": "Zil Fiichtegkeet"
+            },
+            "powermode": {
+                "name": "Power Modus"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Display Luucht"
+            },
+            "targettemperaturec": {
+                "name": "Extra Kavitéit Temperatur"
+            },
+            "mode": {
+                "name": "Modus"
+            },
+            "fanspeedsetting": {
+                "name": "Fan Vitesse"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Alarmer"
+            },
+            "appliancestate": {
+                "name": "Apparat Staat"
+            },
+            "temperaturerepresentation": {
+                "name": "Temperatur Representatioun"
+            },
+            "linkqualityindicator": {
+                "name": "Network Interface Link Qualitéit Indikator"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw Update Beschreiwung"
+            },
+            "otastate": {
+                "name": "Network Interface ota Staat"
+            },
+            "swancandrevision": {
+                "name": "Sw anc a Revisioun"
+            },
+            "swversion": {
+                "name": "Network Interface sw Versioun"
+            },
+            "endofcyclesound": {
+                "name": "Enn vum Zyklus Toun"
+            },
+            "programuid": {
+                "name": "Programm uid"
+            },
+            "appliancetype": {
+                "name": "Apparat Typ"
+            },
+            "capabilityhash": {
+                "name": "Kapazitéit Hash"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Fernsteierung"
+            },
+            "totalcyclecounter": {
+                "name": "Total Zyklus Konter"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Apparat Gesamtaarbechtszäit"
+            },
+            "timetoend": {
+                "name": "Zäit fir Enn"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Weist d'Liewensmëttelsondetemperatur"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Weist d'Liewensmëttelsondetemperatur c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Weist d'Liewensmëttelsondetemperatur f"
+            },
+            "displaytemperature": {
+                "name": "Display Temperatur"
+            },
+            "displaytemperaturec": {
+                "name": "Displaytemperatur c"
+            },
+            "displaytemperaturef": {
+                "name": "Displaytemperatur f"
+            },
+            "processphase": {
+                "name": "Prozess Phase"
+            },
+            "program": {
+                "name": "Programm"
+            },
+            "runningtime": {
+                "name": "Lafen Zäit"
+            },
+            "fastheatupfeature": {
+                "name": "Uewer Uewen séier Hëtzt Up Feature"
+            },
+            "preheatcomplete": {
+                "name": "Ieweschte Uewen virhëtzen komplett"
+            },
+            "targetdurationendaction": {
+                "name": "Ieweschte Uewen Zil Dauer Enn Aktioun"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Ieweschte Uewen Zil Liewensmëttel Sonde Temperatur Enn Aktioun"
+            },
+            "watertanklevel": {
+                "name": "Ieweschte Uewen Waasser Tank Niveau"
+            },
+            "waterhardness": {
+                "name": "Waasserhärkeet"
+            },
+            "descalingreminderstate": {
+                "name": "Entkalking Erënnerung"
+            },
+            "clockstyle": {
+                "name": "Auer Stil"
+            },
+            "language": {
+                "name": "Sprooch"
+            },
+            "localtimeautomaticmode": {
+                "name": "Lokal Zäit automatesch Modus"
+            },
+            "autolocaltimeoffset": {
+                "name": "Auto lokal Zäit Offset"
+            },
+            "favoriteorder": {
+                "name": "Léifsten Uerdnung"
+            },
+            "number": {
+                "name": "Léifsten Uerdnung Zuel"
+            },
+            "favoriteselect": {
+                "name": "Léifsten auswielen"
+            },
+            "favoritestatus": {
+                "name": "Léifsten Status"
+            },
+            "activemessageindex": {
+                "name": "Aktiv Message Index"
+            },
+            "appliancemode": {
+                "name": "Apparat Modus"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Hood Fan Vitesse"
+            },
+            "hobtohoodstate": {
+                "name": "Hood Staat"
+            },
+            "hoodfanlevel": {
+                "name": "Fan Niveau"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Holzkuel Filter Timer"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Fettfilter Timer"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc Filter Zäit"
+            },
+            "fastmodetimetoend": {
+                "name": "Frigo séier Modus Zäit bis Enn"
+            },
+            "sensortemperaturec": {
+                "name": "Frigo Temperatur"
+            },
+            "vacationholidaymode": {
+                "name": "Vakanz Vakanz Modus"
+            },
+            "sensorhumidity": {
+                "name": "Fiichtegkeet"
+            },
+            "waterfilterstate": {
+                "name": "Waasser Filter Status"
+            },
+            "waterfilterlifetime": {
+                "name": "Waasserfilter Liewensdauer"
+            },
+            "waterfilterflow": {
+                "name": "Waasser FILTER Flux"
+            },
+            "airfilterstate": {
+                "name": "Loftfilter Status"
+            },
+            "airfilterlifetime": {
+                "name": "Loftfilter Liewensdauer"
+            },
+            "coolingvalvestate": {
+                "name": "Kühlventil Staat"
+            },
+            "defrostroutinestate": {
+                "name": "Defrost Routine Zoustand"
+            },
+            "compressorstate": {
+                "name": "Kompresser Staat"
+            },
+            "compressorspeed": {
+                "name": "Kompressor Geschwindegkeet"
+            },
+            "coefficient": {
+                "name": "Kompressor Geschwindegkeetskoeffizient"
+            },
+            "exponent": {
+                "name": "Kompressor Vitesse exponent"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Extra Kavitéit Klon Modus"
+            },
+            "temperatureadjustingstate": {
+                "name": "Extra Kavitéit Upassung"
+            },
+            "defrosttemperaturec": {
+                "name": "Eis Hiersteller Entdeckungstemperatur"
+            },
+            "evaporatorfanstate": {
+                "name": "Eis Maker Fan Staat"
+            },
+            "icedispenserstate": {
+                "name": "Eis Spender Staat"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Eis Schacht fëllt Astellung"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Loftfilter kafen Schwelle"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Loftfilter änneren Schwelle"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Waasserfilter kafen Schwelle (Flow)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Waasserfilter änneren Schwell (Flow)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Waasserfilter Kaf Schwell (Zäit)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Waasserfilter änneren Schwell (Zäit)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Haaptsäit Software Versioun"
+            },
+            "defaultextrarinse": {
+                "name": "Standard extra Spülen"
+            },
+            "cyclephase": {
+                "name": "Zyklus Phase"
+            },
+            "cyclesubphase": {
+                "name": "Zyklus Ënnerphase"
+            },
+            "measuredloadweight": {
+                "name": "Gemooss Last Gewiicht"
+            },
+            "doorlock": {
+                "name": "Dier Spär"
+            },
+            "totalwashcyclescount": {
+                "name": "Total wäschen Zyklen"
+            },
+            "totalwashingtime": {
+                "name": "Total Wäschzäit"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Lued Gewiicht"
+            },
+            "washingnominalloadweight": {
+                "name": "Wäsch Laascht Gewiicht"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank eng Configuratioun"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank b Configuratioun"
+            },
+            "steamvalue": {
+                "name": "Damp Niveau"
+            },
+            "timemanagerlevel": {
+                "name": "Zäit Manager"
+            },
+            "adtankasel": {
+                "name": "Auto-Dosis Tank a"
+            },
+            "adtankbsel": {
+                "name": "Auto-Dosis Tank b"
+            },
+            "analogspinspeed": {
+                "name": "Spin Vitesse"
+            },
+            "analogtemperature": {
+                "name": "Temperatur"
+            },
+            "watersoftenermode": {
+                "name": "Waasserdünger Modus"
+            },
+            "maint1_threshold": {
+                "name": "Ënnerhalt Schwell"
+            },
+            "detergentextradosage": {
+                "name": "Extra Doséierung vum Wäschmëttel"
+            },
+            "optisenseresult": {
+                "name": "Lued Gewiicht"
+            },
+            "softenerextradosage": {
+                "name": "Softener extra Doséierung"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tank a det Last fir nominell Gewiicht"
+            },
+            "tankareserve": {
+                "name": "Tank eng Reserve"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Tank b det Last fir nominell Gewiicht"
+            },
+            "tankbreserve": {
+                "name": "Tank b reservéieren"
+            },
+            "waterusage": {
+                "name": "Waasserverbrauch"
+            },
+            "adtankadetloaded": {
+                "name": "Tank e Spullmëttel gelueden"
+            },
+            "adtankbdetloaded": {
+                "name": "Tank b Botzmëttel gelueden"
+            },
+            "adtankbsoftloaded": {
+                "name": "Tank b softener gelueden"
+            },
+            "ecolevel": {
+                "name": "Eco Niveau"
+            },
+            "applianceuiswversion": {
+                "name": "Apparat ui sw Versioun"
+            },
+            "remotenotificationpending": {
+                "name": "Remote Notifikatioun waarden"
+            },
+            "minfinishintime": {
+                "name": "Minimum Ofschloss an Zäit"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Wirtschaftsmodus"
+            },
+            "adfinetunedetlevel": {
+                "name": "Automatesch Dosis Detergent Fine Tune"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automatesch Dosis Weichmëttel Fintune"
+            },
+            "extrarinsenumber": {
+                "name": "Extra Spülen"
+            },
+            "threshold": {
+                "name": "Ënnerhalt 1 Schwell"
+            },
+            "timezonedatabasename": {
+                "name": "Zäitzone Datebank"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Total Damp Zyklus Konter"
+            },
+            "prewashphase": {
+                "name": "Virwaat Phase"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominell Lastgewicht"
+            },
+            "humiditytarget": {
+                "name": "Fiichtegkeet Zil (aktiv)"
+            },
+            "tankalevel": {
+                "name": "Tank engem Niveau"
+            },
+            "tankblevel": {
+                "name": "Tank b Niveau"
+            },
+            "totaldrycyclescount": {
+                "name": "Total dréchen Zyklen"
+            },
+            "totaldryingtime": {
+                "name": "Total Trocknungszäit"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Total wäschen + dréchen Zyklen"
+            },
+            "programsorder": {
+                "name": "Programm Uerdnung"
+            },
+            "carelevel": {
+                "name": "Pfleeg Niveau"
+            },
+            "drynessvalue": {
+                "name": "Dréchent Niveau (aktiv)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: wäschen Laascht Gewiicht"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: wäschen Luede Fiichtegkeet"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: geschätzte Trocknungszäit"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: lued Iwwerlaascht Fändel"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: wäschen Luede Feeler"
+            },
+            "wmsn": {
+                "name": "Dwyw: gepaart Wäschmaschinn Serien"
+            },
+            "command": {
+                "name": "Dwyw: Kommando"
+            },
+            "displayonfloor": {
+                "name": "Display um Buedem"
+            },
+            "energyscore": {
+                "name": "Energie Score"
+            },
+            "waterscore": {
+                "name": "Waasser Score"
+            },
+            "ecoscore": {
+                "name": "Eco Score"
+            },
+            "miscellaneousstate": {
+                "name": "Verschiddenes Staat"
+            },
+            "ambienttemperaturec": {
+                "name": "Ëmgéigend Temperatur c"
+            },
+            "ambienttemperaturef": {
+                "name": "Ëmgéigend Temperatur f"
+            },
+            "fanmode": {
+                "name": "Fan Modus"
+            },
+            "swingmode": {
+                "name": "Swing Modus"
+            },
+            "ambienthumidity": {
+                "name": "Ambient Fiichtegkeet"
+            },
+            "filterstatus": {
+                "name": "Filter Status"
+            },
+            "powerconsumption": {
+                "name": "Stroumverbrauch"
+            },
+            "energyconsumption": {
+                "name": "Energieverbrauch"
+            },
+            "fanspeedstate": {
+                "name": "Fan Vitesse Staat"
+            },
+            "filterstate": {
+                "name": "Filter Staat"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa Filter Liewensdauer"
+            },
+            "appliancecategory": {
+                "name": "Apparat Kategorie"
+            },
+            "vmno_niu": {
+                "name": "Niu Versioun"
+            },
+            "vmno_mcu": {
+                "name": "Mcu Versioun"
+            },
+            "schedulersession": {
+                "name": "Scheduler Sëtzung"
+            },
+            "schedulermode": {
+                "name": "Scheduler Modus"
+            },
+            "totalruntime": {
+                "name": "Total Runtime"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompressor Ofkillungszäit"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompressor Heizung Runtime"
+            },
+            "mainunittemp": {
+                "name": "Main Eenheet Temp"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Demande Äntwert au"
+            },
+            "pm25": {
+                "name": "pm2,5"
+            },
+            "pm10": {
+                "name": "pm10"
+            },
+            "modestate": {
+                "name": "Modus Staat"
+            },
+            "filterruntime": {
+                "name": "Filter Lafzäit"
+            },
+            "hepafilterstate": {
+                "name": "Hepa Filter Staat"
+            },
+            "airqualitylevel": {
+                "name": "Loftqualitéit Niveau"
+            },
+            "temperature": {
+                "name": "Ëmgéigend Temperatur"
+            },
+            "mode": {
+                "name": "Modus"
+            },
+            "temp": {
+                "name": "Temperatur"
+            },
+            "humidity": {
+                "name": "Fiichtegkeet"
+            },
+            "pm1": {
+                "name": "pm1"
+            },
+            "pm2_5": {
+                "name": "pm2,5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Filter Typ"
+            },
+            "filterlife": {
+                "name": "Filter Liewen"
+            },
+            "workmode": {
+                "name": "Aarbecht Modus"
+            },
+            "aqilight": {
+                "name": "Aqi Luucht"
+            },
+            "louverswing": {
+                "name": "Louver Schwéngung"
+            },
+            "quietfan": {
+                "name": "Roueg Fan"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Befeuchtungsfilter zréckgesat Datum"
+            },
+            "filterlife_1": {
+                "name": "Filter Liewen"
+            },
+            "filterlife_2": {
+                "name": "Filter Liewen 2"
+            },
+            "filtertype_1": {
+                "name": "Filter Typ"
+            },
+            "filtertype_2": {
+                "name": "Filtertyp 2"
+            },
+            "filteruid_1": {
+                "name": "Filter 1 nfc tag uid"
+            },
+            "filteruid_2": {
+                "name": "Filter 2 nfc tag uid"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2.5 (ongeféier)"
+            },
+            "uvruntime": {
+                "name": "Uv Runtime"
+            },
+            "schedulingstate": {
+                "name": "Zäitplang Staat"
+            },
+            "errimpellerstuck": {
+                "name": "Feeler: Impeller steckt"
+            },
+            "errpmnotresp": {
+                "name": "Feeler: pm Sensor reagéiert net"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Feeler: Kaart Kommunikatioun weisen"
+            },
+            "errcommsensoruibrd": {
+                "name": "Feeler: ui Verwaltungsrot Kommunikatioun"
+            },
+            "signalstrength": {
+                "name": "Signal Kraaft"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filter rfid"
+            },
+            "errgasnotresp": {
+                "name": "Feeler: Gas Sensor reagéiert net"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Feeler: Filter 1 nfc Tag net präsent"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Feeler: Filter 2 nfc Tag net präsent"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Feeler: Filter 1 nfc Tag ongëlteg"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Feeler: Filter 2 nfc Tag ongëlteg"
+            },
+            "errnfctransceiver_1": {
+                "name": "Feeler: Filter 1 nfc Transceiver"
+            },
+            "errnfctransceiver_2": {
+                "name": "Feeler: Filter 2 nfc Transceiver"
+            },
+            "errtemprhnotresp": {
+                "name": "Feeler: Temperatur / Fiichtegkeet Sensor reagéiert net"
+            },
+            "errwatertrayremoved": {
+                "name": "Feeler: Waasser Schacht ewechgeholl"
+            },
+            "waterbucketlevel": {
+                "name": "Waasser Eemer Niveau"
+            },
+            "batterystatus": {
+                "name": "Batterie"
+            },
+            "robotstatus": {
+                "name": "Roboter Status"
+            },
+            "cleaningcommand": {
+                "name": "Botzen Kommando"
+            },
+            "dustbinstatus": {
+                "name": "Dreckskëscht Status"
+            },
+            "mainbrushsqm": {
+                "name": "Main Pinsel Benotzung"
+            },
+            "sidebrushsqm": {
+                "name": "Side Pinsel Benotzung"
+            },
+            "filtersqm": {
+                "name": "Filter Benotzung"
+            },
+            "state": {
+                "name": "Botzen Staat"
+            },
+            "chargingstatus": {
+                "name": "Opluedstatioun"
+            },
+            "vacuummode": {
+                "name": "Vakuum Modus"
+            },
+            "cleaningtype": {
+                "name": "Botzen Typ"
+            },
+            "cleaningmode": {
+                "name": "Botzen Modus"
+            },
+            "waterpumprate": {
+                "name": "Waasser Pompel Taux"
+            },
+            "waterstationaction": {
+                "name": "Waasser Statioun Aktioun"
+            },
+            "moproute": {
+                "name": "Mop route"
+            },
+            "notificationevent": {
+                "name": "Notifikatioun Event"
+            },
+            "dirtcleanmode": {
+                "name": "Dreck propper Modus"
+            },
+            "faultcode": {
+                "name": "Feeler Code"
+            },
+            "filterusage": {
+                "name": "Filter Benotzung"
+            },
+            "cleansize": {
+                "name": "Propper Gréisst"
+            },
+            "cleantime": {
+                "name": "Propper Zäit"
+            },
+            "dustbagusage": {
+                "name": "Staubsauger Benotzung"
+            },
+            "dustboxusage": {
+                "name": "Stëbs Këscht Benotzung"
+            },
+            "emptyingtime": {
+                "name": "Leedungszäit"
+            },
+            "mainbrushusage": {
+                "name": "Main Pinsel Benotzung"
+            },
+            "sidebrushusage": {
+                "name": "Side Pinsel Benotzung"
+            },
+            "mopusage": {
+                "name": "Mop Benotzung"
+            },
+            "moparmextensionfreq": {
+                "name": "Mop Arm Extensioun Frequenz"
+            },
+            "mopdrytime": {
+                "name": "Mop dréchen Zäit"
+            },
+            "mopwashfreqarea": {
+                "name": "Mop wäschen Frequenz Beräich"
+            },
+            "mopwashfreqtime": {
+                "name": "Mop wäschen Frequenz Zäit"
+            },
+            "mopwashfreqtype": {
+                "name": "Mop wäschen Frequenz Typ"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Botzen Widderhuelungen"
+            },
+            "voicevolume": {
+                "name": "Stëmm Volumen"
+            },
+            "upgradeprogress": {
+                "name": "Upgrade Fortschrëtter"
+            },
+            "stationupgradestatus": {
+                "name": "Station Upgrade Status"
+            },
+            "upgradestate": {
+                "name": "Upgrade Staat"
+            },
+            "selectedroomid": {
+                "name": "Ausgewielten Zëmmer ID"
+            },
+            "maxusagedustbox": {
+                "name": "Max Stëbs Këscht Benotzung"
+            },
+            "maxusagestationbag": {
+                "name": "Max Statioun Sak Benotzung"
+            },
+            "dndstarttime": {
+                "name": "Dnd Startzeit"
+            },
+            "dndendtime": {
+                "name": "Dnd Enn Zäit"
+            },
+            "datamodelversion": {
+                "name": "Datemodell Versioun"
+            },
+            "basestationversion": {
+                "name": "Basisstatioun Versioun"
+            },
+            "deviceid": {
+                "name": "Apparat ID"
+            },
+            "timezonedaylightrule": {
+                "name": "Zäitzone Dagesliicht Regel"
+            },
+            "timezonestandardname": {
+                "name": "Zäit Zone Standard Numm"
+            },
+            "bintank": {
+                "name": "Tank Tank"
+            },
+            "setvoicevolume": {
+                "name": "Stëmm Volume Niveau"
+            },
+            "mapid": {
+                "name": "Persistent Kaart ID"
+            },
+            "sessionid": {
+                "name": "Botzen Sessioun ID"
+            },
+            "completion": {
+                "name": "Botzen Ofschloss"
+            },
+            "areacovered": {
+                "name": "Gebitt iwwerdeckt"
+            },
+            "zones": {
+                "name": "Kaart Zone Zuel"
+            },
+            "zonestatus": {
+                "name": "Botzen Zone Status"
+            },
+            "ovwater_tank_empty": {
+                "name": "Waasser Tank Status"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Liewensmëttel Sonde"
+            },
+            "ovcleaning_ended": {
+                "name": "Botzen Status"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonde Enn vum Kachen"
+            },
+            "connectivitystate": {
+                "name": "Konnektivitéit Staat"
+            },
+            "executionstate": {
+                "name": "Ausféierung Staat"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Kannerslot intern"
+            },
+            "cavitylight": {
+                "name": "Kavitéit Luucht"
+            },
+            "childlock": {
+                "name": "Kannerslot"
+            },
+            "soundvolume": {
+                "name": "Sound Volume"
+            },
+            "keysoundtone": {
+                "name": "Schlëssel Toun"
+            },
+            "windownotification": {
+                "name": "Fënster Notifikatioun"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Holzkuel Filter aktivéieren"
+            },
+            "fastmode": {
+                "name": "Frigo schnell Modus"
+            },
+            "sabbathmode": {
+                "name": "Sabbat Modus"
+            },
+            "ecomode": {
+                "name": "Eco-Modus"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2lock Modus"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Pre-wäschen"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Anti-Kriibs (keng Damp)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Anti-Kriibs mat Damp"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Nuetszyklus"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Wirtschaftsmodus"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Spülen halen"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensiv wäschen"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Temperatur Sensor"
+            },
+            "ewx1493a_stain": {
+                "name": "Fleck Behandlung"
+            },
+            "ewx1493a_drymode": {
+                "name": "Dréchen Modus"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Einfach Eisen"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Dampmodus"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra Mix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Naass Modus"
+            },
+            "networkinterfacealwayson": {
+                "name": "Netz ëmmer op"
+            },
+            "adlocalfinetuning": {
+                "name": "Automatesch Dosis lokal Fintuning"
+            },
+            "anticreasenosteam": {
+                "name": "Anti-Kreiz keen Damp"
+            },
+            "anticreasewsteam": {
+                "name": "Anti-Kriibs mat Damp"
+            },
+            "ultramix": {
+                "name": "Ultra Mix"
+            },
+            "prewashphase": {
+                "name": "Pre-wäschen"
+            },
+            "stain": {
+                "name": "Stain Aktioun"
+            },
+            "nightcycle": {
+                "name": "Nuetszyklus"
+            },
+            "wmeconomy": {
+                "name": "Wirtschaftsmodus"
+            },
+            "rinsehold": {
+                "name": "Spülen halen"
+            },
+            "tcsensor": {
+                "name": "Temperatur Sensor"
+            },
+            "soak": {
+                "name": "Soak"
+            },
+            "softener": {
+                "name": "Weichmëttel"
+            },
+            "defaultsoftplus": {
+                "name": "Standard mëll plus"
+            },
+            "intensive": {
+                "name": "Intensiv"
+            },
+            "reverseplus": {
+                "name": "Ëmgekéiert plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco-Modus"
+            },
+            "tdeconomy_night": {
+                "name": "Nuetsmodus"
+            },
+            "tdeconomy_quick": {
+                "name": "Schnell Modus"
+            },
+            "refresh": {
+                "name": "Programm opfrëschen"
+            },
+            "keytone": {
+                "name": "Schlëssel Toun"
+            },
+            "preselectlast": {
+                "name": "Pre wielt lescht"
+            },
+            "extrapoweroption": {
+                "name": "Extra Kraaft"
+            },
+            "extrasilentoption": {
+                "name": "Extra roueg"
+            },
+            "glasscareoption": {
+                "name": "Glas Pfleeg"
+            },
+            "sprayzoneoption": {
+                "name": "Spray Zone"
+            },
+            "autodooropener": {
+                "name": "Auto Dierenöffner"
+            },
+            "sanitizeoption": {
+                "name": "Sanitär"
+            },
+            "onerackoption": {
+                "name": "Ee Rack"
+            },
+            "zonecleanoption": {
+                "name": "Zone propper"
+            },
+            "xtradryoption": {
+                "name": "Extra dréchen"
+            },
+            "cleanairmode": {
+                "name": "Propper Loft Modus"
+            },
+            "sleepmode": {
+                "name": "Schlofmodus"
+            },
+            "batchschedulermode": {
+                "name": "Batch Scheduler Modus"
+            },
+            "verticalswing": {
+                "name": "Vertikal Schwéngung"
+            },
+            "turbofunction": {
+                "name": "Turbo Funktioun"
+            },
+            "energysavingmode": {
+                "name": "Energiespuermodus"
+            },
+            "autocleantrigger": {
+                "name": "Auto propper Ausléiser"
+            },
+            "flappositionavoiduser": {
+                "name": "Klappe Positioun vermeiden Benotzer"
+            },
+            "horizontalswing": {
+                "name": "Horizontale Schwéngung"
+            },
+            "humidification": {
+                "name": "Befeuchtung"
+            },
+            "uilight": {
+                "name": "Ui Luucht"
+            },
+            "safetylock": {
+                "name": "Sécherheet Spär"
+            },
+            "ionizer": {
+                "name": "Ionisator"
+            },
+            "uvstate": {
+                "name": "Uv Luucht"
+            },
+            "mute": {
+                "name": "Mute"
+            }
         }
     }
 }

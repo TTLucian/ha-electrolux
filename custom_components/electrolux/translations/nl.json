@@ -143,5 +143,1398 @@
         "value_below_minimum": {
             "message": "Waarde {value} ligt onder het minimum {min_val} voor {attr}."
         }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Connectiviteitsstatus"
+            },
+            "doorstate": {
+                "name": "Deur staat"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Voedsel sonde"
+            },
+            "foodprobesupported": {
+                "name": "Ondersteuning voor voedselsondes"
+            },
+            "watertrayinsertionstate": {
+                "name": "Waterbak"
+            },
+            "watertankempty": {
+                "name": "Watertank leeg"
+            },
+            "cleaningreminder": {
+                "name": "Herinnering voor het schoonmaken"
+            },
+            "drawerstatus": {
+                "name": "Lade"
+            },
+            "humancentriclighteventstate": {
+                "name": "Mensgericht licht"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automatische uitschakeling"
+            },
+            "appliancestate": {
+                "name": "Vriezer staat"
+            },
+            "fanstate": {
+                "name": "Staat van extra ventilatorventilator"
+            },
+            "autosense": {
+                "name": "Autodetectie"
+            },
+            "maint1_occured": {
+                "name": "Onderhoud vereist"
+            },
+            "maint2_occured": {
+                "name": "Onderhoudsitem 2 is opgetreden"
+            },
+            "maint3_occured": {
+                "name": "Onderhoudsitem 3 is opgetreden"
+            },
+            "maint4_occured": {
+                "name": "Onderhoudsitem 4 is opgetreden"
+            },
+            "maint5_occured": {
+                "name": "Onderhoudsitem 5 is opgetreden"
+            },
+            "maint6_occured": {
+                "name": "Onderhoudsitem 6 is opgetreden"
+            },
+            "maint7_occured": {
+                "name": "Onderhoudsitem 7 is opgetreden"
+            },
+            "maint8_occured": {
+                "name": "Onderhoudsitem 8 is opgetreden"
+            },
+            "maint9_occured": {
+                "name": "Onderhoudsitem 9 is opgetreden"
+            },
+            "maint10_occured": {
+                "name": "Onderhoudsitem 10 is opgetreden"
+            },
+            "occured": {
+                "name": "Onderhoud 1 heeft plaatsgevonden"
+            },
+            "ecomode": {
+                "name": "Eco-modus"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Luchtfilter reinigen vereist"
+            },
+            "hmepn_acalerts": {
+                "name": "Ac-waarschuwingen ondersteund"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa-filter geplaatst"
+            },
+            "dooropen": {
+                "name": "Deur open"
+            },
+            "watertraylevellow": {
+                "name": "Waterbakniveau laag"
+            },
+            "autodustcollection": {
+                "name": "Automatische stofopvang"
+            },
+            "automoparmextension": {
+                "name": "Automatische verlenging van de moparm"
+            },
+            "automopdry": {
+                "name": "Automatisch dweilen"
+            },
+            "automopwash": {
+                "name": "Automatische dweilwas"
+            },
+            "autodetergentusage": {
+                "name": "Automatisch wasmiddelgebruik"
+            },
+            "mopinstalled": {
+                "name": "Dweil geïnstalleerd"
+            },
+            "incharger": {
+                "name": "Oplader"
+            },
+            "returntowash": {
+                "name": "Keer terug naar de was"
+            },
+            "roomselected": {
+                "name": "Kamer geselecteerd"
+            },
+            "carpetboost": {
+                "name": "Tapijt-boost"
+            },
+            "carpetavoid": {
+                "name": "Tapijt vermijden"
+            },
+            "carpetdisplay": {
+                "name": "Tapijt weergave"
+            },
+            "obstacleavoidance": {
+                "name": "Obstakel vermijden"
+            },
+            "dndenabled": {
+                "name": "Niet storen ingeschakeld"
+            },
+            "dnddisableairdry": {
+                "name": "Schakel luchtdrogen uit"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd pauzeren aan de lucht drogen"
+            },
+            "multifloormap": {
+                "name": "Kaart met meerdere verdiepingen"
+            },
+            "multifloormapautoswitch": {
+                "name": "Automatische schakelaar voor meerdere verdiepingen"
+            },
+            "robotposereliable": {
+                "name": "Robot pose betrouwbaar"
+            },
+            "ovwater_tank_empty": {
+                "name": "Status watertank"
+            },
+            "ovcleaning_ended": {
+                "name": "Reinigingsstatus"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonde Einde bereiding"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Netwerkopdracht"
+            },
+            "startupcommand": {
+                "name": "Opstartopdracht"
+            },
+            "manualsync": {
+                "name": "Handmatige synchronisatie"
+            },
+            "executecommand": {
+                "name": "Stroom"
+            },
+            "waterfilterstatereset": {
+                "name": "Waterfilter resetten"
+            },
+            "airfilterstatereset": {
+                "name": "Luchtfilter resetten"
+            },
+            "saveappfavorite": {
+                "name": "Favoriet opslaan"
+            },
+            "shortcutproglistcmd": {
+                "name": "Opdracht voor snelkoppeling naar programmalijst"
+            },
+            "filterreset": {
+                "name": "Filterreset"
+            },
+            "hepafilterreset": {
+                "name": "Hepa-filter opnieuw instellen"
+            },
+            "findme": {
+                "name": "Vind mij"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Luchtreiniger"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Begintijd"
+            },
+            "targetduration": {
+                "name": "Doelduur"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Doeltemperatuur sonde c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Doeltemperatuur sonde f"
+            },
+            "targettemperaturec": {
+                "name": "Doeltemperatuur c"
+            },
+            "targettemperaturef": {
+                "name": "Doeltemperatuur f"
+            },
+            "remindertime": {
+                "name": "Herinneringstijd bovenste oven"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Lokale tijdafwijking van het apparaat"
+            },
+            "lightintensity": {
+                "name": "Lichtintensiteit"
+            },
+            "lightcolortemperature": {
+                "name": "Lichte kleurtemperatuur"
+            },
+            "stoptime": {
+                "name": "Stop de tijd"
+            },
+            "adtankadetstandarddose": {
+                "name": "Vul een standaarddosering wasmiddel in"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Tank b standaard wasmiddeldosering"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tank b wasverzachter standaarddosis"
+            },
+            "adfinetunedetlevel": {
+                "name": "Stel het wasmiddelniveau nauwkeurig af"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Fijnafstelling van het niveau van de wasverzachter"
+            },
+            "extrarinsenumber": {
+                "name": "Extra spoelbeurten"
+            },
+            "maint1_id": {
+                "name": "Onderhoudsitem 1 ID"
+            },
+            "maint2_id": {
+                "name": "Onderhoudsitem 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Drempel voor onderhoudsitem 2"
+            },
+            "maint3_id": {
+                "name": "Onderhoudsitem 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Drempel voor onderhoudsitem 3"
+            },
+            "maint4_id": {
+                "name": "Onderhoudsitem 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Drempel voor onderhoudsitem 4"
+            },
+            "maint5_id": {
+                "name": "Onderhoudsitem 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Drempel voor onderhoudsitem 5"
+            },
+            "maint6_id": {
+                "name": "Onderhoudsitem 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Drempel voor onderhoudsitem 6"
+            },
+            "maint7_id": {
+                "name": "Onderhoudsitem 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Drempel voor onderhoudsitem 7"
+            },
+            "maint8_id": {
+                "name": "Onderhoudsitem 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Drempel voor onderhoudsitem 8"
+            },
+            "maint9_id": {
+                "name": "Onderhoudsitem 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Drempel voor onderhoudsitem 9"
+            },
+            "maint10_id": {
+                "name": "Onderhoudsitem 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Drempel voor onderhoudsitem 10"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Duidelijke cycluspersonalisatie"
+            },
+            "memoryid": {
+                "name": "Geheugenslot"
+            },
+            "dryingtime": {
+                "name": "Getimed drogen (actief)"
+            },
+            "timetonotify": {
+                "name": "Tijd om te informeren"
+            },
+            "anticreasevalue": {
+                "name": "Antikreuk (actief)"
+            },
+            "rinseaidlevel": {
+                "name": "Niveau glansspoelmiddel"
+            },
+            "targethumidity": {
+                "name": "Doelvochtigheid"
+            },
+            "targettemperature": {
+                "name": "Doeltemperatuur"
+            },
+            "fanspeed": {
+                "name": "Snelheid ventilator"
+            },
+            "humiditytarget": {
+                "name": "Doelvochtigheid"
+            },
+            "powermode": {
+                "name": "Power-modus"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Displaylicht"
+            },
+            "targettemperaturec": {
+                "name": "Extra oventemperatuur"
+            },
+            "mode": {
+                "name": "Modus"
+            },
+            "fanspeedsetting": {
+                "name": "Snelheid ventilator"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Waarschuwingen"
+            },
+            "appliancestate": {
+                "name": "Toestel staat"
+            },
+            "temperaturerepresentation": {
+                "name": "Weergave van temperatuur"
+            },
+            "linkqualityindicator": {
+                "name": "Indicator voor verbindingskwaliteit van netwerkinterface"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw-updatebeschrijving"
+            },
+            "otastate": {
+                "name": "Netwerkinterface heeft geen status"
+            },
+            "swancandrevision": {
+                "name": "SW anc en revisie"
+            },
+            "swversion": {
+                "name": "SW-versie van netwerkinterface"
+            },
+            "endofcyclesound": {
+                "name": "Einde cyclusgeluid"
+            },
+            "programuid": {
+                "name": "Programma-uid"
+            },
+            "appliancetype": {
+                "name": "Soort apparaat"
+            },
+            "capabilityhash": {
+                "name": "Mogelijkheid hasj"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Afstandsbediening"
+            },
+            "totalcyclecounter": {
+                "name": "Totale cyclusteller"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Totale werktijd van het apparaat"
+            },
+            "timetoend": {
+                "name": "Tijd om te eindigen"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Temperatuur van de voedselsonde weergeven"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Temperatuur sonde weergeven c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Temperatuur sonde weergeven f"
+            },
+            "displaytemperature": {
+                "name": "Weergave temperatuur"
+            },
+            "displaytemperaturec": {
+                "name": "Temperatuur weergeven c"
+            },
+            "displaytemperaturef": {
+                "name": "Weergavetemperatuur f"
+            },
+            "processphase": {
+                "name": "Procesfase"
+            },
+            "program": {
+                "name": "Programma"
+            },
+            "runningtime": {
+                "name": "Looptijd"
+            },
+            "fastheatupfeature": {
+                "name": "Snelle opwarmfunctie van de bovenste oven"
+            },
+            "preheatcomplete": {
+                "name": "Voorverwarmen van de bovenste oven voltooid"
+            },
+            "targetdurationendaction": {
+                "name": "Eindactie doelduur bovenste oven"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Eindactie doeltemperatuur sonde bovenste oven"
+            },
+            "watertanklevel": {
+                "name": "Niveau bovenste watertank oven"
+            },
+            "waterhardness": {
+                "name": "Waterhardheid"
+            },
+            "descalingreminderstate": {
+                "name": "Ontkalkingsherinnering"
+            },
+            "clockstyle": {
+                "name": "Klokstijl"
+            },
+            "language": {
+                "name": "Taal"
+            },
+            "localtimeautomaticmode": {
+                "name": "Lokale tijd automatische modus"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automatische lokale tijdverschuiving"
+            },
+            "favoriteorder": {
+                "name": "Favoriete bestelling"
+            },
+            "number": {
+                "name": "Aantal favoriete bestellingen"
+            },
+            "favoriteselect": {
+                "name": "Favoriet selecteren"
+            },
+            "favoritestatus": {
+                "name": "Favoriete status"
+            },
+            "activemessageindex": {
+                "name": "Actieve berichtenindex"
+            },
+            "appliancemode": {
+                "name": "Toestelmodus"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Snelheid ventilator kap"
+            },
+            "hobtohoodstate": {
+                "name": "Kap staat"
+            },
+            "hoodfanlevel": {
+                "name": "Ventilatorniveau"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Timer voor houtskoolfilter"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Timer vetfilter"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc-filtertijd"
+            },
+            "fastmodetimetoend": {
+                "name": "Tijd voor einde van de snelle modus van de vriezer"
+            },
+            "sensortemperaturec": {
+                "name": "Vriezer temperatuur"
+            },
+            "vacationholidaymode": {
+                "name": "Vakantie vakantiemodus"
+            },
+            "sensorhumidity": {
+                "name": "Vochtigheid"
+            },
+            "waterfilterstate": {
+                "name": "Status waterfilter"
+            },
+            "waterfilterlifetime": {
+                "name": "Levensduur waterfilter"
+            },
+            "waterfilterflow": {
+                "name": "Waterfilterstroom"
+            },
+            "airfilterstate": {
+                "name": "Status luchtfilter"
+            },
+            "airfilterlifetime": {
+                "name": "Levensduur luchtfilter"
+            },
+            "coolingvalvestate": {
+                "name": "Staat koelklep"
+            },
+            "defrostroutinestate": {
+                "name": "Ontdooi routinestatus"
+            },
+            "compressorstate": {
+                "name": "Compressorstatus"
+            },
+            "compressorspeed": {
+                "name": "Compressorsnelheid"
+            },
+            "coefficient": {
+                "name": "Snelheidscoëfficiënt compressor"
+            },
+            "exponent": {
+                "name": "Exponent van compressorsnelheid"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Extra holtekloonmodus"
+            },
+            "temperatureadjustingstate": {
+                "name": "Extra holteaanpassing"
+            },
+            "defrosttemperaturec": {
+                "name": "Ontdooitemperatuur van de ijsmaker"
+            },
+            "evaporatorfanstate": {
+                "name": "Staat van de ventilator van de ijsmachine"
+            },
+            "icedispenserstate": {
+                "name": "Staat van ijsdispenser"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Instelling voor het vullen van het ijsbakje"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Koopdrempel luchtfilter"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Drempel voor vervanging luchtfilter"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Koopdrempel waterfilter (stroom)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Drempel voor vervanging waterfilter (stroom)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Koopdrempel waterfilter (tijd)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Drempel voor vervanging waterfilter (tijd)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Softwareversie van het moederbord"
+            },
+            "defaultextrarinse": {
+                "name": "Standaard extra spoelgang"
+            },
+            "cyclephase": {
+                "name": "Cyclus fase"
+            },
+            "cyclesubphase": {
+                "name": "Cyclus subfase"
+            },
+            "measuredloadweight": {
+                "name": "Gemeten lastgewicht"
+            },
+            "doorlock": {
+                "name": "Deurslot"
+            },
+            "totalwashcyclescount": {
+                "name": "Totaal wascycli"
+            },
+            "totalwashingtime": {
+                "name": "Totale wastijd"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Gewicht laden"
+            },
+            "washingnominalloadweight": {
+                "name": "Gewicht waslading"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank een configuratie"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank b-configuratie"
+            },
+            "steamvalue": {
+                "name": "Stoomniveau"
+            },
+            "timemanagerlevel": {
+                "name": "Tijdmanager"
+            },
+            "adtankasel": {
+                "name": "Autodoseringstank a"
+            },
+            "adtankbsel": {
+                "name": "Autodoseringstank b"
+            },
+            "analogspinspeed": {
+                "name": "Draaisnelheid"
+            },
+            "analogtemperature": {
+                "name": "Temperatuur"
+            },
+            "watersoftenermode": {
+                "name": "Wateronthardermodus"
+            },
+            "maint1_threshold": {
+                "name": "Onderhoudsdrempel"
+            },
+            "detergentextradosage": {
+                "name": "Wasmiddel extra dosering"
+            },
+            "optisenseresult": {
+                "name": "Gewicht laden"
+            },
+            "softenerextradosage": {
+                "name": "Wasverzachter extra dosering"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tank een vaste belasting voor het nominale gewicht"
+            },
+            "tankareserve": {
+                "name": "Tank een reserve"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Tankinhoud bij nominaal gewicht"
+            },
+            "tankbreserve": {
+                "name": "Tank b reserve"
+            },
+            "waterusage": {
+                "name": "Waterverbruik"
+            },
+            "adtankadetloaded": {
+                "name": "Tank een wasmiddel geladen"
+            },
+            "adtankbdetloaded": {
+                "name": "Wasmiddel in tank b geladen"
+            },
+            "adtankbsoftloaded": {
+                "name": "Tank b ontharder geladen"
+            },
+            "ecolevel": {
+                "name": "Eco-niveau"
+            },
+            "applianceuiswversion": {
+                "name": "Apparaat ui sw-versie"
+            },
+            "remotenotificationpending": {
+                "name": "Melding op afstand in behandeling"
+            },
+            "minfinishintime": {
+                "name": "Minimale afwerking op tijd"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Economy-modus"
+            },
+            "adfinetunedetlevel": {
+                "name": "Fijnafstelling van het automatische doseringsmiddel"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automatisch doseren van de waterontharder fijn afstellen"
+            },
+            "extrarinsenumber": {
+                "name": "Extra spoeling"
+            },
+            "threshold": {
+                "name": "Onderhoud 1 drempel"
+            },
+            "timezonedatabasename": {
+                "name": "Tijdzonedatabase"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Teller van totale stoomcycli"
+            },
+            "prewashphase": {
+                "name": "Voorwasfase"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominaal laadgewicht"
+            },
+            "humiditytarget": {
+                "name": "Vochtdoel (actief)"
+            },
+            "tankalevel": {
+                "name": "Tank een niveau"
+            },
+            "tankblevel": {
+                "name": "Tank b-niveau"
+            },
+            "totaldrycyclescount": {
+                "name": "Totaal droogcycli"
+            },
+            "totaldryingtime": {
+                "name": "Totale droogtijd"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Totaal aantal was- en droogcycli"
+            },
+            "programsorder": {
+                "name": "Programmavolgorde"
+            },
+            "carelevel": {
+                "name": "Zorgniveau"
+            },
+            "drynessvalue": {
+                "name": "Droogtegraad (actief)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: gewicht waslading"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: wasladingsvocht"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: geschatte droogtijd"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: vlag overbelasting laden"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: fout bij het laden van het wasgoed"
+            },
+            "wmsn": {
+                "name": "Dwyw: serieel gekoppelde wasmachine"
+            },
+            "command": {
+                "name": "Dwyw: opdracht"
+            },
+            "displayonfloor": {
+                "name": "Display op de vloer"
+            },
+            "energyscore": {
+                "name": "Energiescore"
+            },
+            "waterscore": {
+                "name": "Waterscore"
+            },
+            "ecoscore": {
+                "name": "Eco-score"
+            },
+            "miscellaneousstate": {
+                "name": "Diverse staat"
+            },
+            "ambienttemperaturec": {
+                "name": "Omgevingstemperatuur c"
+            },
+            "ambienttemperaturef": {
+                "name": "Omgevingstemperatuur f"
+            },
+            "fanmode": {
+                "name": "Fan-modus"
+            },
+            "swingmode": {
+                "name": "Swing-modus"
+            },
+            "ambienthumidity": {
+                "name": "Omgevingsvochtigheid"
+            },
+            "filterstatus": {
+                "name": "Filterstatus"
+            },
+            "powerconsumption": {
+                "name": "Stroomverbruik"
+            },
+            "energyconsumption": {
+                "name": "Energieverbruik"
+            },
+            "fanspeedstate": {
+                "name": "Staat ventilatorsnelheid"
+            },
+            "filterstate": {
+                "name": "Filterstatus"
+            },
+            "hepafilterlifetime": {
+                "name": "Levensduur van het Hepa-filter"
+            },
+            "appliancecategory": {
+                "name": "Apparaatcategorie"
+            },
+            "vmno_niu": {
+                "name": "Niu-versie"
+            },
+            "vmno_mcu": {
+                "name": "Mcu-versie"
+            },
+            "schedulersession": {
+                "name": "Planner sessie"
+            },
+            "schedulermode": {
+                "name": "Planner-modus"
+            },
+            "totalruntime": {
+                "name": "Totale looptijd"
+            },
+            "compressorcoolingruntime": {
+                "name": "Koellooptijd compressor"
+            },
+            "compressorheatingruntime": {
+                "name": "Looptijd compressorverwarming"
+            },
+            "mainunittemp": {
+                "name": "Temp. hoofdunit"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Inloggen w"
+            },
+            "demandresponseau": {
+                "name": "Vraagrespons au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Modus staat"
+            },
+            "filterruntime": {
+                "name": "Runtime filteren"
+            },
+            "hepafilterstate": {
+                "name": "Hepa-filterstatus"
+            },
+            "airqualitylevel": {
+                "name": "Luchtkwaliteitsniveau"
+            },
+            "temperature": {
+                "name": "Omgevingstemperatuur"
+            },
+            "mode": {
+                "name": "Modus"
+            },
+            "temp": {
+                "name": "Temperatuur"
+            },
+            "humidity": {
+                "name": "Vochtigheid"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "TV"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Filtertype"
+            },
+            "filterlife": {
+                "name": "Filter het leven"
+            },
+            "workmode": {
+                "name": "Werkmodus"
+            },
+            "aqilight": {
+                "name": "Aqi licht"
+            },
+            "louverswing": {
+                "name": "Louvre schommel"
+            },
+            "quietfan": {
+                "name": "Stille ventilator"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Resetdatum bevochtigingsfilter"
+            },
+            "filterlife_1": {
+                "name": "Filter het leven"
+            },
+            "filterlife_2": {
+                "name": "Filterlevensduur 2"
+            },
+            "filtertype_1": {
+                "name": "Filtertype"
+            },
+            "filtertype_2": {
+                "name": "Filtertype 2"
+            },
+            "filteruid_1": {
+                "name": "Filter 1 NFC-tag-UID"
+            },
+            "filteruid_2": {
+                "name": "Filter 2 NFC-tag-UID"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (bij benadering)"
+            },
+            "uvruntime": {
+                "name": "UV-looptijd"
+            },
+            "schedulingstate": {
+                "name": "Planningsstatus"
+            },
+            "errimpellerstuck": {
+                "name": "Fout: waaier zit vast"
+            },
+            "errpmnotresp": {
+                "name": "Fout: pm-sensor reageert niet"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Fout: communicatie met displaybord"
+            },
+            "errcommsensoruibrd": {
+                "name": "Fout: ui-bordcommunicatie"
+            },
+            "signalstrength": {
+                "name": "Signaalsterkte"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "RFID-filter"
+            },
+            "errgasnotresp": {
+                "name": "Fout: gassensor reageert niet"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Fout: filter 1 NFC-tag niet aanwezig"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Fout: filter 2 NFC-tag niet aanwezig"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Fout: filter 1 NFC-tag ongeldig"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Fout: filter 2 NFC-tag ongeldig"
+            },
+            "errnfctransceiver_1": {
+                "name": "Fout: filter 1 NFC-zendontvanger"
+            },
+            "errnfctransceiver_2": {
+                "name": "Fout: filter 2 NFC-zendontvanger"
+            },
+            "errtemprhnotresp": {
+                "name": "Fout: temperatuur-/vochtigheidssensor reageert niet"
+            },
+            "errwatertrayremoved": {
+                "name": "Fout: waterbak verwijderd"
+            },
+            "waterbucketlevel": {
+                "name": "Wateremmer niveau"
+            },
+            "batterystatus": {
+                "name": "Batterij"
+            },
+            "robotstatus": {
+                "name": "Robotstatus"
+            },
+            "cleaningcommand": {
+                "name": "Reinigingsopdracht"
+            },
+            "dustbinstatus": {
+                "name": "Vuilnisbakstatus"
+            },
+            "mainbrushsqm": {
+                "name": "Gebruik van de hoofdborstel"
+            },
+            "sidebrushsqm": {
+                "name": "Gebruik van zijborstel"
+            },
+            "filtersqm": {
+                "name": "Filtergebruik"
+            },
+            "state": {
+                "name": "Staat van schoonmaken"
+            },
+            "chargingstatus": {
+                "name": "Oplaadstatus"
+            },
+            "vacuummode": {
+                "name": "Vacuümmodus"
+            },
+            "cleaningtype": {
+                "name": "Soort schoonmaak"
+            },
+            "cleaningmode": {
+                "name": "Reinigingsmodus"
+            },
+            "waterpumprate": {
+                "name": "Waterpompsnelheid"
+            },
+            "waterstationaction": {
+                "name": "Actie waterstation"
+            },
+            "moproute": {
+                "name": "Dweil route"
+            },
+            "notificationevent": {
+                "name": "Meldingsgebeurtenis"
+            },
+            "dirtcleanmode": {
+                "name": "Vuilreinigingsmodus"
+            },
+            "faultcode": {
+                "name": "Foutcode"
+            },
+            "filterusage": {
+                "name": "Filtergebruik"
+            },
+            "cleansize": {
+                "name": "Schoon formaat"
+            },
+            "cleantime": {
+                "name": "Schone tijd"
+            },
+            "dustbagusage": {
+                "name": "Gebruik van stofzakken"
+            },
+            "dustboxusage": {
+                "name": "Gebruik van stofbox"
+            },
+            "emptyingtime": {
+                "name": "Tijd leegmaken"
+            },
+            "mainbrushusage": {
+                "name": "Gebruik van de hoofdborstel"
+            },
+            "sidebrushusage": {
+                "name": "Gebruik van zijborstel"
+            },
+            "mopusage": {
+                "name": "Dweilgebruik"
+            },
+            "moparmextensionfreq": {
+                "name": "Frequentie van extensie van de dweilarm"
+            },
+            "mopdrytime": {
+                "name": "Dweil droogtijd"
+            },
+            "mopwashfreqarea": {
+                "name": "Dweilwasfrequentiegebied"
+            },
+            "mopwashfreqtime": {
+                "name": "Dweilwasfrequentie tijd"
+            },
+            "mopwashfreqtype": {
+                "name": "Type dweilwasfrequentie"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Herhalingen schoonmaken"
+            },
+            "voicevolume": {
+                "name": "Stemvolume"
+            },
+            "upgradeprogress": {
+                "name": "Upgrade-voortgang"
+            },
+            "stationupgradestatus": {
+                "name": "Upgradestatus van station"
+            },
+            "upgradestate": {
+                "name": "Upgrade-status"
+            },
+            "selectedroomid": {
+                "name": "Geselecteerde kamer-ID"
+            },
+            "maxusagedustbox": {
+                "name": "Maximaal gebruik van de stofbox"
+            },
+            "maxusagestationbag": {
+                "name": "Maximaal gebruik van stationbags"
+            },
+            "dndstarttime": {
+                "name": "Dnd starttijd"
+            },
+            "dndendtime": {
+                "name": "Dnd eindtijd"
+            },
+            "datamodelversion": {
+                "name": "Versie van het datamodel"
+            },
+            "basestationversion": {
+                "name": "Basisstationversie"
+            },
+            "deviceid": {
+                "name": "Apparaat-ID"
+            },
+            "timezonedaylightrule": {
+                "name": "Tijdzone daglichtregel"
+            },
+            "timezonestandardname": {
+                "name": "Standaardnaam voor tijdzone"
+            },
+            "bintank": {
+                "name": "Bak tank"
+            },
+            "setvoicevolume": {
+                "name": "Stemvolumeniveau"
+            },
+            "mapid": {
+                "name": "Persistente kaart-ID"
+            },
+            "sessionid": {
+                "name": "Reinigingssessie-ID"
+            },
+            "completion": {
+                "name": "Voltooiing van het schoonmaken"
+            },
+            "areacovered": {
+                "name": "Bedekt gebied"
+            },
+            "zones": {
+                "name": "Aantal kaartzones"
+            },
+            "zonestatus": {
+                "name": "Status van schoonmaakzone"
+            },
+            "ovwater_tank_empty": {
+                "name": "Status watertank"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Voedsel sonde"
+            },
+            "ovcleaning_ended": {
+                "name": "Reinigingsstatus"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonde Einde bereiding"
+            },
+            "connectivitystate": {
+                "name": "Connectiviteitsstatus"
+            },
+            "executionstate": {
+                "name": "Executie staat"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Kinderslot intern"
+            },
+            "cavitylight": {
+                "name": "Holte licht"
+            },
+            "childlock": {
+                "name": "Kinderslot"
+            },
+            "soundvolume": {
+                "name": "Geluidsvolume"
+            },
+            "keysoundtone": {
+                "name": "Sleutel geluid"
+            },
+            "windownotification": {
+                "name": "Venstermelding"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Koolstoffilter ingeschakeld"
+            },
+            "fastmode": {
+                "name": "Vriezer snelle modus"
+            },
+            "sabbathmode": {
+                "name": "Sabbat-modus"
+            },
+            "ecomode": {
+                "name": "Eco-modus"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2lock-modus"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Voorwas"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Antikreuk (geen stoom)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Anti-kreuk met stoom"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Nachtcyclus"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Economy-modus"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Spoelstop"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensief wassen"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Temperatuursensor"
+            },
+            "ewx1493a_stain": {
+                "name": "Behandeling van vlekken"
+            },
+            "ewx1493a_drymode": {
+                "name": "Droge modus"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Gemakkelijk strijken"
+            },
+            "ewx1493a_pod": {
+                "name": "Peul"
+            },
+            "ewx1493a_steammode": {
+                "name": "Stoommodus"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultramix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Natte modus"
+            },
+            "networkinterfacealwayson": {
+                "name": "Netwerk altijd aan"
+            },
+            "adlocalfinetuning": {
+                "name": "Lokale fijnafstemming met automatische dosering"
+            },
+            "anticreasenosteam": {
+                "name": "Anti-kreuk geen stoom"
+            },
+            "anticreasewsteam": {
+                "name": "Anti-kreuk met stoom"
+            },
+            "ultramix": {
+                "name": "Ultramix"
+            },
+            "prewashphase": {
+                "name": "Voorwas"
+            },
+            "stain": {
+                "name": "Vlekken actie"
+            },
+            "nightcycle": {
+                "name": "Nachtcyclus"
+            },
+            "wmeconomy": {
+                "name": "Economy-modus"
+            },
+            "rinsehold": {
+                "name": "Spoelstop"
+            },
+            "tcsensor": {
+                "name": "Temperatuursensor"
+            },
+            "soak": {
+                "name": "Geniet"
+            },
+            "softener": {
+                "name": "Verzachter"
+            },
+            "defaultsoftplus": {
+                "name": "Standaard zacht plus"
+            },
+            "intensive": {
+                "name": "Intensief"
+            },
+            "reverseplus": {
+                "name": "Omgekeerd plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco-modus"
+            },
+            "tdeconomy_night": {
+                "name": "Nachtmodus"
+            },
+            "tdeconomy_quick": {
+                "name": "Snelle modus"
+            },
+            "refresh": {
+                "name": "Programma vernieuwen"
+            },
+            "keytone": {
+                "name": "Toets toon"
+            },
+            "preselectlast": {
+                "name": "Selecteer vooraf de laatste"
+            },
+            "extrapoweroption": {
+                "name": "Extra kracht"
+            },
+            "extrasilentoption": {
+                "name": "Extra stil"
+            },
+            "glasscareoption": {
+                "name": "Glasverzorging"
+            },
+            "sprayzoneoption": {
+                "name": "Sproeizone"
+            },
+            "autodooropener": {
+                "name": "Automatische deuropener"
+            },
+            "sanitizeoption": {
+                "name": "Ontsmet"
+            },
+            "onerackoption": {
+                "name": "Eén rek"
+            },
+            "zonecleanoption": {
+                "name": "Zone schoon"
+            },
+            "xtradryoption": {
+                "name": "Extra droog"
+            },
+            "cleanairmode": {
+                "name": "Schone luchtmodus"
+            },
+            "sleepmode": {
+                "name": "Slaapmodus"
+            },
+            "batchschedulermode": {
+                "name": "Batchplannermodus"
+            },
+            "verticalswing": {
+                "name": "Verticale schommel"
+            },
+            "turbofunction": {
+                "name": "Turbo-functie"
+            },
+            "energysavingmode": {
+                "name": "Energiebesparende modus"
+            },
+            "autocleantrigger": {
+                "name": "Automatische reinigingstrigger"
+            },
+            "flappositionavoiduser": {
+                "name": "Kleppositie vermijd gebruiker"
+            },
+            "horizontalswing": {
+                "name": "Horizontale schommel"
+            },
+            "humidification": {
+                "name": "Bevochtiging"
+            },
+            "uilight": {
+                "name": "Ui licht"
+            },
+            "safetylock": {
+                "name": "Veiligheidsslot"
+            },
+            "ionizer": {
+                "name": "Ionisator"
+            },
+            "uvstate": {
+                "name": "UV-licht"
+            },
+            "mute": {
+                "name": "Stom"
+            }
+        }
     }
 }

@@ -84,7 +84,7 @@ class TestElectroluxText:
         assert entity.name == "Original Name"
 
     def test_name_fallback_to_catalog(self, mock_coordinator, mock_capability):
-        """Test name property falls back to catalog friendly name."""
+        """Test name property no longer uses catalog friendly_name directly."""
         from custom_components.electrolux.model import ElectroluxDevice
 
         catalog_entry = ElectroluxDevice(
@@ -108,7 +108,7 @@ class TestElectroluxText:
             icon="mdi:test",
             catalog_entry=catalog_entry,
         )
-        assert entity.name == "Catalog friendly name"
+        assert entity.name == "Original Name"
 
     def test_native_value_from_reported_state(self, text_entity):
         """Test native_value returns value from reported state."""
@@ -562,11 +562,13 @@ class TestTextSetValueAdvancedPaths:
         mock_coordinator.handle_authentication_error = AsyncMock()
         auth_ex = AuthenticationError("token expired")
 
-        with patch(
-            "custom_components.electrolux.text.execute_command_with_error_handling",
-            side_effect=auth_ex,
+        with (
+            patch(
+                "custom_components.electrolux.text.execute_command_with_error_handling",
+                side_effect=auth_ex,
+            ),
+            pytest.raises(AuthenticationError),
         ):
-            with pytest.raises(AuthenticationError):
-                await entity.async_set_value("hello")
+            await entity.async_set_value("hello")
 
         mock_coordinator.handle_authentication_error.assert_called_once_with(auth_ex)

@@ -1,5 +1,7 @@
 """API client and related utilities for the Electrolux integration."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Any
@@ -12,6 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers import issue_registry
 
+from .auth_errors import is_auth_error
 from .const import DOMAIN
 from .exceptions import NetworkError
 from .token_manager import ElectroluxTokenManager
@@ -19,9 +22,7 @@ from .token_manager import ElectroluxTokenManager
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
-def get_electrolux_session(
-    api_key, access_token, refresh_token, hass=None, config_entry=None
-) -> ElectroluxApiClient:
+def get_electrolux_session(api_key, access_token, refresh_token, hass=None, config_entry=None) -> ElectroluxApiClient:
     """Return Electrolux API Session."""
     return ElectroluxApiClient(api_key, access_token, refresh_token, hass, config_entry)
 
@@ -134,37 +135,18 @@ async def safe_api_call(
         error_str = str(ex).lower()
 
         # Check for authentication errors
-        if any(
-            keyword in error_str
-            for keyword in [
-                "401",
-                "unauthorized",
-                "invalid grant",
-                "token",
-                "forbidden",
-                "auth",
-            ]
-        ):
+        if is_auth_error(ex):
             logger.warning("Authentication error during %s: %s", operation_name, ex)
-            raise ConfigEntryAuthFailed(
-                "Authentication failed - please reauthenticate"
-            ) from ex
+            raise ConfigEntryAuthFailed("Authentication failed - please reauthenticate") from ex
 
         # Check for rate limiting
-        if any(
-            keyword in error_str
-            for keyword in ["429", "rate limit", "too many requests", "throttled"]
-        ):
+        if any(keyword in error_str for keyword in ["429", "rate limit", "too many requests", "throttled"]):
             logger.warning("Rate limit exceeded during %s: %s", operation_name, ex)
-            raise HomeAssistantError(
-                "Too many requests sent. Please wait a moment and try again."
-            ) from ex
+            raise HomeAssistantError("Too many requests sent. Please wait a moment and try again.") from ex
 
         # Generic error
         logger.error("Unexpected error during %s: %s", operation_name, ex)
-        raise HomeAssistantError(
-            f"Operation failed: {operation_name}. Check logs for details."
-        ) from ex
+        raise HomeAssistantError(f"Operation failed: {operation_name}. Check logs for details.") from ex
 
 
 class _TokenRefreshHandler(logging.Handler):
@@ -187,9 +169,7 @@ class _TokenRefreshHandler(logging.Handler):
                 "invalid refresh token",
                 "refresh token expired",
             ]
-            is_permanent_token_error = any(
-                indicator in lmsg for indicator in permanent_token_error_indicators
-            )
+            is_permanent_token_error = any(indicator in lmsg for indicator in permanent_token_error_indicators)
 
             if is_permanent_token_error:
                 try:
@@ -222,9 +202,7 @@ class ElectroluxApiClient:
         self.config_entry: ConfigEntry | None = config_entry
         self._auth_failed = False  # Flag to indicate auth failure
         self.coordinator: Any = None  # Reference to coordinator for triggering refresh
-        self._token_manager = ElectroluxTokenManager(
-            access_token, refresh_token, api_key
-        )
+        self._token_manager = ElectroluxTokenManager(access_token, refresh_token, api_key)
         # Set auth error callback to trigger reauthentication
         self._token_manager.set_auth_error_callback(self._trigger_reauth)
         self._client = ApplianceClient(self._token_manager)
@@ -237,9 +215,7 @@ class ElectroluxApiClient:
             try:
                 self._token_handler = _TokenRefreshHandler(self, hass)
                 self._token_handler.setLevel(logging.ERROR)
-                self._token_logger = logging.getLogger(
-                    "electrolux_group_developer_sdk.auth.token_manager"
-                )
+                self._token_logger = logging.getLogger("electrolux_group_developer_sdk.auth.token_manager")
                 self._token_logger.addHandler(self._token_handler)
             except Exception:
                 _LOGGER.exception("Failed to attach token refresh logger handler")
@@ -258,22 +234,16 @@ class ElectroluxApiClient:
         self._auth_failed = True
         _LOGGER.debug("_trigger_reauth: Set auth_failed flag to True")
 
-        _LOGGER.debug(
-            "_trigger_reauth: Reporting token refresh error to create HA issue"
-        )
+        _LOGGER.debug("_trigger_reauth: Reporting token refresh error to create HA issue")
         await self._report_token_refresh_error(message)
 
         # Force an immediate coordinator refresh to trigger reauth
         if self.hass and self.coordinator:
-            _LOGGER.debug(
-                "_trigger_reauth: Forcing immediate coordinator refresh to trigger reauth"
-            )
+            _LOGGER.debug("_trigger_reauth: Forcing immediate coordinator refresh to trigger reauth")
             self.hass.async_create_task(self.coordinator.async_refresh())
             _LOGGER.debug("_trigger_reauth: Coordinator refresh task scheduled")
         else:
-            _LOGGER.debug(
-                "_trigger_reauth: Cannot force refresh - hass or coordinator not available"
-            )
+            _LOGGER.debug("_trigger_reauth: Cannot force refresh - hass or coordinator not available")
 
     async def _report_token_refresh_error(self, message: str) -> None:
         """Create an HA issue when token refresh fails so user can re-authenticate."""
@@ -292,9 +262,7 @@ class ElectroluxApiClient:
             if self.config_entry:
                 entry = self.config_entry
                 issue_id = f"invalid_refresh_token_{entry.entry_id}"
-                _LOGGER.debug(
-                    f"_report_token_refresh_error: Using entry {entry.entry_id} for issue ID {issue_id}"
-                )
+                _LOGGER.debug(f"_report_token_refresh_error: Using entry {entry.entry_id} for issue ID {issue_id}")
             else:
                 # Fallback to old behavior if no config entry is associated
                 entries = self.hass.config_entries.async_entries(DOMAIN)
@@ -306,14 +274,10 @@ class ElectroluxApiClient:
                     )
                 else:
                     issue_id = "invalid_refresh_token"
-                    _LOGGER.debug(
-                        "_report_token_refresh_error: No entries found, using generic issue ID"
-                    )
+                    _LOGGER.debug("_report_token_refresh_error: No entries found, using generic issue ID")
 
             _LOGGER.warning("Token refresh failed: %s. Creating HA issue.", message)
-            _LOGGER.debug(
-                f"_report_token_refresh_error: Creating issue with ID {issue_id}"
-            )
+            _LOGGER.debug(f"_report_token_refresh_error: Creating issue with ID {issue_id}")
             issue_registry.async_create_issue(
                 self.hass,
                 DOMAIN,
@@ -336,27 +300,13 @@ class ElectroluxApiClient:
             _LOGGER.debug("_handle_api_call: API call completed successfully")
             return result
         except Exception as ex:
-            error_msg = str(ex).lower()
             _LOGGER.debug(f"_handle_api_call: Exception caught: {ex}")
             # Check for authentication-related errors
-            if any(
-                keyword in error_msg
-                for keyword in [
-                    "401",
-                    "unauthorized",
-                    "invalid grant",
-                    "token",
-                    "forbidden",
-                ]
-            ):
+            if is_auth_error(ex):
                 # Trigger token refresh handler by logging the error
                 _LOGGER.error("API call failed with authentication error: %s", ex)
-                _LOGGER.debug(
-                    "_handle_api_call: Authentication error detected, raising ConfigEntryAuthFailed"
-                )
-                raise ConfigEntryAuthFailed(
-                    "Authentication failed - token may be expired"
-                ) from ex
+                _LOGGER.debug("_handle_api_call: Authentication error detected, raising ConfigEntryAuthFailed")
+                raise ConfigEntryAuthFailed("Authentication failed - token may be expired") from ex
             else:
                 _LOGGER.debug("_handle_api_call: Non-authentication error, re-raising")
                 # Re-raise other errors
@@ -400,9 +350,7 @@ class ElectroluxApiClient:
         result = []
         for appliance_id in appliance_ids:
             try:
-                details = await self._handle_api_call(
-                    self._client.get_appliance_details(appliance_id)
-                )
+                details = await self._handle_api_call(self._client.get_appliance_details(appliance_id))
                 # Try to extract model from PNC if API doesn't provide it
                 # Note: Electrolux API often returns "Unknown" for model, but the PNC
                 # contains the actual product code (e.g., "944188772") which is the most
@@ -429,18 +377,14 @@ class ElectroluxApiClient:
                 _LOGGER.debug("API appliance details retrieved for %s", appliance_id)
                 result.append(info)
             except Exception as e:
-                _LOGGER.warning(
-                    "Failed to get info for appliance %s: %s", appliance_id, e
-                )
+                _LOGGER.warning("Failed to get info for appliance %s: %s", appliance_id, e)
         return result
 
     async def get_appliance_state(self, appliance_id) -> dict[str, Any]:
         """Get appliance state."""
 
         async def _get_state():
-            state = await self._handle_api_call(
-                self._client.get_appliance_state(appliance_id)
-            )
+            state = await self._handle_api_call(self._client.get_appliance_state(appliance_id))
             return state
 
         result = await safe_api_call(
@@ -455,12 +399,8 @@ class ElectroluxApiClient:
         elif hasattr(result, "properties") and isinstance(result.properties, dict):
             reported = result.properties.get("reported", {})
         else:
-            _LOGGER.warning(
-                "API response is not a dict or object with properties: %s", type(result)
-            )
-            raise HomeAssistantError(
-                f"Invalid appliance state response for {appliance_id}"
-            )
+            _LOGGER.warning("API response is not a dict or object with properties: %s", type(result))
+            raise HomeAssistantError(f"Invalid appliance state response for {appliance_id}")
 
         # Convert to expected format
         return {
@@ -474,9 +414,7 @@ class ElectroluxApiClient:
         """Get appliance capabilities."""
 
         async def _get_capabilities():
-            details = await self._handle_api_call(
-                self._client.get_appliance_details(appliance_id)
-            )
+            details = await self._handle_api_call(self._client.get_appliance_details(appliance_id))
             return details
 
         result = await safe_api_call(
@@ -492,9 +430,7 @@ class ElectroluxApiClient:
 
         return result.capabilities
 
-    async def watch_for_appliance_state_updates(
-        self, appliance_ids, callback, on_connected=None
-    ):
+    async def watch_for_appliance_state_updates(self, appliance_ids, callback, on_connected=None):
         """Safely start SSE event stream.
 
         Args:
@@ -522,15 +458,11 @@ class ElectroluxApiClient:
             # Start the event stream as a background task (it runs indefinitely)
             if self.hass:
                 self._sse_task = self.hass.async_create_task(
-                    self._client.start_event_stream(
-                        do_on_livestream_opening_list=on_connect_list
-                    )
+                    self._client.start_event_stream(do_on_livestream_opening_list=on_connect_list)
                 )
             else:
                 self._sse_task = asyncio.create_task(
-                    self._client.start_event_stream(
-                        do_on_livestream_opening_list=on_connect_list
-                    )
+                    self._client.start_event_stream(do_on_livestream_opening_list=on_connect_list)
                 )
 
             # Add callback to handle task failures
@@ -548,24 +480,9 @@ class ElectroluxApiClient:
                     )
                     # Check if it's an auth error and trigger reauth
                     if self.hass and self.config_entry:
-                        error_msg = str(task.exception()).lower()
-                        auth_keywords = [
-                            "401",
-                            "unauthorized",
-                            "auth",
-                            "token",
-                            "invalid grant",
-                            "forbidden",
-                        ]
-                        if any(keyword in error_msg for keyword in auth_keywords):
-                            _LOGGER.debug(
-                                f"SSE auth error detected: {task.exception()}"
-                            )
-                            asyncio.create_task(
-                                self._trigger_reauth(
-                                    f"SSE auth error: {task.exception()}"
-                                )
-                            )
+                        if is_auth_error(task.exception()):
+                            _LOGGER.debug(f"SSE auth error detected: {task.exception()}")
+                            asyncio.create_task(self._trigger_reauth(f"SSE auth error: {task.exception()}"))
                     # Note: We don't mark appliances as offline here because SSE failure
                     # doesn't necessarily mean appliances are disconnected. Individual
                     # appliance connectivity is tracked through data updates and timeouts.
@@ -582,9 +499,7 @@ class ElectroluxApiClient:
 
             self._sse_task.add_done_callback(_handle_sse_failure)
 
-            _LOGGER.debug(
-                "Started SSE event stream for %d appliances", len(appliance_ids)
-            )
+            _LOGGER.debug("Started SSE event stream for %d appliances", len(appliance_ids))
 
         except Exception as e:
             _LOGGER.error("Failed to start SSE event stream: %s", e)
@@ -593,23 +508,15 @@ class ElectroluxApiClient:
     async def disconnect_websocket(self):
         """Disconnect SSE event stream."""
         try:
-            if (
-                hasattr(self, "_sse_task")
-                and self._sse_task
-                and not self._sse_task.done()
-            ):
+            if hasattr(self, "_sse_task") and self._sse_task and not self._sse_task.done():
                 self._sse_task.cancel()
                 try:
                     await self._sse_task
                 except asyncio.CancelledError:
-                    _LOGGER.debug(
-                        "Electrolux SSE task was cancelled during disconnect, as expected"
-                    )
+                    _LOGGER.debug("Electrolux SSE task was cancelled during disconnect, as expected")
                 except Exception:
                     # Task finished with an exception, but we don't care during shutdown
-                    _LOGGER.debug(
-                        "Electrolux SSE task finished with exception during disconnect"
-                    )
+                    _LOGGER.debug("Electrolux SSE task finished with exception during disconnect")
                 self._sse_task = None
             _LOGGER.debug("SSE disconnect completed")
         except Exception as e:
@@ -623,14 +530,7 @@ class ElectroluxApiClient:
     async def execute_appliance_command(self, appliance_id, command):
         """Execute a command on an appliance."""
         # Use the ApplianceClient's send_command method
-        try:
-            result = await self._handle_api_call(
-                self._client.send_command(appliance_id, command)
-            )
-            return result
-        except Exception:
-            # Re-raise all exceptions to be handled by the calling entity
-            raise
+        return await self._handle_api_call(self._client.send_command(appliance_id, command))
 
     async def close(self):
         """Decisive cleanup of resources."""

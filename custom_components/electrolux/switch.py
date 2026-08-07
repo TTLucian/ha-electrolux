@@ -56,9 +56,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == SWITCH
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == SWITCH]
 
             filtered_switches: list[Any] = []
             reported_data = appliance.reported_state or {}
@@ -69,12 +67,8 @@ async def async_setup_entry(
                 # the appliance hardware does not support it (e.g., Pod wash, AutoDose).
                 # Write-only caps (access == "write") are exempt: they never appear in
                 # reported state by design, so absence is not evidence of non-support.
-                if entity.json_path and not _reported_path_exists(
-                    reported_data, entity.json_path, entity.entity_attr
-                ):
-                    cap_access = (
-                        entity.capability.get("access") if entity.capability else None
-                    )
+                if entity.json_path and not _reported_path_exists(reported_data, entity.json_path, entity.entity_attr):
+                    cap_access = entity.capability.get("access") if entity.capability else None
                     if cap_access != "write":
                         _LOGGER.debug(
                             "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
@@ -150,9 +144,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
 
         client: ElectroluxApiClient = self.api
         # Use dynamic capability-based value formatting
-        command_value = format_command_for_appliance(
-            self.capability, self.entity_attr, value
-        )
+        command_value = format_command_for_appliance(self.capability, self.entity_attr, value)
 
         command: dict[str, Any]
         if not self.is_dam_appliance:
@@ -162,9 +154,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 # Build the full current userSelections payload so that appliances
                 # which treat partial writes as full replacements (resetting omitted
                 # options to defaults) keep their sibling options intact.
-                full_selections = self._build_full_user_selections(
-                    self.entity_attr, command_value
-                )
+                full_selections = self._build_full_user_selections(self.entity_attr, command_value)
                 if full_selections.get("programUID"):
                     command = {"userSelections": full_selections}
                 else:
@@ -176,9 +166,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         elif self.entity_source:
             if self.entity_source == "userSelections":
                 # Build the full current userSelections payload (DAM path).
-                full_selections = self._build_full_user_selections(
-                    self.entity_attr, command_value
-                )
+                full_selections = self._build_full_user_selections(self.entity_attr, command_value)
                 command = {self.entity_source: full_selections}
             else:
                 command = {self.entity_source: {self.entity_attr: command_value}}
@@ -209,9 +197,7 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         # Schedule a follow-up state refresh — some switch properties are not pushed
         # via SSE by the Electrolux cloud, so the optimistic update is the only way
         # HA learns the state without a follow-up poll.
-        cast(ElectroluxCoordinator, self.coordinator)._schedule_state_refresh(
-            self.pnc_id
-        )
+        cast(ElectroluxCoordinator, self.coordinator)._schedule_state_refresh(self.pnc_id)
 
         _LOGGER.debug("Electrolux set value completed")
 

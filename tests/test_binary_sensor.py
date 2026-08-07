@@ -102,7 +102,7 @@ class TestElectroluxBinarySensor:
         assert binary_sensor_entity.entity_domain == "binary_sensor"
 
     def test_name_with_friendly_name(self, mock_coordinator, mock_capability):
-        """Test name property uses friendly name mapping."""
+        """Test name property falls back to provided name without runtime localization."""
         entity = ElectroluxBinarySensor(
             coordinator=mock_coordinator,
             name="Original Name",
@@ -118,10 +118,10 @@ class TestElectroluxBinarySensor:
             entity_category=EntityCategory.DIAGNOSTIC,
             icon="mdi:test",
         )
-        assert entity.name == "Water Tank Status"
+        assert entity.name == "Original Name"
 
     def test_name_fallback_to_catalog(self, mock_coordinator, mock_capability):
-        """Test name property falls back to catalog friendly name."""
+        """Test name property no longer uses catalog friendly_name directly."""
         from custom_components.electrolux.model import ElectroluxDevice
 
         catalog_entry = ElectroluxDevice(
@@ -145,7 +145,7 @@ class TestElectroluxBinarySensor:
             icon="mdi:test",
             catalog_entry=catalog_entry,
         )
-        assert entity.name == "Catalog friendly name"
+        assert entity.name == "Original Name"
 
     def test_invert_false_by_default(self, binary_sensor_entity):
         """Test invert property defaults to False."""

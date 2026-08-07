@@ -181,9 +181,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     @property
     def supported_features(self) -> ClimateEntityFeature:
         features = (
-            ClimateEntityFeature.TARGET_TEMPERATURE
-            | ClimateEntityFeature.FAN_MODE
-            | ClimateEntityFeature.SWING_MODE
+            ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE | ClimateEntityFeature.SWING_MODE
         )
         if "horizontalSwing" in self.capability:
             features |= ClimateEntityFeature.SWING_HORIZONTAL_MODE
@@ -336,11 +334,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
                     return HVACAction.IDLE
                 valve = self.get_state_attr("fourWayValveState")
                 if valve is not None:
-                    return (
-                        HVACAction.HEATING
-                        if str(valve).upper() == "ON"
-                        else HVACAction.COOLING
-                    )
+                    return HVACAction.HEATING if str(valve).upper() == "ON" else HVACAction.COOLING
 
         return None
 
@@ -383,9 +377,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     @property
     def min_temp(self) -> float:
         """Return the minimum temperature."""
-        temp_capability = self.capability.get(
-            f"targetTemperature{self._temp_suffix}", {}
-        )
+        temp_capability = self.capability.get(f"targetTemperature{self._temp_suffix}", {})
         min_val = temp_capability.get("min")
         if min_val is not None:
             return float(min_val)
@@ -394,9 +386,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     @property
     def max_temp(self) -> float:
         """Return the maximum temperature."""
-        temp_capability = self.capability.get(
-            f"targetTemperature{self._temp_suffix}", {}
-        )
+        temp_capability = self.capability.get(f"targetTemperature{self._temp_suffix}", {})
         max_val = temp_capability.get("max")
         if max_val is not None:
             return float(max_val)
@@ -405,9 +395,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
     @property
     def target_temperature_step(self) -> float:
         """Return the supported step of target temperature."""
-        temp_capability = self.capability.get(
-            f"targetTemperature{self._temp_suffix}", {}
-        )
+        temp_capability = self.capability.get(f"targetTemperature{self._temp_suffix}", {})
         step = temp_capability.get("step")
         if step is not None:
             return float(step)
@@ -450,9 +438,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         # which the mode-change branch below picks up.
         if current_mode == HVACMode.OFF:
             if hvac_mode is None or hvac_mode == HVACMode.OFF:
-                raise HomeAssistantError(
-                    "Cannot set temperature while appliance is off"
-                )
+                raise HomeAssistantError("Cannot set temperature while appliance is off")
 
         # When a mode change is requested (off→on, or on→different mode),
         # delegate to async_set_hvac_mode. It reads _last_user_temperature
@@ -505,10 +491,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         # Re-apply last user temperature — device resets to min on power-off.
         # Skip for modes where the API disables targetTemperatureC (FAN_ONLY, DRY).
         _MODES_WITHOUT_TEMPERATURE = frozenset({HVACMode.FAN_ONLY, HVACMode.DRY})
-        if (
-            self._last_user_temperature is not None
-            and hvac_mode not in _MODES_WITHOUT_TEMPERATURE
-        ):
+        if self._last_user_temperature is not None and hvac_mode not in _MODES_WITHOUT_TEMPERATURE:
             temp_attr = f"targetTemperature{self._temp_suffix}"
             await self._send_command(temp_attr, self._last_user_temperature)
             self._apply_optimistic_update(temp_attr, self._last_user_temperature)
@@ -550,18 +533,12 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
                 command = {attr: command_value}
         else:
             # DAM appliances: wrapped in commands array
-            command = {
-                "commands": [
-                    {self.entity_source or "airConditioner": {attr: command_value}}
-                ]
-            }
+            command = {"commands": [{self.entity_source or "airConditioner": {attr: command_value}}]}
 
         _LOGGER.debug("Electrolux climate command %s", command)
 
         try:
-            await execute_command_with_error_handling(
-                client, self.pnc_id, command, attr, _LOGGER, self.capability
-            )
+            await execute_command_with_error_handling(client, self.pnc_id, command, attr, _LOGGER, self.capability)
 
             # Optimistically update local state using base class helper method
             self._apply_optimistic_update(attr, command_value)

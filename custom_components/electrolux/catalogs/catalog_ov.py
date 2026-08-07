@@ -206,6 +206,13 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timer",
     ),
+    "timeToEnd": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=SensorDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
+        entity_category=None,
+        entity_icon="mdi:timer-sand",
+    ),
     "startTime": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

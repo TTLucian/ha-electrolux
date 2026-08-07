@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Εκ νέου έλεγχος ταυτότητας Electrolux",
-                "description": "Τα διακριτικά του Electrolux API έχουν λήξει ή δεν είναι έγκυρα. Ενημερώστε τα με νέα διακριτικά από την πύλη προγραμματιστών της Electrolux.\n\nΕπισκεφτείτε το {url} για να δημιουργήσετε νέα διακριτικά.",
+                "description": "Τα διακριτικά του Electrolux API έχουν λήξει ή δεν είναι έγκυρα. Ενημερώστε τα με νέα διακριτικά από την πύλη προγραμματιστών της Electrolux.\n\nΕπισκεφτείτε την {url} για να δημιουργήσετε νέα διακριτικά.",
                 "data": {
                     "api_key": "Κλειδί API",
                     "access_token": "Token πρόσβασης",
@@ -23,8 +23,8 @@
                 }
             },
             "reconfigure": {
-                "title": "Επαναδιαμορφώστε την Electrolux",
-                "description": "Ενημερώστε τα διαπιστευτήρια του Electrolux API.\n\nΕπισκεφτείτε το {url} για να δημιουργήσετε νέα διακριτικά.",
+                "title": "Επαναδιαμόρφωση της Electrolux",
+                "description": "Ενημερώστε τα διαπιστευτήρια του Electrolux API.\n\nΕπισκεφτείτε την {url} για να δημιουργήσετε νέα διακριτικά.",
                 "data": {
                     "api_key": "Κλειδί API",
                     "access_token": "Token πρόσβασης",
@@ -93,7 +93,7 @@
             "message": "Η συσκευή είναι αποσυνδεδεμένη ή δεν είναι διαθέσιμη. Ελέγξτε τη σύνδεση δικτύου της συσκευής."
         },
         "appliance_offline": {
-            "message": "Το εργαλείο είναι εκτός σύνδεσης (τρέχουσα κατάσταση: {state}). Ελέγξτε ότι η συσκευή είναι συνδεδεμένη στην πρίζα, έχει συνδεσιμότητα δικτύου και είναι συνδεδεμένη σε υπηρεσίες cloud."
+            "message": "Η συσκευή είναι εκτός σύνδεσης (τρέχουσα κατάσταση: {state}). Ελέγξτε ότι η συσκευή είναι συνδεδεμένη στην πρίζα, έχει συνδεσιμότητα δικτύου και είναι συνδεδεμένη σε υπηρεσίες cloud."
         },
         "appliance_state_incomplete": {
             "message": "Δεν είναι δυνατή η αλλαγή της ρύθμισης: η κατάσταση της συσκευής δεν έχει ολοκληρωθεί. Περιμένετε να αρχικοποιηθεί η συσκευή."
@@ -132,7 +132,7 @@
             "message": "Η υπηρεσία Electrolux δεν είναι διαθέσιμη προσωρινά, δοκιμάστε ξανά."
         },
         "set_temperature_while_off": {
-            "message": "Δεν είναι δυνατός ο ορισμός {attr} ενώ η συσκευή είναι απενεργοποιημένη. Ενεργοποιήστε πρώτα τη συσκευή."
+            "message": "Δεν είναι δυνατή η ρύθμιση {attr} ενώ η συσκευή είναι απενεργοποιημένη. Ενεργοποιήστε πρώτα τη συσκευή."
         },
         "type_mismatch": {
             "message": "Σφάλμα ενσωμάτωσης: αναντιστοιχία τύπου δεδομένων για {attr}. Αναμενόμενο Boolean."
@@ -142,6 +142,1399 @@
         },
         "value_below_minimum": {
             "message": "Η τιμή {value} είναι κάτω από το ελάχιστο {min_val} για {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Κατάσταση συνδεσιμότητας"
+            },
+            "doorstate": {
+                "name": "Κατάσταση πόρτας"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Food Probe"
+            },
+            "foodprobesupported": {
+                "name": "Υποστήριξη Food Probe"
+            },
+            "watertrayinsertionstate": {
+                "name": "Δίσκος νερού"
+            },
+            "watertankempty": {
+                "name": "Δεξαμενή νερού άδεια"
+            },
+            "cleaningreminder": {
+                "name": "Υπενθύμιση καθαρισμού"
+            },
+            "drawerstatus": {
+                "name": "Συρτάρι"
+            },
+            "humancentriclighteventstate": {
+                "name": "Ανθρωποκεντρικό φως"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Αυτόματη απενεργοποίηση"
+            },
+            "appliancestate": {
+                "name": "Κατάσταση κατάψυξης"
+            },
+            "fanstate": {
+                "name": "Κατάσταση ανεμιστήρα επιπλέον κοιλότητας"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Απαιτείται συντήρηση"
+            },
+            "maint2_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 2"
+            },
+            "maint3_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 3"
+            },
+            "maint4_occured": {
+                "name": "Maintenance item 4 occurred"
+            },
+            "maint5_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 5"
+            },
+            "maint6_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 6"
+            },
+            "maint7_occured": {
+                "name": "Maintenance item 7 occurred"
+            },
+            "maint8_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 8"
+            },
+            "maint9_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 9"
+            },
+            "maint10_occured": {
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 10"
+            },
+            "occured": {
+                "name": "Έγινε συντήρηση 1"
+            },
+            "ecomode": {
+                "name": "Eco mode"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Απαιτείται καθαρισμός φίλτρου αέρα"
+            },
+            "hmepn_acalerts": {
+                "name": "Υποστηρίζονται ειδοποιήσεις εναλλασσόμενου ρεύματος"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Το φίλτρο Hepa έχει τοποθετηθεί"
+            },
+            "dooropen": {
+                "name": "Πόρτα ανοιχτή"
+            },
+            "watertraylevellow": {
+                "name": "Χαμηλή στάθμη δίσκου νερού"
+            },
+            "autodustcollection": {
+                "name": "Αυτόματη συλλογή σκόνης"
+            },
+            "automoparmextension": {
+                "name": "Προέκταση βραχίονα αυτόματης σφουγγαρίστρας"
+            },
+            "automopdry": {
+                "name": "Αυτόματη σφουγγαρίστρα στεγνώνει"
+            },
+            "automopwash": {
+                "name": "Αυτόματο πλύσιμο σφουγγαρίστρας"
+            },
+            "autodetergentusage": {
+                "name": "Αυτόματη χρήση απορρυπαντικού"
+            },
+            "mopinstalled": {
+                "name": "Τοποθετημένη σφουγγαρίστρα"
+            },
+            "incharger": {
+                "name": "Σε φορτιστή"
+            },
+            "returntowash": {
+                "name": "Επιστρέψτε στο πλύσιμο"
+            },
+            "roomselected": {
+                "name": "Επιλεγμένο δωμάτιο"
+            },
+            "carpetboost": {
+                "name": "Ενίσχυση χαλιού"
+            },
+            "carpetavoid": {
+                "name": "Αποφυγή χαλιών"
+            },
+            "carpetdisplay": {
+                "name": "Έκθεση χαλιού"
+            },
+            "obstacleavoidance": {
+                "name": "Αποφυγή εμποδίων"
+            },
+            "dndenabled": {
+                "name": "Η λειτουργία Μην ενοχλείτε είναι ενεργοποιημένη"
+            },
+            "dnddisableairdry": {
+                "name": "Και απενεργοποιήστε το στέγνωμα στον αέρα"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd παύση στεγνό αέρα"
+            },
+            "multifloormap": {
+                "name": "Πολυώροφος χάρτης"
+            },
+            "multifloormapautoswitch": {
+                "name": "Αυτόματος διακόπτης χάρτη πολλαπλών ορόφων"
+            },
+            "robotposereliable": {
+                "name": "Αξιόπιστη στάση ρομπότ"
+            },
+            "ovwater_tank_empty": {
+                "name": "Κατάσταση δεξαμενής νερού"
+            },
+            "ovcleaning_ended": {
+                "name": "Κατάσταση καθαρισμού"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Probe Τέλος μαγειρέματος"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Εντολή δικτύου"
+            },
+            "startupcommand": {
+                "name": "Εντολή εκκίνησης"
+            },
+            "manualsync": {
+                "name": "Χειροκίνητος συγχρονισμός"
+            },
+            "executecommand": {
+                "name": "Εξουσία"
+            },
+            "waterfilterstatereset": {
+                "name": "Επαναφέρετε το φίλτρο νερού"
+            },
+            "airfilterstatereset": {
+                "name": "Επαναφέρετε το φίλτρο αέρα"
+            },
+            "saveappfavorite": {
+                "name": "Αποθήκευση αγαπημένου"
+            },
+            "shortcutproglistcmd": {
+                "name": "Εντολή λίστας προγραμμάτων συντόμευσης"
+            },
+            "filterreset": {
+                "name": "Επαναφορά φίλτρου"
+            },
+            "hepafilterreset": {
+                "name": "Επαναφορά φίλτρου Hepa"
+            },
+            "findme": {
+                "name": "Βρείτε με"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Καθαριστής αέρα"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Ώρα έναρξης"
+            },
+            "targetduration": {
+                "name": "Στοχευόμενη διάρκεια"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Θερμοκρασία στοχοθέτησης τροφίμων γ"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Θερμοκρασία στοχοθέτησης τροφίμων f"
+            },
+            "targettemperaturec": {
+                "name": "Θερμοκρασία στόχος γ"
+            },
+            "targettemperaturef": {
+                "name": "Θερμοκρασία στόχος f"
+            },
+            "remindertime": {
+                "name": "Χρόνος υπενθύμισης πάνω φούρνου"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Αντιστάθμιση τοπικής ώρας συσκευής"
+            },
+            "lightintensity": {
+                "name": "Ένταση φωτός"
+            },
+            "lightcolortemperature": {
+                "name": "Θερμοκρασία ανοιχτού χρώματος"
+            },
+            "stoptime": {
+                "name": "Σταματήστε το χρόνο"
+            },
+            "adtankadetstandarddose": {
+                "name": "Φυλάξτε μια τυπική δόση απορρυπαντικού"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Δεξαμενή β απορρυπαντικού τυπικής δόσης"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Τυπική δόση μαλακτικού Tank b"
+            },
+            "adfinetunedetlevel": {
+                "name": "Ρυθμίστε το επίπεδο απορρυπαντικού"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Βελτιώστε το επίπεδο μαλακτικού"
+            },
+            "extrarinsenumber": {
+                "name": "Επιπλέον ξεβγάλματα"
+            },
+            "maint1_id": {
+                "name": "Στοιχείο συντήρησης 1 id"
+            },
+            "maint2_id": {
+                "name": "Στοιχείο συντήρησης 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 2"
+            },
+            "maint3_id": {
+                "name": "Στοιχείο συντήρησης 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 3"
+            },
+            "maint4_id": {
+                "name": "Στοιχείο συντήρησης 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 4"
+            },
+            "maint5_id": {
+                "name": "Στοιχείο συντήρησης 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 5"
+            },
+            "maint6_id": {
+                "name": "Στοιχείο συντήρησης 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Όριο αντικειμένου 6 συντήρησης"
+            },
+            "maint7_id": {
+                "name": "Στοιχείο συντήρησης 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 7"
+            },
+            "maint8_id": {
+                "name": "Στοιχείο συντήρησης 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 8"
+            },
+            "maint9_id": {
+                "name": "Στοιχείο συντήρησης 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Όριο στοιχείου συντήρησης 9"
+            },
+            "maint10_id": {
+                "name": "Στοιχείο συντήρησης 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Κατώφλι του στοιχείου συντήρησης 10"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Σαφής εξατομίκευση κύκλου"
+            },
+            "memoryid": {
+                "name": "Υποδοχή μνήμης"
+            },
+            "dryingtime": {
+                "name": "Χρονικό στέγνωμα (ενεργό)"
+            },
+            "timetonotify": {
+                "name": "Ώρα για ειδοποίηση"
+            },
+            "anticreasevalue": {
+                "name": "Αντιτσάσιμο (ενεργό)"
+            },
+            "rinseaidlevel": {
+                "name": "Επίπεδο λαμπρυντικού"
+            },
+            "targethumidity": {
+                "name": "Στόχος υγρασίας"
+            },
+            "targettemperature": {
+                "name": "Θερμοκρασία στόχος"
+            },
+            "fanspeed": {
+                "name": "Ταχύτητα ανεμιστήρα"
+            },
+            "humiditytarget": {
+                "name": "Στόχος υγρασίας"
+            },
+            "powermode": {
+                "name": "Λειτουργία τροφοδοσίας"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Εμφάνιση φωτός"
+            },
+            "targettemperaturec": {
+                "name": "Επιπλέον θερμοκρασία κοιλότητας"
+            },
+            "mode": {
+                "name": "Τρόπος"
+            },
+            "fanspeedsetting": {
+                "name": "Ταχύτητα ανεμιστήρα"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Ειδοποιήσεις"
+            },
+            "appliancestate": {
+                "name": "Κατάσταση συσκευής"
+            },
+            "temperaturerepresentation": {
+                "name": "Αναπαράσταση θερμοκρασίας"
+            },
+            "linkqualityindicator": {
+                "name": "Ένδειξη ποιότητας σύνδεσης διασύνδεσης δικτύου"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Περιγραφή ενημέρωσης Niu sw"
+            },
+            "otastate": {
+                "name": "Κατάσταση διεπαφής δικτύου"
+            },
+            "swancandrevision": {
+                "name": "Sw an και αναθεώρηση"
+            },
+            "swversion": {
+                "name": "Έκδοση sw διεπαφής δικτύου"
+            },
+            "endofcyclesound": {
+                "name": "Ήχος τέλους κύκλου"
+            },
+            "programuid": {
+                "name": "Uid προγράμματος"
+            },
+            "appliancetype": {
+                "name": "Τύπος συσκευής"
+            },
+            "capabilityhash": {
+                "name": "Κατακερματισμός ικανότητας"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Τηλεχειριστήριο"
+            },
+            "totalcyclecounter": {
+                "name": "Μετρητής συνολικού κύκλου"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Συνολικός χρόνος εργασίας της συσκευής"
+            },
+            "timetoend": {
+                "name": "Ώρα να τελειώσει"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Εμφάνιση θερμοκρασίας αισθητήρα τροφίμων"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Εμφάνιση θερμοκρασίας αισθητήρα τροφίμων γ"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Εμφάνιση θερμοκρασίας αισθητήρα τροφίμων f"
+            },
+            "displaytemperature": {
+                "name": "Εμφάνιση θερμοκρασίας"
+            },
+            "displaytemperaturec": {
+                "name": "Εμφάνιση θερμοκρασίας c"
+            },
+            "displaytemperaturef": {
+                "name": "Εμφάνιση θερμοκρασίας f"
+            },
+            "processphase": {
+                "name": "Φάση διαδικασίας"
+            },
+            "program": {
+                "name": "Πρόγραμμα"
+            },
+            "runningtime": {
+                "name": "Χρόνος λειτουργίας"
+            },
+            "fastheatupfeature": {
+                "name": "Λειτουργία γρήγορης θέρμανσης του επάνω φούρνου"
+            },
+            "preheatcomplete": {
+                "name": "Ολοκληρώθηκε η προθέρμανση του επάνω φούρνου"
+            },
+            "targetdurationendaction": {
+                "name": "Ενέργεια λήξης διάρκειας στόχου πάνω φούρνου"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Επάνω στόχευση φούρνου ανιχνευτή φαγητού στο τέλος της θερμοκρασίας"
+            },
+            "watertanklevel": {
+                "name": "Πάνω στάθμη δοχείου νερού φούρνου"
+            },
+            "waterhardness": {
+                "name": "Σκληρότητα νερού"
+            },
+            "descalingreminderstate": {
+                "name": "Υπενθύμιση αφαλάτωσης"
+            },
+            "clockstyle": {
+                "name": "Στυλ ρολογιού"
+            },
+            "language": {
+                "name": "Γλώσσα"
+            },
+            "localtimeautomaticmode": {
+                "name": "Αυτόματη λειτουργία τοπικής ώρας"
+            },
+            "autolocaltimeoffset": {
+                "name": "Αυτόματη μετατόπιση τοπικής ώρας"
+            },
+            "favoriteorder": {
+                "name": "Αγαπημένη παραγγελία"
+            },
+            "number": {
+                "name": "Πλήθος αγαπημένων παραγγελιών"
+            },
+            "favoriteselect": {
+                "name": "Αγαπημένη επιλογή"
+            },
+            "favoritestatus": {
+                "name": "Αγαπημένη κατάσταση"
+            },
+            "activemessageindex": {
+                "name": "Ενεργό ευρετήριο μηνυμάτων"
+            },
+            "appliancemode": {
+                "name": "Λειτουργία συσκευής"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Ταχύτητα ανεμιστήρα κουκούλας"
+            },
+            "hobtohoodstate": {
+                "name": "Κατάσταση κουκούλας"
+            },
+            "hoodfanlevel": {
+                "name": "Επίπεδο ανεμιστήρα"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Χρονόμετρο φίλτρου άνθρακα"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Χρονοδιακόπτης φίλτρου λίπους"
+            },
+            "tvocfiltertime": {
+                "name": "Χρόνος φίλτρου Tvoc"
+            },
+            "fastmodetimetoend": {
+                "name": "Χρόνος λήξης της γρήγορης λειτουργίας κατάψυξης"
+            },
+            "sensortemperaturec": {
+                "name": "Θερμοκρασία κατάψυξης"
+            },
+            "vacationholidaymode": {
+                "name": "Λειτουργία διακοπών"
+            },
+            "sensorhumidity": {
+                "name": "Υγρασία"
+            },
+            "waterfilterstate": {
+                "name": "Κατάσταση φίλτρου νερού"
+            },
+            "waterfilterlifetime": {
+                "name": "Χρόνος ζωής φίλτρου νερού"
+            },
+            "waterfilterflow": {
+                "name": "Ροή φίλτρου νερού"
+            },
+            "airfilterstate": {
+                "name": "Κατάσταση φίλτρου αέρα"
+            },
+            "airfilterlifetime": {
+                "name": "Διάρκεια ζωής φίλτρου αέρα"
+            },
+            "coolingvalvestate": {
+                "name": "Κατάσταση βαλβίδας ψύξης"
+            },
+            "defrostroutinestate": {
+                "name": "Κατάσταση ρουτίνας απόψυξης"
+            },
+            "compressorstate": {
+                "name": "Κατάσταση συμπιεστή"
+            },
+            "compressorspeed": {
+                "name": "Ταχύτητα συμπιεστή"
+            },
+            "coefficient": {
+                "name": "Συντελεστής ταχύτητας συμπιεστή"
+            },
+            "exponent": {
+                "name": "Εκθέτης ταχύτητας συμπιεστή"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Λειτουργία κλώνου επιπλέον κοιλότητας"
+            },
+            "temperatureadjustingstate": {
+                "name": "Πρόσθετη ρύθμιση κοιλότητας"
+            },
+            "defrosttemperaturec": {
+                "name": "Θερμοκρασία απόψυξης παγομηχανής"
+            },
+            "evaporatorfanstate": {
+                "name": "Κατάσταση ανεμιστήρα παγομηχανής"
+            },
+            "icedispenserstate": {
+                "name": "Κατάσταση διανομέα πάγου"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Ρύθμιση πλήρωσης δίσκου πάγου"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Όριο αγοράς φίλτρου αέρα"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Όριο αλλαγής φίλτρου αέρα"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Όριο αγοράς φίλτρου νερού (ροή)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Όριο αλλαγής φίλτρου νερού (ροή)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Όριο αγοράς φίλτρου νερού (χρόνος)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Όριο αλλαγής φίλτρου νερού (χρόνος)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Έκδοση λογισμικού κύριας πλακέτας"
+            },
+            "defaultextrarinse": {
+                "name": "Προεπιλεγμένο επιπλέον ξέβγαλμα"
+            },
+            "cyclephase": {
+                "name": "Φάση κύκλου"
+            },
+            "cyclesubphase": {
+                "name": "Κύκλος υποφάση"
+            },
+            "measuredloadweight": {
+                "name": "Μετρημένο βάρος φορτίου"
+            },
+            "doorlock": {
+                "name": "Κλειδαριά πόρτας"
+            },
+            "totalwashcyclescount": {
+                "name": "Συνολικοί κύκλοι πλύσης"
+            },
+            "totalwashingtime": {
+                "name": "Συνολικός χρόνος πλυσίματος"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Βάρος φορτίου"
+            },
+            "washingnominalloadweight": {
+                "name": "Βάρος φορτίου πλύσης"
+            },
+            "adtankaconfiguration": {
+                "name": "Δεξαμενή διαμόρφωσης"
+            },
+            "adtankbconfiguration": {
+                "name": "Διαμόρφωση δεξαμενής β"
+            },
+            "steamvalue": {
+                "name": "Επίπεδο ατμού"
+            },
+            "timemanagerlevel": {
+                "name": "Διαχειριστής χρόνου"
+            },
+            "adtankasel": {
+                "name": "Δεξαμενή αυτόματης δόσης α"
+            },
+            "adtankbsel": {
+                "name": "Δεξαμενή αυτόματης δόσης β"
+            },
+            "analogspinspeed": {
+                "name": "Ταχύτητα στυψίματος"
+            },
+            "analogtemperature": {
+                "name": "Θερμοκρασία"
+            },
+            "watersoftenermode": {
+                "name": "Λειτουργία αποσκληρυντή νερού"
+            },
+            "maint1_threshold": {
+                "name": "Όριο συντήρησης"
+            },
+            "detergentextradosage": {
+                "name": "Απορρυπαντικό επιπλέον δόση"
+            },
+            "optisenseresult": {
+                "name": "Βάρος φορτίου"
+            },
+            "softenerextradosage": {
+                "name": "Μαλακτικό επιπλέον δόση"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Δεξαμενή φορτίου det για ονομαστικό βάρος"
+            },
+            "tankareserve": {
+                "name": "Δεξαμενή μια ρεζέρβα"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Δεξαμενή b det φορτίο για ονομαστικό βάρος"
+            },
+            "tankbreserve": {
+                "name": "Δεξαμενή β εφεδρείας"
+            },
+            "waterusage": {
+                "name": "Χρήση νερού"
+            },
+            "adtankadetloaded": {
+                "name": "Δεξαμενή με απορρυπαντικό"
+            },
+            "adtankbdetloaded": {
+                "name": "Δεξαμενή β με απορρυπαντικό"
+            },
+            "adtankbsoftloaded": {
+                "name": "Δεξαμενή b με αποσκληρυντικό φορτωμένο"
+            },
+            "ecolevel": {
+                "name": "Οικολογικό επίπεδο"
+            },
+            "applianceuiswversion": {
+                "name": "Έκδοση Ui sw της συσκευής"
+            },
+            "remotenotificationpending": {
+                "name": "Σε εκκρεμότητα η απομακρυσμένη ειδοποίηση"
+            },
+            "minfinishintime": {
+                "name": "Ελάχιστο φινίρισμα στο χρόνο"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Οικονομική λειτουργία"
+            },
+            "adfinetunedetlevel": {
+                "name": "Προσαρμογή απορρυπαντικού αυτόματης δόσης"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Αυτόματο μαλακτικό δόσης λεπτή ρύθμιση"
+            },
+            "extrarinsenumber": {
+                "name": "Επιπλέον ξέβγαλμα"
+            },
+            "threshold": {
+                "name": "Συντήρηση 1 κατώφλι"
+            },
+            "timezonedatabasename": {
+                "name": "Βάση δεδομένων ζώνης ώρας"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Μετρητής συνολικού κύκλου ατμού"
+            },
+            "prewashphase": {
+                "name": "Φάση προ πλύσης"
+            },
+            "dryingnominalloadweight": {
+                "name": "Ονομαστικό βάρος φορτίου"
+            },
+            "humiditytarget": {
+                "name": "Στόχος υγρασίας (ενεργός)"
+            },
+            "tankalevel": {
+                "name": "Δεξαμενή ένα επίπεδο"
+            },
+            "tankblevel": {
+                "name": "Δεξαμενή β επιπέδου"
+            },
+            "totaldrycyclescount": {
+                "name": "Συνολικοί κύκλοι στεγνώματος"
+            },
+            "totaldryingtime": {
+                "name": "Συνολικός χρόνος στεγνώματος"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Συνολικοί κύκλοι πλύσης+στεγνώματος"
+            },
+            "programsorder": {
+                "name": "Παραγγελία προγράμματος"
+            },
+            "carelevel": {
+                "name": "Επίπεδο φροντίδας"
+            },
+            "drynessvalue": {
+                "name": "Επίπεδο ξηρότητας (ενεργό)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: βάρος φορτίου πλύσης"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: υγρασία φορτίου πλύσης"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: εκτιμώμενος χρόνος στεγνώματος"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: σημαία υπερφόρτωσης φόρτωσης"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: σφάλμα φορτίου πλύσης"
+            },
+            "wmsn": {
+                "name": "Dwyw: ζευγαρωμένη σειρά πλυντηρίων"
+            },
+            "command": {
+                "name": "Dwyw: εντολή"
+            },
+            "displayonfloor": {
+                "name": "Εμφάνιση στο πάτωμα"
+            },
+            "energyscore": {
+                "name": "Ενεργειακή βαθμολογία"
+            },
+            "waterscore": {
+                "name": "Σκορ νερού"
+            },
+            "ecoscore": {
+                "name": "Οικολογικό σκορ"
+            },
+            "miscellaneousstate": {
+                "name": "Διάφορη κατάσταση"
+            },
+            "ambienttemperaturec": {
+                "name": "Θερμοκρασία περιβάλλοντος γ"
+            },
+            "ambienttemperaturef": {
+                "name": "Θερμοκρασία περιβάλλοντος f"
+            },
+            "fanmode": {
+                "name": "Λειτουργία ανεμιστήρα"
+            },
+            "swingmode": {
+                "name": "Λειτουργία αιώρησης"
+            },
+            "ambienthumidity": {
+                "name": "Υγρασία περιβάλλοντος"
+            },
+            "filterstatus": {
+                "name": "Κατάσταση φίλτρου"
+            },
+            "powerconsumption": {
+                "name": "Κατανάλωση ρεύματος"
+            },
+            "energyconsumption": {
+                "name": "Κατανάλωση ενέργειας"
+            },
+            "fanspeedstate": {
+                "name": "Κατάσταση ταχύτητας ανεμιστήρα"
+            },
+            "filterstate": {
+                "name": "Κατάσταση φίλτρου"
+            },
+            "hepafilterlifetime": {
+                "name": "Χρόνος ζωής φίλτρου Hepa"
+            },
+            "appliancecategory": {
+                "name": "Κατηγορία συσκευών"
+            },
+            "vmno_niu": {
+                "name": "Έκδοση Niu"
+            },
+            "vmno_mcu": {
+                "name": "Έκδοση Mcu"
+            },
+            "schedulersession": {
+                "name": "Συνεδρία προγραμματιστή"
+            },
+            "schedulermode": {
+                "name": "Λειτουργία προγραμματιστή"
+            },
+            "totalruntime": {
+                "name": "Συνολικός χρόνος εκτέλεσης"
+            },
+            "compressorcoolingruntime": {
+                "name": "Χρόνος λειτουργίας ψύξης συμπιεστή"
+            },
+            "compressorheatingruntime": {
+                "name": "Χρόνος λειτουργίας θέρμανσης συμπιεστή"
+            },
+            "mainunittemp": {
+                "name": "Θερμοκρασία κύριας μονάδας"
+            },
+            "loge": {
+                "name": "Μητρώο ε"
+            },
+            "logw": {
+                "name": "Καταγραφή w"
+            },
+            "demandresponseau": {
+                "name": "Απάντηση ζήτησης au"
+            },
+            "pm25": {
+                "name": "2,5 μμ"
+            },
+            "pm10": {
+                "name": "10 μμ"
+            },
+            "modestate": {
+                "name": "Κατάσταση λειτουργίας"
+            },
+            "filterruntime": {
+                "name": "Φίλτρο χρόνου εκτέλεσης"
+            },
+            "hepafilterstate": {
+                "name": "Κατάσταση φίλτρου Hepa"
+            },
+            "airqualitylevel": {
+                "name": "Επίπεδο ποιότητας αέρα"
+            },
+            "temperature": {
+                "name": "Θερμοκρασία περιβάλλοντος"
+            },
+            "mode": {
+                "name": "Τρόπος"
+            },
+            "temp": {
+                "name": "Θερμοκρασία"
+            },
+            "humidity": {
+                "name": "Υγρασία"
+            },
+            "pm1": {
+                "name": "μμ1"
+            },
+            "pm2_5": {
+                "name": "2,5 μμ"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Τύπος φίλτρου"
+            },
+            "filterlife": {
+                "name": "Διάρκεια ζωής φίλτρου"
+            },
+            "workmode": {
+                "name": "Λειτουργία εργασίας"
+            },
+            "aqilight": {
+                "name": "Aqi φως"
+            },
+            "louverswing": {
+                "name": "Κούνια με περσίδες"
+            },
+            "quietfan": {
+                "name": "Αθόρυβος ανεμιστήρας"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Ημερομηνία επαναφοράς του φίλτρου ύγρανσης"
+            },
+            "filterlife_1": {
+                "name": "Διάρκεια ζωής φίλτρου"
+            },
+            "filterlife_2": {
+                "name": "Διάρκεια ζωής φίλτρου 2"
+            },
+            "filtertype_1": {
+                "name": "Τύπος φίλτρου"
+            },
+            "filtertype_2": {
+                "name": "Φίλτρο τύπου 2"
+            },
+            "filteruid_1": {
+                "name": "Φιλτράρισμα ετικέτας 1 nfc"
+            },
+            "filteruid_2": {
+                "name": "Φιλτράρισμα 2 ετικετών nfc"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (κατά προσέγγιση)"
+            },
+            "uvruntime": {
+                "name": "Χρόνος λειτουργίας UV"
+            },
+            "schedulingstate": {
+                "name": "Κατάσταση προγραμματισμού"
+            },
+            "errimpellerstuck": {
+                "name": "Σφάλμα: η φτερωτή κόλλησε"
+            },
+            "errpmnotresp": {
+                "name": "Σφάλμα: ο αισθητήρας pm δεν ανταποκρίνεται"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Σφάλμα: επικοινωνία πίνακα οθόνης"
+            },
+            "errcommsensoruibrd": {
+                "name": "Σφάλμα: επικοινωνία πλακέτας UI"
+            },
+            "signalstrength": {
+                "name": "Ισχύς σήματος"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Φίλτρο rfid"
+            },
+            "errgasnotresp": {
+                "name": "Σφάλμα: ο αισθητήρας αερίου δεν ανταποκρίνεται"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Σφάλμα: δεν υπάρχει φίλτρο 1 ετικέτας nfc"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Σφάλμα: δεν υπάρχει η ετικέτα φίλτρου 2 nfc"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Σφάλμα: φίλτρο 1 ετικέτας nfc δεν είναι έγκυρο"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Σφάλμα: φίλτρο 2 ετικέτας nfc δεν είναι έγκυρο"
+            },
+            "errnfctransceiver_1": {
+                "name": "Σφάλμα: φίλτρο 1 πομποδέκτη nfc"
+            },
+            "errnfctransceiver_2": {
+                "name": "Σφάλμα: φίλτρο 2 πομποδέκτη nfc"
+            },
+            "errtemprhnotresp": {
+                "name": "Σφάλμα: ο αισθητήρας θερμοκρασίας/υγρασίας δεν αποκρίνεται"
+            },
+            "errwatertrayremoved": {
+                "name": "Σφάλμα: αφαιρέθηκε ο δίσκος νερού"
+            },
+            "waterbucketlevel": {
+                "name": "Στάθμη κάδου νερού"
+            },
+            "batterystatus": {
+                "name": "Μπαταρία"
+            },
+            "robotstatus": {
+                "name": "Κατάσταση ρομπότ"
+            },
+            "cleaningcommand": {
+                "name": "Εντολή καθαρισμού"
+            },
+            "dustbinstatus": {
+                "name": "Κατάσταση κάδου απορριμμάτων"
+            },
+            "mainbrushsqm": {
+                "name": "Χρήση κύριας βούρτσας"
+            },
+            "sidebrushsqm": {
+                "name": "Χρήση πλαϊνής βούρτσας"
+            },
+            "filtersqm": {
+                "name": "Χρήση φίλτρου"
+            },
+            "state": {
+                "name": "Κατάσταση καθαριότητας"
+            },
+            "chargingstatus": {
+                "name": "Κατάσταση φόρτισης"
+            },
+            "vacuummode": {
+                "name": "Λειτουργία κενού"
+            },
+            "cleaningtype": {
+                "name": "Τύπος καθαρισμού"
+            },
+            "cleaningmode": {
+                "name": "Λειτουργία καθαρισμού"
+            },
+            "waterpumprate": {
+                "name": "Ρυθμός αντλίας νερού"
+            },
+            "waterstationaction": {
+                "name": "Δράση σταθμού νερού"
+            },
+            "moproute": {
+                "name": "Διαδρομή σφουγγαρίστρας"
+            },
+            "notificationevent": {
+                "name": "Συμβάν ειδοποίησης"
+            },
+            "dirtcleanmode": {
+                "name": "Λειτουργία καθαρισμού βρωμιάς"
+            },
+            "faultcode": {
+                "name": "Κωδικός σφάλματος"
+            },
+            "filterusage": {
+                "name": "Χρήση φίλτρου"
+            },
+            "cleansize": {
+                "name": "Καθαρό μέγεθος"
+            },
+            "cleantime": {
+                "name": "Καθαρή ώρα"
+            },
+            "dustbagusage": {
+                "name": "Χρήση σακούλας σκόνης"
+            },
+            "dustboxusage": {
+                "name": "Χρήση κουτιού σκόνης"
+            },
+            "emptyingtime": {
+                "name": "Ώρα άδειας"
+            },
+            "mainbrushusage": {
+                "name": "Χρήση κύριας βούρτσας"
+            },
+            "sidebrushusage": {
+                "name": "Χρήση πλαϊνής βούρτσας"
+            },
+            "mopusage": {
+                "name": "Χρήση σφουγγαρίστρας"
+            },
+            "moparmextensionfreq": {
+                "name": "Συχνότητα επέκτασης βραχίονα σφουγγαρίστρας"
+            },
+            "mopdrytime": {
+                "name": "Χρόνος στεγνώματος σφουγγαρίστρας"
+            },
+            "mopwashfreqarea": {
+                "name": "Περιοχή συχνότητας πλυσίματος σφουγγαρίστρας"
+            },
+            "mopwashfreqtime": {
+                "name": "Χρόνος συχνότητας πλυσίματος σφουγγαρίστρας"
+            },
+            "mopwashfreqtype": {
+                "name": "Τύπος συχνότητας πλυσίματος σφουγγαρίστρας"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Επαναλήψεις καθαρισμού"
+            },
+            "voicevolume": {
+                "name": "Ένταση φωνής"
+            },
+            "upgradeprogress": {
+                "name": "Πρόοδος αναβάθμισης"
+            },
+            "stationupgradestatus": {
+                "name": "Κατάσταση αναβάθμισης σταθμού"
+            },
+            "upgradestate": {
+                "name": "Αναβάθμιση κατάστασης"
+            },
+            "selectedroomid": {
+                "name": "Επιλεγμένο αναγνωριστικό δωματίου"
+            },
+            "maxusagedustbox": {
+                "name": "Μέγιστη χρήση κουτιού σκόνης"
+            },
+            "maxusagestationbag": {
+                "name": "Μέγιστη χρήση αποσκευών σταθμού"
+            },
+            "dndstarttime": {
+                "name": "Και ώρα έναρξης"
+            },
+            "dndendtime": {
+                "name": "Και ώρα λήξης"
+            },
+            "datamodelversion": {
+                "name": "Έκδοση μοντέλου δεδομένων"
+            },
+            "basestationversion": {
+                "name": "Έκδοση σταθμού βάσης"
+            },
+            "deviceid": {
+                "name": "Αναγνωριστικό συσκευής"
+            },
+            "timezonedaylightrule": {
+                "name": "Κανόνας ημέρας ζώνης ώρας"
+            },
+            "timezonestandardname": {
+                "name": "Τυπικό όνομα ζώνης ώρας"
+            },
+            "bintank": {
+                "name": "Δεξαμενή κάδου"
+            },
+            "setvoicevolume": {
+                "name": "Επίπεδο έντασης φωνής"
+            },
+            "mapid": {
+                "name": "Επίμονο αναγνωριστικό χάρτη"
+            },
+            "sessionid": {
+                "name": "Αναγνωριστικό συνεδρίας καθαρισμού"
+            },
+            "completion": {
+                "name": "Ολοκλήρωση καθαρισμού"
+            },
+            "areacovered": {
+                "name": "Καλυπτόμενη περιοχή"
+            },
+            "zones": {
+                "name": "Καταμέτρηση ζωνών χάρτη"
+            },
+            "zonestatus": {
+                "name": "Κατάσταση ζώνης καθαρισμού"
+            },
+            "ovwater_tank_empty": {
+                "name": "Κατάσταση δεξαμενής νερού"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Food Probe"
+            },
+            "ovcleaning_ended": {
+                "name": "Κατάσταση καθαρισμού"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Probe Τέλος μαγειρέματος"
+            },
+            "connectivitystate": {
+                "name": "Κατάσταση συνδεσιμότητας"
+            },
+            "executionstate": {
+                "name": "Κράτος εκτέλεσης"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Παιδική κλειδαριά εσωτερική"
+            },
+            "cavitylight": {
+                "name": "Φως κοιλότητας"
+            },
+            "childlock": {
+                "name": "Παιδική κλειδαριά"
+            },
+            "soundvolume": {
+                "name": "Ένταση ήχου"
+            },
+            "keysoundtone": {
+                "name": "Ήχος πλήκτρων"
+            },
+            "windownotification": {
+                "name": "Ειδοποίηση παραθύρου"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Ενεργοποίηση φίλτρου άνθρακα"
+            },
+            "fastmode": {
+                "name": "Γρήγορη λειτουργία κατάψυξης"
+            },
+            "sabbathmode": {
+                "name": "Λειτουργία Σαββάτου"
+            },
+            "ecomode": {
+                "name": "Eco mode"
+            },
+            "ui2lockmode": {
+                "name": "Λειτουργία κλειδώματος Ui 2"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Πρόπλυση"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Αντιτσάσιμο (χωρίς ατμό)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Αντιτσάσιμο με ατμό"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Νυχτερινός κύκλος"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Οικονομική λειτουργία"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Κρατήστε το ξέβγαλμα"
+            },
+            "ewx1493a_intensive": {
+                "name": "Εντατική πλύση"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Αισθητήρας θερμοκρασίας"
+            },
+            "ewx1493a_stain": {
+                "name": "Θεραπεία λεκέδων"
+            },
+            "ewx1493a_drymode": {
+                "name": "Λειτουργία στεγνώματος"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Εύκολο σίδερο"
+            },
+            "ewx1493a_pod": {
+                "name": "Φλούδα"
+            },
+            "ewx1493a_steammode": {
+                "name": "Λειτουργία ατμού"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra μείγμα"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Υγρή λειτουργία"
+            },
+            "networkinterfacealwayson": {
+                "name": "Δίκτυο πάντα ενεργό"
+            },
+            "adlocalfinetuning": {
+                "name": "Αυτόματη δόση τοπικής λεπτής ρύθμισης"
+            },
+            "anticreasenosteam": {
+                "name": "Αντιτσαλακτικό χωρίς ατμό"
+            },
+            "anticreasewsteam": {
+                "name": "Αντιτσάσιμο με ατμό"
+            },
+            "ultramix": {
+                "name": "Ultra μείγμα"
+            },
+            "prewashphase": {
+                "name": "Πρόπλυση"
+            },
+            "stain": {
+                "name": "Δράση λεκέδων"
+            },
+            "nightcycle": {
+                "name": "Νυχτερινός κύκλος"
+            },
+            "wmeconomy": {
+                "name": "Οικονομική λειτουργία"
+            },
+            "rinsehold": {
+                "name": "Κρατήστε το ξέβγαλμα"
+            },
+            "tcsensor": {
+                "name": "Αισθητήρας θερμοκρασίας"
+            },
+            "soak": {
+                "name": "Μουλιάζω"
+            },
+            "softener": {
+                "name": "Μαλακτικό"
+            },
+            "defaultsoftplus": {
+                "name": "Προεπιλεγμένο soft plus"
+            },
+            "intensive": {
+                "name": "Εντατικός"
+            },
+            "reverseplus": {
+                "name": "Αντίστροφη συν"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco mode"
+            },
+            "tdeconomy_night": {
+                "name": "Νυχτερινή λειτουργία"
+            },
+            "tdeconomy_quick": {
+                "name": "Γρήγορη λειτουργία"
+            },
+            "refresh": {
+                "name": "Ανανέωση προγράμματος"
+            },
+            "keytone": {
+                "name": "Ήχος κλειδιού"
+            },
+            "preselectlast": {
+                "name": "Προεπιλογή τελευταίου"
+            },
+            "extrapoweroption": {
+                "name": "Επιπλέον ισχύς"
+            },
+            "extrasilentoption": {
+                "name": "Εξαιρετικά αθόρυβο"
+            },
+            "glasscareoption": {
+                "name": "Φροντίδα γυαλιού"
+            },
+            "sprayzoneoption": {
+                "name": "Ζώνη ψεκασμού"
+            },
+            "autodooropener": {
+                "name": "Αυτόματο άνοιγμα πόρτας"
+            },
+            "sanitizeoption": {
+                "name": "Απολυμάνετε"
+            },
+            "onerackoption": {
+                "name": "Ένα ράφι"
+            },
+            "zonecleanoption": {
+                "name": "Ζώνη καθαρή"
+            },
+            "xtradryoption": {
+                "name": "Εξαιρετικά στεγνό"
+            },
+            "cleanairmode": {
+                "name": "Λειτουργία καθαρού αέρα"
+            },
+            "sleepmode": {
+                "name": "Λειτουργία ύπνου"
+            },
+            "batchschedulermode": {
+                "name": "Λειτουργία προγραμματιστή παρτίδας"
+            },
+            "verticalswing": {
+                "name": "Κάθετη αιώρηση"
+            },
+            "turbofunction": {
+                "name": "Λειτουργία Turbo"
+            },
+            "energysavingmode": {
+                "name": "Λειτουργία εξοικονόμησης ενέργειας"
+            },
+            "autocleantrigger": {
+                "name": "Αυτόματος καθαρισμός σκανδάλης"
+            },
+            "flappositionavoiduser": {
+                "name": "Θέση πτερυγίου αποφυγή χρήστη"
+            },
+            "horizontalswing": {
+                "name": "Οριζόντια αιώρηση"
+            },
+            "humidification": {
+                "name": "Υγρανση"
+            },
+            "uilight": {
+                "name": "Φως Ui"
+            },
+            "safetylock": {
+                "name": "Κλειδαριά ασφαλείας"
+            },
+            "ionizer": {
+                "name": "Ιονιστής"
+            },
+            "uvstate": {
+                "name": "Uv φως"
+            },
+            "mute": {
+                "name": "Βουβός"
+            }
         }
     }
 }

@@ -105,7 +105,7 @@
             "message": "Saadeti liiga palju käske. Palun oodake veidi ja proovige uuesti."
         },
         "control_locked": {
-            "message": "{attr} on programmi {program} jaoks lukustatud kohas {value}."
+            "message": "{attr} on programmi {program} jaoks lukustatud aadressil {value}."
         },
         "food_probe_locked_by_program": {
             "message": "Toidusondi temperatuur on programmi {program} jaoks lukustatud {value}°C juures."
@@ -135,13 +135,1406 @@
             "message": "Seadet {attr} ei saa seadistada, kui seade on välja lülitatud. Lülitage seade esmalt sisse."
         },
         "type_mismatch": {
-            "message": "Integreerimise viga: {attr} andmetüüp ei ühti. Eeldatav Boolean."
+            "message": "Integratsiooniviga: {attr} andmetüübi mittevastavus. Eeldatav Boolean."
         },
         "value_above_maximum": {
             "message": "Väärtus {value} on suurem kui {attr} maksimaalne väärtus {max_val}."
         },
         "value_below_minimum": {
             "message": "Väärtus {value} on madalam kui {attr} miinimum {min_val}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Ühenduse olek"
+            },
+            "doorstate": {
+                "name": "Ukse olek"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Toidusond"
+            },
+            "foodprobesupported": {
+                "name": "Toidusondi tugi"
+            },
+            "watertrayinsertionstate": {
+                "name": "Veealus"
+            },
+            "watertankempty": {
+                "name": "Veepaak tühi"
+            },
+            "cleaningreminder": {
+                "name": "Puhastamise meeldetuletus"
+            },
+            "drawerstatus": {
+                "name": "Sahtel"
+            },
+            "humancentriclighteventstate": {
+                "name": "Inimkeskne valgus"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automaatne väljalülitus"
+            },
+            "appliancestate": {
+                "name": "Sügavkülmiku olek"
+            },
+            "fanstate": {
+                "name": "Lisaõõnsuse ventilaatori olek"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Vajalik hooldus"
+            },
+            "maint2_occured": {
+                "name": "Tekkis hoolduspunkt 2"
+            },
+            "maint3_occured": {
+                "name": "Hoolduspunkt 3 tekkis"
+            },
+            "maint4_occured": {
+                "name": "Hoolduspunkt 4 tekkis"
+            },
+            "maint5_occured": {
+                "name": "Tekkis hoolduspunkt 5"
+            },
+            "maint6_occured": {
+                "name": "Hoolduspunkt 6 tekkis"
+            },
+            "maint7_occured": {
+                "name": "Hoolduspunkt 7 tekkis"
+            },
+            "maint8_occured": {
+                "name": "Tekkis hoolduspunkt 8"
+            },
+            "maint9_occured": {
+                "name": "Tekkis hoolduspunkt 9"
+            },
+            "maint10_occured": {
+                "name": "Tekkis hoolduspunkt 10"
+            },
+            "occured": {
+                "name": "Hooldus 1 toimus"
+            },
+            "ecomode": {
+                "name": "Ökorežiim"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Vajalik õhufiltri puhastamine"
+            },
+            "hmepn_acalerts": {
+                "name": "Toetatud vahelduvvoolu märguanded"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa filter sisestatud"
+            },
+            "dooropen": {
+                "name": "Uks lahti"
+            },
+            "watertraylevellow": {
+                "name": "Veealuse tase madal"
+            },
+            "autodustcollection": {
+                "name": "Automaatne tolmu kogumine"
+            },
+            "automoparmextension": {
+                "name": "Automaatne mopivarre pikendus"
+            },
+            "automopdry": {
+                "name": "Automaatne mopp kuiv"
+            },
+            "automopwash": {
+                "name": "Automaatne mopipesu"
+            },
+            "autodetergentusage": {
+                "name": "Automaatpesuvahendi kasutamine"
+            },
+            "mopinstalled": {
+                "name": "Mop paigaldatud"
+            },
+            "incharger": {
+                "name": "Laadijas"
+            },
+            "returntowash": {
+                "name": "Naaske pesema"
+            },
+            "roomselected": {
+                "name": "Ruum valitud"
+            },
+            "carpetboost": {
+                "name": "Vaiba tõuge"
+            },
+            "carpetavoid": {
+                "name": "Väldi vaipa"
+            },
+            "carpetdisplay": {
+                "name": "Vaiba väljapanek"
+            },
+            "obstacleavoidance": {
+                "name": "Takistuste vältimine"
+            },
+            "dndenabled": {
+                "name": "Mitte segada on lubatud"
+            },
+            "dnddisableairdry": {
+                "name": "Dnd keelake õhukuivatus"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd õhukuivatamise peatamine"
+            },
+            "multifloormap": {
+                "name": "Mitme korruse kaart"
+            },
+            "multifloormapautoswitch": {
+                "name": "Mitme korruse kaardi automaatne lüliti"
+            },
+            "robotposereliable": {
+                "name": "Usaldusväärne robotpoos"
+            },
+            "ovwater_tank_empty": {
+                "name": "Veepaagi olek"
+            },
+            "ovcleaning_ended": {
+                "name": "Puhastamise olek"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Küpsetamise lõpp"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Võrgu käsk"
+            },
+            "startupcommand": {
+                "name": "Käivituskäsk"
+            },
+            "manualsync": {
+                "name": "Käsitsi sünkroonimine"
+            },
+            "executecommand": {
+                "name": "Võimsus"
+            },
+            "waterfilterstatereset": {
+                "name": "Lähtestage veefilter"
+            },
+            "airfilterstatereset": {
+                "name": "Lähtestage õhufilter"
+            },
+            "saveappfavorite": {
+                "name": "Salvesta lemmik"
+            },
+            "shortcutproglistcmd": {
+                "name": "Otsetee programmide loendi käsk"
+            },
+            "filterreset": {
+                "name": "Filtri lähtestamine"
+            },
+            "hepafilterreset": {
+                "name": "Hepa filtri lähtestamine"
+            },
+            "findme": {
+                "name": "Leia mind"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Õhupuhastaja"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Algusaeg"
+            },
+            "targetduration": {
+                "name": "Sihtkestus"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Toiduanduri sihttemperatuur c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Toiduanduri sihttemperatuur f"
+            },
+            "targettemperaturec": {
+                "name": "Sihttemperatuur c"
+            },
+            "targettemperaturef": {
+                "name": "Sihttemperatuur f"
+            },
+            "remindertime": {
+                "name": "Ülemine ahju meeldetuletusaeg"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Seadme kohaliku aja nihe"
+            },
+            "lightintensity": {
+                "name": "Valguse intensiivsus"
+            },
+            "lightcolortemperature": {
+                "name": "Valguse värvitemperatuur"
+            },
+            "stoptime": {
+                "name": "Peatage aeg"
+            },
+            "adtankadetstandarddose": {
+                "name": "Tankige pesuaine standardannus"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Paak b pesuaine standardannus"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tank b pehmendaja standardannus"
+            },
+            "adfinetunedetlevel": {
+                "name": "Peenhäälestage pesuaine taset"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Peenhäälestage pehmendaja taset"
+            },
+            "extrarinsenumber": {
+                "name": "Täiendavad loputused"
+            },
+            "maint1_id": {
+                "name": "Hooldusartikkel 1 id"
+            },
+            "maint2_id": {
+                "name": "Hooldusartikkel 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Hoolduselemendi 2 lävi"
+            },
+            "maint3_id": {
+                "name": "Hoolduspunkt 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Hoolduselemendi 3 lävi"
+            },
+            "maint4_id": {
+                "name": "Hoolduspunkt 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Hoolduselemendi 4 lävi"
+            },
+            "maint5_id": {
+                "name": "Hoolduspunkt 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Hoolduselemendi 5 lävi"
+            },
+            "maint6_id": {
+                "name": "Hoolduspunkt 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Hoolduspunkti 6 lävi"
+            },
+            "maint7_id": {
+                "name": "Hoolduspunkt 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Hooldusartikli 7 lävi"
+            },
+            "maint8_id": {
+                "name": "Hoolduspunkt 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Hooldusartikli 8 lävi"
+            },
+            "maint9_id": {
+                "name": "Hoolduspunkt 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Hooldusartikli 9 lävi"
+            },
+            "maint10_id": {
+                "name": "Hooldusartikkel 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Hooldusartikli 10 lävi"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Selge tsükli isikupärastamine"
+            },
+            "memoryid": {
+                "name": "Mälu pesa"
+            },
+            "dryingtime": {
+                "name": "Ajastatud kuivatamine (aktiivne)"
+            },
+            "timetonotify": {
+                "name": "Aeg teatada"
+            },
+            "anticreasevalue": {
+                "name": "Kortsumisvastane (aktiivne)"
+            },
+            "rinseaidlevel": {
+                "name": "Loputusvahendi tase"
+            },
+            "targethumidity": {
+                "name": "Sihtniiskus"
+            },
+            "targettemperature": {
+                "name": "Sihttemperatuur"
+            },
+            "fanspeed": {
+                "name": "Ventilaatori kiirus"
+            },
+            "humiditytarget": {
+                "name": "Sihtniiskus"
+            },
+            "powermode": {
+                "name": "Toiterežiim"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Ekraani valgus"
+            },
+            "targettemperaturec": {
+                "name": "Täiendav õõnsuse temperatuur"
+            },
+            "mode": {
+                "name": "Režiim"
+            },
+            "fanspeedsetting": {
+                "name": "Ventilaatori kiirus"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Märguanded"
+            },
+            "appliancestate": {
+                "name": "Seadme olek"
+            },
+            "temperaturerepresentation": {
+                "name": "Temperatuuri esitus"
+            },
+            "linkqualityindicator": {
+                "name": "Võrguliidese lingi kvaliteedi indikaator"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw värskenduse kirjeldus"
+            },
+            "otastate": {
+                "name": "Võrguliidese olek"
+            },
+            "swancandrevision": {
+                "name": "Sw anc ja revisjon"
+            },
+            "swversion": {
+                "name": "Võrguliidese sw versioon"
+            },
+            "endofcyclesound": {
+                "name": "Tsükli lõpu heli"
+            },
+            "programuid": {
+                "name": "Programmi uid"
+            },
+            "appliancetype": {
+                "name": "Seadme tüüp"
+            },
+            "capabilityhash": {
+                "name": "Võime räsi"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Kaugjuhtimispult"
+            },
+            "totalcyclecounter": {
+                "name": "Kogutsükli loendur"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Seadme kogu tööaeg"
+            },
+            "timetoend": {
+                "name": "Aeg lõpetada"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Näita toidusondi temperatuuri"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Näita toidusondi temperatuuri c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Näita toidusondi temperatuuri f"
+            },
+            "displaytemperature": {
+                "name": "Kuva temperatuur"
+            },
+            "displaytemperaturec": {
+                "name": "Näidiku temperatuur c"
+            },
+            "displaytemperaturef": {
+                "name": "Näidiku temperatuur f"
+            },
+            "processphase": {
+                "name": "Protsessi faas"
+            },
+            "program": {
+                "name": "Programm"
+            },
+            "runningtime": {
+                "name": "Jooksuaeg"
+            },
+            "fastheatupfeature": {
+                "name": "Ülemise ahju kiire kuumenemise funktsioon"
+            },
+            "preheatcomplete": {
+                "name": "Ülemine ahju eelsoojendus on lõppenud"
+            },
+            "targetdurationendaction": {
+                "name": "Ülemine ahju sihtkestuse lõpptoiming"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Ülemise ahju sihttoidu anduri temperatuuri lõpptoiming"
+            },
+            "watertanklevel": {
+                "name": "Ülemine ahju veepaagi tase"
+            },
+            "waterhardness": {
+                "name": "Vee karedus"
+            },
+            "descalingreminderstate": {
+                "name": "Katlakivi eemaldamise meeldetuletus"
+            },
+            "clockstyle": {
+                "name": "Kella stiil"
+            },
+            "language": {
+                "name": "Keel"
+            },
+            "localtimeautomaticmode": {
+                "name": "Kohaliku aja automaatrežiim"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automaatne kohaliku aja nihe"
+            },
+            "favoriteorder": {
+                "name": "Lemmik tellimus"
+            },
+            "number": {
+                "name": "Lemmiktellimuste arv"
+            },
+            "favoriteselect": {
+                "name": "Lemmik valik"
+            },
+            "favoritestatus": {
+                "name": "Lemmik staatus"
+            },
+            "activemessageindex": {
+                "name": "Aktiivne sõnumiregister"
+            },
+            "appliancemode": {
+                "name": "Seadme režiim"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Kapoti ventilaatori kiirus"
+            },
+            "hobtohoodstate": {
+                "name": "Kapuutsi olek"
+            },
+            "hoodfanlevel": {
+                "name": "Ventilaatori tase"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Söefiltri taimer"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Rasvafiltri taimer"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc filtri aeg"
+            },
+            "fastmodetimetoend": {
+                "name": "Sügavkülmiku kiirrežiimi aeg lõpeb"
+            },
+            "sensortemperaturec": {
+                "name": "Sügavkülmiku temperatuur"
+            },
+            "vacationholidaymode": {
+                "name": "Puhkusepuhkuse režiim"
+            },
+            "sensorhumidity": {
+                "name": "Niiskus"
+            },
+            "waterfilterstate": {
+                "name": "Veefiltri olek"
+            },
+            "waterfilterlifetime": {
+                "name": "Veefiltri eluiga"
+            },
+            "waterfilterflow": {
+                "name": "Veefiltri vool"
+            },
+            "airfilterstate": {
+                "name": "Õhufiltri olek"
+            },
+            "airfilterlifetime": {
+                "name": "Õhufiltri eluiga"
+            },
+            "coolingvalvestate": {
+                "name": "Jahutusklapi olek"
+            },
+            "defrostroutinestate": {
+                "name": "Sulatamise rutiinne olek"
+            },
+            "compressorstate": {
+                "name": "Kompressori olek"
+            },
+            "compressorspeed": {
+                "name": "Kompressori kiirus"
+            },
+            "coefficient": {
+                "name": "Kompressori kiiruse koefitsient"
+            },
+            "exponent": {
+                "name": "Kompressori kiiruse eksponent"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Lisaõõnsuse kloonimise režiim"
+            },
+            "temperatureadjustingstate": {
+                "name": "Täiendav õõnsuse reguleerimine"
+            },
+            "defrosttemperaturec": {
+                "name": "Jäämasina sulatustemperatuur"
+            },
+            "evaporatorfanstate": {
+                "name": "Jäämasina fänni olek"
+            },
+            "icedispenserstate": {
+                "name": "Jäädosaatori olek"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Jääaluse täitmise seadistus"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Õhufiltri ostulävi"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Õhufiltri vahetuse künnis"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Veefiltri ostulävi (vooluhulk)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Veefiltri vahetamise lävi (vooluhulk)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Veefiltri ostulävi (aeg)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Veefiltri vahetamise lävi (aeg)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Emaplaadi tarkvara versioon"
+            },
+            "defaultextrarinse": {
+                "name": "Vaikimisi lisaloputus"
+            },
+            "cyclephase": {
+                "name": "Tsükli faas"
+            },
+            "cyclesubphase": {
+                "name": "Tsükli alamfaas"
+            },
+            "measuredloadweight": {
+                "name": "Mõõdetud koorma kaal"
+            },
+            "doorlock": {
+                "name": "Ukse lukk"
+            },
+            "totalwashcyclescount": {
+                "name": "Pesutsüklid kokku"
+            },
+            "totalwashingtime": {
+                "name": "Pesemise koguaeg"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Koorma kaal"
+            },
+            "washingnominalloadweight": {
+                "name": "Pesukoorma kaal"
+            },
+            "adtankaconfiguration": {
+                "name": "Paagi konfiguratsioon"
+            },
+            "adtankbconfiguration": {
+                "name": "Paagi b konfiguratsioon"
+            },
+            "steamvalue": {
+                "name": "Auru tase"
+            },
+            "timemanagerlevel": {
+                "name": "Ajajuht"
+            },
+            "adtankasel": {
+                "name": "Automaatdoseerimispaak a"
+            },
+            "adtankbsel": {
+                "name": "Automaatdoseerimispaak b"
+            },
+            "analogspinspeed": {
+                "name": "Pöörlemiskiirus"
+            },
+            "analogtemperature": {
+                "name": "Temperatuur"
+            },
+            "watersoftenermode": {
+                "name": "Veepehmendaja režiim"
+            },
+            "maint1_threshold": {
+                "name": "Hoolduslävi"
+            },
+            "detergentextradosage": {
+                "name": "Pesuaine lisaannus"
+            },
+            "optisenseresult": {
+                "name": "Koorma kaal"
+            },
+            "softenerextradosage": {
+                "name": "Pehmendaja lisaannus"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tankige nimikaalu jaoks ettenähtud koormus"
+            },
+            "tankareserve": {
+                "name": "Tanki reservi"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Paagi b lubatud koormus nimikaalu jaoks"
+            },
+            "tankbreserve": {
+                "name": "Tanki b reserv"
+            },
+            "waterusage": {
+                "name": "Veekasutus"
+            },
+            "adtankadetloaded": {
+                "name": "Paaki on laaditud pesuaine"
+            },
+            "adtankbdetloaded": {
+                "name": "Paak b pesuaine laetud"
+            },
+            "adtankbsoftloaded": {
+                "name": "Paak b pehmendaja laaditud"
+            },
+            "ecolevel": {
+                "name": "Öko tase"
+            },
+            "applianceuiswversion": {
+                "name": "Seadme ui sw versioon"
+            },
+            "remotenotificationpending": {
+                "name": "Kaugteatis on ootel"
+            },
+            "minfinishintime": {
+                "name": "Minimaalne viimistlus ajas"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Säästlik režiim"
+            },
+            "adfinetunedetlevel": {
+                "name": "Automaatne doseeritud pesuaine peenhäälestus"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automaatannuse pehmendaja peenhäälestus"
+            },
+            "extrarinsenumber": {
+                "name": "Lisaloputus"
+            },
+            "threshold": {
+                "name": "Hooldus 1 lävi"
+            },
+            "timezonedatabasename": {
+                "name": "Ajavööndi andmebaas"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Kogu aurutsükli loendur"
+            },
+            "prewashphase": {
+                "name": "Eelpesu faas"
+            },
+            "dryingnominalloadweight": {
+                "name": "Koorma nimikaal"
+            },
+            "humiditytarget": {
+                "name": "Niiskuse sihtmärk (aktiivne)"
+            },
+            "tankalevel": {
+                "name": "Tanki tase"
+            },
+            "tankblevel": {
+                "name": "Paagi b tase"
+            },
+            "totaldrycyclescount": {
+                "name": "Kuivatustsüklid kokku"
+            },
+            "totaldryingtime": {
+                "name": "Kogu kuivamisaeg"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Pesu+kuivatustsüklid kokku"
+            },
+            "programsorder": {
+                "name": "Programmi järjekord"
+            },
+            "carelevel": {
+                "name": "Hoolduse tase"
+            },
+            "drynessvalue": {
+                "name": "Kuivuse tase (aktiivne)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: pesukoormuse kaal"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: pesukoorma niiskus"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: hinnanguline kuivamisaeg"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: koormuse ülekoormuse lipp"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: pesukoormuse viga"
+            },
+            "wmsn": {
+                "name": "Dwyw: paarispesuri seeria"
+            },
+            "command": {
+                "name": "Dwyw: käsk"
+            },
+            "displayonfloor": {
+                "name": "Ekraan põrandal"
+            },
+            "energyscore": {
+                "name": "Energiaskoor"
+            },
+            "waterscore": {
+                "name": "Veeskoor"
+            },
+            "ecoscore": {
+                "name": "Ökoskoor"
+            },
+            "miscellaneousstate": {
+                "name": "Mitmesugune olek"
+            },
+            "ambienttemperaturec": {
+                "name": "Ümbritsev temperatuur c"
+            },
+            "ambienttemperaturef": {
+                "name": "Ümbritsev temperatuur f"
+            },
+            "fanmode": {
+                "name": "Ventilaatori režiim"
+            },
+            "swingmode": {
+                "name": "Kiigurežiim"
+            },
+            "ambienthumidity": {
+                "name": "Ümbritsev õhuniiskus"
+            },
+            "filterstatus": {
+                "name": "Filtri olek"
+            },
+            "powerconsumption": {
+                "name": "Energiatarve"
+            },
+            "energyconsumption": {
+                "name": "Energiatarbimine"
+            },
+            "fanspeedstate": {
+                "name": "Ventilaatori kiiruse olek"
+            },
+            "filterstate": {
+                "name": "Filtri olek"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa filtri eluiga"
+            },
+            "appliancecategory": {
+                "name": "Seadmete kategooria"
+            },
+            "vmno_niu": {
+                "name": "Niu versioon"
+            },
+            "vmno_mcu": {
+                "name": "Mcu versioon"
+            },
+            "schedulersession": {
+                "name": "Planeerija seanss"
+            },
+            "schedulermode": {
+                "name": "Planeerija režiim"
+            },
+            "totalruntime": {
+                "name": "Kogu käitusaeg"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompressori jahutustööaeg"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompressori kütte tööaeg"
+            },
+            "mainunittemp": {
+                "name": "Põhiseadme temp"
+            },
+            "loge": {
+                "name": "Logi e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Nõudlusele reageerimine au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Režiimi olek"
+            },
+            "filterruntime": {
+                "name": "Filtri käitusaeg"
+            },
+            "hepafilterstate": {
+                "name": "Hepa filtri olek"
+            },
+            "airqualitylevel": {
+                "name": "Õhukvaliteedi tase"
+            },
+            "temperature": {
+                "name": "Ümbritsev temperatuur"
+            },
+            "mode": {
+                "name": "Režiim"
+            },
+            "temp": {
+                "name": "Temperatuur"
+            },
+            "humidity": {
+                "name": "Niiskus"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Öko2"
+            },
+            "filtertype": {
+                "name": "Filtri tüüp"
+            },
+            "filterlife": {
+                "name": "Filtri eluiga"
+            },
+            "workmode": {
+                "name": "Töörežiim"
+            },
+            "aqilight": {
+                "name": "Aqi valgus"
+            },
+            "louverswing": {
+                "name": "Releedi kiik"
+            },
+            "quietfan": {
+                "name": "Vaikne ventilaator"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Niisutusfiltri lähtestamise kuupäev"
+            },
+            "filterlife_1": {
+                "name": "Filtri eluiga"
+            },
+            "filterlife_2": {
+                "name": "Filtri eluiga 2"
+            },
+            "filtertype_1": {
+                "name": "Filtri tüüp"
+            },
+            "filtertype_2": {
+                "name": "Filtri tüüp 2"
+            },
+            "filteruid_1": {
+                "name": "Filtreerige 1 nfc sildi kasutajatunnus"
+            },
+            "filteruid_2": {
+                "name": "Filter 2 nfc sildi kasutajatunnus"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (ligikaudne)"
+            },
+            "uvruntime": {
+                "name": "UV tööaeg"
+            },
+            "schedulingstate": {
+                "name": "Ajastamise olek"
+            },
+            "errimpellerstuck": {
+                "name": "Viga: tiivik on kinni jäänud"
+            },
+            "errpmnotresp": {
+                "name": "Viga: pm-andur ei reageeri"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Viga: kuvaplaadi side"
+            },
+            "errcommsensoruibrd": {
+                "name": "Viga: ui tahvli suhtlus"
+            },
+            "signalstrength": {
+                "name": "Signaali tugevus"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filtreerige RFID"
+            },
+            "errgasnotresp": {
+                "name": "Viga: gaasiandur ei reageeri"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Viga: filtri 1 nfc silt puudub"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Viga: filter 2 nfc silt puudub"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Viga: filter 1 nfc silt on kehtetu"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Viga: filter 2 nfc silt on kehtetu"
+            },
+            "errnfctransceiver_1": {
+                "name": "Viga: filter 1 nfc transiiver"
+            },
+            "errnfctransceiver_2": {
+                "name": "Viga: filter 2 nfc transiiver"
+            },
+            "errtemprhnotresp": {
+                "name": "Viga: temperatuuri/niiskuse andur ei reageeri"
+            },
+            "errwatertrayremoved": {
+                "name": "Viga: veealus eemaldatud"
+            },
+            "waterbucketlevel": {
+                "name": "Vee ämbri tase"
+            },
+            "batterystatus": {
+                "name": "Aku"
+            },
+            "robotstatus": {
+                "name": "Roboti olek"
+            },
+            "cleaningcommand": {
+                "name": "Puhastuskäsk"
+            },
+            "dustbinstatus": {
+                "name": "Prügikasti olek"
+            },
+            "mainbrushsqm": {
+                "name": "Põhiharja kasutamine"
+            },
+            "sidebrushsqm": {
+                "name": "Külgharja kasutamine"
+            },
+            "filtersqm": {
+                "name": "Filtri kasutamine"
+            },
+            "state": {
+                "name": "Puhastusseisund"
+            },
+            "chargingstatus": {
+                "name": "Laadimise olek"
+            },
+            "vacuummode": {
+                "name": "Vaakumrežiim"
+            },
+            "cleaningtype": {
+                "name": "Puhastuse tüüp"
+            },
+            "cleaningmode": {
+                "name": "Puhastusrežiim"
+            },
+            "waterpumprate": {
+                "name": "Veepumba kiirus"
+            },
+            "waterstationaction": {
+                "name": "Veejaama tegevus"
+            },
+            "moproute": {
+                "name": "Mopi marsruut"
+            },
+            "notificationevent": {
+                "name": "Teavitussündmus"
+            },
+            "dirtcleanmode": {
+                "name": "Mustusest puhastamise režiim"
+            },
+            "faultcode": {
+                "name": "Veakood"
+            },
+            "filterusage": {
+                "name": "Filtri kasutamine"
+            },
+            "cleansize": {
+                "name": "Puhas suurus"
+            },
+            "cleantime": {
+                "name": "Puhas aeg"
+            },
+            "dustbagusage": {
+                "name": "Tolmukoti kasutamine"
+            },
+            "dustboxusage": {
+                "name": "Tolmukasti kasutamine"
+            },
+            "emptyingtime": {
+                "name": "Tühjendusaeg"
+            },
+            "mainbrushusage": {
+                "name": "Põhiharja kasutamine"
+            },
+            "sidebrushusage": {
+                "name": "Külgharja kasutamine"
+            },
+            "mopusage": {
+                "name": "Mopi kasutamine"
+            },
+            "moparmextensionfreq": {
+                "name": "Mopivarre pikendamise sagedus"
+            },
+            "mopdrytime": {
+                "name": "Mopi kuivamise aeg"
+            },
+            "mopwashfreqarea": {
+                "name": "Mopipesu sagedusala"
+            },
+            "mopwashfreqtime": {
+                "name": "Mopipesu sageduse aeg"
+            },
+            "mopwashfreqtype": {
+                "name": "Mopipesu sageduse tüüp"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Puhastuskordused"
+            },
+            "voicevolume": {
+                "name": "Hääle helitugevus"
+            },
+            "upgradeprogress": {
+                "name": "Uuendamise edenemine"
+            },
+            "stationupgradestatus": {
+                "name": "Jaama uuendamise olek"
+            },
+            "upgradestate": {
+                "name": "Uuenda olek"
+            },
+            "selectedroomid": {
+                "name": "Valitud ruumi ID"
+            },
+            "maxusagedustbox": {
+                "name": "Maksimaalne tolmukasti kasutus"
+            },
+            "maxusagestationbag": {
+                "name": "Maksimaalne jaamakoti kasutus"
+            },
+            "dndstarttime": {
+                "name": "Dnd algusaeg"
+            },
+            "dndendtime": {
+                "name": "Dnd lõpuaeg"
+            },
+            "datamodelversion": {
+                "name": "Andmemudeli versioon"
+            },
+            "basestationversion": {
+                "name": "Tugijaama versioon"
+            },
+            "deviceid": {
+                "name": "Seadme ID"
+            },
+            "timezonedaylightrule": {
+                "name": "Ajavööndi päevavalguse reegel"
+            },
+            "timezonestandardname": {
+                "name": "Ajavööndi standardnimi"
+            },
+            "bintank": {
+                "name": "Prügipaak"
+            },
+            "setvoicevolume": {
+                "name": "Hääle helitugevuse tase"
+            },
+            "mapid": {
+                "name": "Püsiv kaardi ID"
+            },
+            "sessionid": {
+                "name": "Puhastusseansi ID"
+            },
+            "completion": {
+                "name": "Puhastamise lõpetamine"
+            },
+            "areacovered": {
+                "name": "Kaetud ala"
+            },
+            "zones": {
+                "name": "Kaardi tsoonide arv"
+            },
+            "zonestatus": {
+                "name": "Puhastustsooni olek"
+            },
+            "ovwater_tank_empty": {
+                "name": "Veepaagi olek"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Toidusond"
+            },
+            "ovcleaning_ended": {
+                "name": "Puhastamise olek"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Küpsetamise lõpp"
+            },
+            "connectivitystate": {
+                "name": "Ühenduse olek"
+            },
+            "executionstate": {
+                "name": "Täitmise riik"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Sisemine lapselukk"
+            },
+            "cavitylight": {
+                "name": "Õõnsuse valgus"
+            },
+            "childlock": {
+                "name": "Lapselukk"
+            },
+            "soundvolume": {
+                "name": "Helitugevus"
+            },
+            "keysoundtone": {
+                "name": "Klahvi heli"
+            },
+            "windownotification": {
+                "name": "Akna märguanne"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Söefiltri lubamine"
+            },
+            "fastmode": {
+                "name": "Sügavkülmiku kiirrežiim"
+            },
+            "sabbathmode": {
+                "name": "Hingamispäeva režiim"
+            },
+            "ecomode": {
+                "name": "Ökorežiim"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2-luku režiim"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Eelpesu"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Kortsumisvastane (ilma auruta)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Kortsumisvastane auruga"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Öine tsükkel"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Säästlik režiim"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Loputushoid"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensiivne pesu"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Temperatuuriandur"
+            },
+            "ewx1493a_stain": {
+                "name": "Plekkide töötlemine"
+            },
+            "ewx1493a_drymode": {
+                "name": "Kuivatusrežiim"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Lihtne triikraud"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Steam režiim"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra segu"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Märg režiim"
+            },
+            "networkinterfacealwayson": {
+                "name": "Võrk alati sisse lülitatud"
+            },
+            "adlocalfinetuning": {
+                "name": "Automaatannuse kohalik peenhäälestus"
+            },
+            "anticreasenosteam": {
+                "name": "Kortsumisvastane ilma auruta"
+            },
+            "anticreasewsteam": {
+                "name": "Kortsumisvastane auruga"
+            },
+            "ultramix": {
+                "name": "Ultra segu"
+            },
+            "prewashphase": {
+                "name": "Eelpesu"
+            },
+            "stain": {
+                "name": "Plekkide toime"
+            },
+            "nightcycle": {
+                "name": "Öine tsükkel"
+            },
+            "wmeconomy": {
+                "name": "Säästlik režiim"
+            },
+            "rinsehold": {
+                "name": "Loputushoid"
+            },
+            "tcsensor": {
+                "name": "Temperatuuriandur"
+            },
+            "soak": {
+                "name": "Leota"
+            },
+            "softener": {
+                "name": "Pehmendaja"
+            },
+            "defaultsoftplus": {
+                "name": "Vaikimisi pehme pluss"
+            },
+            "intensive": {
+                "name": "Intensiivne"
+            },
+            "reverseplus": {
+                "name": "Tagurpidi pluss"
+            },
+            "tdeconomy_eco": {
+                "name": "Ökorežiim"
+            },
+            "tdeconomy_night": {
+                "name": "Öörežiim"
+            },
+            "tdeconomy_quick": {
+                "name": "Kiire režiim"
+            },
+            "refresh": {
+                "name": "Värskenda programmi"
+            },
+            "keytone": {
+                "name": "Klahvitoon"
+            },
+            "preselectlast": {
+                "name": "Eelvalige viimane"
+            },
+            "extrapoweroption": {
+                "name": "Lisavõimsus"
+            },
+            "extrasilentoption": {
+                "name": "Eriti vaikne"
+            },
+            "glasscareoption": {
+                "name": "Klaasi hooldus"
+            },
+            "sprayzoneoption": {
+                "name": "Pihustustsoon"
+            },
+            "autodooropener": {
+                "name": "Automaatne ukseavaja"
+            },
+            "sanitizeoption": {
+                "name": "Desinfitseerida"
+            },
+            "onerackoption": {
+                "name": "Üks riiul"
+            },
+            "zonecleanoption": {
+                "name": "Tsoon puhas"
+            },
+            "xtradryoption": {
+                "name": "Eriti kuiv"
+            },
+            "cleanairmode": {
+                "name": "Puhta õhu režiim"
+            },
+            "sleepmode": {
+                "name": "Unerežiim"
+            },
+            "batchschedulermode": {
+                "name": "Pakettplaanija režiim"
+            },
+            "verticalswing": {
+                "name": "Vertikaalne kiik"
+            },
+            "turbofunction": {
+                "name": "Turbo funktsioon"
+            },
+            "energysavingmode": {
+                "name": "Energiasäästurežiim"
+            },
+            "autocleantrigger": {
+                "name": "Automaatne puhastuspäästik"
+            },
+            "flappositionavoiduser": {
+                "name": "Klapi asend väldi kasutajat"
+            },
+            "horizontalswing": {
+                "name": "Horisontaalne kiik"
+            },
+            "humidification": {
+                "name": "Niisutamine"
+            },
+            "uilight": {
+                "name": "Ui valgus"
+            },
+            "safetylock": {
+                "name": "Turvalukk"
+            },
+            "ionizer": {
+                "name": "Ionisaator"
+            },
+            "uvstate": {
+                "name": "UV valgus"
+            },
+            "mute": {
+                "name": "Vaigista"
+            }
         }
     }
 }

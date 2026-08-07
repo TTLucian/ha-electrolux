@@ -66,12 +66,12 @@ class TestElectroluxSensor:
         assert basic_sensor_entity.entity_domain == SENSOR
 
     def test_name_with_friendly_name(self, basic_sensor_entity: ElectroluxSensor):
-        """Test sensor name uses friendly name when available."""
+        """Test sensor name falls back to provided name without runtime localization."""
         basic_sensor_entity.entity_name = "connectivityState"
-        assert basic_sensor_entity.name == "Connectivity State"
+        assert basic_sensor_entity.name == "Test Sensor"
 
     def test_name_fallback_to_catalog(self, mock_coordinator):
-        """Test sensor name falls back to catalog entry."""
+        """Test sensor name no longer uses catalog friendly_name directly."""
         catalog = MagicMock()
         catalog.friendly_name = "Custom Sensor"
         capability = {"access": "read", "type": "number"}
@@ -92,7 +92,7 @@ class TestElectroluxSensor:
             catalog_entry=catalog,
         )
         entity.hass = mock_coordinator.hass
-        assert entity.name == "Custom sensor"
+        assert entity.name == "Test Sensor"
 
     def test_name_fallback_to_internal(self, basic_sensor_entity: ElectroluxSensor):
         """Test sensor name falls back to internal name."""

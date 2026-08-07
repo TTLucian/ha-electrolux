@@ -1135,7 +1135,7 @@ class TestIsFanspeedDisabled:
     """Tests for the ``_is_fanspeed_disabled`` helper added to fix the Muju
     HomeKit Auto→Manual regression (v3.5.8)."""
 
-    def _make_fan_with_triggers(self, workmode: str) -> "ElectroluxFan":
+    def _make_fan_with_triggers(self, workmode: str) -> ElectroluxFan:
         """Return a fan whose Workmode capability has Fanspeed-disabled triggers."""
         caps_with_triggers = _make_capability_workmode_with_triggers()
         fan = _make_fan(workmode=workmode)
@@ -1205,7 +1205,7 @@ class TestIsFanspeedDisabled:
 class TestPercentageDisabledFanspeed:
     """Tests for the ``percentage`` property when Fanspeed is trigger-disabled."""
 
-    def _fan_in_mode(self, workmode: str) -> "ElectroluxFan":
+    def _fan_in_mode(self, workmode: str) -> ElectroluxFan:
         caps_with_triggers = _make_capability_workmode_with_triggers()
         fan = _make_fan(workmode=workmode, fanspeed=3)
         fan._speed_range = (1, 5)
@@ -1258,7 +1258,7 @@ class TestAsyncSetPercentageManualFirst:
     when the current Workmode disables Fanspeed (e.g. Auto, Quiet).  Automatically
     switching to Manual was confusing and has been replaced with an explicit error."""
 
-    def _fan_in_auto_with_triggers(self) -> "ElectroluxFan":
+    def _fan_in_auto_with_triggers(self) -> ElectroluxFan:
         caps_with_triggers = _make_capability_workmode_with_triggers()
         fan = _make_fan(workmode="Auto")
         original_get_cap = fan.get_capability

@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Установка Электролюкс",
-                "description": "Подключите свою технику Electrolux, используя учетные данные API с портала разработчиков Electrolux.\n\n**Чтобы получить учетные данные API:**\n1. Посетите {url}.\n2. Зарегистрируйтесь и создайте заявку\n3. Получите ключ API, токен доступа и токен обновления.\n\nЕсли вам нужна помощь, посетите документацию по интеграции.",
+                "description": "Подключите свою технику Electrolux, используя учетные данные API с портала разработчиков Electrolux.\n\n**Чтобы получить учетные данные API:**\n1. Посетите {url}\n2. Зарегистрируйтесь и создайте заявку\n3. Получите ключ API, токен доступа и токен обновления.\n\nЕсли вам нужна помощь, посетите документацию по интеграции.",
                 "data": {
                     "api_key": "API-ключ",
                     "access_token": "Токен доступа",
@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Неверные учетные данные API. Проверьте свой ключ API, токен доступа и токен обновления на портале разработчиков Electrolux."
+            "invalid_auth": "Неверные учетные данные API. Пожалуйста, проверьте свой ключ API, токен доступа и токен обновления на портале разработчиков Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Допускается только одна конфигурация Electrolux.",
@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Электролюкс Опции",
-                "description": "Обновите свои учетные данные Electrolux API, если срок их действия истек.\n\n**Чтобы создать новые учетные данные:**\n1. Посетите {url}.\n2. Создайте новый ключ API, токен доступа и токен обновления.\n3. Обновите поля ниже.\n\n**Примечание по безопасности.** Поля «Токен доступа» и «Токен обновления» намеренно оставлены пустыми. Всегда создавайте новые токены на портале — никогда не используйте повторно и не делитесь существующими токенами.",
+                "description": "Обновите свои учетные данные Electrolux API, если срок их действия истек.\n\n**Чтобы создать новые учетные данные:**\n1. Посетите {url}\n2. Создайте новый ключ API, токен доступа и токен обновления.\n3. Обновите поля ниже.\n\n**Примечание по безопасности.** Поля «Токен доступа» и «Токен обновления» намеренно оставлены пустыми. Всегда создавайте новые токены на портале — никогда не используйте повторно и не делитесь существующими токенами.",
                 "data": {
                     "api_key": "API-ключ",
                     "access_token": "Токен доступа",
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Обновите учетные данные API Electrolux",
-                        "description": "Срок действия ваших токенов API Electrolux истек, и автоматическое обновление не удалось. Введите новые учетные данные с портала разработчиков Electrolux, чтобы восстановить функциональность.\n\n**Чтобы создать новые учетные данные:**\n1. Посетите {url}.\n2. Создайте новый ключ API, токен доступа и токен обновления.\n3. Введите их ниже",
+                        "description": "Срок действия ваших токенов API Electrolux истек, и автоматическое обновление не удалось. Введите новые учетные данные с портала разработчиков Electrolux, чтобы восстановить функциональность.\n\n**Чтобы создать новые учетные данные:**\n1. Посетите {url}\n2. Создайте новый ключ API, токен доступа и токен обновления.\n3. Введите их ниже",
                         "data": {
                             "api_key": "API-ключ",
                             "access_token": "Токен доступа",
@@ -142,6 +142,1399 @@
         },
         "value_below_minimum": {
             "message": "Значение {value} ниже минимального {min_val} для {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Состояние подключения"
+            },
+            "doorstate": {
+                "name": "Состояние двери"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Пищевой зонд"
+            },
+            "foodprobesupported": {
+                "name": "Поддержка пищевых зондов"
+            },
+            "watertrayinsertionstate": {
+                "name": "Поддон для воды"
+            },
+            "watertankempty": {
+                "name": "Резервуар для воды пуст"
+            },
+            "cleaningreminder": {
+                "name": "Напоминание об очистке"
+            },
+            "drawerstatus": {
+                "name": "Ящик"
+            },
+            "humancentriclighteventstate": {
+                "name": "Человекоориентированный свет"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Автоматическое отключение"
+            },
+            "appliancestate": {
+                "name": "Состояние морозильной камеры"
+            },
+            "fanstate": {
+                "name": "Состояние вентилятора дополнительной полости"
+            },
+            "autosense": {
+                "name": "Автораспознавание"
+            },
+            "maint1_occured": {
+                "name": "Требуется техническое обслуживание"
+            },
+            "maint2_occured": {
+                "name": "Произошел элемент обслуживания 2."
+            },
+            "maint3_occured": {
+                "name": "Произошел пункт обслуживания 3."
+            },
+            "maint4_occured": {
+                "name": "Произошел пункт обслуживания 4."
+            },
+            "maint5_occured": {
+                "name": "Произошел пункт обслуживания 5."
+            },
+            "maint6_occured": {
+                "name": "Произошел пункт обслуживания 6."
+            },
+            "maint7_occured": {
+                "name": "Произошел пункт обслуживания 7"
+            },
+            "maint8_occured": {
+                "name": "Произошел пункт обслуживания 8"
+            },
+            "maint9_occured": {
+                "name": "Произошел пункт обслуживания 9"
+            },
+            "maint10_occured": {
+                "name": "Произошел пункт обслуживания 10"
+            },
+            "occured": {
+                "name": "Произошло техническое обслуживание 1"
+            },
+            "ecomode": {
+                "name": "Эко-режим"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Требуется очистка воздушного фильтра"
+            },
+            "hmepn_acalerts": {
+                "name": "Оповещения переменного тока поддерживаются"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa-фильтр установлен"
+            },
+            "dooropen": {
+                "name": "Дверь открыта"
+            },
+            "watertraylevellow": {
+                "name": "Низкий уровень воды в поддоне"
+            },
+            "autodustcollection": {
+                "name": "Сбор автомобильной пыли"
+            },
+            "automoparmextension": {
+                "name": "Автоматическое удлинение рычага швабры"
+            },
+            "automopdry": {
+                "name": "Автоматическая сухая швабра"
+            },
+            "automopwash": {
+                "name": "Автоматическая мойка шваброй"
+            },
+            "autodetergentusage": {
+                "name": "Использование моющего средства для автомобиля"
+            },
+            "mopinstalled": {
+                "name": "Швабра установлена"
+            },
+            "incharger": {
+                "name": "В зарядном устройстве"
+            },
+            "returntowash": {
+                "name": "Вернитесь в стирку"
+            },
+            "roomselected": {
+                "name": "Номер выбран"
+            },
+            "carpetboost": {
+                "name": "Ковровое усиление"
+            },
+            "carpetavoid": {
+                "name": "Ковер избегайте"
+            },
+            "carpetdisplay": {
+                "name": "Ковровый дисплей"
+            },
+            "obstacleavoidance": {
+                "name": "Объезд препятствий"
+            },
+            "dndenabled": {
+                "name": "Не беспокоить включено"
+            },
+            "dnddisableairdry": {
+                "name": "Не отключайте сушку на воздухе"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd пауза, сушка на воздухе"
+            },
+            "multifloormap": {
+                "name": "Многоэтажная карта"
+            },
+            "multifloormapautoswitch": {
+                "name": "Автоматическое переключение многоэтажной карты"
+            },
+            "robotposereliable": {
+                "name": "Поза робота надежная"
+            },
+            "ovwater_tank_empty": {
+                "name": "Статус резервуара для воды"
+            },
+            "ovcleaning_ended": {
+                "name": "Статус очистки"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Зонд окончания приготовления"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Сетевая команда"
+            },
+            "startupcommand": {
+                "name": "Команда запуска"
+            },
+            "manualsync": {
+                "name": "Ручная синхронизация"
+            },
+            "executecommand": {
+                "name": "Власть"
+            },
+            "waterfilterstatereset": {
+                "name": "Сброс фильтра воды"
+            },
+            "airfilterstatereset": {
+                "name": "Сброс воздушного фильтра"
+            },
+            "saveappfavorite": {
+                "name": "Сохранить избранное"
+            },
+            "shortcutproglistcmd": {
+                "name": "Команда списка ярлыков программ"
+            },
+            "filterreset": {
+                "name": "Сброс фильтра"
+            },
+            "hepafilterreset": {
+                "name": "Сброс Hepa-фильтра"
+            },
+            "findme": {
+                "name": "Найди меня"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Очиститель воздуха"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Время начала"
+            },
+            "targetduration": {
+                "name": "Целевая продолжительность"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Целевая температура пищевого зонда c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Целевая температура пищевого зонда f"
+            },
+            "targettemperaturec": {
+                "name": "Целевая температура c"
+            },
+            "targettemperaturef": {
+                "name": "Целевая температура f"
+            },
+            "remindertime": {
+                "name": "Время напоминания в верхней духовке"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Смещение местного времени устройства"
+            },
+            "lightintensity": {
+                "name": "Интенсивность света"
+            },
+            "lightcolortemperature": {
+                "name": "Цветовая температура света"
+            },
+            "stoptime": {
+                "name": "Остановить время"
+            },
+            "adtankadetstandarddose": {
+                "name": "Заправьте стандартную дозу моющего средства"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Стандартная доза моющего средства в баке b"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Стандартная доза умягчителя бака b"
+            },
+            "adfinetunedetlevel": {
+                "name": "Точная настройка уровня моющего средства"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Точная настройка уровня умягчителя"
+            },
+            "extrarinsenumber": {
+                "name": "Дополнительные полоскания"
+            },
+            "maint1_id": {
+                "name": "Идентификатор элемента обслуживания 1"
+            },
+            "maint2_id": {
+                "name": "Идентификатор элемента обслуживания 2"
+            },
+            "maint2_threshold": {
+                "name": "Пороговое значение элемента обслуживания 2"
+            },
+            "maint3_id": {
+                "name": "Идентификатор элемента обслуживания 3"
+            },
+            "maint3_threshold": {
+                "name": "Пороговое значение пункта обслуживания 3"
+            },
+            "maint4_id": {
+                "name": "Идентификатор элемента обслуживания 4"
+            },
+            "maint4_threshold": {
+                "name": "Порог пункта обслуживания 4"
+            },
+            "maint5_id": {
+                "name": "Идентификатор элемента обслуживания 5"
+            },
+            "maint5_threshold": {
+                "name": "Пороговое значение пункта обслуживания 5"
+            },
+            "maint6_id": {
+                "name": "Идентификатор элемента обслуживания 6"
+            },
+            "maint6_threshold": {
+                "name": "Пороговое значение пункта обслуживания 6"
+            },
+            "maint7_id": {
+                "name": "Идентификатор элемента обслуживания 7"
+            },
+            "maint7_threshold": {
+                "name": "Порог пункта обслуживания 7"
+            },
+            "maint8_id": {
+                "name": "Идентификатор элемента обслуживания 8"
+            },
+            "maint8_threshold": {
+                "name": "Порог пункта обслуживания 8"
+            },
+            "maint9_id": {
+                "name": "Идентификатор элемента обслуживания 9"
+            },
+            "maint9_threshold": {
+                "name": "Пороговое значение пункта обслуживания 9"
+            },
+            "maint10_id": {
+                "name": "Идентификатор элемента обслуживания 10"
+            },
+            "maint10_threshold": {
+                "name": "Порог пункта обслуживания 10"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Четкая персонализация цикла"
+            },
+            "memoryid": {
+                "name": "Слот памяти"
+            },
+            "dryingtime": {
+                "name": "Сушка по времени (активная)"
+            },
+            "timetonotify": {
+                "name": "Время уведомить"
+            },
+            "anticreasevalue": {
+                "name": "Антисминание (активное)"
+            },
+            "rinseaidlevel": {
+                "name": "Уровень ополаскивателя"
+            },
+            "targethumidity": {
+                "name": "Целевая влажность"
+            },
+            "targettemperature": {
+                "name": "Целевая температура"
+            },
+            "fanspeed": {
+                "name": "Скорость вентилятора"
+            },
+            "humiditytarget": {
+                "name": "Целевая влажность"
+            },
+            "powermode": {
+                "name": "Режим мощности"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Подсветка дисплея"
+            },
+            "targettemperaturec": {
+                "name": "Дополнительная температура полости"
+            },
+            "mode": {
+                "name": "Режим"
+            },
+            "fanspeedsetting": {
+                "name": "Скорость вентилятора"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Оповещения"
+            },
+            "appliancestate": {
+                "name": "Состояние устройства"
+            },
+            "temperaturerepresentation": {
+                "name": "Представление температуры"
+            },
+            "linkqualityindicator": {
+                "name": "Индикатор качества соединения сетевого интерфейса"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Описание обновления Niu sw"
+            },
+            "otastate": {
+                "name": "Состояние сетевого интерфейса"
+            },
+            "swancandrevision": {
+                "name": "Переключение и доработка"
+            },
+            "swversion": {
+                "name": "Версия программного обеспечения сетевого интерфейса"
+            },
+            "endofcyclesound": {
+                "name": "Звук окончания цикла"
+            },
+            "programuid": {
+                "name": "UID программы"
+            },
+            "appliancetype": {
+                "name": "Тип устройства"
+            },
+            "capabilityhash": {
+                "name": "Хэш возможностей"
+            },
+            "cpv": {
+                "name": "цена за просмотр"
+            },
+            "remotecontrol": {
+                "name": "Пульт дистанционного управления"
+            },
+            "totalcyclecounter": {
+                "name": "Счетчик общего цикла"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Общее время работы устройства"
+            },
+            "timetoend": {
+                "name": "Время заканчивать"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Отображение температуры пищевого зонда"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Отображение температуры пищевого зонда c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Отображение температуры пищевого зонда f"
+            },
+            "displaytemperature": {
+                "name": "Отображение температуры"
+            },
+            "displaytemperaturec": {
+                "name": "Температура дисплея c"
+            },
+            "displaytemperaturef": {
+                "name": "Отображение температуры f"
+            },
+            "processphase": {
+                "name": "Этап процесса"
+            },
+            "program": {
+                "name": "Программа"
+            },
+            "runningtime": {
+                "name": "Время работы"
+            },
+            "fastheatupfeature": {
+                "name": "Функция быстрого разогрева верхней духовки."
+            },
+            "preheatcomplete": {
+                "name": "Предварительный разогрев верхней духовки завершен."
+            },
+            "targetdurationendaction": {
+                "name": "Окончание заданной продолжительности верхней духовки"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Конечная температура датчика температуры в верхней духовке"
+            },
+            "watertanklevel": {
+                "name": "Уровень воды в верхнем баке духовки"
+            },
+            "waterhardness": {
+                "name": "Жесткость воды"
+            },
+            "descalingreminderstate": {
+                "name": "Напоминание об удалении накипи"
+            },
+            "clockstyle": {
+                "name": "Стиль часов"
+            },
+            "language": {
+                "name": "Язык"
+            },
+            "localtimeautomaticmode": {
+                "name": "Автоматический режим местного времени"
+            },
+            "autolocaltimeoffset": {
+                "name": "Автоматическое смещение местного времени"
+            },
+            "favoriteorder": {
+                "name": "Любимый заказ"
+            },
+            "number": {
+                "name": "Количество любимых заказов"
+            },
+            "favoriteselect": {
+                "name": "Выбор избранного"
+            },
+            "favoritestatus": {
+                "name": "Любимый статус"
+            },
+            "activemessageindex": {
+                "name": "Индекс активного сообщения"
+            },
+            "appliancemode": {
+                "name": "Режим устройства"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Скорость вентилятора капота"
+            },
+            "hobtohoodstate": {
+                "name": "Состояние капюшона"
+            },
+            "hoodfanlevel": {
+                "name": "Уровень вентилятора"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Таймер угольного фильтра"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Таймер жироулавливающего фильтра"
+            },
+            "tvocfiltertime": {
+                "name": "Время фильтра Tvoc"
+            },
+            "fastmodetimetoend": {
+                "name": "Время окончания быстрого режима морозильной камеры"
+            },
+            "sensortemperaturec": {
+                "name": "Температура морозильной камеры"
+            },
+            "vacationholidaymode": {
+                "name": "Режим отпуска"
+            },
+            "sensorhumidity": {
+                "name": "Влажность"
+            },
+            "waterfilterstate": {
+                "name": "Статус водяного фильтра"
+            },
+            "waterfilterlifetime": {
+                "name": "Срок службы фильтра для воды"
+            },
+            "waterfilterflow": {
+                "name": "Расход фильтра для воды"
+            },
+            "airfilterstate": {
+                "name": "Состояние воздушного фильтра"
+            },
+            "airfilterlifetime": {
+                "name": "Срок службы воздушного фильтра"
+            },
+            "coolingvalvestate": {
+                "name": "Состояние охлаждающего клапана"
+            },
+            "defrostroutinestate": {
+                "name": "Обычное состояние размораживания"
+            },
+            "compressorstate": {
+                "name": "Состояние компрессора"
+            },
+            "compressorspeed": {
+                "name": "Скорость компрессора"
+            },
+            "coefficient": {
+                "name": "Коэффициент скорости компрессора"
+            },
+            "exponent": {
+                "name": "Показатель скорости компрессора"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Режим клонирования дополнительной полости"
+            },
+            "temperatureadjustingstate": {
+                "name": "Дополнительная регулировка полости"
+            },
+            "defrosttemperaturec": {
+                "name": "Температура размораживания льдогенератора"
+            },
+            "evaporatorfanstate": {
+                "name": "Состояние вентилятора льдогенератора"
+            },
+            "icedispenserstate": {
+                "name": "Состояние диспенсера для льда"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Настройка наполнения лотка для льда"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Порог покупки воздушного фильтра"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Порог замены воздушного фильтра"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Порог покупки фильтра для воды (расход)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Порог замены водяного фильтра (расход)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Порог покупки фильтра для воды (время)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Порог замены водяного фильтра (время)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Версия программного обеспечения основной платы"
+            },
+            "defaultextrarinse": {
+                "name": "Дополнительное полоскание по умолчанию"
+            },
+            "cyclephase": {
+                "name": "Фаза цикла"
+            },
+            "cyclesubphase": {
+                "name": "Подфаза цикла"
+            },
+            "measuredloadweight": {
+                "name": "Измеренный вес груза"
+            },
+            "doorlock": {
+                "name": "Дверной замок"
+            },
+            "totalwashcyclescount": {
+                "name": "Всего циклов стирки"
+            },
+            "totalwashingtime": {
+                "name": "Общее время стирки"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Вес нагрузки"
+            },
+            "washingnominalloadweight": {
+                "name": "Вес загрузки белья"
+            },
+            "adtankaconfiguration": {
+                "name": "Танк конфигурации"
+            },
+            "adtankbconfiguration": {
+                "name": "Конфигурация бака b"
+            },
+            "steamvalue": {
+                "name": "Уровень пара"
+            },
+            "timemanagerlevel": {
+                "name": "Менеджер времени"
+            },
+            "adtankasel": {
+                "name": "Автодозирующий резервуар a"
+            },
+            "adtankbsel": {
+                "name": "Резервуар с автоматической дозировкой b"
+            },
+            "analogspinspeed": {
+                "name": "Скорость вращения"
+            },
+            "analogtemperature": {
+                "name": "Температура"
+            },
+            "watersoftenermode": {
+                "name": "Режим умягчения воды"
+            },
+            "maint1_threshold": {
+                "name": "Порог обслуживания"
+            },
+            "detergentextradosage": {
+                "name": "Дополнительная дозировка моющего средства"
+            },
+            "optisenseresult": {
+                "name": "Вес нагрузки"
+            },
+            "softenerextradosage": {
+                "name": "Дополнительная дозировка смягчителя"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Резервуар с заданной нагрузкой для номинального веса"
+            },
+            "tankareserve": {
+                "name": "Танк в резерве"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Бак b det нагрузки для номинального веса"
+            },
+            "tankbreserve": {
+                "name": "Танк б резервный"
+            },
+            "waterusage": {
+                "name": "Использование воды"
+            },
+            "adtankadetloaded": {
+                "name": "Бак с моющим средством загружен"
+            },
+            "adtankbdetloaded": {
+                "name": "Бак b загружен моющим средством"
+            },
+            "adtankbsoftloaded": {
+                "name": "Бак b умягчителя загружен"
+            },
+            "ecolevel": {
+                "name": "Эко уровень"
+            },
+            "applianceuiswversion": {
+                "name": "Версия программного обеспечения пользовательского интерфейса устройства"
+            },
+            "remotenotificationpending": {
+                "name": "Ожидается удаленное уведомление"
+            },
+            "minfinishintime": {
+                "name": "Минимальное завершение в срок"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Экономный режим"
+            },
+            "adfinetunedetlevel": {
+                "name": "Точная настройка автоматической дозировки моющего средства"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Точная настройка автоматического умягчителя дозы"
+            },
+            "extrarinsenumber": {
+                "name": "Дополнительное полоскание"
+            },
+            "threshold": {
+                "name": "Порог обслуживания 1"
+            },
+            "timezonedatabasename": {
+                "name": "База данных часовых поясов"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Общий счетчик парового цикла"
+            },
+            "prewashphase": {
+                "name": "Фаза предварительной стирки"
+            },
+            "dryingnominalloadweight": {
+                "name": "Номинальный вес нагрузки"
+            },
+            "humiditytarget": {
+                "name": "Целевой уровень влажности (активный)"
+            },
+            "tankalevel": {
+                "name": "Танк уровня"
+            },
+            "tankblevel": {
+                "name": "Уровень бака b"
+            },
+            "totaldrycyclescount": {
+                "name": "Всего сухих циклов"
+            },
+            "totaldryingtime": {
+                "name": "Общее время высыхания"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Общее количество циклов стирки+сушки"
+            },
+            "programsorder": {
+                "name": "Заказ программы"
+            },
+            "carelevel": {
+                "name": "Уровень ухода"
+            },
+            "drynessvalue": {
+                "name": "Уровень сухости (активный)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: вес загрузки при стирке"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: влажность белья при стирке"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: расчетное время высыхания"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: флаг перегрузки загрузки"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: ошибка загрузки стирки"
+            },
+            "wmsn": {
+                "name": "Dwyw: серийная спаренная шайба"
+            },
+            "command": {
+                "name": "Дуйв: команда"
+            },
+            "displayonfloor": {
+                "name": "Дисплей на полу"
+            },
+            "energyscore": {
+                "name": "Оценка энергии"
+            },
+            "waterscore": {
+                "name": "Оценка воды"
+            },
+            "ecoscore": {
+                "name": "Эко оценка"
+            },
+            "miscellaneousstate": {
+                "name": "Разное состояние"
+            },
+            "ambienttemperaturec": {
+                "name": "Температура окружающей среды c"
+            },
+            "ambienttemperaturef": {
+                "name": "Температура окружающей среды f"
+            },
+            "fanmode": {
+                "name": "Режим вентилятора"
+            },
+            "swingmode": {
+                "name": "Режим поворота"
+            },
+            "ambienthumidity": {
+                "name": "Влажность окружающей среды"
+            },
+            "filterstatus": {
+                "name": "Статус фильтра"
+            },
+            "powerconsumption": {
+                "name": "Потребляемая мощность"
+            },
+            "energyconsumption": {
+                "name": "Потребление энергии"
+            },
+            "fanspeedstate": {
+                "name": "Состояние скорости вентилятора"
+            },
+            "filterstate": {
+                "name": "Состояние фильтра"
+            },
+            "hepafilterlifetime": {
+                "name": "Срок службы Hepa-фильтра"
+            },
+            "appliancecategory": {
+                "name": "Категория устройства"
+            },
+            "vmno_niu": {
+                "name": "версия Ниу"
+            },
+            "vmno_mcu": {
+                "name": "Версия микроконтроллера"
+            },
+            "schedulersession": {
+                "name": "Сеанс планировщика"
+            },
+            "schedulermode": {
+                "name": "Режим планировщика"
+            },
+            "totalruntime": {
+                "name": "Общее время работы"
+            },
+            "compressorcoolingruntime": {
+                "name": "Время работы компрессора при охлаждении"
+            },
+            "compressorheatingruntime": {
+                "name": "Время работы компрессора при нагреве"
+            },
+            "mainunittemp": {
+                "name": "Температура основного блока"
+            },
+            "loge": {
+                "name": "Войти е"
+            },
+            "logw": {
+                "name": "Журнал w"
+            },
+            "demandresponseau": {
+                "name": "Реакция спроса или"
+            },
+            "pm25": {
+                "name": "Тч2,5"
+            },
+            "pm10": {
+                "name": "10:00"
+            },
+            "modestate": {
+                "name": "Состояние режима"
+            },
+            "filterruntime": {
+                "name": "Время выполнения фильтра"
+            },
+            "hepafilterstate": {
+                "name": "Состояние Hepa-фильтра"
+            },
+            "airqualitylevel": {
+                "name": "Уровень качества воздуха"
+            },
+            "temperature": {
+                "name": "Температура окружающей среды"
+            },
+            "mode": {
+                "name": "Режим"
+            },
+            "temp": {
+                "name": "Температура"
+            },
+            "humidity": {
+                "name": "Влажность"
+            },
+            "pm1": {
+                "name": "Пм1"
+            },
+            "pm2_5": {
+                "name": "Тч2,5"
+            },
+            "tvoc": {
+                "name": "Твок"
+            },
+            "eco2": {
+                "name": "Эко2"
+            },
+            "filtertype": {
+                "name": "Тип фильтра"
+            },
+            "filterlife": {
+                "name": "Фильтровать жизнь"
+            },
+            "workmode": {
+                "name": "Режим работы"
+            },
+            "aqilight": {
+                "name": "Аки свет"
+            },
+            "louverswing": {
+                "name": "Жалюзи качели"
+            },
+            "quietfan": {
+                "name": "Тихий вентилятор"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Дата сброса увлажняющего фильтра"
+            },
+            "filterlife_1": {
+                "name": "Фильтровать жизнь"
+            },
+            "filterlife_2": {
+                "name": "Жизнь фильтра 2"
+            },
+            "filtertype_1": {
+                "name": "Тип фильтра"
+            },
+            "filtertype_2": {
+                "name": "Тип фильтра 2"
+            },
+            "filteruid_1": {
+                "name": "Фильтровать 1 идентификатор тега NFC"
+            },
+            "filteruid_2": {
+                "name": "Фильтровать 2 идентификатора тега NFC"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (приблизительно)"
+            },
+            "uvruntime": {
+                "name": "УФ-время выполнения"
+            },
+            "schedulingstate": {
+                "name": "Состояние планирования"
+            },
+            "errimpellerstuck": {
+                "name": "Ошибка: крыльчатка застряла."
+            },
+            "errpmnotresp": {
+                "name": "Ошибка: датчик вечера не отвечает"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Ошибка: связь с табло"
+            },
+            "errcommsensoruibrd": {
+                "name": "Ошибка: связь с платой пользовательского интерфейса."
+            },
+            "signalstrength": {
+                "name": "Уровень сигнала"
+            },
+            "rssi": {
+                "name": "Рсси"
+            },
+            "filterrfid": {
+                "name": "Фильтр RFID"
+            },
+            "errgasnotresp": {
+                "name": "Ошибка: датчик газа не отвечает"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Ошибка: тег фильтра 1 NFC отсутствует."
+            },
+            "errnfctagnotpres_2": {
+                "name": "Ошибка: тег nfc фильтра 2 отсутствует."
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Ошибка: фильтр 1 тега NFC недействителен."
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Ошибка: тег фильтра 2 недействителен."
+            },
+            "errnfctransceiver_1": {
+                "name": "Ошибка: фильтровать 1 приемопередатчик NFC."
+            },
+            "errnfctransceiver_2": {
+                "name": "Ошибка: фильтр 2 приемопередатчика NFC"
+            },
+            "errtemprhnotresp": {
+                "name": "Ошибка: датчик температуры/влажности не отвечает"
+            },
+            "errwatertrayremoved": {
+                "name": "Ошибка: поддон для воды снят."
+            },
+            "waterbucketlevel": {
+                "name": "Уровень ведра с водой"
+            },
+            "batterystatus": {
+                "name": "Батарея"
+            },
+            "robotstatus": {
+                "name": "Статус робота"
+            },
+            "cleaningcommand": {
+                "name": "Команда очистки"
+            },
+            "dustbinstatus": {
+                "name": "Статус мусорной корзины"
+            },
+            "mainbrushsqm": {
+                "name": "Использование основной кисти"
+            },
+            "sidebrushsqm": {
+                "name": "Использование боковой щетки"
+            },
+            "filtersqm": {
+                "name": "Использование фильтра"
+            },
+            "state": {
+                "name": "Состояние очистки"
+            },
+            "chargingstatus": {
+                "name": "Статус зарядки"
+            },
+            "vacuummode": {
+                "name": "Режим вакуума"
+            },
+            "cleaningtype": {
+                "name": "Тип очистки"
+            },
+            "cleaningmode": {
+                "name": "Режим очистки"
+            },
+            "waterpumprate": {
+                "name": "Скорость водяного насоса"
+            },
+            "waterstationaction": {
+                "name": "Акция на водной станции"
+            },
+            "moproute": {
+                "name": "Маршрут швабры"
+            },
+            "notificationevent": {
+                "name": "Событие уведомления"
+            },
+            "dirtcleanmode": {
+                "name": "Режим очистки от грязи"
+            },
+            "faultcode": {
+                "name": "Код неисправности"
+            },
+            "filterusage": {
+                "name": "Использование фильтра"
+            },
+            "cleansize": {
+                "name": "Чистый размер"
+            },
+            "cleantime": {
+                "name": "Чистое время"
+            },
+            "dustbagusage": {
+                "name": "Использование мешка для пыли"
+            },
+            "dustboxusage": {
+                "name": "Использование пылесборника"
+            },
+            "emptyingtime": {
+                "name": "Время опорожнения"
+            },
+            "mainbrushusage": {
+                "name": "Использование основной кисти"
+            },
+            "sidebrushusage": {
+                "name": "Использование боковой щетки"
+            },
+            "mopusage": {
+                "name": "Использование швабры"
+            },
+            "moparmextensionfreq": {
+                "name": "Частота выдвижения рычага швабры"
+            },
+            "mopdrytime": {
+                "name": "Время высыхания швабры"
+            },
+            "mopwashfreqarea": {
+                "name": "Частота мытья шваброй"
+            },
+            "mopwashfreqtime": {
+                "name": "Время мытья шваброй"
+            },
+            "mopwashfreqtype": {
+                "name": "Тип частоты мытья шваброй"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Повторы очистки"
+            },
+            "voicevolume": {
+                "name": "Громкость голоса"
+            },
+            "upgradeprogress": {
+                "name": "Ход обновления"
+            },
+            "stationupgradestatus": {
+                "name": "Статус обновления станции"
+            },
+            "upgradestate": {
+                "name": "Состояние обновления"
+            },
+            "selectedroomid": {
+                "name": "Идентификатор выбранной комнаты"
+            },
+            "maxusagedustbox": {
+                "name": "Максимальное использование пылесборника"
+            },
+            "maxusagestationbag": {
+                "name": "Максимальное использование сумки на станции"
+            },
+            "dndstarttime": {
+                "name": "Время начала Дн."
+            },
+            "dndendtime": {
+                "name": "Время окончания дня"
+            },
+            "datamodelversion": {
+                "name": "Версия модели данных"
+            },
+            "basestationversion": {
+                "name": "Версия базовой станции"
+            },
+            "deviceid": {
+                "name": "Идентификатор устройства"
+            },
+            "timezonedaylightrule": {
+                "name": "Правило летнего времени для часового пояса"
+            },
+            "timezonestandardname": {
+                "name": "Стандартное название часового пояса"
+            },
+            "bintank": {
+                "name": "Бензобак"
+            },
+            "setvoicevolume": {
+                "name": "Уровень громкости голоса"
+            },
+            "mapid": {
+                "name": "Постоянный идентификатор карты"
+            },
+            "sessionid": {
+                "name": "Идентификатор сеанса очистки"
+            },
+            "completion": {
+                "name": "Завершение очистки"
+            },
+            "areacovered": {
+                "name": "Охваченная площадь"
+            },
+            "zones": {
+                "name": "Количество зон карты"
+            },
+            "zonestatus": {
+                "name": "Статус зоны очистки"
+            },
+            "ovwater_tank_empty": {
+                "name": "Статус резервуара для воды"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Пищевой зонд"
+            },
+            "ovcleaning_ended": {
+                "name": "Статус очистки"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Зонд окончания приготовления"
+            },
+            "connectivitystate": {
+                "name": "Состояние подключения"
+            },
+            "executionstate": {
+                "name": "Состояние выполнения"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Замок от детей внутренний"
+            },
+            "cavitylight": {
+                "name": "Полость света"
+            },
+            "childlock": {
+                "name": "Замок от детей"
+            },
+            "soundvolume": {
+                "name": "Громкость звука"
+            },
+            "keysoundtone": {
+                "name": "Ключевой звук"
+            },
+            "windownotification": {
+                "name": "Уведомление в окне"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Угольный фильтр включить"
+            },
+            "fastmode": {
+                "name": "Быстрый режим морозильной камеры"
+            },
+            "sabbathmode": {
+                "name": "Режим субботы"
+            },
+            "ecomode": {
+                "name": "Эко-режим"
+            },
+            "ui2lockmode": {
+                "name": "Режим блокировки пользовательского интерфейса 2"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Предварительная стирка"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Защита от сминания (без пара)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Защита от сминания с помощью пара"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Ночной цикл"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Экономный режим"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Остановка полоскания"
+            },
+            "ewx1493a_intensive": {
+                "name": "Интенсивная стирка"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Датчик температуры"
+            },
+            "ewx1493a_stain": {
+                "name": "Обработка пятен"
+            },
+            "ewx1493a_drymode": {
+                "name": "Режим сушки"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Легко гладить"
+            },
+            "ewx1493a_pod": {
+                "name": "капсула"
+            },
+            "ewx1493a_steammode": {
+                "name": "Режим пара"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ультра микс"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Мокрый режим"
+            },
+            "networkinterfacealwayson": {
+                "name": "Сеть всегда включена"
+            },
+            "adlocalfinetuning": {
+                "name": "Локальная точная настройка автоматической дозы"
+            },
+            "anticreasenosteam": {
+                "name": "Защита от сминания, без пара"
+            },
+            "anticreasewsteam": {
+                "name": "Защита от сминания с помощью пара"
+            },
+            "ultramix": {
+                "name": "Ультра микс"
+            },
+            "prewashphase": {
+                "name": "Предварительная стирка"
+            },
+            "stain": {
+                "name": "Пятно действия"
+            },
+            "nightcycle": {
+                "name": "Ночной цикл"
+            },
+            "wmeconomy": {
+                "name": "Экономный режим"
+            },
+            "rinsehold": {
+                "name": "Остановка полоскания"
+            },
+            "tcsensor": {
+                "name": "Датчик температуры"
+            },
+            "soak": {
+                "name": "Замочить"
+            },
+            "softener": {
+                "name": "Смягчитель"
+            },
+            "defaultsoftplus": {
+                "name": "Софт плюс по умолчанию"
+            },
+            "intensive": {
+                "name": "Интенсивный"
+            },
+            "reverseplus": {
+                "name": "Обратный плюс"
+            },
+            "tdeconomy_eco": {
+                "name": "Эко-режим"
+            },
+            "tdeconomy_night": {
+                "name": "Ночной режим"
+            },
+            "tdeconomy_quick": {
+                "name": "Быстрый режим"
+            },
+            "refresh": {
+                "name": "Обновить программу"
+            },
+            "keytone": {
+                "name": "Ключевой тон"
+            },
+            "preselectlast": {
+                "name": "Предварительно выбрать последний"
+            },
+            "extrapoweroption": {
+                "name": "Дополнительная мощность"
+            },
+            "extrasilentoption": {
+                "name": "Очень тихий"
+            },
+            "glasscareoption": {
+                "name": "Уход за стеклом"
+            },
+            "sprayzoneoption": {
+                "name": "Зона распыления"
+            },
+            "autodooropener": {
+                "name": "Автоматическое открывание дверей"
+            },
+            "sanitizeoption": {
+                "name": "Дезинфицировать"
+            },
+            "onerackoption": {
+                "name": "Одна стойка"
+            },
+            "zonecleanoption": {
+                "name": "Зона чистая"
+            },
+            "xtradryoption": {
+                "name": "Экстра сухой"
+            },
+            "cleanairmode": {
+                "name": "Режим чистого воздуха"
+            },
+            "sleepmode": {
+                "name": "Спящий режим"
+            },
+            "batchschedulermode": {
+                "name": "Режим пакетного планировщика"
+            },
+            "verticalswing": {
+                "name": "Вертикальное качание"
+            },
+            "turbofunction": {
+                "name": "Функция турбо"
+            },
+            "energysavingmode": {
+                "name": "Режим энергосбережения"
+            },
+            "autocleantrigger": {
+                "name": "Триггер автоматической очистки"
+            },
+            "flappositionavoiduser": {
+                "name": "Положение заслонки, избегающее пользователя"
+            },
+            "horizontalswing": {
+                "name": "Горизонтальное качание"
+            },
+            "humidification": {
+                "name": "Увлажнение"
+            },
+            "uilight": {
+                "name": "Пользовательский интерфейс свет"
+            },
+            "safetylock": {
+                "name": "Замок безопасности"
+            },
+            "ionizer": {
+                "name": "ионизатор"
+            },
+            "uvstate": {
+                "name": "УФ свет"
+            },
+            "mute": {
+                "name": "Немой"
+            }
         }
     }
 }

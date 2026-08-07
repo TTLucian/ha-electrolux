@@ -44,9 +44,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == SELECT
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == SELECT]
             _LOGGER.debug(
                 "Electrolux add %d SELECT entities to registry for appliance %s",
                 len(entities),
@@ -135,7 +133,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             return None
         try:
             key = f"{DISCOVERED_PROGRAMS_KEY}_{self.unique_id}".replace("/", "_")
-        except TypeError, AttributeError:
+        except TypeError:
+            return None
+        except AttributeError:
             return None
         return Store(self.hass, STORAGE_VERSION, key)
 
@@ -197,13 +197,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             return
 
         self._discovered_data[label] = value
-        self._discovered_store.async_delay_save(
-            lambda: self._discovered_data, DISCOVERED_SAVE_DELAY
-        )
+        self._discovered_store.async_delay_save(lambda: self._discovered_data, DISCOVERED_SAVE_DELAY)
 
         _LOGGER.info(
-            "Discovered new program %s (%s) for %s on appliance %s. "
-            "Will remain available after restart.",
+            "Discovered new program %s (%s) for %s on appliance %s. Will remain available after restart.",
             value,
             label,
             self.entity_attr,
@@ -278,16 +275,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         if label is None:
             str_value = str(value) if value is not None else ""
             is_numeric_capability = self.capability.get("type") == "number"
-            is_numeric_sentinel = (
-                str_value != ""
-                and str_value.lstrip("-").isdigit()
-                and not is_numeric_capability
-            )
+            is_numeric_sentinel = str_value != "" and str_value.lstrip("-").isdigit() and not is_numeric_capability
             cap_values: dict = self.capability.get("values") or {}
             is_disabled_value = any(
-                k.upper() == str_value.upper()
-                and isinstance(v, dict)
-                and v.get("disabled")
+                k.upper() == str_value.upper() and isinstance(v, dict) and v.get("disabled")
                 for k, v in cap_values.items()
             )
             if str_value and not is_numeric_sentinel and not is_disabled_value:
@@ -308,8 +299,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 # transiently while the value is current.
                 label = self.format_label(value)
                 _LOGGER.debug(
-                    "Electrolux disabled-value %r shown as transient "
-                    "read-only label %r for %s",
+                    "Electrolux disabled-value %r shown as transient read-only label %r for %s",
                     value,
                     label,
                     self.entity_attr,
@@ -387,17 +377,11 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 value = float(value)
 
         # Format the value according to appliance capabilities
-        formatted_value = format_command_for_appliance(
-            self.capability, self.entity_attr, value
-        )
+        formatted_value = format_command_for_appliance(self.capability, self.entity_attr, value)
 
         _LOGGER.debug(
             "Electrolux select option before reported status %s",
-            (
-                self.appliance_status.get("properties", {}).get("reported", {})
-                if self.appliance_status
-                else {}
-            ),
+            (self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}),
         )
 
         client: ElectroluxApiClient = self.api
@@ -407,9 +391,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             # when the capability key has a slash (e.g. userSelections/humidityTarget).
             if self.entity_source == "userSelections":
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 if program_uid:
@@ -429,9 +411,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
 
@@ -460,9 +440,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             if self.entity_attr == "program":
                 # For program changes, include programUID from userSelections
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 if program_uid:
@@ -544,11 +522,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         if program_values is not None and isinstance(program_values, list):
             # Filter options to only include those allowed by the program
             allowed_values = {str(v) for v in program_values}
-            all_options = [
-                label
-                for label, value in self.options_list.items()
-                if str(value) in allowed_values
-            ]
+            all_options = [label for label, value in self.options_list.items() if str(value) in allowed_values]
             # Re-add discovered programs filtered out by program constraints
             # (e.g., GUIDED programs on SO ovens — valid but never enumerated
             # by the API). They are always selectable once discovered. (#65)

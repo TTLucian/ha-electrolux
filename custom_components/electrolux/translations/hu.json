@@ -10,7 +10,7 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
                 }
             },
             "reauth_validate": {
@@ -54,7 +54,7 @@
                     "refresh_token": "Token frissítése",
                     "notifications": "Engedélyezze a kritikus riasztások értesítéseit",
                     "notifications_warning": "Figyelmeztetésekről szóló értesítések engedélyezése",
-                    "notifications_diagnostic": "Értesítések engedélyezése a diagnosztikai üzenetekhez"
+                    "notifications_diagnostic": "Engedélyezze a diagnosztikai üzenetekre vonatkozó értesítéseket"
                 }
             }
         },
@@ -105,10 +105,10 @@
             "message": "Túl sok parancs lett elküldve. Kérjük, várjon egy pillanatot, és próbálja újra."
         },
         "control_locked": {
-            "message": "A {attr} zárolva van a {value} helyen a {program} programhoz."
+            "message": "A {attr} zárolva van a {value} címen a {program} programhoz."
         },
         "food_probe_locked_by_program": {
-            "message": "Az ételszonda hőmérséklete {value}°C-on zárva van a {program} programhoz."
+            "message": "Az élelmiszerszonda hőmérséklete {value}°C-on zárva van a {program} programhoz."
         },
         "food_probe_not_inserted": {
             "message": "A célhőmérséklet beállításához élelmiszerszondát kell behelyezni."
@@ -123,7 +123,7 @@
             "message": "Érvénytelen előre beállított mód {mode}. Rendelkezésre álló módok: {modes}."
         },
         "not_supported_by_program": {
-            "message": "A {attr} nem módosítható: a jelenlegi program nem támogatja: {program}."
+            "message": "Nem módosítható {attr}: a jelenlegi program nem támogatja a {program}."
         },
         "remote_control_disabled": {
             "message": "A távirányító le van tiltva ennél a készüléknél. Kérjük, engedélyezze a készülék kezelőpaneljén."
@@ -135,13 +135,1406 @@
             "message": "A {attr} nem állítható be, amíg a készülék ki van kapcsolva. Először kapcsolja be a készüléket."
         },
         "type_mismatch": {
-            "message": "Integrációs hiba: a {attr} adattípusa nem egyezik. Várható logikai érték."
+            "message": "Integrációs hiba: a {attr} adattípusának eltérése. Várható logikai érték."
         },
         "value_above_maximum": {
             "message": "A {value} érték meghaladja a {attr} maximális {max_val} értékét."
         },
         "value_below_minimum": {
             "message": "A {value} érték a {attr} minimális {min_val} értéke alatt van."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Kapcsolati állapot"
+            },
+            "doorstate": {
+                "name": "Ajtó állapota"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Élelmiszer-szonda"
+            },
+            "foodprobesupported": {
+                "name": "Élelmiszer-szonda támogatása"
+            },
+            "watertrayinsertionstate": {
+                "name": "Víztálca"
+            },
+            "watertankempty": {
+                "name": "Víztartály üres"
+            },
+            "cleaningreminder": {
+                "name": "Tisztítási emlékeztető"
+            },
+            "drawerstatus": {
+                "name": "Fiók"
+            },
+            "humancentriclighteventstate": {
+                "name": "Emberközpontú fény"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automatikus kikapcsolás"
+            },
+            "appliancestate": {
+                "name": "Fagyasztó állapot"
+            },
+            "fanstate": {
+                "name": "Extra üreges ventilátor állapot"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Karbantartás szükséges"
+            },
+            "maint2_occured": {
+                "name": "2. karbantartási tétel történt"
+            },
+            "maint3_occured": {
+                "name": "3. karbantartási tétel történt"
+            },
+            "maint4_occured": {
+                "name": "4. karbantartási tétel történt"
+            },
+            "maint5_occured": {
+                "name": "5. karbantartási tétel történt"
+            },
+            "maint6_occured": {
+                "name": "6. karbantartási tétel történt"
+            },
+            "maint7_occured": {
+                "name": "7. karbantartási tétel történt"
+            },
+            "maint8_occured": {
+                "name": "8. karbantartási tétel történt"
+            },
+            "maint9_occured": {
+                "name": "9. karbantartási tétel történt"
+            },
+            "maint10_occured": {
+                "name": "10. karbantartási tétel történt"
+            },
+            "occured": {
+                "name": "Az 1. karbantartás megtörtént"
+            },
+            "ecomode": {
+                "name": "Eco mód"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Légszűrő tisztítás szükséges"
+            },
+            "hmepn_acalerts": {
+                "name": "Az AC riasztások támogatottak"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa szűrő behelyezve"
+            },
+            "dooropen": {
+                "name": "Ajtó nyitva"
+            },
+            "watertraylevellow": {
+                "name": "A víztálca szintje alacsony"
+            },
+            "autodustcollection": {
+                "name": "Automatikus porgyűjtés"
+            },
+            "automoparmextension": {
+                "name": "Automatikus felmosókar hosszabbító"
+            },
+            "automopdry": {
+                "name": "Automatikus mop száraz"
+            },
+            "automopwash": {
+                "name": "Automatikus mop mosás"
+            },
+            "autodetergentusage": {
+                "name": "Automatikus mosószer használat"
+            },
+            "mopinstalled": {
+                "name": "Mop telepítve"
+            },
+            "incharger": {
+                "name": "Töltőben"
+            },
+            "returntowash": {
+                "name": "Térjen vissza mosni"
+            },
+            "roomselected": {
+                "name": "Szoba kiválasztva"
+            },
+            "carpetboost": {
+                "name": "Szőnyeg boost"
+            },
+            "carpetavoid": {
+                "name": "Kerülje a szőnyeget"
+            },
+            "carpetdisplay": {
+                "name": "Szőnyeg kijelző"
+            },
+            "obstacleavoidance": {
+                "name": "Akadálykerülés"
+            },
+            "dndenabled": {
+                "name": "A Ne zavarjanak engedélyezve"
+            },
+            "dnddisableairdry": {
+                "name": "Ne tiltsa le a légszárítást"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd szüneteltetés levegőszárítás"
+            },
+            "multifloormap": {
+                "name": "Többszintes térkép"
+            },
+            "multifloormapautoswitch": {
+                "name": "Többszintes térkép automatikus kapcsoló"
+            },
+            "robotposereliable": {
+                "name": "Robot póz megbízható"
+            },
+            "ovwater_tank_empty": {
+                "name": "Víztartály állapota"
+            },
+            "ovcleaning_ended": {
+                "name": "Tisztítás állapota"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Szonda a főzés vége"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Hálózati parancs"
+            },
+            "startupcommand": {
+                "name": "Indítási parancs"
+            },
+            "manualsync": {
+                "name": "Kézi szinkronizálás"
+            },
+            "executecommand": {
+                "name": "Hatalom"
+            },
+            "waterfilterstatereset": {
+                "name": "Állítsa vissza a vízszűrőt"
+            },
+            "airfilterstatereset": {
+                "name": "Állítsa vissza a légszűrőt"
+            },
+            "saveappfavorite": {
+                "name": "Kedvenc mentése"
+            },
+            "shortcutproglistcmd": {
+                "name": "Parancsikon programlista parancs"
+            },
+            "filterreset": {
+                "name": "Szűrő visszaállítása"
+            },
+            "hepafilterreset": {
+                "name": "Hepa szűrő visszaállítása"
+            },
+            "findme": {
+                "name": "Keress meg"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Légtisztító"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Kezdés időpontja"
+            },
+            "targetduration": {
+                "name": "Cél időtartam"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Az élelmiszerszonda célhőmérséklete c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Élelmiszer-szonda célhőmérséklete f"
+            },
+            "targettemperaturec": {
+                "name": "Célhőmérséklet c"
+            },
+            "targettemperaturef": {
+                "name": "Célhőmérséklet f"
+            },
+            "remindertime": {
+                "name": "Felső sütő emlékeztető ideje"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Készülék helyi időeltolása"
+            },
+            "lightintensity": {
+                "name": "Fény intenzitása"
+            },
+            "lightcolortemperature": {
+                "name": "Fény színhőmérséklete"
+            },
+            "stoptime": {
+                "name": "Állítsd meg az időt"
+            },
+            "adtankadetstandarddose": {
+                "name": "Tartályozzon egy standard adag mosószert"
+            },
+            "adtankbdetstandarddose": {
+                "name": "B tartály mosószer standard adag"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "B tartály öblítő standard adag"
+            },
+            "adfinetunedetlevel": {
+                "name": "A mosószer szint finomhangolása"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Finomhangolás lágyító szint"
+            },
+            "extrarinsenumber": {
+                "name": "Extra öblítések"
+            },
+            "maint1_id": {
+                "name": "Karbantartási tétel 1 id"
+            },
+            "maint2_id": {
+                "name": "Karbantartási tétel 2 id"
+            },
+            "maint2_threshold": {
+                "name": "2. karbantartási tétel küszöbértéke"
+            },
+            "maint3_id": {
+                "name": "Karbantartási tétel 3 id"
+            },
+            "maint3_threshold": {
+                "name": "3. karbantartási tétel küszöbértéke"
+            },
+            "maint4_id": {
+                "name": "Karbantartási tétel 4 id"
+            },
+            "maint4_threshold": {
+                "name": "4. karbantartási tétel küszöbértéke"
+            },
+            "maint5_id": {
+                "name": "Karbantartási tétel 5 id"
+            },
+            "maint5_threshold": {
+                "name": "5. karbantartási tétel küszöbértéke"
+            },
+            "maint6_id": {
+                "name": "Karbantartási tétel 6 id"
+            },
+            "maint6_threshold": {
+                "name": "6. karbantartási tétel küszöbértéke"
+            },
+            "maint7_id": {
+                "name": "Karbantartási tétel 7 id"
+            },
+            "maint7_threshold": {
+                "name": "7. karbantartási tétel küszöbértéke"
+            },
+            "maint8_id": {
+                "name": "Karbantartási tétel 8 id"
+            },
+            "maint8_threshold": {
+                "name": "8. karbantartási tétel küszöbértéke"
+            },
+            "maint9_id": {
+                "name": "Karbantartási tétel 9 id"
+            },
+            "maint9_threshold": {
+                "name": "9. karbantartási tétel küszöbértéke"
+            },
+            "maint10_id": {
+                "name": "Karbantartási tétel 10 id"
+            },
+            "maint10_threshold": {
+                "name": "10. karbantartási tétel küszöbértéke"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Tiszta ciklus személyre szabása"
+            },
+            "memoryid": {
+                "name": "Memória nyílás"
+            },
+            "dryingtime": {
+                "name": "Időzített szárítás (aktív)"
+            },
+            "timetonotify": {
+                "name": "Ideje értesíteni"
+            },
+            "anticreasevalue": {
+                "name": "Gyűrődésgátló (aktív)"
+            },
+            "rinseaidlevel": {
+                "name": "Öblítőszer szint"
+            },
+            "targethumidity": {
+                "name": "Cél páratartalom"
+            },
+            "targettemperature": {
+                "name": "Célhőmérséklet"
+            },
+            "fanspeed": {
+                "name": "Ventilátor sebessége"
+            },
+            "humiditytarget": {
+                "name": "Cél páratartalom"
+            },
+            "powermode": {
+                "name": "Energia üzemmód"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Kijelző lámpa"
+            },
+            "targettemperaturec": {
+                "name": "Extra üreg hőmérséklet"
+            },
+            "mode": {
+                "name": "Mód"
+            },
+            "fanspeedsetting": {
+                "name": "Ventilátor sebessége"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Figyelmeztetések"
+            },
+            "appliancestate": {
+                "name": "Készülék állapota"
+            },
+            "temperaturerepresentation": {
+                "name": "Hőmérséklet ábrázolása"
+            },
+            "linkqualityindicator": {
+                "name": "Hálózati interfész kapcsolat minőségjelzője"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw frissítés leírása"
+            },
+            "otastate": {
+                "name": "Hálózati interfész ota állapot"
+            },
+            "swancandrevision": {
+                "name": "Sw anc és revízió"
+            },
+            "swversion": {
+                "name": "Hálózati interfész sw verzió"
+            },
+            "endofcyclesound": {
+                "name": "Ciklus végi hang"
+            },
+            "programuid": {
+                "name": "Program uid"
+            },
+            "appliancetype": {
+                "name": "Készülék típusa"
+            },
+            "capabilityhash": {
+                "name": "Képesség hash"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Távirányító"
+            },
+            "totalcyclecounter": {
+                "name": "Teljes ciklusszámláló"
+            },
+            "appliancetotalworkingtime": {
+                "name": "A készülék teljes munkaideje"
+            },
+            "timetoend": {
+                "name": "Ideje véget érni"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Az ételszonda hőmérsékletének megjelenítése"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Az ételszonda hőmérsékletének kijelzése c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Az ételszonda hőmérsékletének kijelzése f"
+            },
+            "displaytemperature": {
+                "name": "Kijelző hőmérséklet"
+            },
+            "displaytemperaturec": {
+                "name": "Kijelző hőmérséklet c"
+            },
+            "displaytemperaturef": {
+                "name": "Kijelző hőmérséklet f"
+            },
+            "processphase": {
+                "name": "A folyamat fázisa"
+            },
+            "program": {
+                "name": "Program"
+            },
+            "runningtime": {
+                "name": "Futási idő"
+            },
+            "fastheatupfeature": {
+                "name": "A felső sütő gyors felfűtési funkciója"
+            },
+            "preheatcomplete": {
+                "name": "A sütő felső előmelegítése kész"
+            },
+            "targetdurationendaction": {
+                "name": "Felső sütő céltartam vége akció"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Felső sütő cél ételszonda hőmérséklet vége művelet"
+            },
+            "watertanklevel": {
+                "name": "A sütő víztartályának felső szintje"
+            },
+            "waterhardness": {
+                "name": "A víz keménysége"
+            },
+            "descalingreminderstate": {
+                "name": "Vízkőmentesítési emlékeztető"
+            },
+            "clockstyle": {
+                "name": "Óra stílus"
+            },
+            "language": {
+                "name": "Nyelv"
+            },
+            "localtimeautomaticmode": {
+                "name": "Helyi idő automatikus üzemmód"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automatikus helyi időeltolás"
+            },
+            "favoriteorder": {
+                "name": "Kedvenc rendelés"
+            },
+            "number": {
+                "name": "Kedvenc rendelések száma"
+            },
+            "favoriteselect": {
+                "name": "Kedvenc választás"
+            },
+            "favoritestatus": {
+                "name": "Kedvenc állapot"
+            },
+            "activemessageindex": {
+                "name": "Aktív üzenet index"
+            },
+            "appliancemode": {
+                "name": "Készülék mód"
+            },
+            "hobtohoodfanspeed": {
+                "name": "A motorháztető ventilátor sebessége"
+            },
+            "hobtohoodstate": {
+                "name": "Motorháztető állapot"
+            },
+            "hoodfanlevel": {
+                "name": "Ventilátor szintje"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Faszénszűrő időzítő"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Zsírszűrő időzítő"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc szűrő idő"
+            },
+            "fastmodetimetoend": {
+                "name": "A fagyasztó gyors üzemmódjának vége"
+            },
+            "sensortemperaturec": {
+                "name": "Fagyasztó hőmérséklet"
+            },
+            "vacationholidaymode": {
+                "name": "Üdülési mód"
+            },
+            "sensorhumidity": {
+                "name": "Nedvesség"
+            },
+            "waterfilterstate": {
+                "name": "A vízszűrő állapota"
+            },
+            "waterfilterlifetime": {
+                "name": "A vízszűrő élettartama"
+            },
+            "waterfilterflow": {
+                "name": "Vízszűrő áramlás"
+            },
+            "airfilterstate": {
+                "name": "A légszűrő állapota"
+            },
+            "airfilterlifetime": {
+                "name": "A légszűrő élettartama"
+            },
+            "coolingvalvestate": {
+                "name": "Hűtőszelep állapota"
+            },
+            "defrostroutinestate": {
+                "name": "Leolvasztási rutin állapot"
+            },
+            "compressorstate": {
+                "name": "A kompresszor állapota"
+            },
+            "compressorspeed": {
+                "name": "A kompresszor sebessége"
+            },
+            "coefficient": {
+                "name": "Kompresszor fordulatszám együttható"
+            },
+            "exponent": {
+                "name": "Kompresszor fordulatszám kitevő"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Extra üreges klón mód"
+            },
+            "temperatureadjustingstate": {
+                "name": "Extra üregbeállítás"
+            },
+            "defrosttemperaturec": {
+                "name": "A jégkészítő leolvasztási hőmérséklete"
+            },
+            "evaporatorfanstate": {
+                "name": "Jégkészítő ventilátor állapota"
+            },
+            "icedispenserstate": {
+                "name": "Jégadagoló állapota"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Jégtálca feltöltési beállítása"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Légszűrő vásárlási küszöb"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "A légszűrő cseréjének küszöbértéke"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Vízszűrő vásárlási küszöb (áramlás)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Vízszűrő cseréjének küszöbértéke (áramlás)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Vízszűrő vásárlási küszöb (idő)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "A vízszűrő cseréjének küszöbértéke (idő)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Alaplap szoftver verziója"
+            },
+            "defaultextrarinse": {
+                "name": "Alapértelmezett extra öblítés"
+            },
+            "cyclephase": {
+                "name": "Ciklus fázis"
+            },
+            "cyclesubphase": {
+                "name": "Ciklus alfázis"
+            },
+            "measuredloadweight": {
+                "name": "Mért rakomány tömege"
+            },
+            "doorlock": {
+                "name": "Ajtózár"
+            },
+            "totalwashcyclescount": {
+                "name": "Összes mosási ciklus"
+            },
+            "totalwashingtime": {
+                "name": "Teljes mosási idő"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Rakomány súlya"
+            },
+            "washingnominalloadweight": {
+                "name": "Mosási töltet súlya"
+            },
+            "adtankaconfiguration": {
+                "name": "Tartályos konfiguráció"
+            },
+            "adtankbconfiguration": {
+                "name": "B tartály konfiguráció"
+            },
+            "steamvalue": {
+                "name": "Gőzszint"
+            },
+            "timemanagerlevel": {
+                "name": "Időkezelő"
+            },
+            "adtankasel": {
+                "name": "Automatikus adagoló tartály a"
+            },
+            "adtankbsel": {
+                "name": "Automatikus adagoló tartály b"
+            },
+            "analogspinspeed": {
+                "name": "Centrifugálási sebesség"
+            },
+            "analogtemperature": {
+                "name": "Hőmérséklet"
+            },
+            "watersoftenermode": {
+                "name": "Vízlágyító üzemmód"
+            },
+            "maint1_threshold": {
+                "name": "Karbantartási küszöb"
+            },
+            "detergentextradosage": {
+                "name": "Mosószer extra adag"
+            },
+            "optisenseresult": {
+                "name": "Rakomány súlya"
+            },
+            "softenerextradosage": {
+                "name": "Lágyító extra adag"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tartsa a névleges tömeghez megfelelő terhelést"
+            },
+            "tankareserve": {
+                "name": "Tartalékot"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "A tartály b terhelése a névleges tömeghez képest"
+            },
+            "tankbreserve": {
+                "name": "B tartály tartalék"
+            },
+            "waterusage": {
+                "name": "Vízhasználat"
+            },
+            "adtankadetloaded": {
+                "name": "Töltsön tisztítószert a tartályba"
+            },
+            "adtankbdetloaded": {
+                "name": "A b tartályban mosószer van betöltve"
+            },
+            "adtankbsoftloaded": {
+                "name": "B tartály öblítő töltve"
+            },
+            "ecolevel": {
+                "name": "Öko szint"
+            },
+            "applianceuiswversion": {
+                "name": "Appliance ui sw verzió"
+            },
+            "remotenotificationpending": {
+                "name": "Távoli értesítés függőben"
+            },
+            "minfinishintime": {
+                "name": "Minimális befejezési idő"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Gazdaságos mód"
+            },
+            "adfinetunedetlevel": {
+                "name": "Automatikus adagoló mosószer finomhangolása"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automatikus adagoló lágyító finomhangolása"
+            },
+            "extrarinsenumber": {
+                "name": "Extra öblítés"
+            },
+            "threshold": {
+                "name": "Karbantartás 1 küszöb"
+            },
+            "timezonedatabasename": {
+                "name": "Időzóna adatbázis"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Teljes gőzciklus számláló"
+            },
+            "prewashphase": {
+                "name": "Előmosás fázis"
+            },
+            "dryingnominalloadweight": {
+                "name": "Névleges tehersúly"
+            },
+            "humiditytarget": {
+                "name": "Páratartalom cél (aktív)"
+            },
+            "tankalevel": {
+                "name": "Tank egy szintet"
+            },
+            "tankblevel": {
+                "name": "Tank b szint"
+            },
+            "totaldrycyclescount": {
+                "name": "Összes szárítási ciklus"
+            },
+            "totaldryingtime": {
+                "name": "Teljes száradási idő"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Összes mosási+szárítási ciklus"
+            },
+            "programsorder": {
+                "name": "Programrendelés"
+            },
+            "carelevel": {
+                "name": "Gondozási szint"
+            },
+            "drynessvalue": {
+                "name": "Szárazsági szint (aktív)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: mosási töltet súlya"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: mosóterhelés nedvesség"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: becsült száradási idő"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: load overload flag"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: mosás betöltési hiba"
+            },
+            "wmsn": {
+                "name": "Dwyw: páros alátét sorozat"
+            },
+            "command": {
+                "name": "Dwyw: parancs"
+            },
+            "displayonfloor": {
+                "name": "Kijelző a padlón"
+            },
+            "energyscore": {
+                "name": "Energia pontszám"
+            },
+            "waterscore": {
+                "name": "Víz pontszám"
+            },
+            "ecoscore": {
+                "name": "Eco pontszám"
+            },
+            "miscellaneousstate": {
+                "name": "Vegyes állapot"
+            },
+            "ambienttemperaturec": {
+                "name": "Környezeti hőmérséklet c"
+            },
+            "ambienttemperaturef": {
+                "name": "Környezeti hőmérséklet f"
+            },
+            "fanmode": {
+                "name": "Ventilátor üzemmód"
+            },
+            "swingmode": {
+                "name": "Lengés mód"
+            },
+            "ambienthumidity": {
+                "name": "Környezeti páratartalom"
+            },
+            "filterstatus": {
+                "name": "Szűrő állapota"
+            },
+            "powerconsumption": {
+                "name": "Energiafogyasztás"
+            },
+            "energyconsumption": {
+                "name": "Energiafogyasztás"
+            },
+            "fanspeedstate": {
+                "name": "Ventilátor fordulatszám állapota"
+            },
+            "filterstate": {
+                "name": "Szűrő állapota"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa szűrő élettartama"
+            },
+            "appliancecategory": {
+                "name": "Készülék kategória"
+            },
+            "vmno_niu": {
+                "name": "Niu verzió"
+            },
+            "vmno_mcu": {
+                "name": "Mcu verzió"
+            },
+            "schedulersession": {
+                "name": "Ütemező munkamenet"
+            },
+            "schedulermode": {
+                "name": "Ütemező mód"
+            },
+            "totalruntime": {
+                "name": "Teljes futási idő"
+            },
+            "compressorcoolingruntime": {
+                "name": "A kompresszor hűtési ideje"
+            },
+            "compressorheatingruntime": {
+                "name": "A kompresszor fűtési ideje"
+            },
+            "mainunittemp": {
+                "name": "Fő egység hőm"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Igényre adott válasz au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Mód állapot"
+            },
+            "filterruntime": {
+                "name": "Szűrő futási idő"
+            },
+            "hepafilterstate": {
+                "name": "Hepa szűrő állapota"
+            },
+            "airqualitylevel": {
+                "name": "Levegőminőségi szint"
+            },
+            "temperature": {
+                "name": "Környezeti hőmérséklet"
+            },
+            "mode": {
+                "name": "Mód"
+            },
+            "temp": {
+                "name": "Hőmérséklet"
+            },
+            "humidity": {
+                "name": "Nedvesség"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Szűrő típusa"
+            },
+            "filterlife": {
+                "name": "A szűrő élettartama"
+            },
+            "workmode": {
+                "name": "Munkamód"
+            },
+            "aqilight": {
+                "name": "Aqi fény"
+            },
+            "louverswing": {
+                "name": "Zsalu lengés"
+            },
+            "quietfan": {
+                "name": "Csendes ventilátor"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "A párásító szűrő visszaállításának dátuma"
+            },
+            "filterlife_1": {
+                "name": "A szűrő élettartama"
+            },
+            "filterlife_2": {
+                "name": "A szűrő élettartama 2"
+            },
+            "filtertype_1": {
+                "name": "Szűrő típusa"
+            },
+            "filtertype_2": {
+                "name": "Szűrő típusa 2"
+            },
+            "filteruid_1": {
+                "name": "Szűrő 1 nfc tag uid"
+            },
+            "filteruid_2": {
+                "name": "2. szűrő nfc címke azonosítója"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (hozzávetőleges)"
+            },
+            "uvruntime": {
+                "name": "UV futási idő"
+            },
+            "schedulingstate": {
+                "name": "Ütemezési állapot"
+            },
+            "errimpellerstuck": {
+                "name": "Hiba: elakadt a járókerék"
+            },
+            "errpmnotresp": {
+                "name": "Hiba: a pm érzékelő nem válaszol"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Hiba: kijelzőpanel kommunikáció"
+            },
+            "errcommsensoruibrd": {
+                "name": "Hiba: ui tábla kommunikáció"
+            },
+            "signalstrength": {
+                "name": "Jelerősség"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "RFID szűrő"
+            },
+            "errgasnotresp": {
+                "name": "Hiba: a gázérzékelő nem reagál"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Hiba: az 1. szűrő nfc címke nincs jelen"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Hiba: a 2. szűrő nfc címke nincs jelen"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Hiba: 1. szűrő nfc címke érvénytelen"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Hiba: a filter 2 nfc címke érvénytelen"
+            },
+            "errnfctransceiver_1": {
+                "name": "Hiba: szűrő 1 nfc adó-vevő"
+            },
+            "errnfctransceiver_2": {
+                "name": "Hiba: filter 2 nfc adó-vevő"
+            },
+            "errtemprhnotresp": {
+                "name": "Hiba: a hőmérséklet/páratartalom érzékelő nem reagál"
+            },
+            "errwatertrayremoved": {
+                "name": "Hiba: víztálca eltávolítva"
+            },
+            "waterbucketlevel": {
+                "name": "Vízvödör szint"
+            },
+            "batterystatus": {
+                "name": "Akkumulátor"
+            },
+            "robotstatus": {
+                "name": "A robot állapota"
+            },
+            "cleaningcommand": {
+                "name": "Tisztítási parancs"
+            },
+            "dustbinstatus": {
+                "name": "Szemeteskuka állapota"
+            },
+            "mainbrushsqm": {
+                "name": "Főkefe használat"
+            },
+            "sidebrushsqm": {
+                "name": "Oldalkefe használata"
+            },
+            "filtersqm": {
+                "name": "Szűrőhasználat"
+            },
+            "state": {
+                "name": "Tisztítási állapot"
+            },
+            "chargingstatus": {
+                "name": "Töltési állapot"
+            },
+            "vacuummode": {
+                "name": "Vákuumos üzemmód"
+            },
+            "cleaningtype": {
+                "name": "Tisztítás típusa"
+            },
+            "cleaningmode": {
+                "name": "Tisztítási mód"
+            },
+            "waterpumprate": {
+                "name": "A vízszivattyú sebessége"
+            },
+            "waterstationaction": {
+                "name": "Vízállomás akció"
+            },
+            "moproute": {
+                "name": "Mop útvonal"
+            },
+            "notificationevent": {
+                "name": "Értesítési esemény"
+            },
+            "dirtcleanmode": {
+                "name": "Piszkos tisztítás mód"
+            },
+            "faultcode": {
+                "name": "Hibakód"
+            },
+            "filterusage": {
+                "name": "Szűrőhasználat"
+            },
+            "cleansize": {
+                "name": "Tiszta méret"
+            },
+            "cleantime": {
+                "name": "Tiszta idő"
+            },
+            "dustbagusage": {
+                "name": "Porzsák használata"
+            },
+            "dustboxusage": {
+                "name": "Pordoboz használat"
+            },
+            "emptyingtime": {
+                "name": "Ürítési idő"
+            },
+            "mainbrushusage": {
+                "name": "Főkefe használat"
+            },
+            "sidebrushusage": {
+                "name": "Oldalkefe használata"
+            },
+            "mopusage": {
+                "name": "Mop használat"
+            },
+            "moparmextensionfreq": {
+                "name": "A felmosó kar kiterjesztésének gyakorisága"
+            },
+            "mopdrytime": {
+                "name": "Mop száradási ideje"
+            },
+            "mopwashfreqarea": {
+                "name": "Mop mosási gyakorisági terület"
+            },
+            "mopwashfreqtime": {
+                "name": "Mopmosás gyakorisága"
+            },
+            "mopwashfreqtype": {
+                "name": "Mop wash frequency type"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Tisztítási ismétlések"
+            },
+            "voicevolume": {
+                "name": "Hangerő"
+            },
+            "upgradeprogress": {
+                "name": "Frissítés folyamata"
+            },
+            "stationupgradestatus": {
+                "name": "Állomás frissítési állapota"
+            },
+            "upgradestate": {
+                "name": "Frissítési állapot"
+            },
+            "selectedroomid": {
+                "name": "Kiválasztott szoba azonosítója"
+            },
+            "maxusagedustbox": {
+                "name": "Max porgyűjtő használat"
+            },
+            "maxusagestationbag": {
+                "name": "Maximális állomás táskahasználat"
+            },
+            "dndstarttime": {
+                "name": "Dnd kezdési időpont"
+            },
+            "dndendtime": {
+                "name": "Dnd befejezési idő"
+            },
+            "datamodelversion": {
+                "name": "Az adatmodell verziója"
+            },
+            "basestationversion": {
+                "name": "Bázisállomás verzió"
+            },
+            "deviceid": {
+                "name": "Eszközazonosító"
+            },
+            "timezonedaylightrule": {
+                "name": "Időzóna nappali szabály"
+            },
+            "timezonestandardname": {
+                "name": "Az időzóna szabványos neve"
+            },
+            "bintank": {
+                "name": "Szemetestartály"
+            },
+            "setvoicevolume": {
+                "name": "Hangerőszint"
+            },
+            "mapid": {
+                "name": "Állandó térképazonosító"
+            },
+            "sessionid": {
+                "name": "Takarítási munkamenet azonosítója"
+            },
+            "completion": {
+                "name": "A tisztítás befejezése"
+            },
+            "areacovered": {
+                "name": "Lefedett terület"
+            },
+            "zones": {
+                "name": "Térképi zónaszám"
+            },
+            "zonestatus": {
+                "name": "Tisztítási zóna állapota"
+            },
+            "ovwater_tank_empty": {
+                "name": "Víztartály állapota"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Élelmiszer-szonda"
+            },
+            "ovcleaning_ended": {
+                "name": "Tisztítás állapota"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Szonda a főzés vége"
+            },
+            "connectivitystate": {
+                "name": "Kapcsolati állapot"
+            },
+            "executionstate": {
+                "name": "Végrehajtási állapot"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Gyerekzár belső"
+            },
+            "cavitylight": {
+                "name": "Üreges fény"
+            },
+            "childlock": {
+                "name": "Gyerekzár"
+            },
+            "soundvolume": {
+                "name": "Hangerő"
+            },
+            "keysoundtone": {
+                "name": "Kulcshang"
+            },
+            "windownotification": {
+                "name": "Ablak értesítés"
+            },
+            "hoodfiltercharcenable": {
+                "name": "A szénszűrő engedélyezése"
+            },
+            "fastmode": {
+                "name": "Fagyasztó gyors üzemmód"
+            },
+            "sabbathmode": {
+                "name": "Sabbat mód"
+            },
+            "ecomode": {
+                "name": "Eco mód"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2lock mód"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Előmosás"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Gyűrődésgátló (nincs gőz)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Gyűrődésgátló gőzzel"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Éjszakai ciklus"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Gazdaságos mód"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Öblítő tartás"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intenzív mosás"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Hőmérséklet érzékelő"
+            },
+            "ewx1493a_stain": {
+                "name": "Foltkezelés"
+            },
+            "ewx1493a_drymode": {
+                "name": "Száraz üzemmód"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Könnyű vasaló"
+            },
+            "ewx1493a_pod": {
+                "name": "Hüvely"
+            },
+            "ewx1493a_steammode": {
+                "name": "Steam mód"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra mix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Nedves mód"
+            },
+            "networkinterfacealwayson": {
+                "name": "A hálózat mindig bekapcsolva"
+            },
+            "adlocalfinetuning": {
+                "name": "Automatikus adagolás helyi finomhangolás"
+            },
+            "anticreasenosteam": {
+                "name": "Gyűrődésgátló, gőz nélkül"
+            },
+            "anticreasewsteam": {
+                "name": "Gyűrődésgátló gőzzel"
+            },
+            "ultramix": {
+                "name": "Ultra mix"
+            },
+            "prewashphase": {
+                "name": "Előmosás"
+            },
+            "stain": {
+                "name": "Folt hatás"
+            },
+            "nightcycle": {
+                "name": "Éjszakai ciklus"
+            },
+            "wmeconomy": {
+                "name": "Gazdaságos mód"
+            },
+            "rinsehold": {
+                "name": "Öblítő tartás"
+            },
+            "tcsensor": {
+                "name": "Hőmérséklet érzékelő"
+            },
+            "soak": {
+                "name": "Áztatás"
+            },
+            "softener": {
+                "name": "Lágyító"
+            },
+            "defaultsoftplus": {
+                "name": "Alapértelmezett soft plus"
+            },
+            "intensive": {
+                "name": "Intenzív"
+            },
+            "reverseplus": {
+                "name": "Fordított plusz"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco mód"
+            },
+            "tdeconomy_night": {
+                "name": "Éjszakai mód"
+            },
+            "tdeconomy_quick": {
+                "name": "Gyors mód"
+            },
+            "refresh": {
+                "name": "Program frissítése"
+            },
+            "keytone": {
+                "name": "Kulcshang"
+            },
+            "preselectlast": {
+                "name": "Előválasztás utoljára"
+            },
+            "extrapoweroption": {
+                "name": "Extra teljesítmény"
+            },
+            "extrasilentoption": {
+                "name": "Extra néma"
+            },
+            "glasscareoption": {
+                "name": "Üvegápolás"
+            },
+            "sprayzoneoption": {
+                "name": "Permetező zóna"
+            },
+            "autodooropener": {
+                "name": "Automatikus ajtónyitó"
+            },
+            "sanitizeoption": {
+                "name": "Fertőtleníteni"
+            },
+            "onerackoption": {
+                "name": "Egy állvány"
+            },
+            "zonecleanoption": {
+                "name": "Zóna tiszta"
+            },
+            "xtradryoption": {
+                "name": "Extra száraz"
+            },
+            "cleanairmode": {
+                "name": "Tiszta levegő üzemmód"
+            },
+            "sleepmode": {
+                "name": "Alvó üzemmód"
+            },
+            "batchschedulermode": {
+                "name": "Kötegelt ütemező mód"
+            },
+            "verticalswing": {
+                "name": "Függőleges lengés"
+            },
+            "turbofunction": {
+                "name": "Turbó funkció"
+            },
+            "energysavingmode": {
+                "name": "Energiatakarékos mód"
+            },
+            "autocleantrigger": {
+                "name": "Automatikus tisztítás trigger"
+            },
+            "flappositionavoiduser": {
+                "name": "A szárny helyzete kerülje a felhasználót"
+            },
+            "horizontalswing": {
+                "name": "Vízszintes lengés"
+            },
+            "humidification": {
+                "name": "Párásítás"
+            },
+            "uilight": {
+                "name": "Ui fény"
+            },
+            "safetylock": {
+                "name": "Biztonsági zár"
+            },
+            "ionizer": {
+                "name": "Ionizáló"
+            },
+            "uvstate": {
+                "name": "UV fény"
+            },
+            "mute": {
+                "name": "Néma"
+            }
         }
     }
 }

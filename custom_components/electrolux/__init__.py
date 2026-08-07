@@ -66,9 +66,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
-    _LOGGER.info(
-        f"Setting up integration entry {entry.entry_id} (title: {entry.title})"
-    )
+    _LOGGER.info(f"Setting up integration entry {entry.entry_id} (title: {entry.title})")
     _validate_config(entry)
 
     # Always create new coordinator for clean, predictable behavior
@@ -89,9 +87,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if token_expires_at:
         expiry_time = datetime.datetime.fromtimestamp(token_expires_at, tz=datetime.UTC)
         time_until_expiry = token_expires_at - time.time()
-        _LOGGER.info(
-            f"Stored token expiry: {expiry_time.isoformat()} ({time_until_expiry / 3600:.1f} hours from now)"
-        )
+        _LOGGER.info(f"Stored token expiry: {expiry_time.isoformat()} ({time_until_expiry / 3600:.1f} hours from now)")
     else:
         _LOGGER.warning("No token expiry stored in config entry")
 
@@ -133,14 +129,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         # Convert to ConfigEntryNotReady so HA retries setup
         # Token manager will create repair if credentials are truly invalid
-        raise ConfigEntryNotReady(
-            "Authentication failed - allowing token manager to retry"
-        ) from ex
+        raise ConfigEntryNotReady("Authentication failed - allowing token manager to retry") from ex
     except ConfigEntryNotReady:
         # Network errors - let HA retry
-        _LOGGER.error(
-            "Network error during authentication - will retry on next HA restart"
-        )
+        _LOGGER.error("Network error during authentication - will retry on next HA restart")
         raise
 
     _LOGGER.debug("Electrolux authentication completed successfully")
@@ -151,9 +143,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Initialize entities
     _LOGGER.debug("Setting up entities")
     await coordinator.setup_entities()
-    appliances_count = (
-        len(coordinator.data.get("appliances", {})) if coordinator.data else 0
-    )
+    appliances_count = len(coordinator.data.get("appliances", {})) if coordinator.data else 0
     _LOGGER.debug(
         "async_setup_entry setup_entities completed - appliances configured: %d",
         appliances_count,
@@ -175,9 +165,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Don't set last_update_success to False here - let HA retry naturally
 
     if not coordinator.last_update_success:
-        _LOGGER.debug(
-            "async_setup_entry coordinator reports last_update_success=False, raising ConfigEntryNotReady"
-        )
+        _LOGGER.debug("async_setup_entry coordinator reports last_update_success=False, raising ConfigEntryNotReady")
         raise ConfigEntryNotReady
 
     _LOGGER.debug("Extending platforms")
@@ -190,9 +178,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Call async_setup_entry in entity files
     _LOGGER.debug("Forwarding entry setup to platforms")
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    _LOGGER.debug(
-        "async_setup_entry async_forward_entry_setups completed - platforms forwarded"
-    )
+    _LOGGER.debug("async_setup_entry async_forward_entry_setups completed - platforms forwarded")
 
     _LOGGER.debug("Scheduling websocket renewal task")
 
@@ -223,9 +209,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Bind task cleanup to entry lifecycle - ensures tasks are cancelled when entry is unloaded/reloaded
             def cleanup_tasks():
-                _LOGGER.debug(
-                    "async_setup_entry cleanup_tasks called - cancelling websocket tasks"
-                )
+                _LOGGER.debug("async_setup_entry cleanup_tasks called - cancelling websocket tasks")
                 if coordinator.listen_task:
                     coordinator.listen_task.cancel()
                     _LOGGER.debug("Websocket listen task cancelled")
@@ -243,30 +227,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Start background tasks after HA has fully started to prevent blocking startup
     # If HA is already running (e.g., during reload), start tasks immediately
     if hass.is_running:
-        _LOGGER.debug(
-            "async_setup_entry HA already running - starting background tasks immediately"
-        )
+        _LOGGER.debug("async_setup_entry HA already running - starting background tasks immediately")
         await start_background_tasks()
     else:
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_background_tasks)
-        _LOGGER.debug(
-            "async_setup_entry background task listener registered for EVENT_HOMEASSISTANT_STARTED"
-        )
+        _LOGGER.debug("async_setup_entry background task listener registered for EVENT_HOMEASSISTANT_STARTED")
 
     async def _close_coordinator(event):
         """Close coordinator resources on HA shutdown."""
         _LOGGER.debug("async_setup_entry HA shutdown cleanup starting")
         try:
             await coordinator.close_websocket()
-            _LOGGER.debug(
-                "async_setup_entry websocket closed successfully during shutdown"
-            )
+            _LOGGER.debug("async_setup_entry websocket closed successfully during shutdown")
         except Exception as ex:
             _LOGGER.debug("Error during HA shutdown cleanup: %s", ex)
 
-    entry.async_on_unload(
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _close_coordinator)
-    )
+    entry.async_on_unload(hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _close_coordinator))
     _LOGGER.debug("async_setup_entry shutdown cleanup listener registered")
 
     entry.async_on_unload(entry.add_update_listener(update_listener))

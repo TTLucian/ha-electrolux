@@ -34,9 +34,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == TEXT
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == TEXT]
             _LOGGER.debug(
                 "Electrolux add %d TEXT entities to registry for appliance %s",
                 len(entities),
@@ -150,9 +148,7 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
             # when the capability key has a slash.
             if self.entity_source == "userSelections":
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 if program_uid:
@@ -172,9 +168,7 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
             if self.entity_source == "userSelections":
                 # Safer access to avoid KeyError if userSelections is missing
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 command = {

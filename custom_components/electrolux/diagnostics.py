@@ -38,9 +38,7 @@ REDACT_KEYS: set[str] = {
 REDACT_ALL: set[str] = REDACT_CONFIG | REDACT_KEYS
 
 
-async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry
-) -> dict[str, Any]:
+async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
     data = await _async_get_diagnostics(hass, entry)
 
@@ -59,17 +57,13 @@ async def async_get_config_entry_diagnostics(
     data.update(
         device_info=[
             _async_device_as_dict(hass, device)
-            for device in dr.async_entries_for_config_entry(
-                device_registry, entry.entry_id
-            )
+            for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id)
         ],
     )
     return async_redact_data(data, REDACT_ALL)
 
 
-async def async_get_device_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry, device: DeviceEntry
-) -> dict[str, Any]:
+async def async_get_device_diagnostics(hass: HomeAssistant, entry: ConfigEntry, device: DeviceEntry) -> dict[str, Any]:
     """Return diagnostics for a device entry."""
     data = await _async_get_diagnostics(hass, entry)
 
@@ -133,16 +127,12 @@ async def _async_get_diagnostics(
             appliance_detail = {}
 
             try:
-                appliance_detail["capabilities"] = (
-                    await app_entry.api.get_appliance_capabilities(appliance_id)
-                )
+                appliance_detail["capabilities"] = await app_entry.api.get_appliance_capabilities(appliance_id)
             except Exception as ex:
                 appliance_detail["capabilities_error"] = str(ex)
 
             try:
-                appliance_detail["state"] = await app_entry.api.get_appliance_state(
-                    appliance_id
-                )
+                appliance_detail["state"] = await app_entry.api.get_appliance_state(appliance_id)
             except Exception as ex:
                 appliance_detail["state_error"] = str(ex)
 

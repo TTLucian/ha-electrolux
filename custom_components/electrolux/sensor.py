@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
@@ -17,16 +17,6 @@ from .util import create_notification, get_capability, time_seconds_to_minutes
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 PARALLEL_UPDATES = 0
 
-FRIENDLY_NAMES = {
-    "ovwater_tank_empty": "Water Tank Status",
-    "foodProbeInsertionState": "Food Probe",
-    "ovcleaning_ended": "Cleaning Status",
-    "ovfood_probe_end_of_cooking": "Probe End of Cooking",
-    "connectivityState": "Connectivity State",
-    "executionState": "Execution State",
-    "applianceState": "Appliance State",
-}
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -37,9 +27,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == SENSOR
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == SENSOR]
             # Filter out fPPN_ prefixed sensor entities when a matching non-fPPN entity
             # exists anywhere in the appliance (any platform).  fPPN keys are firmware
             # push-notification IDs, not live sensor data; the real entity (which may be
@@ -49,21 +37,13 @@ async def async_setup_entry(
             for entity in entities:
                 entity_attr_lower = entity.entity_attr.lower()
                 if entity_attr_lower.startswith("fppn"):
-                    base_attr = (
-                        entity_attr_lower.replace("fppn_", "")
-                        .replace("fppn", "")
-                        .strip("_")
-                    )
+                    base_attr = entity_attr_lower.replace("fppn_", "").replace("fppn", "").strip("_")
                     base_attrs_to_try = {base_attr}
                     for prefix_len in (2, 3, 4):
                         if len(base_attr) > prefix_len:
                             base_attrs_to_try.add(base_attr[prefix_len:])
                     has_matching_base = any(
-                        other_attr.lower()
-                        .replace("fppn_", "")
-                        .replace("fppn", "")
-                        .strip("_")
-                        in base_attrs_to_try
+                        other_attr.lower().replace("fppn_", "").replace("fppn", "").strip("_") in base_attrs_to_try
                         for other_attr in all_entity_attrs
                         if not other_attr.lower().startswith("fppn")
                     )
@@ -84,23 +64,10 @@ async def async_setup_entry(
 
 
 class ElectroluxSensor(ElectroluxEntity, SensorEntity):
-
     @property
     def entity_domain(self) -> str:
         """Entity domain for the entry. Used for consistent entity_id."""
         return SENSOR
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        # Check for friendly name first using entity_name
-        friendly_name = FRIENDLY_NAMES.get(self.entity_name)
-        if friendly_name:
-            return friendly_name
-        # Fall back to catalog entry friendly name
-        if self.catalog_entry and self.catalog_entry.friendly_name:
-            return self.catalog_entry.friendly_name.capitalize()
-        return self._name
 
     @property
     def suggested_display_precision(self) -> int | None:
@@ -132,11 +99,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if self.json_path == "cleaningSession/zoneStatus":
             if not isinstance(value, list) or not value:
                 return None
-            finished = sum(
-                1
-                for zone in value
-                if isinstance(zone, dict) and zone.get("status") == "finished"
-            )
+            finished = sum(1 for zone in value if isinstance(zone, dict) and zone.get("status") == "finished")
             return f"{finished}/{len(value)} finished"
 
         # Debug logging for water tank sensor
@@ -262,9 +225,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                     return None
                 converted = time_seconds_to_minutes(value)
                 if converted is None:
-                    _LOGGER.error(
-                        "Unexpected None from time_seconds_to_minutes for %s", value
-                    )
+                    _LOGGER.error("Unexpected None from time_seconds_to_minutes for %s", value)
                     return None
                 value = float(converted)
             else:
@@ -302,7 +263,16 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
 
     @property
     def suggested_unit_of_measurement(self) -> str | None:
-        """Return suggested unit of measurement."""
+        """Return suggested unit of measurement.
+
+        Catalog entries can override via ``suggested_unit``.  For duration sensors
+        that report in seconds, suggest minutes so that e.g. 8820 s displays as
+        147 min by default (users can still change in the HA UI).
+        """
+        if self.catalog_entry and self.catalog_entry.suggested_unit:
+            return self.catalog_entry.suggested_unit
+        if self.device_class == SensorDeviceClass.DURATION and self.unit == UnitOfTime.SECONDS:
+            return UnitOfTime.MINUTES
         return self.unit
 
     @property
@@ -312,11 +282,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if self.json_path == "cleaningSession/zoneStatus":
             value = self.extract_value()
             if isinstance(value, list):
-                return {
-                    zone["id"]: zone.get("status")
-                    for zone in value
-                    if isinstance(zone, dict) and "id" in zone
-                }
+                return {zone["id"]: zone.get("status") for zone in value if isinstance(zone, dict) and "id" in zone}
             return {}
         if self.entity_attr == "alerts":
             alert_types = self.capability.get("values", {})
@@ -330,13 +296,14 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                             severity = alert.get("severity", "Alert")
                             status = alert.get("acknowledgeStatus", "")
                             alert_types[name] = f"{severity}-{status}"
+                            title = self.name if isinstance(self.name, str) else self._name
                             create_notification(
                                 self.hass,
                                 self.config_entry,
                                 alert_name=name,
                                 alert_severity=severity,
                                 alert_status=status,
-                                title=self.name,
+                                title=title,
                             )
             return alert_types
         return {}

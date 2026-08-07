@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Todenna Electrolux uudelleen",
-                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nLuo uusia tunnuksia osoitteessa {url}.",
+                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Määritä Electrolux uudelleen",
-                "description": "Päivitä Electrolux API -kirjautumistietosi.\n\nLuo uusia tunnuksia osoitteessa {url}.",
+                "description": "Päivitä Electrolux API -kirjautumistietosi.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -105,7 +105,7 @@
             "message": "Liian monta komentoa lähetetty. Odota hetki ja yritä uudelleen."
         },
         "control_locked": {
-            "message": "{attr} on lukittu paikassa {value} ohjelmalle {program}."
+            "message": "{attr} on lukittu osoitteessa {value} ohjelmalle {program}."
         },
         "food_probe_locked_by_program": {
             "message": "Ruokaanturin lämpötila on lukittu {value}°C:een ohjelmalle {program}."
@@ -141,7 +141,1400 @@
             "message": "Arvo {value} on suurempi kuin enimmäisarvo {max_val} kohteelle {attr}."
         },
         "value_below_minimum": {
-            "message": "Arvo {value} on pienempi kuin vähimmäisarvo {min_val} kohteelle {attr}."
+            "message": "Arvo {value} on alle vähimmäisarvon {min_val} kohteelle {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Yhteyden tila"
+            },
+            "doorstate": {
+                "name": "Oven tila"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Ruoka-anturi"
+            },
+            "foodprobesupported": {
+                "name": "Food Probe Support"
+            },
+            "watertrayinsertionstate": {
+                "name": "Vesisäiliö"
+            },
+            "watertankempty": {
+                "name": "Vesisäiliö tyhjä"
+            },
+            "cleaningreminder": {
+                "name": "Puhdistusmuistutus"
+            },
+            "drawerstatus": {
+                "name": "Laatikko"
+            },
+            "humancentriclighteventstate": {
+                "name": "Ihmiskeskeinen valo"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automaattinen sammutus"
+            },
+            "appliancestate": {
+                "name": "Pakastimen tila"
+            },
+            "fanstate": {
+                "name": "Ylimääräinen kaviteettituulettimen tila"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Huolto vaaditaan"
+            },
+            "maint2_occured": {
+                "name": "Huoltokohde 2 tapahtui"
+            },
+            "maint3_occured": {
+                "name": "Huoltokohta 3 tapahtui"
+            },
+            "maint4_occured": {
+                "name": "Huoltokohta 4 tapahtui"
+            },
+            "maint5_occured": {
+                "name": "Huoltokohta 5 tapahtui"
+            },
+            "maint6_occured": {
+                "name": "Huoltokohta 6 tapahtui"
+            },
+            "maint7_occured": {
+                "name": "Huoltokohta 7 tapahtui"
+            },
+            "maint8_occured": {
+                "name": "Huoltokohta 8 tapahtui"
+            },
+            "maint9_occured": {
+                "name": "Huoltokohta 9 tapahtui"
+            },
+            "maint10_occured": {
+                "name": "Huoltokohta 10 tapahtui"
+            },
+            "occured": {
+                "name": "Huolto 1 tapahtui"
+            },
+            "ecomode": {
+                "name": "Eco-tila"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Ilmansuodattimen puhdistus vaaditaan"
+            },
+            "hmepn_acalerts": {
+                "name": "AC-hälytykset tuettu"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa-suodatin asennettu"
+            },
+            "dooropen": {
+                "name": "Ovi auki"
+            },
+            "watertraylevellow": {
+                "name": "Vesisäiliön taso alhainen"
+            },
+            "autodustcollection": {
+                "name": "Automaattinen pölynkeräys"
+            },
+            "automoparmextension": {
+                "name": "Automaattinen mopin varren pidennys"
+            },
+            "automopdry": {
+                "name": "Automaattinen moppikuivaus"
+            },
+            "automopwash": {
+                "name": "Automaattinen mopin pesu"
+            },
+            "autodetergentusage": {
+                "name": "Automaattisen pesuaineen käyttö"
+            },
+            "mopinstalled": {
+                "name": "Moppi asennettu"
+            },
+            "incharger": {
+                "name": "Laturissa"
+            },
+            "returntowash": {
+                "name": "Palaa pesuun"
+            },
+            "roomselected": {
+                "name": "Huone valittu"
+            },
+            "carpetboost": {
+                "name": "Maton tehostus"
+            },
+            "carpetavoid": {
+                "name": "Vältä mattoa"
+            },
+            "carpetdisplay": {
+                "name": "Maton näyttö"
+            },
+            "obstacleavoidance": {
+                "name": "Esteiden välttäminen"
+            },
+            "dndenabled": {
+                "name": "Älä häiritse käytössä"
+            },
+            "dnddisableairdry": {
+                "name": "Älä poista ilmakuivausta käytöstä"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd tauko ilmakuivaus"
+            },
+            "multifloormap": {
+                "name": "Monikerroksinen kartta"
+            },
+            "multifloormapautoswitch": {
+                "name": "Automaattinen monikerroksinen karttakytkin"
+            },
+            "robotposereliable": {
+                "name": "Luotettava robottiasento"
+            },
+            "ovwater_tank_empty": {
+                "name": "Vesisäiliön tila"
+            },
+            "ovcleaning_ended": {
+                "name": "Puhdistuksen tila"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Koetin kypsennyksen loppu"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Verkkokomento"
+            },
+            "startupcommand": {
+                "name": "Käynnistyskomento"
+            },
+            "manualsync": {
+                "name": "Manuaalinen synkronointi"
+            },
+            "executecommand": {
+                "name": "Tehoa"
+            },
+            "waterfilterstatereset": {
+                "name": "Nollaa vedensuodatin"
+            },
+            "airfilterstatereset": {
+                "name": "Nollaa ilmansuodatin"
+            },
+            "saveappfavorite": {
+                "name": "Tallenna suosikki"
+            },
+            "shortcutproglistcmd": {
+                "name": "Ohjelmaluettelon pikavalintakomento"
+            },
+            "filterreset": {
+                "name": "Suodattimen nollaus"
+            },
+            "hepafilterreset": {
+                "name": "Hepa-suodattimen nollaus"
+            },
+            "findme": {
+                "name": "Etsi minut"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Ilmanpuhdistin"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Aloitusaika"
+            },
+            "targetduration": {
+                "name": "Tavoitekesto"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Ruoka-anturin tavoitelämpötila c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Ruoka-anturin tavoitelämpötila f"
+            },
+            "targettemperaturec": {
+                "name": "Tavoitelämpötila c"
+            },
+            "targettemperaturef": {
+                "name": "Tavoitelämpötila f"
+            },
+            "remindertime": {
+                "name": "Yläuunin muistutusaika"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Laitteen paikallinen aikaero"
+            },
+            "lightintensity": {
+                "name": "Valon intensiteetti"
+            },
+            "lightcolortemperature": {
+                "name": "Valon värilämpötila"
+            },
+            "stoptime": {
+                "name": "Pysäytä aika"
+            },
+            "adtankadetstandarddose": {
+                "name": "Säiliössä pesuaineen vakioannos"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Tankki b pesuaineen vakioannos"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Säiliön b huuhteluaineen vakioannos"
+            },
+            "adfinetunedetlevel": {
+                "name": "Hienosäädä pesuaineen taso"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Hienosäädä huuhteluaineen taso"
+            },
+            "extrarinsenumber": {
+                "name": "Ylimääräiset huuhtelut"
+            },
+            "maint1_id": {
+                "name": "Huoltokohteen 1 tunnus"
+            },
+            "maint2_id": {
+                "name": "Huoltokohteen 2 tunnus"
+            },
+            "maint2_threshold": {
+                "name": "Huoltokohteen 2 kynnys"
+            },
+            "maint3_id": {
+                "name": "Huoltokohteen 3 tunnus"
+            },
+            "maint3_threshold": {
+                "name": "Huoltokohteen 3 kynnys"
+            },
+            "maint4_id": {
+                "name": "Huoltokohteen 4 tunnus"
+            },
+            "maint4_threshold": {
+                "name": "Huoltokohteen 4 kynnys"
+            },
+            "maint5_id": {
+                "name": "Huoltokohde 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Huoltokohteen 5 kynnys"
+            },
+            "maint6_id": {
+                "name": "Huoltokohde 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Huoltokohteen 6 kynnys"
+            },
+            "maint7_id": {
+                "name": "Huoltokohde 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Huoltokohteen 7 kynnys"
+            },
+            "maint8_id": {
+                "name": "Huoltokohde 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Huoltokohteen 8 kynnys"
+            },
+            "maint9_id": {
+                "name": "Huoltokohde 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Huoltokohteen 9 kynnys"
+            },
+            "maint10_id": {
+                "name": "Huoltokohde 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Huoltokohteen 10 kynnys"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Selkeä syklin personointi"
+            },
+            "memoryid": {
+                "name": "Muistipaikka"
+            },
+            "dryingtime": {
+                "name": "Ajastettu kuivaus (aktiivinen)"
+            },
+            "timetonotify": {
+                "name": "Aika ilmoittaa"
+            },
+            "anticreasevalue": {
+                "name": "Rypistymistä estävä (aktiivinen)"
+            },
+            "rinseaidlevel": {
+                "name": "Huuhtelukirkasteen taso"
+            },
+            "targethumidity": {
+                "name": "Tavoitekosteus"
+            },
+            "targettemperature": {
+                "name": "Tavoitelämpötila"
+            },
+            "fanspeed": {
+                "name": "Tuulettimen nopeus"
+            },
+            "humiditytarget": {
+                "name": "Tavoitekosteus"
+            },
+            "powermode": {
+                "name": "Virtatila"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Näytön valo"
+            },
+            "targettemperaturec": {
+                "name": "Ylimääräinen kaviteetin lämpötila"
+            },
+            "mode": {
+                "name": "tila"
+            },
+            "fanspeedsetting": {
+                "name": "Tuulettimen nopeus"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Hälytykset"
+            },
+            "appliancestate": {
+                "name": "Laitteen tila"
+            },
+            "temperaturerepresentation": {
+                "name": "Lämpötilan esitys"
+            },
+            "linkqualityindicator": {
+                "name": "Verkkoliitäntälinkin laadun ilmaisin"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw -päivityksen kuvaus"
+            },
+            "otastate": {
+                "name": "Verkkoliittymän tila"
+            },
+            "swancandrevision": {
+                "name": "Sw anc ja versio"
+            },
+            "swversion": {
+                "name": "Verkkoliitäntä sw-versio"
+            },
+            "endofcyclesound": {
+                "name": "Jakson lopun ääni"
+            },
+            "programuid": {
+                "name": "Ohjelman uid"
+            },
+            "appliancetype": {
+                "name": "Laitteen tyyppi"
+            },
+            "capabilityhash": {
+                "name": "Kyky hash"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Kaukosäädin"
+            },
+            "totalcyclecounter": {
+                "name": "Total cycle counter"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Laitteen kokonaistyöaika"
+            },
+            "timetoend": {
+                "name": "Aika lopettaa"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Näytä ruokaanturin lämpötila"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Näytä ruoka-anturin lämpötila c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Näytä ruoka-anturin lämpötila f"
+            },
+            "displaytemperature": {
+                "name": "Näytön lämpötila"
+            },
+            "displaytemperaturec": {
+                "name": "Näytön lämpötila c"
+            },
+            "displaytemperaturef": {
+                "name": "Näytön lämpötila f"
+            },
+            "processphase": {
+                "name": "Prosessivaihe"
+            },
+            "program": {
+                "name": "Ohjelmoida"
+            },
+            "runningtime": {
+                "name": "Ajoaika"
+            },
+            "fastheatupfeature": {
+                "name": "Yläuunin nopea kuumenemisominaisuus"
+            },
+            "preheatcomplete": {
+                "name": "Uunin ylempi esilämmitys valmis"
+            },
+            "targetdurationendaction": {
+                "name": "Uunin ylätavoitteen keston lopputoiminto"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Uunin ylempi tavoitelämpötila-anturin lopputoiminto"
+            },
+            "watertanklevel": {
+                "name": "Uunin vesisäiliön ylätaso"
+            },
+            "waterhardness": {
+                "name": "Veden kovuus"
+            },
+            "descalingreminderstate": {
+                "name": "Kalkinpoistomuistutus"
+            },
+            "clockstyle": {
+                "name": "Kellon tyyli"
+            },
+            "language": {
+                "name": "Kieli"
+            },
+            "localtimeautomaticmode": {
+                "name": "Paikallisen ajan automaattinen tila"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automaattinen paikallisen ajan siirto"
+            },
+            "favoriteorder": {
+                "name": "Suosikki tilaus"
+            },
+            "number": {
+                "name": "Suosikkitilausten määrä"
+            },
+            "favoriteselect": {
+                "name": "Suosikkivalinta"
+            },
+            "favoritestatus": {
+                "name": "Suosikkitila"
+            },
+            "activemessageindex": {
+                "name": "Aktiivinen viestihakemisto"
+            },
+            "appliancemode": {
+                "name": "Laitetila"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Konepellin tuulettimen nopeus"
+            },
+            "hobtohoodstate": {
+                "name": "Hupun tila"
+            },
+            "hoodfanlevel": {
+                "name": "Tuulettimen taso"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Hiilisuodattimen ajastin"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Rasvasuodattimen ajastin"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc-suodattimen aika"
+            },
+            "fastmodetimetoend": {
+                "name": "Pakastimen pikatilan aika päättyy"
+            },
+            "sensortemperaturec": {
+                "name": "Pakastimen lämpötila"
+            },
+            "vacationholidaymode": {
+                "name": "Loma-lomatila"
+            },
+            "sensorhumidity": {
+                "name": "Kosteus"
+            },
+            "waterfilterstate": {
+                "name": "Vedensuodattimen tila"
+            },
+            "waterfilterlifetime": {
+                "name": "Vedensuodattimen käyttöikä"
+            },
+            "waterfilterflow": {
+                "name": "Vedensuodattimen virtaus"
+            },
+            "airfilterstate": {
+                "name": "Ilmansuodattimen tila"
+            },
+            "airfilterlifetime": {
+                "name": "Ilmansuodattimen käyttöikä"
+            },
+            "coolingvalvestate": {
+                "name": "Jäähdytysventtiilin tila"
+            },
+            "defrostroutinestate": {
+                "name": "Sulata rutiinitila"
+            },
+            "compressorstate": {
+                "name": "Kompressorin tila"
+            },
+            "compressorspeed": {
+                "name": "Kompressorin nopeus"
+            },
+            "coefficient": {
+                "name": "Kompressorin nopeuskerroin"
+            },
+            "exponent": {
+                "name": "Kompressorin nopeuden eksponentti"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Ylimääräinen kaviteettikloonitila"
+            },
+            "temperatureadjustingstate": {
+                "name": "Ylimääräinen kaviteetin säätö"
+            },
+            "defrosttemperaturec": {
+                "name": "Jääpalakoneen sulatuslämpötila"
+            },
+            "evaporatorfanstate": {
+                "name": "Jääpalakoneen tuulettimen tila"
+            },
+            "icedispenserstate": {
+                "name": "Jääannostelijan tila"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Jääpalkin täyttöasetus"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Ilmansuodattimen ostokynnys"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Ilmansuodattimen vaihtokynnys"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Vedensuodattimen ostokynnys (virtaus)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Vedensuodattimen vaihtokynnys (virtaus)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Vedensuodattimen ostokynnys (aika)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Vedensuodattimen vaihtokynnys (aika)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Emolevyn ohjelmistoversio"
+            },
+            "defaultextrarinse": {
+                "name": "Oletusarvoinen lisähuuhtelu"
+            },
+            "cyclephase": {
+                "name": "Kiertovaihe"
+            },
+            "cyclesubphase": {
+                "name": "Syklin alivaihe"
+            },
+            "measuredloadweight": {
+                "name": "Mitattu kuorman paino"
+            },
+            "doorlock": {
+                "name": "Oven lukko"
+            },
+            "totalwashcyclescount": {
+                "name": "Pesujaksot yhteensä"
+            },
+            "totalwashingtime": {
+                "name": "Koko pesuaika"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Kuorman paino"
+            },
+            "washingnominalloadweight": {
+                "name": "Pesukuorman paino"
+            },
+            "adtankaconfiguration": {
+                "name": "Säiliön kokoonpano"
+            },
+            "adtankbconfiguration": {
+                "name": "Säiliön b kokoonpano"
+            },
+            "steamvalue": {
+                "name": "Höyrytaso"
+            },
+            "timemanagerlevel": {
+                "name": "Ajanhallinta"
+            },
+            "adtankasel": {
+                "name": "Automaattinen annostelusäiliö a"
+            },
+            "adtankbsel": {
+                "name": "Automaattinen annostelusäiliö b"
+            },
+            "analogspinspeed": {
+                "name": "Pyörityksen nopeus"
+            },
+            "analogtemperature": {
+                "name": "Lämpötila"
+            },
+            "watersoftenermode": {
+                "name": "Vedenpehmennystila"
+            },
+            "maint1_threshold": {
+                "name": "Ylläpitokynnys"
+            },
+            "detergentextradosage": {
+                "name": "Pesuaineen lisäannos"
+            },
+            "optisenseresult": {
+                "name": "Kuorman paino"
+            },
+            "softenerextradosage": {
+                "name": "Huuhteluaineen lisäannos"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Säiliössä pieni kuorma nimellispainolle"
+            },
+            "tankareserve": {
+                "name": "Varaa reservi"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Säiliön b kuormitus nimellispainolle"
+            },
+            "tankbreserve": {
+                "name": "Säiliö b reservi"
+            },
+            "waterusage": {
+                "name": "Veden käyttö"
+            },
+            "adtankadetloaded": {
+                "name": "Säiliössä on pesuainetta"
+            },
+            "adtankbdetloaded": {
+                "name": "Pesuainesäiliö b ladattu"
+            },
+            "adtankbsoftloaded": {
+                "name": "Säiliö b huuhteluaine ladattu"
+            },
+            "ecolevel": {
+                "name": "Eko taso"
+            },
+            "applianceuiswversion": {
+                "name": "Appliance ui sw-versio"
+            },
+            "remotenotificationpending": {
+                "name": "Etäilmoitus odottaa"
+            },
+            "minfinishintime": {
+                "name": "Minimi viimeistely ajassa"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Taloudellinen tila"
+            },
+            "adfinetunedetlevel": {
+                "name": "Automaattinen pesuaineen hienosäätö"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automaattinen annospehmentimen hienosäätö"
+            },
+            "extrarinsenumber": {
+                "name": "Ylimääräinen huuhtelu"
+            },
+            "threshold": {
+                "name": "Ylläpito 1 kynnys"
+            },
+            "timezonedatabasename": {
+                "name": "Aikavyöhyketietokanta"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Höyryjaksojen kokonaislaskuri"
+            },
+            "prewashphase": {
+                "name": "Esipesuvaihe"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nimellinen kuorman paino"
+            },
+            "humiditytarget": {
+                "name": "Kosteustavoite (aktiivinen)"
+            },
+            "tankalevel": {
+                "name": "Tankki taso"
+            },
+            "tankblevel": {
+                "name": "Tankin b taso"
+            },
+            "totaldrycyclescount": {
+                "name": "Kuivausjaksot yhteensä"
+            },
+            "totaldryingtime": {
+                "name": "Kokonaiskuivumisaika"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Pesu+kuivausjaksot yhteensä"
+            },
+            "programsorder": {
+                "name": "Ohjelman tilaus"
+            },
+            "carelevel": {
+                "name": "Hoitotaso"
+            },
+            "drynessvalue": {
+                "name": "Kuivuustaso (aktiivinen)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: pesukuorman paino"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: pesukuorman kosteus"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: arvioitu kuivumisaika"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: kuorman ylikuormitusmerkki"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: pesun latausvirhe"
+            },
+            "wmsn": {
+                "name": "Dwyw: parillinen pesukonesarja"
+            },
+            "command": {
+                "name": "Dwyw: komento"
+            },
+            "displayonfloor": {
+                "name": "Näyttö lattialla"
+            },
+            "energyscore": {
+                "name": "Energiapisteet"
+            },
+            "waterscore": {
+                "name": "Vesipisteet"
+            },
+            "ecoscore": {
+                "name": "Ekopisteet"
+            },
+            "miscellaneousstate": {
+                "name": "Sekalainen tila"
+            },
+            "ambienttemperaturec": {
+                "name": "Ympäristön lämpötila c"
+            },
+            "ambienttemperaturef": {
+                "name": "Ympäristön lämpötila f"
+            },
+            "fanmode": {
+                "name": "Tuuletintila"
+            },
+            "swingmode": {
+                "name": "Swing-tila"
+            },
+            "ambienthumidity": {
+                "name": "Ympäristön kosteus"
+            },
+            "filterstatus": {
+                "name": "Suodattimen tila"
+            },
+            "powerconsumption": {
+                "name": "Virrankulutus"
+            },
+            "energyconsumption": {
+                "name": "Energiankulutus"
+            },
+            "fanspeedstate": {
+                "name": "Tuulettimen nopeustila"
+            },
+            "filterstate": {
+                "name": "Suodattimen tila"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa-suodattimen käyttöikä"
+            },
+            "appliancecategory": {
+                "name": "Laiteluokka"
+            },
+            "vmno_niu": {
+                "name": "Niu versio"
+            },
+            "vmno_mcu": {
+                "name": "Mcu versio"
+            },
+            "schedulersession": {
+                "name": "Aikataulun istunto"
+            },
+            "schedulermode": {
+                "name": "Ajoitustila"
+            },
+            "totalruntime": {
+                "name": "Kokonaiskäyttöaika"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompressorin jäähdytysaika"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompressorin lämmityksen käyttöaika"
+            },
+            "mainunittemp": {
+                "name": "Pääyksikön lämpötila"
+            },
+            "loge": {
+                "name": "Kirjaudu e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Kysyntävastaus au"
+            },
+            "pm25": {
+                "name": "PM2.5"
+            },
+            "pm10": {
+                "name": "PM10"
+            },
+            "modestate": {
+                "name": "Tilan tila"
+            },
+            "filterruntime": {
+                "name": "Suodattimen suoritusaika"
+            },
+            "hepafilterstate": {
+                "name": "Hepa-suodattimen tila"
+            },
+            "airqualitylevel": {
+                "name": "Ilmanlaadun taso"
+            },
+            "temperature": {
+                "name": "Ympäristön lämpötila"
+            },
+            "mode": {
+                "name": "tila"
+            },
+            "temp": {
+                "name": "Lämpötila"
+            },
+            "humidity": {
+                "name": "Kosteus"
+            },
+            "pm1": {
+                "name": "PM1"
+            },
+            "pm2_5": {
+                "name": "PM2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Suodattimen tyyppi"
+            },
+            "filterlife": {
+                "name": "Suodattimen käyttöikä"
+            },
+            "workmode": {
+                "name": "Työtila"
+            },
+            "aqilight": {
+                "name": "Aqi valo"
+            },
+            "louverswing": {
+                "name": "Säleikön keinu"
+            },
+            "quietfan": {
+                "name": "Hiljainen tuuletin"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Kostutussuodattimen nollauspäivämäärä"
+            },
+            "filterlife_1": {
+                "name": "Suodattimen käyttöikä"
+            },
+            "filterlife_2": {
+                "name": "Suodattimen käyttöikä 2"
+            },
+            "filtertype_1": {
+                "name": "Suodattimen tyyppi"
+            },
+            "filtertype_2": {
+                "name": "Suodattimen tyyppi 2"
+            },
+            "filteruid_1": {
+                "name": "Suodatin 1 nfc-tunnisteen uid"
+            },
+            "filteruid_2": {
+                "name": "Suodatin 2 nfc-tunnisteen uid"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (arvioitu)"
+            },
+            "uvruntime": {
+                "name": "UV-ajoaika"
+            },
+            "schedulingstate": {
+                "name": "Ajoitustila"
+            },
+            "errimpellerstuck": {
+                "name": "Virhe: juoksupyörä jumissa"
+            },
+            "errpmnotresp": {
+                "name": "Virhe: pm-anturi ei vastaa"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Virhe: näyttöpaneelin yhteys"
+            },
+            "errcommsensoruibrd": {
+                "name": "Virhe: ui boardin viestintä"
+            },
+            "signalstrength": {
+                "name": "Signaalin voimakkuus"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Suodata RFID"
+            },
+            "errgasnotresp": {
+                "name": "Virhe: kaasuanturi ei vastaa"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Virhe: suodatin 1 nfc-tunnistetta ei ole"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Virhe: suodatin 2 nfc-tunnistetta ei ole"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Virhe: suodatin 1 nfc-tunniste on virheellinen"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Virhe: suodatin 2 nfc-tunniste on virheellinen"
+            },
+            "errnfctransceiver_1": {
+                "name": "Virhe: suodatin 1 nfc-lähetin-vastaanotin"
+            },
+            "errnfctransceiver_2": {
+                "name": "Virhe: suodatin 2 nfc-lähetin-vastaanotin"
+            },
+            "errtemprhnotresp": {
+                "name": "Virhe: lämpötila/kosteusanturi ei reagoi"
+            },
+            "errwatertrayremoved": {
+                "name": "Virhe: vesisäiliö poistettu"
+            },
+            "waterbucketlevel": {
+                "name": "Vesisäiliön taso"
+            },
+            "batterystatus": {
+                "name": "Akku"
+            },
+            "robotstatus": {
+                "name": "Robotin tila"
+            },
+            "cleaningcommand": {
+                "name": "Puhdistuskomento"
+            },
+            "dustbinstatus": {
+                "name": "Roskakorin tila"
+            },
+            "mainbrushsqm": {
+                "name": "Pääharjan käyttö"
+            },
+            "sidebrushsqm": {
+                "name": "Sivuharjan käyttö"
+            },
+            "filtersqm": {
+                "name": "Suodattimen käyttö"
+            },
+            "state": {
+                "name": "Puhdistustila"
+            },
+            "chargingstatus": {
+                "name": "Lataustila"
+            },
+            "vacuummode": {
+                "name": "Tyhjiötila"
+            },
+            "cleaningtype": {
+                "name": "Puhdistustyyppi"
+            },
+            "cleaningmode": {
+                "name": "Puhdistustila"
+            },
+            "waterpumprate": {
+                "name": "Vesipumpun nopeus"
+            },
+            "waterstationaction": {
+                "name": "Vesiaseman toiminta"
+            },
+            "moproute": {
+                "name": "Moppireitti"
+            },
+            "notificationevent": {
+                "name": "Ilmoitustapahtuma"
+            },
+            "dirtcleanmode": {
+                "name": "Likapuhdistustila"
+            },
+            "faultcode": {
+                "name": "Vikakoodi"
+            },
+            "filterusage": {
+                "name": "Suodattimen käyttö"
+            },
+            "cleansize": {
+                "name": "Puhdas koko"
+            },
+            "cleantime": {
+                "name": "Puhdas aika"
+            },
+            "dustbagusage": {
+                "name": "Pölypussin käyttö"
+            },
+            "dustboxusage": {
+                "name": "Pölylaatikon käyttö"
+            },
+            "emptyingtime": {
+                "name": "Tyhjennysaika"
+            },
+            "mainbrushusage": {
+                "name": "Pääharjan käyttö"
+            },
+            "sidebrushusage": {
+                "name": "Sivuharjan käyttö"
+            },
+            "mopusage": {
+                "name": "Mopin käyttö"
+            },
+            "moparmextensionfreq": {
+                "name": "Moppivarren pidennystaajuus"
+            },
+            "mopdrytime": {
+                "name": "Mopin kuivumisaika"
+            },
+            "mopwashfreqarea": {
+                "name": "Mopin pesutaajuusalue"
+            },
+            "mopwashfreqtime": {
+                "name": "Mopin pesutiheys"
+            },
+            "mopwashfreqtype": {
+                "name": "Mopin pesutiheyden tyyppi"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Puhdistustoistot"
+            },
+            "voicevolume": {
+                "name": "Äänenvoimakkuus"
+            },
+            "upgradeprogress": {
+                "name": "Päivityksen edistyminen"
+            },
+            "stationupgradestatus": {
+                "name": "Aseman päivityksen tila"
+            },
+            "upgradestate": {
+                "name": "Päivitystila"
+            },
+            "selectedroomid": {
+                "name": "Valitun huoneen tunnus"
+            },
+            "maxusagedustbox": {
+                "name": "Max pölylaatikon käyttö"
+            },
+            "maxusagestationbag": {
+                "name": "Max asemalaukun käyttö"
+            },
+            "dndstarttime": {
+                "name": "Dnd aloitusaika"
+            },
+            "dndendtime": {
+                "name": "Dnd lopetusaika"
+            },
+            "datamodelversion": {
+                "name": "Tietomallin versio"
+            },
+            "basestationversion": {
+                "name": "Tukiaseman versio"
+            },
+            "deviceid": {
+                "name": "Laitteen tunnus"
+            },
+            "timezonedaylightrule": {
+                "name": "Päivänvalon aikavyöhykesääntö"
+            },
+            "timezonestandardname": {
+                "name": "Aikavyöhykkeen vakionimi"
+            },
+            "bintank": {
+                "name": "Säiliön säiliö"
+            },
+            "setvoicevolume": {
+                "name": "Äänenvoimakkuuden taso"
+            },
+            "mapid": {
+                "name": "Pysyvä karttatunnus"
+            },
+            "sessionid": {
+                "name": "Siivousistunnon tunnus"
+            },
+            "completion": {
+                "name": "Puhdistuksen valmistuminen"
+            },
+            "areacovered": {
+                "name": "Katettu alue"
+            },
+            "zones": {
+                "name": "Kartan vyöhykkeiden määrä"
+            },
+            "zonestatus": {
+                "name": "Puhdistusalueen tila"
+            },
+            "ovwater_tank_empty": {
+                "name": "Vesisäiliön tila"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Ruoka-anturi"
+            },
+            "ovcleaning_ended": {
+                "name": "Puhdistuksen tila"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Koetin kypsennyksen loppu"
+            },
+            "connectivitystate": {
+                "name": "Yhteyden tila"
+            },
+            "executionstate": {
+                "name": "Toteutustila"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Sisäinen lapsilukko"
+            },
+            "cavitylight": {
+                "name": "Ontelovalo"
+            },
+            "childlock": {
+                "name": "Lapsilukko"
+            },
+            "soundvolume": {
+                "name": "Äänenvoimakkuus"
+            },
+            "keysoundtone": {
+                "name": "Näppäinääni"
+            },
+            "windownotification": {
+                "name": "Ikkuna-ilmoitus"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Hiilisuodatin käytössä"
+            },
+            "fastmode": {
+                "name": "Pakastimen nopea tila"
+            },
+            "sabbathmode": {
+                "name": "Sapattitila"
+            },
+            "ecomode": {
+                "name": "Eco-tila"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2-lukkotila"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Esipesu"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Rypistymisen esto (ei höyryä)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Rypistymistä estävä höyryllä"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Yökierto"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Taloudellinen tila"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Huuhtelun pito"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensiivinen pesu"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Lämpötila-anturi"
+            },
+            "ewx1493a_stain": {
+                "name": "Tahran käsittely"
+            },
+            "ewx1493a_drymode": {
+                "name": "Kuivaustila"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Helppo rauta"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Steam-tila"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra sekoitus"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Märkä tila"
+            },
+            "networkinterfacealwayson": {
+                "name": "Verkko aina päällä"
+            },
+            "adlocalfinetuning": {
+                "name": "Automaattinen annostelu paikallinen hienosäätö"
+            },
+            "anticreasenosteam": {
+                "name": "Rypistymistä estävä ei höyryä"
+            },
+            "anticreasewsteam": {
+                "name": "Rypistymistä estävä höyryllä"
+            },
+            "ultramix": {
+                "name": "Ultra sekoitus"
+            },
+            "prewashphase": {
+                "name": "Esipesu"
+            },
+            "stain": {
+                "name": "Tahratoiminta"
+            },
+            "nightcycle": {
+                "name": "Yökierto"
+            },
+            "wmeconomy": {
+                "name": "Taloudellinen tila"
+            },
+            "rinsehold": {
+                "name": "Huuhtelun pito"
+            },
+            "tcsensor": {
+                "name": "Lämpötila-anturi"
+            },
+            "soak": {
+                "name": "Liota"
+            },
+            "softener": {
+                "name": "Huuhteluaine"
+            },
+            "defaultsoftplus": {
+                "name": "Oletuksena pehmeä plus"
+            },
+            "intensive": {
+                "name": "Intensiivinen"
+            },
+            "reverseplus": {
+                "name": "Käänteinen plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco-tila"
+            },
+            "tdeconomy_night": {
+                "name": "Yötila"
+            },
+            "tdeconomy_quick": {
+                "name": "Pikatila"
+            },
+            "refresh": {
+                "name": "Päivitä ohjelma"
+            },
+            "keytone": {
+                "name": "Näppäinääni"
+            },
+            "preselectlast": {
+                "name": "Esivalinta viimeinen"
+            },
+            "extrapoweroption": {
+                "name": "Ylimääräistä tehoa"
+            },
+            "extrasilentoption": {
+                "name": "Erittäin hiljainen"
+            },
+            "glasscareoption": {
+                "name": "Lasin hoito"
+            },
+            "sprayzoneoption": {
+                "name": "Ruiskutusalue"
+            },
+            "autodooropener": {
+                "name": "Automaattinen ovenavaaja"
+            },
+            "sanitizeoption": {
+                "name": "Puhdistaa"
+            },
+            "onerackoption": {
+                "name": "Yksi teline"
+            },
+            "zonecleanoption": {
+                "name": "Alue puhdas"
+            },
+            "xtradryoption": {
+                "name": "Extra kuiva"
+            },
+            "cleanairmode": {
+                "name": "Puhdas ilma -tila"
+            },
+            "sleepmode": {
+                "name": "Lepotila"
+            },
+            "batchschedulermode": {
+                "name": "Eräajoitustila"
+            },
+            "verticalswing": {
+                "name": "Pystysuuntainen keinu"
+            },
+            "turbofunction": {
+                "name": "Turbo toiminto"
+            },
+            "energysavingmode": {
+                "name": "Energiansäästötila"
+            },
+            "autocleantrigger": {
+                "name": "Automaattinen puhdistusliipaisin"
+            },
+            "flappositionavoiduser": {
+                "name": "Läpän asento Vältä käyttäjää"
+            },
+            "horizontalswing": {
+                "name": "Vaakasuora keinu"
+            },
+            "humidification": {
+                "name": "Kostutus"
+            },
+            "uilight": {
+                "name": "Ui valo"
+            },
+            "safetylock": {
+                "name": "Turvalukko"
+            },
+            "ionizer": {
+                "name": "Ionisaattori"
+            },
+            "uvstate": {
+                "name": "UV valo"
+            },
+            "mute": {
+                "name": "Mykistä"
+            }
         }
     }
 }

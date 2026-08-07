@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Iš naujo patvirtinkite Electrolux",
-                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naudodami naujus žetonus iš Electrolux kūrėjų portalo.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
+                "description": "Jūsų Electrolux API prieigos raktai pasibaigė arba yra negaliojantys. Atnaujinkite juos naudodami naujus žetonus iš Electrolux kūrėjų portalo.\n\nNorėdami sugeneruoti naujus žetonus, apsilankykite {url}.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Iš naujo sukonfigūruokite „Electrolux“.",
-                "description": "Atnaujinkite savo Electrolux API kredencialus.\n\nApsilankykite {url} ir sugeneruokite naujus prieigos raktus.",
+                "description": "Atnaujinkite savo Electrolux API kredencialus.\n\nNorėdami sugeneruoti naujus žetonus, apsilankykite {url}.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -108,7 +108,7 @@
             "message": "{attr} yra užrakintas {value} programai {program}."
         },
         "food_probe_locked_by_program": {
-            "message": "Maisto zondo temperatūra užrakinta {value}°C programoje {program}."
+            "message": "Maisto zondo temperatūra užrakinta {value}°C programai {program}."
         },
         "food_probe_not_inserted": {
             "message": "Norint nustatyti tikslinę temperatūrą, reikia įkišti maisto zondą."
@@ -132,16 +132,1409 @@
             "message": "„Electrolux“ paslauga laikinai nepasiekiama, bandykite dar kartą."
         },
         "set_temperature_while_off": {
-            "message": "Negalima nustatyti {attr}, kai įrenginys išjungtas. Pirmiausia įjunkite prietaisą."
+            "message": "Neįmanoma nustatyti {attr}, kai įrenginys išjungtas. Pirmiausia įjunkite prietaisą."
         },
         "type_mismatch": {
             "message": "Integravimo klaida: {attr} duomenų tipo neatitikimas. Tikimasi Būlio."
         },
         "value_above_maximum": {
-            "message": "Vertė {value} viršija maksimalią {max_val}, skirtą {attr}."
+            "message": "Vertė {value} viršija maksimalią {max_val} {attr}."
         },
         "value_below_minimum": {
-            "message": "Vertė {value} yra mažesnė už minimalią {min_val}, skirtą {attr}."
+            "message": "Vertė {value} yra mažesnė už minimalią {min_val} {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Ryšio būsena"
+            },
+            "doorstate": {
+                "name": "Durų būklė"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Maisto zondas"
+            },
+            "foodprobesupported": {
+                "name": "Maisto zondo palaikymas"
+            },
+            "watertrayinsertionstate": {
+                "name": "Vandens padėklas"
+            },
+            "watertankempty": {
+                "name": "Vandens bakas tuščias"
+            },
+            "cleaningreminder": {
+                "name": "Valymo priminimas"
+            },
+            "drawerstatus": {
+                "name": "Stalčius"
+            },
+            "humancentriclighteventstate": {
+                "name": "Į žmogų orientuota šviesa"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automatinis išjungimas"
+            },
+            "appliancestate": {
+                "name": "Šaldiklio būsena"
+            },
+            "fanstate": {
+                "name": "Papildomos ertmės ventiliatoriaus būsena"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Reikalinga priežiūra"
+            },
+            "maint2_occured": {
+                "name": "Įvyko 2 techninės priežiūros punktas"
+            },
+            "maint3_occured": {
+                "name": "Įvyko 3 techninės priežiūros punktas"
+            },
+            "maint4_occured": {
+                "name": "Įvyko 4 techninės priežiūros punktas"
+            },
+            "maint5_occured": {
+                "name": "Įvyko 5 techninės priežiūros punktas"
+            },
+            "maint6_occured": {
+                "name": "Įvyko 6 techninės priežiūros punktas"
+            },
+            "maint7_occured": {
+                "name": "Įvyko 7 techninės priežiūros punktas"
+            },
+            "maint8_occured": {
+                "name": "Įvyko 8 techninės priežiūros punktas"
+            },
+            "maint9_occured": {
+                "name": "Įvyko 9 techninės priežiūros punktas"
+            },
+            "maint10_occured": {
+                "name": "Įvyko 10 techninės priežiūros punktas"
+            },
+            "occured": {
+                "name": "Atlikta 1 techninė priežiūra"
+            },
+            "ecomode": {
+                "name": "Ekologinis režimas"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Reikalingas oro filtro valymas"
+            },
+            "hmepn_acalerts": {
+                "name": "Palaikomi AC įspėjimai"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Įdėtas hepa filtras"
+            },
+            "dooropen": {
+                "name": "Durys atidarytos"
+            },
+            "watertraylevellow": {
+                "name": "Vandens padėklo lygis žemas"
+            },
+            "autodustcollection": {
+                "name": "Automatinis dulkių surinkimas"
+            },
+            "automoparmextension": {
+                "name": "Automatinis šluostės svirties pratęsimas"
+            },
+            "automopdry": {
+                "name": "Automatinis šluostės džiovinimas"
+            },
+            "automopwash": {
+                "name": "Automatinis šluotų plovimas"
+            },
+            "autodetergentusage": {
+                "name": "Automatinio ploviklio naudojimas"
+            },
+            "mopinstalled": {
+                "name": "Sumontuota šluostė"
+            },
+            "incharger": {
+                "name": "Įkroviklyje"
+            },
+            "returntowash": {
+                "name": "Grįžkite skalbti"
+            },
+            "roomselected": {
+                "name": "Pasirinktas kambarys"
+            },
+            "carpetboost": {
+                "name": "Kilimų padidinimas"
+            },
+            "carpetavoid": {
+                "name": "Venkite kilimų"
+            },
+            "carpetdisplay": {
+                "name": "Kilimų ekranas"
+            },
+            "obstacleavoidance": {
+                "name": "Kliūčių vengimas"
+            },
+            "dndenabled": {
+                "name": "Netrukdymo režimas įjungtas"
+            },
+            "dnddisableairdry": {
+                "name": "Neišjunkite oro džiovinimo"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd pristabdyti oro džiovinimą"
+            },
+            "multifloormap": {
+                "name": "Daugiaaukštis žemėlapis"
+            },
+            "multifloormapautoswitch": {
+                "name": "Kelių aukštų žemėlapio automatinis jungiklis"
+            },
+            "robotposereliable": {
+                "name": "Patikima roboto poza"
+            },
+            "ovwater_tank_empty": {
+                "name": "Vandens bako būsena"
+            },
+            "ovcleaning_ended": {
+                "name": "Valymo būsena"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Gaminimo pabaigos zondas"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Tinklo komanda"
+            },
+            "startupcommand": {
+                "name": "Paleisti komandą"
+            },
+            "manualsync": {
+                "name": "Rankinis sinchronizavimas"
+            },
+            "executecommand": {
+                "name": "Galia"
+            },
+            "waterfilterstatereset": {
+                "name": "Iš naujo nustatykite vandens filtrą"
+            },
+            "airfilterstatereset": {
+                "name": "Iš naujo nustatykite oro filtrą"
+            },
+            "saveappfavorite": {
+                "name": "Išsaugoti mėgstamiausią"
+            },
+            "shortcutproglistcmd": {
+                "name": "Nuorodų programų sąrašo komanda"
+            },
+            "filterreset": {
+                "name": "Filtro nustatymas iš naujo"
+            },
+            "hepafilterreset": {
+                "name": "Hepa filtro atstatymas"
+            },
+            "findme": {
+                "name": "Surask mane"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Oro valytuvas"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Pradžios laikas"
+            },
+            "targetduration": {
+                "name": "Tikslinė trukmė"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Tikslinė maisto zondo temperatūra c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Tikslinė maisto zondo temperatūra f"
+            },
+            "targettemperaturec": {
+                "name": "Tikslinė temperatūra c"
+            },
+            "targettemperaturef": {
+                "name": "Tikslinė temperatūra f"
+            },
+            "remindertime": {
+                "name": "Viršutinės krosnies priminimo laikas"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Prietaiso vietos laiko nuokrypis"
+            },
+            "lightintensity": {
+                "name": "Šviesos intensyvumas"
+            },
+            "lightcolortemperature": {
+                "name": "Šviesos spalvos temperatūra"
+            },
+            "stoptime": {
+                "name": "Sustabdyti laiką"
+            },
+            "adtankadetstandarddose": {
+                "name": "Bakstelėkite standartinę ploviklio dozę"
+            },
+            "adtankbdetstandarddose": {
+                "name": "B bakas ploviklio standartinė dozė"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tanko b minkštiklio standartinė dozė"
+            },
+            "adfinetunedetlevel": {
+                "name": "Tiksliai sureguliuokite ploviklio lygį"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Tiksliai sureguliuokite minkštiklio lygį"
+            },
+            "extrarinsenumber": {
+                "name": "Papildomi skalavimai"
+            },
+            "maint1_id": {
+                "name": "Priežiūros prekės 1 id"
+            },
+            "maint2_id": {
+                "name": "Priežiūros elemento 2 id"
+            },
+            "maint2_threshold": {
+                "name": "2 priežiūros elemento slenkstis"
+            },
+            "maint3_id": {
+                "name": "Priežiūros elemento 3 id"
+            },
+            "maint3_threshold": {
+                "name": "3 priežiūros punkto slenkstis"
+            },
+            "maint4_id": {
+                "name": "Priežiūros punktas 4 id"
+            },
+            "maint4_threshold": {
+                "name": "4 priežiūros punkto slenkstis"
+            },
+            "maint5_id": {
+                "name": "Priežiūros punktas 5 id"
+            },
+            "maint5_threshold": {
+                "name": "5 priežiūros punkto slenkstis"
+            },
+            "maint6_id": {
+                "name": "Priežiūros punktas 6 id"
+            },
+            "maint6_threshold": {
+                "name": "6 priežiūros punkto slenkstis"
+            },
+            "maint7_id": {
+                "name": "Priežiūros punktas 7 id"
+            },
+            "maint7_threshold": {
+                "name": "7 priežiūros punkto slenkstis"
+            },
+            "maint8_id": {
+                "name": "Priežiūros punktas 8 id"
+            },
+            "maint8_threshold": {
+                "name": "8 priežiūros punkto slenkstis"
+            },
+            "maint9_id": {
+                "name": "Priežiūros punktas 9 id"
+            },
+            "maint9_threshold": {
+                "name": "9 priežiūros punkto riba"
+            },
+            "maint10_id": {
+                "name": "Priežiūros punktas 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Priežiūros punkto 10 riba"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Aiškus ciklo personalizavimas"
+            },
+            "memoryid": {
+                "name": "Atminties lizdas"
+            },
+            "dryingtime": {
+                "name": "Laikinas džiovinimas (aktyvus)"
+            },
+            "timetonotify": {
+                "name": "Laikas pranešti"
+            },
+            "anticreasevalue": {
+                "name": "Apsaugo nuo susiglamžymo (aktyvus)"
+            },
+            "rinseaidlevel": {
+                "name": "Skalavimo priemonės lygis"
+            },
+            "targethumidity": {
+                "name": "Tikslinė drėgmė"
+            },
+            "targettemperature": {
+                "name": "Tikslinė temperatūra"
+            },
+            "fanspeed": {
+                "name": "Ventiliatoriaus greitis"
+            },
+            "humiditytarget": {
+                "name": "Tikslinė drėgmė"
+            },
+            "powermode": {
+                "name": "Maitinimo režimas"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Ekrano šviesa"
+            },
+            "targettemperaturec": {
+                "name": "Papildoma ertmės temperatūra"
+            },
+            "mode": {
+                "name": "Režimas"
+            },
+            "fanspeedsetting": {
+                "name": "Ventiliatoriaus greitis"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Perspėjimai"
+            },
+            "appliancestate": {
+                "name": "Prietaiso būsena"
+            },
+            "temperaturerepresentation": {
+                "name": "Temperatūros vaizdavimas"
+            },
+            "linkqualityindicator": {
+                "name": "Tinklo sąsajos nuorodos kokybės indikatorius"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw atnaujinimo aprašymas"
+            },
+            "otastate": {
+                "name": "Tinklo sąsajos būsena"
+            },
+            "swancandrevision": {
+                "name": "Sw anc ir peržiūra"
+            },
+            "swversion": {
+                "name": "Tinklo sąsajos sw versija"
+            },
+            "endofcyclesound": {
+                "name": "Ciklo pabaigos garsas"
+            },
+            "programuid": {
+                "name": "Programos uid"
+            },
+            "appliancetype": {
+                "name": "Prietaiso tipas"
+            },
+            "capabilityhash": {
+                "name": "Galimybių maiša"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Nuotolinio valdymo pultas"
+            },
+            "totalcyclecounter": {
+                "name": "Bendras ciklo skaitiklis"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Prietaiso bendras darbo laikas"
+            },
+            "timetoend": {
+                "name": "Laikas baigti"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Rodyti maisto zondo temperatūrą"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Rodyti maisto zondo temperatūrą c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Rodo maisto zondo temperatūrą f"
+            },
+            "displaytemperature": {
+                "name": "Ekrano temperatūra"
+            },
+            "displaytemperaturec": {
+                "name": "Ekrano temperatūra c"
+            },
+            "displaytemperaturef": {
+                "name": "Ekrano temperatūra f"
+            },
+            "processphase": {
+                "name": "Proceso fazė"
+            },
+            "program": {
+                "name": "Programa"
+            },
+            "runningtime": {
+                "name": "Veikimo laikas"
+            },
+            "fastheatupfeature": {
+                "name": "Viršutinės orkaitės greito įkaitinimo funkcija"
+            },
+            "preheatcomplete": {
+                "name": "Viršutinis orkaitės pašildymas baigtas"
+            },
+            "targetdurationendaction": {
+                "name": "Viršutinė orkaitės tikslinė trukmė pabaigos veiksmas"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Viršutinė orkaitės tikslinė maisto zondo temperatūros pabaiga"
+            },
+            "watertanklevel": {
+                "name": "Viršutinis orkaitės vandens bako lygis"
+            },
+            "waterhardness": {
+                "name": "Vandens kietumas"
+            },
+            "descalingreminderstate": {
+                "name": "Nukalkinimo priminimas"
+            },
+            "clockstyle": {
+                "name": "Laikrodžio stilius"
+            },
+            "language": {
+                "name": "Kalba"
+            },
+            "localtimeautomaticmode": {
+                "name": "Vietinio laiko automatinis režimas"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automatinis vietinio laiko poslinkis"
+            },
+            "favoriteorder": {
+                "name": "Mėgstamiausias užsakymas"
+            },
+            "number": {
+                "name": "Mėgstamiausių užsakymų skaičius"
+            },
+            "favoriteselect": {
+                "name": "Mėgstamiausias pasirinkimas"
+            },
+            "favoritestatus": {
+                "name": "Mėgstamiausia būsena"
+            },
+            "activemessageindex": {
+                "name": "Aktyvių pranešimų rodyklė"
+            },
+            "appliancemode": {
+                "name": "Prietaiso režimas"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Gaubto ventiliatoriaus greitis"
+            },
+            "hobtohoodstate": {
+                "name": "Kapoto būsena"
+            },
+            "hoodfanlevel": {
+                "name": "Ventiliatoriaus lygis"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Anglies filtro laikmatis"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Riebalų filtro laikmatis"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc filtro laikas"
+            },
+            "fastmodetimetoend": {
+                "name": "Greitojo šaldiklio režimo laikas baigiasi"
+            },
+            "sensortemperaturec": {
+                "name": "Šaldiklio temperatūra"
+            },
+            "vacationholidaymode": {
+                "name": "Atostogų atostogų režimas"
+            },
+            "sensorhumidity": {
+                "name": "Drėgmė"
+            },
+            "waterfilterstate": {
+                "name": "Vandens filtro būsena"
+            },
+            "waterfilterlifetime": {
+                "name": "Vandens filtro tarnavimo laikas"
+            },
+            "waterfilterflow": {
+                "name": "Vandens filtro srautas"
+            },
+            "airfilterstate": {
+                "name": "Oro filtro būsena"
+            },
+            "airfilterlifetime": {
+                "name": "Oro filtro tarnavimo laikas"
+            },
+            "coolingvalvestate": {
+                "name": "Aušinimo vožtuvo būsena"
+            },
+            "defrostroutinestate": {
+                "name": "Įprastinė atitirpinimo būsena"
+            },
+            "compressorstate": {
+                "name": "Kompresoriaus būsena"
+            },
+            "compressorspeed": {
+                "name": "Kompresoriaus greitis"
+            },
+            "coefficient": {
+                "name": "Kompresoriaus greičio koeficientas"
+            },
+            "exponent": {
+                "name": "Kompresoriaus greičio eksponentas"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Papildomos ertmės klonavimo režimas"
+            },
+            "temperatureadjustingstate": {
+                "name": "Papildomas ertmės reguliavimas"
+            },
+            "defrosttemperaturec": {
+                "name": "Ledo gaminimo atitirpinimo temperatūra"
+            },
+            "evaporatorfanstate": {
+                "name": "Ledo gaminimo ventiliatoriaus būsena"
+            },
+            "icedispenserstate": {
+                "name": "Ledo dozatoriaus būsena"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Ledo padėklo užpildymo nustatymas"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Oro filtro pirkimo slenkstis"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Oro filtro keitimo slenkstis"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Vandens filtro pirkimo slenkstis (srautas)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Vandens filtro keitimo slenkstis (srautas)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Vandens filtro pirkimo slenkstis (laikas)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Vandens filtro keitimo slenkstis (laikas)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Pagrindinės plokštės programinės įrangos versija"
+            },
+            "defaultextrarinse": {
+                "name": "Numatytasis papildomas skalavimas"
+            },
+            "cyclephase": {
+                "name": "Ciklo fazė"
+            },
+            "cyclesubphase": {
+                "name": "Ciklo subfazė"
+            },
+            "measuredloadweight": {
+                "name": "Išmatuotas krovinio svoris"
+            },
+            "doorlock": {
+                "name": "Durų užraktas"
+            },
+            "totalwashcyclescount": {
+                "name": "Bendras skalbimo ciklas"
+            },
+            "totalwashingtime": {
+                "name": "Bendras skalbimo laikas"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Krovinio svoris"
+            },
+            "washingnominalloadweight": {
+                "name": "Skalbimo krovinio svoris"
+            },
+            "adtankaconfiguration": {
+                "name": "Bako konfigūracija"
+            },
+            "adtankbconfiguration": {
+                "name": "Tanko b konfigūracija"
+            },
+            "steamvalue": {
+                "name": "Garų lygis"
+            },
+            "timemanagerlevel": {
+                "name": "Laiko vadybininkas"
+            },
+            "adtankasel": {
+                "name": "Automatinio dozavimo bakas a"
+            },
+            "adtankbsel": {
+                "name": "Automatinio dozavimo bakas b"
+            },
+            "analogspinspeed": {
+                "name": "Sukimo greitis"
+            },
+            "analogtemperature": {
+                "name": "Temperatūra"
+            },
+            "watersoftenermode": {
+                "name": "Vandens minkštinimo režimas"
+            },
+            "maint1_threshold": {
+                "name": "Priežiūros slenkstis"
+            },
+            "detergentextradosage": {
+                "name": "Papildoma ploviklio dozė"
+            },
+            "optisenseresult": {
+                "name": "Krovinio svoris"
+            },
+            "softenerextradosage": {
+                "name": "Papildoma minkštiklio dozė"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Rezervuaro apkrova atitinka nominalų svorį"
+            },
+            "tankareserve": {
+                "name": "Tankas rezervas"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Bako b apkrova vardiniam svoriui"
+            },
+            "tankbreserve": {
+                "name": "Tanko b rezervas"
+            },
+            "waterusage": {
+                "name": "Vandens naudojimas"
+            },
+            "adtankadetloaded": {
+                "name": "Į baką įdėta ploviklio"
+            },
+            "adtankbdetloaded": {
+                "name": "Į baką b įdėta ploviklio"
+            },
+            "adtankbsoftloaded": {
+                "name": "Į baką b įdėtas minkštiklis"
+            },
+            "ecolevel": {
+                "name": "Ekologinis lygis"
+            },
+            "applianceuiswversion": {
+                "name": "Prietaiso ui sw versija"
+            },
+            "remotenotificationpending": {
+                "name": "Laukiama nuotolinio pranešimo"
+            },
+            "minfinishintime": {
+                "name": "Minimalus užbaigimas laiku"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonominis režimas"
+            },
+            "adfinetunedetlevel": {
+                "name": "Tikslus automatinio ploviklio dozavimo derinimas"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Tikslus automatinės dozės minkštiklio derinimas"
+            },
+            "extrarinsenumber": {
+                "name": "Papildomas skalavimas"
+            },
+            "threshold": {
+                "name": "Priežiūra 1 slenkstis"
+            },
+            "timezonedatabasename": {
+                "name": "Laiko juostų duomenų bazė"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Bendras garų ciklo skaitiklis"
+            },
+            "prewashphase": {
+                "name": "Išankstinio plovimo fazė"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominalus krovinio svoris"
+            },
+            "humiditytarget": {
+                "name": "Drėgmės tikslas (aktyvus)"
+            },
+            "tankalevel": {
+                "name": "Bako lygis"
+            },
+            "tankblevel": {
+                "name": "Tanko b lygis"
+            },
+            "totaldrycyclescount": {
+                "name": "Bendras džiovinimo ciklas"
+            },
+            "totaldryingtime": {
+                "name": "Bendras džiovinimo laikas"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Bendras skalbimo+džiovinimo ciklas"
+            },
+            "programsorder": {
+                "name": "Programos tvarka"
+            },
+            "carelevel": {
+                "name": "Priežiūros lygis"
+            },
+            "drynessvalue": {
+                "name": "Sausumo lygis (aktyvus)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: skalbimo svoris"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: skalbimo krovinio drėgmė"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: numatomas džiovinimo laikas"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: apkrovos perkrovos vėliavėlė"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: plovimo apkrovos klaida"
+            },
+            "wmsn": {
+                "name": "Dwyw: suporuotų poveržlių serija"
+            },
+            "command": {
+                "name": "Dwyw: komanda"
+            },
+            "displayonfloor": {
+                "name": "Ekranas ant grindų"
+            },
+            "energyscore": {
+                "name": "Energijos balas"
+            },
+            "waterscore": {
+                "name": "Vandens balas"
+            },
+            "ecoscore": {
+                "name": "Ekologinis balas"
+            },
+            "miscellaneousstate": {
+                "name": "Įvairi būklė"
+            },
+            "ambienttemperaturec": {
+                "name": "Aplinkos temperatūra c"
+            },
+            "ambienttemperaturef": {
+                "name": "Aplinkos temperatūra f"
+            },
+            "fanmode": {
+                "name": "Ventiliatoriaus režimas"
+            },
+            "swingmode": {
+                "name": "Sūpynės režimas"
+            },
+            "ambienthumidity": {
+                "name": "Aplinkos drėgmė"
+            },
+            "filterstatus": {
+                "name": "Filtro būsena"
+            },
+            "powerconsumption": {
+                "name": "Energijos suvartojimas"
+            },
+            "energyconsumption": {
+                "name": "Energijos suvartojimas"
+            },
+            "fanspeedstate": {
+                "name": "Ventiliatoriaus greičio būsena"
+            },
+            "filterstate": {
+                "name": "Filtro būsena"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa filtro tarnavimo laikas"
+            },
+            "appliancecategory": {
+                "name": "Prietaiso kategorija"
+            },
+            "vmno_niu": {
+                "name": "Niu versija"
+            },
+            "vmno_mcu": {
+                "name": "Mcu versija"
+            },
+            "schedulersession": {
+                "name": "Planuotojo sesija"
+            },
+            "schedulermode": {
+                "name": "Planuoklio režimas"
+            },
+            "totalruntime": {
+                "name": "Bendras vykdymo laikas"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompresoriaus aušinimo veikimo laikas"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompresoriaus šildymo veikimo laikas"
+            },
+            "mainunittemp": {
+                "name": "Pagrindinio įrenginio temp"
+            },
+            "loge": {
+                "name": "Prisijungti e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Reagavimas į paklausą au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "10 pm"
+            },
+            "modestate": {
+                "name": "Režimo būsena"
+            },
+            "filterruntime": {
+                "name": "Filtro vykdymo laikas"
+            },
+            "hepafilterstate": {
+                "name": "Hepa filtro būsena"
+            },
+            "airqualitylevel": {
+                "name": "Oro kokybės lygis"
+            },
+            "temperature": {
+                "name": "Aplinkos temperatūra"
+            },
+            "mode": {
+                "name": "Režimas"
+            },
+            "temp": {
+                "name": "Temperatūra"
+            },
+            "humidity": {
+                "name": "Drėgmė"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Filtro tipas"
+            },
+            "filterlife": {
+                "name": "Filtro gyvenimas"
+            },
+            "workmode": {
+                "name": "Darbo režimas"
+            },
+            "aqilight": {
+                "name": "Aqi šviesa"
+            },
+            "louverswing": {
+                "name": "Žaliuzės sūpynės"
+            },
+            "quietfan": {
+                "name": "Tylus ventiliatorius"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Drėkinimo filtro nustatymo iš naujo data"
+            },
+            "filterlife_1": {
+                "name": "Filtro gyvenimas"
+            },
+            "filterlife_2": {
+                "name": "Filtro tarnavimo laikas 2"
+            },
+            "filtertype_1": {
+                "name": "Filtro tipas"
+            },
+            "filtertype_2": {
+                "name": "2 filtro tipas"
+            },
+            "filteruid_1": {
+                "name": "Filtruoti 1 nfc žymos uid"
+            },
+            "filteruid_2": {
+                "name": "Filtruoti 2 nfc žymos uid"
+            },
+            "pm2_5_approximate": {
+                "name": "2,5 pm (apytikslis)"
+            },
+            "uvruntime": {
+                "name": "UV veikimo laikas"
+            },
+            "schedulingstate": {
+                "name": "Planavimo būsena"
+            },
+            "errimpellerstuck": {
+                "name": "Klaida: užstrigo sparnuotė"
+            },
+            "errpmnotresp": {
+                "name": "Klaida: pm jutiklis nereaguoja"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Klaida: ekrano plokštės ryšys"
+            },
+            "errcommsensoruibrd": {
+                "name": "Klaida: ui lentos ryšys"
+            },
+            "signalstrength": {
+                "name": "Signalo stiprumas"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filtras RFID"
+            },
+            "errgasnotresp": {
+                "name": "Klaida: dujų jutiklis nereaguoja"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Klaida: 1 filtro nfc žyma nėra"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Klaida: 2 filtro nfc žyma nėra"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Klaida: 1 filtro nfc žyma netinkama"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Klaida: 2 filtro nfc žyma netinkama"
+            },
+            "errnfctransceiver_1": {
+                "name": "Klaida: filtras 1 nfc siųstuvas-imtuvas"
+            },
+            "errnfctransceiver_2": {
+                "name": "Klaida: filtras 2 nfc siųstuvas-imtuvas"
+            },
+            "errtemprhnotresp": {
+                "name": "Klaida: temperatūros / drėgmės jutiklis nereaguoja"
+            },
+            "errwatertrayremoved": {
+                "name": "Klaida: vandens padėklas pašalintas"
+            },
+            "waterbucketlevel": {
+                "name": "Vandens kibiro lygis"
+            },
+            "batterystatus": {
+                "name": "Baterija"
+            },
+            "robotstatus": {
+                "name": "Roboto būsena"
+            },
+            "cleaningcommand": {
+                "name": "Valymo komanda"
+            },
+            "dustbinstatus": {
+                "name": "Šiukšliadėžės būsena"
+            },
+            "mainbrushsqm": {
+                "name": "Pagrindinis šepetėlio naudojimas"
+            },
+            "sidebrushsqm": {
+                "name": "Šoninio šepetėlio naudojimas"
+            },
+            "filtersqm": {
+                "name": "Filtro naudojimas"
+            },
+            "state": {
+                "name": "Valymo būsena"
+            },
+            "chargingstatus": {
+                "name": "Įkrovimo būsena"
+            },
+            "vacuummode": {
+                "name": "Vakuuminis režimas"
+            },
+            "cleaningtype": {
+                "name": "Valymo tipas"
+            },
+            "cleaningmode": {
+                "name": "Valymo režimas"
+            },
+            "waterpumprate": {
+                "name": "Vandens siurblio greitis"
+            },
+            "waterstationaction": {
+                "name": "Vandens stoties veiksmas"
+            },
+            "moproute": {
+                "name": "Šluostės maršrutas"
+            },
+            "notificationevent": {
+                "name": "Pranešimo įvykis"
+            },
+            "dirtcleanmode": {
+                "name": "Purvo valymo režimas"
+            },
+            "faultcode": {
+                "name": "Gedimo kodas"
+            },
+            "filterusage": {
+                "name": "Filtro naudojimas"
+            },
+            "cleansize": {
+                "name": "Švarus dydis"
+            },
+            "cleantime": {
+                "name": "Švarus laikas"
+            },
+            "dustbagusage": {
+                "name": "Dulkių maišelio naudojimas"
+            },
+            "dustboxusage": {
+                "name": "Dulkių dėžės naudojimas"
+            },
+            "emptyingtime": {
+                "name": "Ištuštinimo laikas"
+            },
+            "mainbrushusage": {
+                "name": "Pagrindinis šepetėlio naudojimas"
+            },
+            "sidebrushusage": {
+                "name": "Šoninio šepetėlio naudojimas"
+            },
+            "mopusage": {
+                "name": "Šluostės naudojimas"
+            },
+            "moparmextensionfreq": {
+                "name": "Šluostės svirties pratęsimo dažnis"
+            },
+            "mopdrytime": {
+                "name": "Šluostės džiūvimo laikas"
+            },
+            "mopwashfreqarea": {
+                "name": "Šluostės plovimo dažnio sritis"
+            },
+            "mopwashfreqtime": {
+                "name": "Šluostės plovimo dažnio laikas"
+            },
+            "mopwashfreqtype": {
+                "name": "Šluostės plovimo dažnio tipas"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Valymo pasikartojimai"
+            },
+            "voicevolume": {
+                "name": "Balso garsumas"
+            },
+            "upgradeprogress": {
+                "name": "Naujovinimo eiga"
+            },
+            "stationupgradestatus": {
+                "name": "Stoties atnaujinimo būsena"
+            },
+            "upgradestate": {
+                "name": "Atnaujinimo būsena"
+            },
+            "selectedroomid": {
+                "name": "Pasirinkto kambario ID"
+            },
+            "maxusagedustbox": {
+                "name": "Maksimalus dulkių dėžutės naudojimas"
+            },
+            "maxusagestationbag": {
+                "name": "Maksimalus stoties krepšio naudojimas"
+            },
+            "dndstarttime": {
+                "name": "Dnd pradžios laikas"
+            },
+            "dndendtime": {
+                "name": "Dnd pabaigos laikas"
+            },
+            "datamodelversion": {
+                "name": "Duomenų modelio versija"
+            },
+            "basestationversion": {
+                "name": "Bazinės stoties versija"
+            },
+            "deviceid": {
+                "name": "Įrenginio ID"
+            },
+            "timezonedaylightrule": {
+                "name": "Laiko juostos dienos šviesos taisyklė"
+            },
+            "timezonestandardname": {
+                "name": "Standartinis laiko juostos pavadinimas"
+            },
+            "bintank": {
+                "name": "Šiukšlių bakas"
+            },
+            "setvoicevolume": {
+                "name": "Balso garsumo lygis"
+            },
+            "mapid": {
+                "name": "Nuolatinis žemėlapio ID"
+            },
+            "sessionid": {
+                "name": "Valymo seanso ID"
+            },
+            "completion": {
+                "name": "Valymo pabaiga"
+            },
+            "areacovered": {
+                "name": "Uždengtas plotas"
+            },
+            "zones": {
+                "name": "Žemėlapio zonų skaičius"
+            },
+            "zonestatus": {
+                "name": "Valymo zonos būsena"
+            },
+            "ovwater_tank_empty": {
+                "name": "Vandens bako būsena"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Maisto zondas"
+            },
+            "ovcleaning_ended": {
+                "name": "Valymo būsena"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Gaminimo pabaigos zondas"
+            },
+            "connectivitystate": {
+                "name": "Ryšio būsena"
+            },
+            "executionstate": {
+                "name": "Vykdymo valstybė"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Vidinis užraktas nuo vaikų"
+            },
+            "cavitylight": {
+                "name": "Ertmės šviesa"
+            },
+            "childlock": {
+                "name": "Užraktas nuo vaikų"
+            },
+            "soundvolume": {
+                "name": "Garso garsumas"
+            },
+            "keysoundtone": {
+                "name": "Raktų garsas"
+            },
+            "windownotification": {
+                "name": "Pranešimas apie langą"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Anglies filtro įjungimas"
+            },
+            "fastmode": {
+                "name": "Greitas šaldiklio režimas"
+            },
+            "sabbathmode": {
+                "name": "Šabo režimas"
+            },
+            "ecomode": {
+                "name": "Ekologinis režimas"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2 užrakto režimas"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Išankstinis plovimas"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Apsaugo nuo susiglamžymo (be garų)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Apsauga nuo susiglamžymo su garais"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Naktinis ciklas"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonominis režimas"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Skalavimo palaikymas"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensyvus plovimas"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Temperatūros jutiklis"
+            },
+            "ewx1493a_stain": {
+                "name": "Dėmių gydymas"
+            },
+            "ewx1493a_drymode": {
+                "name": "Sauso režimas"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Lengvas lygintuvas"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Steam režimas"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra mišinys"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Drėgnas režimas"
+            },
+            "networkinterfacealwayson": {
+                "name": "Tinklas visada įjungtas"
+            },
+            "adlocalfinetuning": {
+                "name": "Automatinis dozavimo vietinis tikslus derinimas"
+            },
+            "anticreasenosteam": {
+                "name": "Apsaugo nuo susiglamžymo be garų"
+            },
+            "anticreasewsteam": {
+                "name": "Apsauga nuo susiglamžymo su garais"
+            },
+            "ultramix": {
+                "name": "Ultra mišinys"
+            },
+            "prewashphase": {
+                "name": "Išankstinis plovimas"
+            },
+            "stain": {
+                "name": "Dėmės veiksmas"
+            },
+            "nightcycle": {
+                "name": "Naktinis ciklas"
+            },
+            "wmeconomy": {
+                "name": "Ekonominis režimas"
+            },
+            "rinsehold": {
+                "name": "Skalavimo palaikymas"
+            },
+            "tcsensor": {
+                "name": "Temperatūros jutiklis"
+            },
+            "soak": {
+                "name": "Mirkyti"
+            },
+            "softener": {
+                "name": "Minkštiklis"
+            },
+            "defaultsoftplus": {
+                "name": "Numatytasis minkštas pliusas"
+            },
+            "intensive": {
+                "name": "Intensyvus"
+            },
+            "reverseplus": {
+                "name": "Atvirkštinis pliusas"
+            },
+            "tdeconomy_eco": {
+                "name": "Ekologinis režimas"
+            },
+            "tdeconomy_night": {
+                "name": "Naktinis režimas"
+            },
+            "tdeconomy_quick": {
+                "name": "Greitas režimas"
+            },
+            "refresh": {
+                "name": "Atnaujinti programą"
+            },
+            "keytone": {
+                "name": "Pagrindinis tonas"
+            },
+            "preselectlast": {
+                "name": "Iš anksto pasirinkite paskutinį"
+            },
+            "extrapoweroption": {
+                "name": "Papildoma galia"
+            },
+            "extrasilentoption": {
+                "name": "Itin tylus"
+            },
+            "glasscareoption": {
+                "name": "Stiklo priežiūra"
+            },
+            "sprayzoneoption": {
+                "name": "Purškimo zona"
+            },
+            "autodooropener": {
+                "name": "Automatinis durų atidarytuvas"
+            },
+            "sanitizeoption": {
+                "name": "Dezinfekuoti"
+            },
+            "onerackoption": {
+                "name": "Vienas stovas"
+            },
+            "zonecleanoption": {
+                "name": "Zona švari"
+            },
+            "xtradryoption": {
+                "name": "Ypač sausas"
+            },
+            "cleanairmode": {
+                "name": "Švaraus oro režimas"
+            },
+            "sleepmode": {
+                "name": "Miego režimas"
+            },
+            "batchschedulermode": {
+                "name": "Paketinis planavimo režimas"
+            },
+            "verticalswing": {
+                "name": "Vertikalus sūpynės"
+            },
+            "turbofunction": {
+                "name": "Turbo funkcija"
+            },
+            "energysavingmode": {
+                "name": "Energijos taupymo režimas"
+            },
+            "autocleantrigger": {
+                "name": "Automatinio valymo gaidukas"
+            },
+            "flappositionavoiduser": {
+                "name": "Atvarto padėtis venkite naudotojo"
+            },
+            "horizontalswing": {
+                "name": "Horizontalios sūpynės"
+            },
+            "humidification": {
+                "name": "Drėkinimas"
+            },
+            "uilight": {
+                "name": "Ui šviesa"
+            },
+            "safetylock": {
+                "name": "Apsauginis užraktas"
+            },
+            "ionizer": {
+                "name": "Jonizatorius"
+            },
+            "uvstate": {
+                "name": "UV šviesa"
+            },
+            "mute": {
+                "name": "Nutildyti"
+            }
         }
     }
 }

@@ -471,7 +471,6 @@ class TestRenewWebsocket:
         async def _fake_wait_for_noop(coro, *a, **kw):
             if asyncio.iscoroutine(coro):
                 coro.close()
-            return None
 
         with patch("asyncio.sleep", side_effect=mock_sleep):
             with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):
@@ -500,7 +499,6 @@ class TestRenewWebsocket:
                 # First call: token refresh - timeout
                 raise asyncio.TimeoutError()
             # Second call and beyond: noop
-            return None
 
         success_count = 0
 
@@ -537,7 +535,6 @@ class TestRenewWebsocket:
             if call_count == 1:
                 # First call: token refresh - exception
                 raise Exception("refresh failed")
-            return None
 
         success_count = 0
 
@@ -614,7 +611,6 @@ class TestCloseWebsocket:
         async def _fake_wait_for_noop(coro, *a, **kw):
             if asyncio.iscoroutine(coro):
                 await coro
-            return None
 
         with patch("asyncio.gather", new=_fake_gather_close):
             with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):
@@ -642,7 +638,6 @@ class TestCloseWebsocket:
         async def _fake_wait_for_noop(coro, *a, **kw):
             if asyncio.iscoroutine(coro):
                 await coro
-            return None
 
         with patch("asyncio.gather", new=_fake_gather_close):
             with patch("asyncio.wait_for", side_effect=_fake_wait_for_noop):

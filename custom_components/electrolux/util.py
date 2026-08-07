@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 from .api_client import ElectroluxApiClient, get_electrolux_session  # noqa: F401
+from .auth_errors import is_auth_error
 from .const import (
     CONF_NOTIFICATION_DEFAULT,
     CONF_NOTIFICATION_DIAG,
@@ -34,9 +35,7 @@ from .token_manager import ElectroluxTokenManager  # noqa: F401
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
-_SERVICE_UNAVAILABLE_MESSAGE = (
-    "Electrolux service is temporarily unavailable, please try again."
-)
+_SERVICE_UNAVAILABLE_MESSAGE = "Electrolux service is temporarily unavailable, please try again."
 _SERVICE_UNAVAILABLE_CODES = {500, 502, 504}
 _STATUS_CODE_MAPPING = {
     403: "Remote control is disabled for this appliance. Please enable it on the appliance's control panel.",
@@ -68,9 +67,7 @@ def create_notification(
 ):
     """Create a notification."""
 
-    message = (
-        f"Alert: {alert_name}</br>Severity: {alert_severity}</br>Status: {alert_status}"
-    )
+    message = f"Alert: {alert_name}</br>Severity: {alert_severity}</br>Status: {alert_status}"
 
     if should_send_notification(config_entry, alert_severity, alert_status) is False:
         _LOGGER.debug(
@@ -166,9 +163,7 @@ async def execute_command_with_error_handling(
 
     except Exception as ex:
         # Use shared error mapping function
-        raise map_command_error_to_home_assistant_error(
-            ex, entity_attr, logger, capability
-        ) from ex
+        raise map_command_error_to_home_assistant_error(ex, entity_attr, logger, capability) from ex
 
 
 def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
@@ -256,9 +251,7 @@ def string_to_boolean(value: str | None, fallback=True) -> bool | str | None:
     return False
 
 
-def _parse_error_detail_for_user_message(
-    detail_lower: str, capability: dict[str, Any] | None = None
-) -> str | None:
+def _parse_error_detail_for_user_message(detail_lower: str, capability: dict[str, Any] | None = None) -> str | None:
     """Parse error detail to extract user-friendly error message.
 
     Returns a specific error message if the detail matches known patterns,
@@ -376,18 +369,9 @@ def map_command_error_to_home_assistant_error(
     """
 
     # Check for authentication errors first - these should be handled differently
-    error_str = str(ex).lower()
-    if any(
-        keyword in error_str
-        for keyword in [
-            "401",
-            "unauthorized",
-            "forbidden",
-            "invalid grant",
-            "token",
-            "auth",
-        ]
-    ):
+    # Only 401 counts here: the command endpoint answers 403 with "remote
+    # control disabled", which the status mapping below reports properly.
+    if is_auth_error(ex, auth_statuses=(401,)):
         logger.warning(
             "Authentication error detected for %s: %s",
             entity_attr,
@@ -507,14 +491,9 @@ def map_command_error_to_home_assistant_error(
                     if detail:
                         detail_lower = str(detail).lower()
                         # Try pattern-based parsing first
-                        detail_message = _parse_error_detail_for_user_message(
-                            detail_lower, capability
-                        )
+                        detail_message = _parse_error_detail_for_user_message(detail_lower, capability)
                         # If no pattern matched but we have a detail, use the raw API response
-                        if (
-                            not detail_message
-                            and str(detail) != "Command validation failed"
-                        ):
+                        if not detail_message and str(detail) != "Command validation failed":
                             detail_message = f"Command not accepted: {detail}"
 
             except Exception:
@@ -599,14 +578,9 @@ def map_command_error_to_home_assistant_error(
                         if detail:
                             detail_lower = str(detail).lower()
                             # Try pattern-based parsing first
-                            detail_message = _parse_error_detail_for_user_message(
-                                detail_lower, capability
-                            )
+                            detail_message = _parse_error_detail_for_user_message(detail_lower, capability)
                             # If no pattern matched but we have a detail, use the raw API response
-                            if (
-                                not detail_message
-                                and str(detail) != "Command validation failed"
-                            ):
+                            if not detail_message and str(detail) != "Command validation failed":
                                 detail_message = f"Command not accepted: {detail}"
                 # If detail parsing fails, continue with generic message
                 except Exception:
@@ -637,8 +611,7 @@ def map_command_error_to_home_assistant_error(
             ex,
         )
         return HomeAssistantError(
-            "Remote control is disabled for this appliance. "
-            "Please enable it on the appliance's control panel.",
+            "Remote control is disabled for this appliance. Please enable it on the appliance's control panel.",
             translation_domain=DOMAIN,
             translation_key="remote_control_disabled",
         )
@@ -662,8 +635,7 @@ def map_command_error_to_home_assistant_error(
             ex,
         )
         return HomeAssistantError(
-            "Appliance is disconnected or not available. "
-            "Check the appliance's network connection.",
+            "Appliance is disconnected or not available. Check the appliance's network connection.",
             translation_domain=DOMAIN,
             translation_key="appliance_disconnected",
         )
@@ -708,9 +680,7 @@ def map_command_error_to_home_assistant_error(
             if detail:
                 detail_lower = str(detail).lower()
                 # Try pattern-based parsing first
-                detail_msg = _parse_error_detail_for_user_message(
-                    detail_lower, capability
-                )
+                detail_msg = _parse_error_detail_for_user_message(detail_lower, capability)
                 # If no pattern matched but we have a detail, use the raw API response
                 if not detail_msg and str(detail) != "Command validation failed":
                     detail_msg = f"Command not accepted: {detail}"
@@ -743,9 +713,7 @@ def map_command_error_to_home_assistant_error(
     return HomeAssistantError(f"Command failed: {ex}. Check logs for details.")
 
 
-def get_capability(
-    capabilities: dict[str, Any], key: str
-) -> int | float | str | bool | dict[str, Any] | None:
+def get_capability(capabilities: dict[str, Any], key: str) -> int | float | str | bool | dict[str, Any] | None:
     """Safely get a capability value, handling both dict and direct value formats.
 
     For constant capabilities, returns the 'default' value if the capability is a dict.
@@ -770,9 +738,7 @@ def get_capability(
         return value
 
 
-def format_command_for_appliance(
-    capability: dict[str, Any] | None, attr: str, value: Any
-) -> Any:
+def format_command_for_appliance(capability: dict[str, Any] | None, attr: str, value: Any) -> Any:
     """Format a command value according to the appliance capability specifications.
 
     This function dynamically formats Home Assistant command values to match
@@ -849,10 +815,11 @@ def format_command_for_appliance(
 
             return numeric_value
 
-        except ValueError, TypeError:
-            _LOGGER.warning(
-                "Invalid numeric value %s for attribute %s, using as-is", value, attr
-            )
+        except ValueError:
+            _LOGGER.warning("Invalid numeric value %s for attribute %s, using as-is", value, attr)
+            return value
+        except TypeError:
+            _LOGGER.warning("Invalid numeric value %s for attribute %s, using as-is", value, attr)
             return value
 
     elif cap_type in ("string", "enum") or "values" in capability:

@@ -124,9 +124,7 @@ class Appliance:
     @property
     def reported_state(self) -> dict[str, Any]:
         """Return the reported state of the appliance."""
-        return (
-            cast(dict[str, Any], self.state).get("properties", {}).get("reported", {})
-        )
+        return cast(dict[str, Any], self.state).get("properties", {}).get("reported", {})
 
     @property
     def appliance_type(self) -> str | None:
@@ -141,9 +139,7 @@ class Appliance:
         # Prefer the explicitly-passed type (from appliances_list API field).
         # Fall back to reported_state.applianceInfo.applianceType for backward
         # compatibility with minimal-state objects that embed it there.
-        return self._appliance_type or self.reported_state.get("applianceInfo", {}).get(
-            "applianceType"
-        )
+        return self._appliance_type or self.reported_state.get("applianceInfo", {}).get("applianceType")
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""
@@ -295,22 +291,15 @@ class Appliance:
                 # Store constant values before merge
                 constant_values = {}
                 for key, catalog_item in self.catalog.items():
-                    if (
-                        catalog_item.capability_info.get("access") == "constant"
-                        and key in self.reported_state
-                    ):
+                    if catalog_item.capability_info.get("access") == "constant" and key in self.reported_state:
                         constant_values[key] = self.reported_state[key]
 
                 # Perform the merge
-                self.reported_state.update(
-                    deep_merge_dicts(self.reported_state, reported_data)
-                )
+                self.reported_state.update(deep_merge_dicts(self.reported_state, reported_data))
 
                 # Restore constant values that may have been overwritten
                 for key, value in constant_values.items():
-                    if (
-                        key not in reported_data
-                    ):  # Only restore if not explicitly updated
+                    if key not in reported_data:  # Only restore if not explicitly updated
                         self.reported_state[key] = value
 
             _LOGGER.debug("Electrolux updated reported data")
@@ -353,10 +342,7 @@ class Appliance:
                 category = catalog_item.capability_info["entity_source"]
             if capability_info is None:
                 capability_info = catalog_item.capability_info
-                if (
-                    self.get_state(capability) is not None
-                    and catalog_item.reported_only_entity_platform is not None
-                ):
+                if self.get_state(capability) is not None and catalog_item.reported_only_entity_platform is not None:
                     using_reported_only_fallback = True
                     capability_info = {
                         **capability_info,
@@ -434,11 +420,7 @@ class Appliance:
             entity_type = SWITCH
 
         # override the api determined type by the catalog entity_platform
-        if (
-            not using_reported_only_fallback
-            and catalog_item
-            and isinstance(catalog_item.entity_platform, Platform)
-        ):
+        if not using_reported_only_fallback and catalog_item and isinstance(catalog_item.entity_platform, Platform):
             entity_type = catalog_item.entity_platform
 
         # EntityCategory.CONFIG is only valid for actionable platforms (select, number,
@@ -545,13 +527,8 @@ class Appliance:
                         # The button's name property would append the value anyway; setting
                         # it here avoids the duplicate-looking log messages.
                         entity["name"] = f"{display_name} {command}"
-                    if (
-                        catalog_item.entity_icons_value_map
-                        and catalog_item.entity_icons_value_map.get(command, None)
-                    ):
-                        entity["icon"] = catalog_item.entity_icons_value_map.get(
-                            command
-                        )
+                    if catalog_item.entity_icons_value_map and catalog_item.entity_icons_value_map.get(command, None):
+                        entity["icon"] = catalog_item.entity_icons_value_map.get(command)
                 else:
                     entity["name"] = f"{display_name} {command}"
                 # Instanciate the new entity and append it
@@ -559,11 +536,7 @@ class Appliance:
             return entities
 
         if entity_type in PLATFORMS:
-            commands = (
-                capability_info.get("values", {})
-                if entity_type == BUTTON and capability_info
-                else None
-            )
+            commands = capability_info.get("values", {}) if entity_type == BUTTON and capability_info else None
             return electrolux_entity_factory(
                 name=display_name,
                 entity_type=entity_type,
@@ -603,9 +576,7 @@ class Appliance:
             _LOGGER.debug("Electrolux static_attribute %s", static_attribute)
             # attr not found in state, next attr
             attr_in_reported = static_attribute in self.reported_state
-            attr_at_top_level = (
-                self.state.get(static_attribute) is not None if self.state else False
-            )
+            attr_at_top_level = self.state.get(static_attribute) is not None if self.state else False
             if not (attr_in_reported or attr_at_top_level):
                 continue
             # Skip if covered by the catalog or capabilities loops to avoid duplicate
@@ -613,16 +584,12 @@ class Appliance:
             # the API capabilities list; the capabilities loop handles attrs that ARE in
             # the API capabilities.  Both paths use catalog_item.capability_info as
             # fallback, so the capability injection done below is redundant there.
-            if static_attribute in self.catalog or (
-                capabilities_names and static_attribute in capabilities_names
-            ):
+            if static_attribute in self.catalog or (capabilities_names and static_attribute in capabilities_names):
                 continue
             if catalog_item := self.catalog.get(static_attribute, None):
                 if not (entity := self.get_entity(static_attribute)):
                     # catalog definition and automatic checks fail to determine type
-                    _LOGGER.debug(
-                        "Electrolux static_attribute undefined %s", static_attribute
-                    )
+                    _LOGGER.debug("Electrolux static_attribute undefined %s", static_attribute)
                     continue
                 # add to the capability dict
                 keys = static_attribute.split("/")
@@ -660,10 +627,7 @@ class Appliance:
         for catalog_key, catalog_item in self.catalog.items():
             # SECURITY: Skip dangerous entities that could damage appliance functionality
             # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
-            is_dangerous = any(
-                re.match(pattern, catalog_key)
-                for pattern in DANGEROUS_ENTITIES_BLACKLIST
-            )
+            is_dangerous = any(re.match(pattern, catalog_key) for pattern in DANGEROUS_ENTITIES_BLACKLIST)
             if is_dangerous:
                 _LOGGER.info(
                     "Skipping dangerous entity %s - blocked by DANGEROUS_ENTITIES_BLACKLIST for safety",
@@ -671,9 +635,7 @@ class Appliance:
                 )
                 continue
 
-            if catalog_item.capability_info and (
-                capabilities_names is None or catalog_key not in capabilities_names
-            ):
+            if catalog_item.capability_info and (capabilities_names is None or catalog_key not in capabilities_names):
                 # Special cases: entities that should always be created even if not in capabilities or reported state
                 # - manualSync: Local operation that doesn't depend on API capabilities
                 # - displayFoodProbeTemperatureF/C: These sensors vanish from reported state when the food probe
@@ -681,9 +643,7 @@ class Appliance:
                 #   entirely from the UI — but ONLY on devices that actually advertise food probe capabilities.
                 #   displayTemperatureF is a normal capability and does NOT belong here.
                 is_always_created_entity = catalog_key == "manualSync" or (
-                    has_food_probe
-                    and catalog_key
-                    in {"displayFoodProbeTemperatureF", "displayFoodProbeTemperatureC"}
+                    has_food_probe and catalog_key in {"displayFoodProbeTemperatureF", "displayFoodProbeTemperatureC"}
                 )
 
                 # Check if entity is in appliance state
@@ -694,11 +654,7 @@ class Appliance:
                 if catalog_item.entity_platform == Platform.FAN:
                     fan_base_key = catalog_key.rpartition("/")[0] or catalog_key
                     attr_in_reported = self.get_state(fan_base_key) is not None
-                    attr_at_top_level = (
-                        self.state.get(fan_base_key) is not None
-                        if self.state
-                        else False
-                    )
+                    attr_at_top_level = self.state.get(fan_base_key) is not None if self.state else False
                     # Also create if the parent key is a known capability — the fan entity
                     # must appear even before Workmode is first written to reported state
                     # (e.g. fresh appliance, first boot, or appliance powered off at setup).
@@ -711,13 +667,9 @@ class Appliance:
                         attr_in_reported = True
                 else:
                     attr_in_reported = self.get_state(catalog_key) is not None
-                    attr_at_top_level = (
-                        self.state.get(catalog_key) is not None if self.state else False
-                    )
+                    attr_at_top_level = self.state.get(catalog_key) is not None if self.state else False
 
-                if not (
-                    attr_in_reported or attr_at_top_level or is_always_created_entity
-                ):
+                if not (attr_in_reported or attr_at_top_level or is_always_created_entity):
                     _LOGGER.debug(
                         "Skipping catalog entity %s - not in appliance state or API capabilities",
                         catalog_key,
@@ -737,10 +689,7 @@ class Appliance:
             for capability in capabilities_names:
                 # SECURITY: Skip dangerous entities that could damage appliance functionality
                 # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
-                is_dangerous = any(
-                    re.match(pattern, capability)
-                    for pattern in DANGEROUS_ENTITIES_BLACKLIST
-                )
+                is_dangerous = any(re.match(pattern, capability) for pattern in DANGEROUS_ENTITIES_BLACKLIST)
                 if is_dangerous:
                     _LOGGER.info(
                         "Skipping dangerous entity %s from API capabilities - blocked by DANGEROUS_ENTITIES_BLACKLIST for safety",
@@ -751,9 +700,7 @@ class Appliance:
                 if entity := self.get_entity(capability):
                     entities.extend(list(entity))
                 else:
-                    _LOGGER.debug(
-                        "Could not create entity for capability %s", capability
-                    )
+                    _LOGGER.debug("Could not create entity for capability %s", capability)
 
         # Setup each found entity
         # Deduplicate entities by unique_id to prevent duplicates

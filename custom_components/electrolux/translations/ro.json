@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Re-autentificați Electrolux",
-                "description": "Tokenurile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu jetoane noi de pe Portalul pentru dezvoltatori Electrolux.\n\nVizitați {url} pentru a genera noi jetoane.",
+                "description": "Tokenurile tale Electrolux API au expirat sau sunt nevalide. Vă rugăm să le actualizați cu token-uri noi de pe Portalul pentru dezvoltatori Electrolux.\n\nAccesați {url} pentru a genera noi token-uri.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Reconfigurați Electrolux",
-                "description": "Actualizați-vă acreditările Electrolux API.\n\nVizitați {url} pentru a genera noi jetoane.",
+                "description": "Actualizați-vă acreditările Electrolux API.\n\nAccesați {url} pentru a genera noi token-uri.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Tokenul de acces și Tokenul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Este permisă doar o singură configurație Electrolux.",
@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Opțiuni Electrolux",
-                "description": "Actualizați-vă acreditările Electrolux API dacă acestea au expirat.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Actualizați câmpurile de mai jos\n\n**Notă de securitate:** Câmpurile Token de acces și Refresh Token sunt lăsate goale în mod intenționat. Generați întotdeauna jetoane noi de pe portal - nu reutilizați și nu partajați niciodată jetoane existente.",
+                "description": "Actualizați-vă acreditările Electrolux API dacă acestea au expirat.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Actualizați câmpurile de mai jos\n\n**Notă de securitate:** Câmpurile Token de acces și Refresh Token sunt lăsate goale în mod intenționat. Generați întotdeauna token-uri noi de pe portal - nu reutilizați și nu partajați niciodată token-uri existente.",
                 "data": {
                     "api_key": "Cheia API",
                     "access_token": "Token de acces",
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Actualizați acreditările API Electrolux",
-                        "description": "Tokenurile API Electrolux au expirat și reîmprospătarea automată a eșuat. Vă rugăm să introduceți noi acreditări de pe Portalul pentru dezvoltatori Electrolux pentru a restabili funcționalitatea.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Introduceți-le mai jos",
+                        "description": "Tokenurile tale Electrolux API au expirat și reîmprospătarea automată a eșuat. Vă rugăm să introduceți noi acreditări de pe Portalul pentru dezvoltatori Electrolux pentru a restabili funcționalitatea.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Introduceți-le mai jos",
                         "data": {
                             "api_key": "Cheia API",
                             "access_token": "Token de acces",
@@ -96,7 +96,7 @@
             "message": "Aparatul este offline (starea actuală: {state}). Vă rugăm să verificați dacă aparatul este conectat, are conexiune la rețea și este conectat la serviciile cloud."
         },
         "appliance_state_incomplete": {
-            "message": "Nu se poate modifica setarea: starea aparatului este incompletă. Vă rugăm să așteptați ca aparatul să se inițialeze."
+            "message": "Nu se poate modifica setarea: starea aparatului este incompletă. Vă rugăm să așteptați inițializarea aparatului."
         },
         "command_not_accepted": {
             "message": "Comanda nu este acceptată de aparat. Verificați dacă aparatul acceptă această operațiune."
@@ -120,13 +120,13 @@
             "message": "Opțiune nevalidă selectată."
         },
         "invalid_preset_mode": {
-            "message": "Mod presetat nevalid {mode}. Moduri disponibile: {modes}."
+            "message": "Modul presetat nevalid {mode}. Moduri disponibile: {modes}."
         },
         "not_supported_by_program": {
-            "message": "Nu se poate modifica {attr}: nu este acceptat de programul curent {program}."
+            "message": "Nu se poate modifica {attr}: nu este acceptat de programul actual {program}."
         },
         "remote_control_disabled": {
-            "message": "Telecomanda este dezactivată pentru acest aparat. Vă rugăm să o activați pe panoul de control al aparatului."
+            "message": "Telecomanda este dezactivată pentru acest aparat. Vă rugăm să îl activați pe panoul de control al aparatului."
         },
         "service_temporarily_unavailable": {
             "message": "Serviciul Electrolux este temporar indisponibil, vă rugăm să încercați din nou."
@@ -138,10 +138,1403 @@
             "message": "Eroare de integrare: tipul de date nepotrivire pentru {attr}. Boolean așteptat."
         },
         "value_above_maximum": {
-            "message": "Valoarea {value} este peste maximul {max_val} pentru {attr}."
+            "message": "Valoarea {value} este peste valoarea maximă {max_val} pentru {attr}."
         },
         "value_below_minimum": {
             "message": "Valoarea {value} este sub minimul {min_val} pentru {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Stare de conectivitate"
+            },
+            "doorstate": {
+                "name": "Starea ușii"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Sondă alimentară"
+            },
+            "foodprobesupported": {
+                "name": "Suport pentru sonda alimentară"
+            },
+            "watertrayinsertionstate": {
+                "name": "Tava cu apa"
+            },
+            "watertankempty": {
+                "name": "Rezervor de apă gol"
+            },
+            "cleaningreminder": {
+                "name": "Memento de curățare"
+            },
+            "drawerstatus": {
+                "name": "Sertar"
+            },
+            "humancentriclighteventstate": {
+                "name": "Lumină centrată pe om"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Oprire automată"
+            },
+            "appliancestate": {
+                "name": "Stare congelator"
+            },
+            "fanstate": {
+                "name": "Stare ventilator cu cavitate suplimentară"
+            },
+            "autosense": {
+                "name": "Autosens"
+            },
+            "maint1_occured": {
+                "name": "Întreținere necesară"
+            },
+            "maint2_occured": {
+                "name": "Elementul de întreținere 2 a avut loc"
+            },
+            "maint3_occured": {
+                "name": "Elementul de întreținere 3 a avut loc"
+            },
+            "maint4_occured": {
+                "name": "Elementul de întreținere 4 a avut loc"
+            },
+            "maint5_occured": {
+                "name": "Elementul de întreținere 5 a avut loc"
+            },
+            "maint6_occured": {
+                "name": "Elementul de întreținere 6 a avut loc"
+            },
+            "maint7_occured": {
+                "name": "Elementul de întreținere 7 a avut loc"
+            },
+            "maint8_occured": {
+                "name": "Elementul de întreținere 8 a avut loc"
+            },
+            "maint9_occured": {
+                "name": "Maintenance item 9 occurred"
+            },
+            "maint10_occured": {
+                "name": "Elementul de întreținere 10 a avut loc"
+            },
+            "occured": {
+                "name": "A avut loc întreținerea 1"
+            },
+            "ecomode": {
+                "name": "Mod Eco"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Este necesară curățarea filtrului de aer"
+            },
+            "hmepn_acalerts": {
+                "name": "Alerte AC acceptate"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Filtru Hepa introdus"
+            },
+            "dooropen": {
+                "name": "Usa deschisa"
+            },
+            "watertraylevellow": {
+                "name": "Nivelul tăvii de apă scăzut"
+            },
+            "autodustcollection": {
+                "name": "Colectare automată a prafului"
+            },
+            "automoparmextension": {
+                "name": "Extensie automată a brațului mopului"
+            },
+            "automopdry": {
+                "name": "Mop uscat"
+            },
+            "automopwash": {
+                "name": "Spălarea automată a mopului"
+            },
+            "autodetergentusage": {
+                "name": "Utilizare automată a detergentului"
+            },
+            "mopinstalled": {
+                "name": "Mop instalat"
+            },
+            "incharger": {
+                "name": "În încărcător"
+            },
+            "returntowash": {
+                "name": "Reveniți la spălare"
+            },
+            "roomselected": {
+                "name": "Camera selectată"
+            },
+            "carpetboost": {
+                "name": "Boost covor"
+            },
+            "carpetavoid": {
+                "name": "Evitați covoarele"
+            },
+            "carpetdisplay": {
+                "name": "Display covor"
+            },
+            "obstacleavoidance": {
+                "name": "Evitarea obstacolelor"
+            },
+            "dndenabled": {
+                "name": "Nu deranjați activat"
+            },
+            "dnddisableairdry": {
+                "name": "Dnd dezactivați uscarea la aer"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd pauză uscarea aerului"
+            },
+            "multifloormap": {
+                "name": "Hartă cu mai multe etaje"
+            },
+            "multifloormapautoswitch": {
+                "name": "Comutator automat pentru hartă cu mai multe etaje"
+            },
+            "robotposereliable": {
+                "name": "Poza robotului de încredere"
+            },
+            "ovwater_tank_empty": {
+                "name": "Starea rezervorului de apă"
+            },
+            "ovcleaning_ended": {
+                "name": "Stare de curățare"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Sfârșitul gătirii"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Comanda de rețea"
+            },
+            "startupcommand": {
+                "name": "Comanda de pornire"
+            },
+            "manualsync": {
+                "name": "Sincronizare manuală"
+            },
+            "executecommand": {
+                "name": "Putere"
+            },
+            "waterfilterstatereset": {
+                "name": "Resetați filtrul de apă"
+            },
+            "airfilterstatereset": {
+                "name": "Resetați filtrul de aer"
+            },
+            "saveappfavorite": {
+                "name": "Salvați preferatul"
+            },
+            "shortcutproglistcmd": {
+                "name": "Comandă rapidă listă de programe"
+            },
+            "filterreset": {
+                "name": "Resetarea filtrului"
+            },
+            "hepafilterreset": {
+                "name": "Resetarea filtrului Hepa"
+            },
+            "findme": {
+                "name": "Găsește-mă"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Purificator de aer"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Ora de începere"
+            },
+            "targetduration": {
+                "name": "Durata țintă"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Temperatura țintă a sondei alimentare c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Temperatura țintă a sondei alimentare f"
+            },
+            "targettemperaturec": {
+                "name": "Temperatura țintă c"
+            },
+            "targettemperaturef": {
+                "name": "Temperatura țintă f"
+            },
+            "remindertime": {
+                "name": "Timp superior de reamintire a cuptorului"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Decalaj de timp local al aparatului"
+            },
+            "lightintensity": {
+                "name": "Intensitatea luminii"
+            },
+            "lightcolortemperature": {
+                "name": "Temperatura de culoare deschisă"
+            },
+            "stoptime": {
+                "name": "Opriți timpul"
+            },
+            "adtankadetstandarddose": {
+                "name": "Rezervați o doză standard de detergent"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Rezervor b detergent doza standard"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Rezervor b balsam doză standard"
+            },
+            "adfinetunedetlevel": {
+                "name": "Reglați fin nivelul detergentului"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Reglați fin nivelul de balsam"
+            },
+            "extrarinsenumber": {
+                "name": "Clătiri suplimentare"
+            },
+            "maint1_id": {
+                "name": "Articol de întreținere 1 id"
+            },
+            "maint2_id": {
+                "name": "Articol de întreținere 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Elementul de întreținere 2 prag"
+            },
+            "maint3_id": {
+                "name": "Element de întreținere 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Elementul de întreținere 3 prag"
+            },
+            "maint4_id": {
+                "name": "Articol de întreținere 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Punctul de întreținere 4 prag"
+            },
+            "maint5_id": {
+                "name": "Articol de întreținere 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Punctul de întreținere 5 prag"
+            },
+            "maint6_id": {
+                "name": "Articol de întreținere 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Punctul de întreținere 6 prag"
+            },
+            "maint7_id": {
+                "name": "Articol de întreținere 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Punctul de întreținere 7 prag"
+            },
+            "maint8_id": {
+                "name": "Articol de întreținere 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Punctul de întreținere 8 prag"
+            },
+            "maint9_id": {
+                "name": "Articol de întreținere 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Punctul de întreținere 9 prag"
+            },
+            "maint10_id": {
+                "name": "Articol de întreținere 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Punctul de întreținere 10 prag"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Personalizare clară a ciclului"
+            },
+            "memoryid": {
+                "name": "Slot de memorie"
+            },
+            "dryingtime": {
+                "name": "Uscare temporizată (activă)"
+            },
+            "timetonotify": {
+                "name": "E timpul să anunți"
+            },
+            "anticreasevalue": {
+                "name": "Anti-sifon (activ)"
+            },
+            "rinseaidlevel": {
+                "name": "Nivel de agent de clătire"
+            },
+            "targethumidity": {
+                "name": "Umiditatea țintă"
+            },
+            "targettemperature": {
+                "name": "Temperatura țintă"
+            },
+            "fanspeed": {
+                "name": "Viteza ventilatorului"
+            },
+            "humiditytarget": {
+                "name": "Umiditatea țintă"
+            },
+            "powermode": {
+                "name": "Modul de alimentare"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Lumină de afișare"
+            },
+            "targettemperaturec": {
+                "name": "Temperatura extra cavitatii"
+            },
+            "mode": {
+                "name": "Modul"
+            },
+            "fanspeedsetting": {
+                "name": "Viteza ventilatorului"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Alerte"
+            },
+            "appliancestate": {
+                "name": "Starea aparatului"
+            },
+            "temperaturerepresentation": {
+                "name": "Reprezentarea temperaturii"
+            },
+            "linkqualityindicator": {
+                "name": "Indicator de calitate a conexiunii la interfața de rețea"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw actualizare descriere"
+            },
+            "otastate": {
+                "name": "Interfața de rețea ota stare"
+            },
+            "swancandrevision": {
+                "name": "Sw anc și revizuire"
+            },
+            "swversion": {
+                "name": "Interfață de rețea versiune sw"
+            },
+            "endofcyclesound": {
+                "name": "Sunet de sfârșit de ciclu"
+            },
+            "programuid": {
+                "name": "Uid de program"
+            },
+            "appliancetype": {
+                "name": "Tipul aparatului"
+            },
+            "capabilityhash": {
+                "name": "Hash de capacitate"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Telecomanda"
+            },
+            "totalcyclecounter": {
+                "name": "Contor total de cicluri"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Timpul total de lucru al aparatului"
+            },
+            "timetoend": {
+                "name": "E timpul să se încheie"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Afișează temperatura sondei alimentare"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Afișează temperatura sondei alimentare c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Afișează temperatura sondei alimentare f"
+            },
+            "displaytemperature": {
+                "name": "Afișează temperatura"
+            },
+            "displaytemperaturec": {
+                "name": "Afișează temperatura c"
+            },
+            "displaytemperaturef": {
+                "name": "Afișează temperatura f"
+            },
+            "processphase": {
+                "name": "Faza procesului"
+            },
+            "program": {
+                "name": "Program"
+            },
+            "runningtime": {
+                "name": "Timp de rulare"
+            },
+            "fastheatupfeature": {
+                "name": "Funcția de încălzire rapidă a cuptorului superior"
+            },
+            "preheatcomplete": {
+                "name": "Preîncălzirea superioară a cuptorului este completă"
+            },
+            "targetdurationendaction": {
+                "name": "Acțiunea finală a duratei țintă a cuptorului superior"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Acțiunea finală a temperaturii țintă a cuptorului alimentar superior"
+            },
+            "watertanklevel": {
+                "name": "Nivelul superior al rezervorului de apă al cuptorului"
+            },
+            "waterhardness": {
+                "name": "Duritatea apei"
+            },
+            "descalingreminderstate": {
+                "name": "Memento de detartrare"
+            },
+            "clockstyle": {
+                "name": "Stilul de ceas"
+            },
+            "language": {
+                "name": "Limbă"
+            },
+            "localtimeautomaticmode": {
+                "name": "Modul automat pentru ora locală"
+            },
+            "autolocaltimeoffset": {
+                "name": "Compensare automată a orei locale"
+            },
+            "favoriteorder": {
+                "name": "Comanda preferată"
+            },
+            "number": {
+                "name": "Număr de comenzi preferate"
+            },
+            "favoriteselect": {
+                "name": "Selectare preferată"
+            },
+            "favoritestatus": {
+                "name": "Stare preferată"
+            },
+            "activemessageindex": {
+                "name": "Indexul mesajelor active"
+            },
+            "appliancemode": {
+                "name": "Modul aparat"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Viteza ventilatorului hotei"
+            },
+            "hobtohoodstate": {
+                "name": "Stare capota"
+            },
+            "hoodfanlevel": {
+                "name": "Nivelul ventilatorului"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Temporizator cu filtru de cărbune"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Temporizator filtru de grăsime"
+            },
+            "tvocfiltertime": {
+                "name": "Timp de filtru Tvoc"
+            },
+            "fastmodetimetoend": {
+                "name": "Timp până la terminarea modului rapid congelator"
+            },
+            "sensortemperaturec": {
+                "name": "Temperatura congelatorului"
+            },
+            "vacationholidaymode": {
+                "name": "Mod vacanță vacanță"
+            },
+            "sensorhumidity": {
+                "name": "Umiditate"
+            },
+            "waterfilterstate": {
+                "name": "Starea filtrului de apă"
+            },
+            "waterfilterlifetime": {
+                "name": "Durata de viață a filtrului de apă"
+            },
+            "waterfilterflow": {
+                "name": "Debitul filtrului de apă"
+            },
+            "airfilterstate": {
+                "name": "Starea filtrului de aer"
+            },
+            "airfilterlifetime": {
+                "name": "Durata de viață a filtrului de aer"
+            },
+            "coolingvalvestate": {
+                "name": "Starea supapei de răcire"
+            },
+            "defrostroutinestate": {
+                "name": "Stare de rutină de dezghețare"
+            },
+            "compressorstate": {
+                "name": "Starea compresorului"
+            },
+            "compressorspeed": {
+                "name": "Viteza compresorului"
+            },
+            "coefficient": {
+                "name": "Coeficientul de turație a compresorului"
+            },
+            "exponent": {
+                "name": "Exponentul vitezei compresorului"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Modul de clonare cu cavitate suplimentară"
+            },
+            "temperatureadjustingstate": {
+                "name": "Reglare suplimentară a cavității"
+            },
+            "defrosttemperaturec": {
+                "name": "Temperatura de dezghețare a aparatului de gheață"
+            },
+            "evaporatorfanstate": {
+                "name": "Starea ventilatorului aparatului de gheață"
+            },
+            "icedispenserstate": {
+                "name": "Stare distribuitor de gheață"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Setarea de umplere a tăvii de gheață"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Pragul de cumpărare a filtrului de aer"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Pragul de schimbare a filtrului de aer"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Filtru de apă cumpărare prag (debit)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Pragul de schimbare a filtrului de apă (debit)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Pragul de cumpărare a filtrului de apă (timp)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Pragul de schimbare a filtrului de apă (timp)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Versiunea software pentru placa principală"
+            },
+            "defaultextrarinse": {
+                "name": "Clătire suplimentară implicită"
+            },
+            "cyclephase": {
+                "name": "Faza ciclului"
+            },
+            "cyclesubphase": {
+                "name": "Subfaza ciclului"
+            },
+            "measuredloadweight": {
+                "name": "Greutatea măsurată a sarcinii"
+            },
+            "doorlock": {
+                "name": "Încuietoarea ușii"
+            },
+            "totalwashcyclescount": {
+                "name": "Cicluri totale de spălare"
+            },
+            "totalwashingtime": {
+                "name": "Timp total de spalare"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Greutatea încărcăturii"
+            },
+            "washingnominalloadweight": {
+                "name": "Greutatea încărcăturii de spălare"
+            },
+            "adtankaconfiguration": {
+                "name": "Rezervați o configurație"
+            },
+            "adtankbconfiguration": {
+                "name": "Configurația rezervorului b"
+            },
+            "steamvalue": {
+                "name": "Nivel de abur"
+            },
+            "timemanagerlevel": {
+                "name": "Manager de timp"
+            },
+            "adtankasel": {
+                "name": "Rezervor de doză automată a"
+            },
+            "adtankbsel": {
+                "name": "Rezervor de doză automată b"
+            },
+            "analogspinspeed": {
+                "name": "Viteza de rotire"
+            },
+            "analogtemperature": {
+                "name": "Temperatură"
+            },
+            "watersoftenermode": {
+                "name": "Modul dedurizator de apă"
+            },
+            "maint1_threshold": {
+                "name": "Pragul de întreținere"
+            },
+            "detergentextradosage": {
+                "name": "Doza suplimentara de detergent"
+            },
+            "optisenseresult": {
+                "name": "Greutatea încărcăturii"
+            },
+            "softenerextradosage": {
+                "name": "Doza suplimentară de balsam"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Rezervor o sarcină det pentru greutatea nominală"
+            },
+            "tankareserve": {
+                "name": "Rezervă o rezervă"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Sarcina de det rezervor b pentru greutatea nominală"
+            },
+            "tankbreserve": {
+                "name": "Rezervorul b"
+            },
+            "waterusage": {
+                "name": "Utilizarea apei"
+            },
+            "adtankadetloaded": {
+                "name": "Rezervați un detergent încărcat"
+            },
+            "adtankbdetloaded": {
+                "name": "Rezervorul b detergent este încărcat"
+            },
+            "adtankbsoftloaded": {
+                "name": "Rezervorul b dedurizator încărcat"
+            },
+            "ecolevel": {
+                "name": "Nivel ecologic"
+            },
+            "applianceuiswversion": {
+                "name": "Versiunea sw a aparatului ui"
+            },
+            "remotenotificationpending": {
+                "name": "Notificare de la distanță în așteptare"
+            },
+            "minfinishintime": {
+                "name": "Terminare minimă în timp"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Modul economic"
+            },
+            "adfinetunedetlevel": {
+                "name": "Reglare fină a detergentului dozat automat"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Ajustare fină a balsamului cu doză automată"
+            },
+            "extrarinsenumber": {
+                "name": "Clătire suplimentară"
+            },
+            "threshold": {
+                "name": "Întreținere 1 prag"
+            },
+            "timezonedatabasename": {
+                "name": "Baza de date fus orar"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Contor total de cicluri de abur"
+            },
+            "prewashphase": {
+                "name": "Faza de pre-spălare"
+            },
+            "dryingnominalloadweight": {
+                "name": "Greutatea nominală a sarcinii"
+            },
+            "humiditytarget": {
+                "name": "țintă de umiditate (activă)"
+            },
+            "tankalevel": {
+                "name": "Tanc un nivel"
+            },
+            "tankblevel": {
+                "name": "Nivelul rezervorului b"
+            },
+            "totaldrycyclescount": {
+                "name": "Cicluri totale de uscare"
+            },
+            "totaldryingtime": {
+                "name": "Timp total de uscare"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Cicluri totale de spălare+uscare"
+            },
+            "programsorder": {
+                "name": "Ordinea programului"
+            },
+            "carelevel": {
+                "name": "Nivel de îngrijire"
+            },
+            "drynessvalue": {
+                "name": "Nivel de uscăciune (activ)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: greutatea încărcăturii de spălare"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: umiditatea încărcăturii de spălare"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: timpul estimat de uscare"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: indicatorul de supraîncărcare de încărcare"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: eroare de încărcare de spălare"
+            },
+            "wmsn": {
+                "name": "Dwyw: mașină de spălat pereche de serie"
+            },
+            "command": {
+                "name": "Dwyw: comandă"
+            },
+            "displayonfloor": {
+                "name": "Display pe podea"
+            },
+            "energyscore": {
+                "name": "Scorul energetic"
+            },
+            "waterscore": {
+                "name": "Scorul de apă"
+            },
+            "ecoscore": {
+                "name": "Scorul Eco"
+            },
+            "miscellaneousstate": {
+                "name": "Stare diverse"
+            },
+            "ambienttemperaturec": {
+                "name": "Temperatura ambiantă c"
+            },
+            "ambienttemperaturef": {
+                "name": "Temperatura ambiantă f"
+            },
+            "fanmode": {
+                "name": "Modul ventilator"
+            },
+            "swingmode": {
+                "name": "Modul de balansare"
+            },
+            "ambienthumidity": {
+                "name": "Umiditatea mediului ambiant"
+            },
+            "filterstatus": {
+                "name": "Starea filtrului"
+            },
+            "powerconsumption": {
+                "name": "Consumul de energie"
+            },
+            "energyconsumption": {
+                "name": "Consumul de energie"
+            },
+            "fanspeedstate": {
+                "name": "Starea vitezei ventilatorului"
+            },
+            "filterstate": {
+                "name": "Starea filtrului"
+            },
+            "hepafilterlifetime": {
+                "name": "Durata de viață a filtrului Hepa"
+            },
+            "appliancecategory": {
+                "name": "Categoria de aparate"
+            },
+            "vmno_niu": {
+                "name": "Versiunea Niu"
+            },
+            "vmno_mcu": {
+                "name": "Versiunea Mcu"
+            },
+            "schedulersession": {
+                "name": "Sesiune de planificator"
+            },
+            "schedulermode": {
+                "name": "Modul programator"
+            },
+            "totalruntime": {
+                "name": "Durată totală de rulare"
+            },
+            "compressorcoolingruntime": {
+                "name": "Timp de funcționare de răcire a compresorului"
+            },
+            "compressorheatingruntime": {
+                "name": "Durata de funcționare a încălzirii compresorului"
+            },
+            "mainunittemp": {
+                "name": "Unitatea principală de temperatură"
+            },
+            "loge": {
+                "name": "Jurnal e"
+            },
+            "logw": {
+                "name": "Jurnal w"
+            },
+            "demandresponseau": {
+                "name": "Răspuns la cerere au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Starea modului"
+            },
+            "filterruntime": {
+                "name": "Filtrează timpul de rulare"
+            },
+            "hepafilterstate": {
+                "name": "Starea filtrului Hepa"
+            },
+            "airqualitylevel": {
+                "name": "Nivelul calității aerului"
+            },
+            "temperature": {
+                "name": "Temperatura mediului ambiant"
+            },
+            "mode": {
+                "name": "Modul"
+            },
+            "temp": {
+                "name": "Temperatură"
+            },
+            "humidity": {
+                "name": "Umiditate"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Tip filtru"
+            },
+            "filterlife": {
+                "name": "Durata de viață a filtrului"
+            },
+            "workmode": {
+                "name": "Modul de lucru"
+            },
+            "aqilight": {
+                "name": "Lumină Aqi"
+            },
+            "louverswing": {
+                "name": "Leagăn cu jaluzele"
+            },
+            "quietfan": {
+                "name": "Ventilator liniștit"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Data resetarii filtrului de umidificare"
+            },
+            "filterlife_1": {
+                "name": "Durata de viață a filtrului"
+            },
+            "filterlife_2": {
+                "name": "Durata de viață a filtrului 2"
+            },
+            "filtertype_1": {
+                "name": "Tip filtru"
+            },
+            "filtertype_2": {
+                "name": "Tipul de filtru 2"
+            },
+            "filteruid_1": {
+                "name": "Filtrați 1 uid de etichetă nfc"
+            },
+            "filteruid_2": {
+                "name": "Filtru 2 uid etichete nfc"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (aproximativ)"
+            },
+            "uvruntime": {
+                "name": "Timp de rulare UV"
+            },
+            "schedulingstate": {
+                "name": "Starea de programare"
+            },
+            "errimpellerstuck": {
+                "name": "Eroare: rotorul blocat"
+            },
+            "errpmnotresp": {
+                "name": "Eroare: senzorul pm nu răspunde"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Eroare: comunicare pe panoul de afișare"
+            },
+            "errcommsensoruibrd": {
+                "name": "Eroare: comunicarea plăcii ui"
+            },
+            "signalstrength": {
+                "name": "Puterea semnalului"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filtru rfid"
+            },
+            "errgasnotresp": {
+                "name": "Eroare: senzorul de gaz nu răspunde"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Eroare: filtrul 1 etichetă nfc nu este prezentă"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Eroare: eticheta filtru 2 nfc nu este prezentă"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Eroare: filtrul 1 etichetă nfc nevalidă"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Eroare: eticheta nfc filtru 2 nevalidă"
+            },
+            "errnfctransceiver_1": {
+                "name": "Eroare: filtru 1 transceiver nfc"
+            },
+            "errnfctransceiver_2": {
+                "name": "Eroare: transceiver filtru 2 nfc"
+            },
+            "errtemprhnotresp": {
+                "name": "Eroare: senzorul de temperatură/umiditate nu răspunde"
+            },
+            "errwatertrayremoved": {
+                "name": "Eroare: tava de apă a fost scoasă"
+            },
+            "waterbucketlevel": {
+                "name": "Nivelul găleții de apă"
+            },
+            "batterystatus": {
+                "name": "Baterie"
+            },
+            "robotstatus": {
+                "name": "Stare robot"
+            },
+            "cleaningcommand": {
+                "name": "Comanda de curatare"
+            },
+            "dustbinstatus": {
+                "name": "Starea coșului de gunoi"
+            },
+            "mainbrushsqm": {
+                "name": "Utilizarea periei principale"
+            },
+            "sidebrushsqm": {
+                "name": "Utilizarea periei laterale"
+            },
+            "filtersqm": {
+                "name": "Utilizarea filtrului"
+            },
+            "state": {
+                "name": "Stare de curatare"
+            },
+            "chargingstatus": {
+                "name": "Starea de încărcare"
+            },
+            "vacuummode": {
+                "name": "Modul de vid"
+            },
+            "cleaningtype": {
+                "name": "Tip de curățare"
+            },
+            "cleaningmode": {
+                "name": "Modul de curățare"
+            },
+            "waterpumprate": {
+                "name": "Debitul pompei de apă"
+            },
+            "waterstationaction": {
+                "name": "Acțiunea stației de apă"
+            },
+            "moproute": {
+                "name": "Traseul mopului"
+            },
+            "notificationevent": {
+                "name": "Eveniment de notificare"
+            },
+            "dirtcleanmode": {
+                "name": "Modul de curățare a murdăriei"
+            },
+            "faultcode": {
+                "name": "Cod de eroare"
+            },
+            "filterusage": {
+                "name": "Utilizarea filtrului"
+            },
+            "cleansize": {
+                "name": "Dimensiune curată"
+            },
+            "cleantime": {
+                "name": "Timp curat"
+            },
+            "dustbagusage": {
+                "name": "Utilizarea sacului de praf"
+            },
+            "dustboxusage": {
+                "name": "Utilizarea cutiei de praf"
+            },
+            "emptyingtime": {
+                "name": "Timp de golire"
+            },
+            "mainbrushusage": {
+                "name": "Utilizarea periei principale"
+            },
+            "sidebrushusage": {
+                "name": "Utilizarea periei laterale"
+            },
+            "mopusage": {
+                "name": "Utilizarea mopului"
+            },
+            "moparmextensionfreq": {
+                "name": "Frecvența de extensie a brațului mop"
+            },
+            "mopdrytime": {
+                "name": "Mop timp de uscare"
+            },
+            "mopwashfreqarea": {
+                "name": "Zona de frecvență de spălare a mopului"
+            },
+            "mopwashfreqtime": {
+                "name": "Durata frecvenței de spălare a mopului"
+            },
+            "mopwashfreqtype": {
+                "name": "Tip frecvență de spălare cu mop"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Repetări de curățare"
+            },
+            "voicevolume": {
+                "name": "Volumul vocii"
+            },
+            "upgradeprogress": {
+                "name": "Progresul upgrade-ului"
+            },
+            "stationupgradestatus": {
+                "name": "Starea de actualizare a stației"
+            },
+            "upgradestate": {
+                "name": "Stare de upgrade"
+            },
+            "selectedroomid": {
+                "name": "Id-ul camerei selectate"
+            },
+            "maxusagedustbox": {
+                "name": "Utilizare maximă a cutiei de praf"
+            },
+            "maxusagestationbag": {
+                "name": "Utilizare maximă a pungii stației"
+            },
+            "dndstarttime": {
+                "name": "Dnd ora de începere"
+            },
+            "dndendtime": {
+                "name": "Dnd ora de sfârșit"
+            },
+            "datamodelversion": {
+                "name": "Versiunea modelului de date"
+            },
+            "basestationversion": {
+                "name": "Versiunea stației de bază"
+            },
+            "deviceid": {
+                "name": "ID dispozitiv"
+            },
+            "timezonedaylightrule": {
+                "name": "Regula de lumină a fusului orar"
+            },
+            "timezonestandardname": {
+                "name": "Nume standard de fus orar"
+            },
+            "bintank": {
+                "name": "Rezervor de gunoi"
+            },
+            "setvoicevolume": {
+                "name": "Nivelul volumului vocii"
+            },
+            "mapid": {
+                "name": "Id hartă persistent"
+            },
+            "sessionid": {
+                "name": "Id sesiune de curățare"
+            },
+            "completion": {
+                "name": "Finalizare curățenie"
+            },
+            "areacovered": {
+                "name": "Zona acoperită"
+            },
+            "zones": {
+                "name": "Număr de zone pe hartă"
+            },
+            "zonestatus": {
+                "name": "Starea zonei de curățare"
+            },
+            "ovwater_tank_empty": {
+                "name": "Starea rezervorului de apă"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Sondă alimentară"
+            },
+            "ovcleaning_ended": {
+                "name": "Stare de curățare"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Sfârșitul gătirii"
+            },
+            "connectivitystate": {
+                "name": "Stare de conectivitate"
+            },
+            "executionstate": {
+                "name": "Statul de executare"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Blocare pentru copii intern"
+            },
+            "cavitylight": {
+                "name": "Lumină din cavitate"
+            },
+            "childlock": {
+                "name": "Blocare pentru copii"
+            },
+            "soundvolume": {
+                "name": "Volumul sunetului"
+            },
+            "keysoundtone": {
+                "name": "Sunetul cheii"
+            },
+            "windownotification": {
+                "name": "Notificare fereastră"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Activare filtru de cărbune"
+            },
+            "fastmode": {
+                "name": "Mod rapid congelator"
+            },
+            "sabbathmode": {
+                "name": "Modul Sabat"
+            },
+            "ecomode": {
+                "name": "Mod Eco"
+            },
+            "ui2lockmode": {
+                "name": "Modul Ui 2lock"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Pre-spălare"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Anti-sifon (fara abur)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Anti-sifonare cu abur"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Ciclu de noapte"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Modul economic"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Clătire hold"
+            },
+            "ewx1493a_intensive": {
+                "name": "Spălare intensivă"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Senzor de temperatura"
+            },
+            "ewx1493a_stain": {
+                "name": "Tratamentul petelor"
+            },
+            "ewx1493a_drymode": {
+                "name": "Modul uscat"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Călcat ușor"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Modul Steam"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra mix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Modul umed"
+            },
+            "networkinterfacealwayson": {
+                "name": "Rețeaua mereu pornită"
+            },
+            "adlocalfinetuning": {
+                "name": "Reglare fină locală a dozei automate"
+            },
+            "anticreasenosteam": {
+                "name": "Anti sifonare fara abur"
+            },
+            "anticreasewsteam": {
+                "name": "Anti-sifonare cu abur"
+            },
+            "ultramix": {
+                "name": "Ultra mix"
+            },
+            "prewashphase": {
+                "name": "Pre-spălare"
+            },
+            "stain": {
+                "name": "Acțiunea petei"
+            },
+            "nightcycle": {
+                "name": "Ciclu de noapte"
+            },
+            "wmeconomy": {
+                "name": "Modul economic"
+            },
+            "rinsehold": {
+                "name": "Clătire hold"
+            },
+            "tcsensor": {
+                "name": "Senzor de temperatura"
+            },
+            "soak": {
+                "name": "Înmuiați"
+            },
+            "softener": {
+                "name": "Balsam"
+            },
+            "defaultsoftplus": {
+                "name": "Plus soft implicit"
+            },
+            "intensive": {
+                "name": "Intens"
+            },
+            "reverseplus": {
+                "name": "Plus invers"
+            },
+            "tdeconomy_eco": {
+                "name": "Mod Eco"
+            },
+            "tdeconomy_night": {
+                "name": "Modul de noapte"
+            },
+            "tdeconomy_quick": {
+                "name": "Modul rapid"
+            },
+            "refresh": {
+                "name": "Actualizează programul"
+            },
+            "keytone": {
+                "name": "Tonul tastei"
+            },
+            "preselectlast": {
+                "name": "Preselectați ultimul"
+            },
+            "extrapoweroption": {
+                "name": "Putere suplimentară"
+            },
+            "extrasilentoption": {
+                "name": "Extra silentios"
+            },
+            "glasscareoption": {
+                "name": "Îngrijirea sticlei"
+            },
+            "sprayzoneoption": {
+                "name": "Zona de pulverizare"
+            },
+            "autodooropener": {
+                "name": "Deschidetor automat de usi"
+            },
+            "sanitizeoption": {
+                "name": "Igienizați"
+            },
+            "onerackoption": {
+                "name": "Un rack"
+            },
+            "zonecleanoption": {
+                "name": "Zona curata"
+            },
+            "xtradryoption": {
+                "name": "Extra uscat"
+            },
+            "cleanairmode": {
+                "name": "Modul aer curat"
+            },
+            "sleepmode": {
+                "name": "Modul de repaus"
+            },
+            "batchschedulermode": {
+                "name": "Modul programator lot"
+            },
+            "verticalswing": {
+                "name": "Leagăn vertical"
+            },
+            "turbofunction": {
+                "name": "Funcția turbo"
+            },
+            "energysavingmode": {
+                "name": "Modul de economisire a energiei"
+            },
+            "autocleantrigger": {
+                "name": "Declanșator de curățare automată"
+            },
+            "flappositionavoiduser": {
+                "name": "Poziția clapetei evita utilizatorul"
+            },
+            "horizontalswing": {
+                "name": "Leagăn orizontal"
+            },
+            "humidification": {
+                "name": "Umidificarea"
+            },
+            "uilight": {
+                "name": "Ui lumina"
+            },
+            "safetylock": {
+                "name": "Blocare de siguranță"
+            },
+            "ionizer": {
+                "name": "Ionizator"
+            },
+            "uvstate": {
+                "name": "Lumină UV"
+            },
+            "mute": {
+                "name": "Mut"
+            }
         }
     }
 }

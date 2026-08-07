@@ -42,12 +42,8 @@ class ElectroluxTokenManager(TokenManager):
         on_token_update: Callable[[str, str, str], None] | None = None,
     ):
         """Initialize the custom token manager."""
-        super().__init__(
-            access_token, refresh_token, api_key, on_token_update=on_token_update
-        )
-        self._on_token_update_with_expiry: (
-            Callable[[str, str, str, int], None] | None
-        ) = None
+        super().__init__(access_token, refresh_token, api_key, on_token_update=on_token_update)
+        self._on_token_update_with_expiry: Callable[[str, str, str, int], None] | None = None
         self._on_auth_error: Callable[[str], Awaitable[None]] | None = None
         self._refresh_lock = asyncio.Lock()
         self._last_failed_refresh = 0  # Track failed refresh attempts
@@ -68,9 +64,7 @@ class ElectroluxTokenManager(TokenManager):
         """
         # Check if auth data exists
         if not self._auth_data or not self._auth_data.access_token:
-            _LOGGER.debug(
-                "[TOKEN-CHECK] Token validation failed: No access token available"
-            )
+            _LOGGER.debug("[TOKEN-CHECK] Token validation failed: No access token available")
             return False
 
         try:
@@ -80,9 +74,7 @@ class ElectroluxTokenManager(TokenManager):
             )
             exp = payload.get("exp")
             if exp is None:
-                _LOGGER.debug(
-                    "[TOKEN-CHECK] Token validation failed: JWT missing 'exp' claim"
-                )
+                _LOGGER.debug("[TOKEN-CHECK] Token validation failed: JWT missing 'exp' claim")
                 return False
 
             current_time = time.time()
@@ -107,9 +99,7 @@ class ElectroluxTokenManager(TokenManager):
                 status_msg = f"valid: {hours}h {minutes}m"
                 time_since_log = current_time - self._last_log_time
                 if self._last_log_status != status_msg or time_since_log >= 30:
-                    _LOGGER.debug(
-                        f"[TOKEN-CHECK] Token valid: {hours} hours, {minutes} minutes remaining"
-                    )
+                    _LOGGER.debug(f"[TOKEN-CHECK] Token valid: {hours} hours, {minutes} minutes remaining")
                     self._last_log_time = current_time
                     self._last_log_status = status_msg
 
@@ -121,20 +111,14 @@ class ElectroluxTokenManager(TokenManager):
             return False
         except Exception as e:
             _LOGGER.error(f"[TOKEN-CHECK] Token validation error: {e}")
-            _LOGGER.debug(
-                f"[TOKEN-CHECK] Validation exception details: {type(e).__name__}: {e!s}"
-            )
+            _LOGGER.debug(f"[TOKEN-CHECK] Validation exception details: {type(e).__name__}: {e!s}")
             return False  # Force refresh if we can't decode JWT
 
-    def set_token_update_callback_with_expiry(
-        self, callback: Callable[[str, str, str, int], None]
-    ) -> None:
+    def set_token_update_callback_with_expiry(self, callback: Callable[[str, str, str, int], None]) -> None:
         """Set callback that includes expiration timestamp."""
         self._on_token_update_with_expiry = callback
 
-    def set_auth_error_callback(
-        self, callback: Callable[[str], Awaitable[None]]
-    ) -> None:
+    def set_auth_error_callback(self, callback: Callable[[str], Awaitable[None]]) -> None:
         """Set callback for authentication errors."""
         self._on_auth_error = callback
 
@@ -164,9 +148,7 @@ class ElectroluxTokenManager(TokenManager):
 
             # Double-check if token is still invalid (another task may have refreshed while we waited)
             if self.is_token_valid():
-                _LOGGER.debug(
-                    "[TOKEN-REFRESH] Token already fresh (refreshed by concurrent task), skipping refresh"
-                )
+                _LOGGER.debug("[TOKEN-REFRESH] Token already fresh (refreshed by concurrent task), skipping refresh")
                 return True
 
             # Exponential backoff based on consecutive failures
@@ -186,41 +168,27 @@ class ElectroluxTokenManager(TokenManager):
 
             # If marked needs refresh, we bypass cooldown for one attempt
             if self._marked_needs_refresh:
-                _LOGGER.debug(
-                    "[TOKEN-REFRESH] Token marked needs refresh (expired/expiring), bypassing cooldown"
-                )
+                _LOGGER.debug("[TOKEN-REFRESH] Token marked needs refresh (expired/expiring), bypassing cooldown")
                 self._marked_needs_refresh = False
 
             _LOGGER.debug("[TOKEN-REFRESH] Preparing token refresh request")
             auth_data = self._auth_data
 
             if not auth_data or auth_data.refresh_token is None:
-                _LOGGER.error(
-                    "[TOKEN-REFRESH] CRITICAL: Refresh token is missing, cannot refresh"
-                )
+                _LOGGER.error("[TOKEN-REFRESH] CRITICAL: Refresh token is missing, cannot refresh")
                 raise ConfigEntryAuthFailed("Missing refresh token")
 
             payload = {REFRESH_TOKEN: auth_data.refresh_token}
             # Redact sensitive token in logs
-            refresh_suffix = (
-                auth_data.refresh_token[-5:]
-                if len(auth_data.refresh_token) >= 5
-                else "<short>"
-            )
+            refresh_suffix = auth_data.refresh_token[-5:] if len(auth_data.refresh_token) >= 5 else "<short>"
             _LOGGER.debug(
                 f"[TOKEN-REFRESH] Sending refresh request to {TOKEN_REFRESH_URL} (token suffix: ...{refresh_suffix})"
             )
 
             try:
-                _LOGGER.debug(
-                    "[TOKEN-REFRESH] Making HTTP POST request to token endpoint"
-                )
-                data = await request(
-                    method=POST, url=TOKEN_REFRESH_URL, json_body=payload
-                )
-                _LOGGER.debug(
-                    "[TOKEN-REFRESH] HTTP request successful, processing response"
-                )
+                _LOGGER.debug("[TOKEN-REFRESH] Making HTTP POST request to token endpoint")
+                data = await request(method=POST, url=TOKEN_REFRESH_URL, json_body=payload)
+                _LOGGER.debug("[TOKEN-REFRESH] HTTP request successful, processing response")
 
                 # Calculate expiration timestamp from response
                 expires_in = data.get("expiresIn", ACCESS_TOKEN_VALIDITY_SECONDS)
@@ -233,16 +201,10 @@ class ElectroluxTokenManager(TokenManager):
                 _LOGGER.debug(
                     f"[TOKEN-REFRESH] New token received: expires in {exp_hours} hours, {exp_minutes} minutes"
                 )
-                _LOGGER.debug(
-                    f"[TOKEN-REFRESH] Token expiration timestamp: {expires_at}"
-                )
+                _LOGGER.debug(f"[TOKEN-REFRESH] Token expiration timestamp: {expires_at}")
 
                 # Log token rotation (suffix of new refresh token)
-                new_refresh_suffix = (
-                    data.get("refreshToken", "")[-5:]
-                    if data.get("refreshToken")
-                    else "<none>"
-                )
+                new_refresh_suffix = data.get("refreshToken", "")[-5:] if data.get("refreshToken") else "<none>"
                 _LOGGER.debug(
                     f"[TOKEN-REFRESH] Token rotation: old suffix ...{refresh_suffix} -> new suffix ...{new_refresh_suffix}"
                 )
@@ -260,9 +222,7 @@ class ElectroluxTokenManager(TokenManager):
                 self._last_failed_refresh = 0
                 self._consecutive_failures = 0  # Reset exponential backoff
                 self._marked_needs_refresh = False
-                self._permanent_auth_failure = (
-                    False  # New creds worked — clear the latch
-                )
+                self._permanent_auth_failure = False  # New creds worked — clear the latch
                 _LOGGER.info(
                     f"[TOKEN-REFRESH] Token refresh completed successfully (new token valid for {exp_hours} hours, {exp_minutes} minutes)"
                 )
@@ -270,18 +230,11 @@ class ElectroluxTokenManager(TokenManager):
 
             except Exception as e:
                 error_msg = str(e).lower()
-                _LOGGER.error(
-                    f"[TOKEN-REFRESH] Token refresh failed: {type(e).__name__}: {e}"
-                )
+                _LOGGER.error(f"[TOKEN-REFRESH] Token refresh failed: {type(e).__name__}: {e}")
                 _LOGGER.debug(f"[TOKEN-REFRESH] Full error details: {error_msg}")
                 # Check for permanent token errors (401/Invalid Grant)
-                if any(
-                    keyword in error_msg
-                    for keyword in ["401", "invalid grant", "forbidden"]
-                ):
-                    _LOGGER.error(
-                        f"[TOKEN-REFRESH] PERMANENT AUTH ERROR detected: {error_msg}"
-                    )
+                if any(keyword in error_msg for keyword in ["401", "invalid grant", "forbidden"]):
+                    _LOGGER.error(f"[TOKEN-REFRESH] PERMANENT AUTH ERROR detected: {error_msg}")
                     # Check for possible multiple instance issue
                     if "invalid grant" in error_msg and self._consecutive_failures == 0:
                         _LOGGER.error(
@@ -300,15 +253,11 @@ class ElectroluxTokenManager(TokenManager):
                         )
                         await self._on_auth_error(f"Token refresh failed: {e}")
                     else:
-                        _LOGGER.warning(
-                            "[TOKEN-REFRESH] No auth error callback registered, cannot trigger reauth"
-                        )
+                        _LOGGER.warning("[TOKEN-REFRESH] No auth error callback registered, cannot trigger reauth")
                     return False
 
                 # For other errors, set cooldown and return False
-                _LOGGER.warning(
-                    f"[TOKEN-REFRESH] Temporary refresh failure (will retry with backoff): {e}"
-                )
+                _LOGGER.warning(f"[TOKEN-REFRESH] Temporary refresh failure (will retry with backoff): {e}")
                 self._last_failed_refresh = current_time
                 self._consecutive_failures += 1
                 next_backoff = min(60 * (2**self._consecutive_failures), 300)
@@ -318,9 +267,7 @@ class ElectroluxTokenManager(TokenManager):
                 )
                 return False
 
-    def update_with_expiry(
-        self, access_token: str, refresh_token: str, api_key: str, expires_at: int
-    ) -> None:
+    def update_with_expiry(self, access_token: str, refresh_token: str, api_key: str, expires_at: int) -> None:
         """Update the authentication data with expiration information.
 
         Calls both the extended callback (with expiry) and standard callback,
@@ -328,9 +275,7 @@ class ElectroluxTokenManager(TokenManager):
         """
         # Call the enhanced callback if available
         if self._on_token_update_with_expiry:
-            self._on_token_update_with_expiry(
-                access_token, refresh_token, api_key, expires_at
-            )
+            self._on_token_update_with_expiry(access_token, refresh_token, api_key, expires_at)
 
         # Clear permanent failure latch — new credentials have been loaded
         self._permanent_auth_failure = False

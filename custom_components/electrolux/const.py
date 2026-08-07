@@ -45,9 +45,7 @@ CONF_TOKEN_EXPIRES_AT = "token_expires_at"
 ACCESS_TOKEN_VALIDITY_SECONDS = 43200  # 12 hours
 
 # Defaults
-DEFAULT_WEBSOCKET_RENEWAL_DELAY = (
-    7200  # 2 hours - balance between connection stability and rate limiting
-)
+DEFAULT_WEBSOCKET_RENEWAL_DELAY = 7200  # 2 hours - balance between connection stability and rate limiting
 
 # these are attributes that appear in the state file but not in the capabilities.
 # defining them here and in the catalog will allow these devices to be added dynamically

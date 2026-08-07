@@ -135,13 +135,1406 @@
             "message": "{attr} ni mogoče nastaviti, ko je naprava izklopljena. Najprej vklopite aparat."
         },
         "type_mismatch": {
-            "message": "Napaka pri integraciji: neujemanje tipa podatkov za {attr}. Pričakovana logična vrednost."
+            "message": "Napaka pri integraciji: neujemanje vrste podatkov za {attr}. Pričakovana logična vrednost."
         },
         "value_above_maximum": {
             "message": "Vrednost {value} je nad največjo vrednostjo {max_val} za {attr}."
         },
         "value_below_minimum": {
             "message": "Vrednost {value} je pod najmanjšo vrednostjo {min_val} za {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Stanje povezljivosti"
+            },
+            "doorstate": {
+                "name": "Stanje vrat"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Prehranska sonda"
+            },
+            "foodprobesupported": {
+                "name": "Podpora za sondo za hrano"
+            },
+            "watertrayinsertionstate": {
+                "name": "Pladenj za vodo"
+            },
+            "watertankempty": {
+                "name": "Rezervoar za vodo prazen"
+            },
+            "cleaningreminder": {
+                "name": "Opomnik za čiščenje"
+            },
+            "drawerstatus": {
+                "name": "Predal"
+            },
+            "humancentriclighteventstate": {
+                "name": "Svetloba, osredotočena na človeka"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Auto switch-off"
+            },
+            "appliancestate": {
+                "name": "Stanje zamrzovalnika"
+            },
+            "fanstate": {
+                "name": "Dodatno stanje ventilatorja"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Potrebno vzdrževanje"
+            },
+            "maint2_occured": {
+                "name": "Prišlo je do točke vzdrževanja 2"
+            },
+            "maint3_occured": {
+                "name": "Prišlo je do točke vzdrževanja 3"
+            },
+            "maint4_occured": {
+                "name": "Prišlo je do točke vzdrževanja 4"
+            },
+            "maint5_occured": {
+                "name": "Prišlo je do točke vzdrževanja 5"
+            },
+            "maint6_occured": {
+                "name": "Prišlo je do točke vzdrževanja 6"
+            },
+            "maint7_occured": {
+                "name": "Prišlo je do točke vzdrževanja 7"
+            },
+            "maint8_occured": {
+                "name": "Prišlo je do točke vzdrževanja 8"
+            },
+            "maint9_occured": {
+                "name": "Prišlo je do točke vzdrževanja 9"
+            },
+            "maint10_occured": {
+                "name": "Prišlo je do postavke vzdrževanja 10"
+            },
+            "occured": {
+                "name": "Prišlo je do vzdrževanja 1"
+            },
+            "ecomode": {
+                "name": "Eco način"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Potrebno je čiščenje zračnega filtra"
+            },
+            "hmepn_acalerts": {
+                "name": "Podprta opozorila AC"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Vstavljen Hepa filter"
+            },
+            "dooropen": {
+                "name": "Vrata odprta"
+            },
+            "watertraylevellow": {
+                "name": "Nivo vode v pladnju je nizek"
+            },
+            "autodustcollection": {
+                "name": "Samodejno zbiranje prahu"
+            },
+            "automoparmextension": {
+                "name": "Samodejni podaljšek roke za brisanje"
+            },
+            "automopdry": {
+                "name": "Samodejno sušenje"
+            },
+            "automopwash": {
+                "name": "Avtomatsko pranje z mopom"
+            },
+            "autodetergentusage": {
+                "name": "Uporaba avtomatskega detergenta"
+            },
+            "mopinstalled": {
+                "name": "Mop nameščen"
+            },
+            "incharger": {
+                "name": "V polnilniku"
+            },
+            "returntowash": {
+                "name": "Vrnite se na pranje"
+            },
+            "roomselected": {
+                "name": "Izbrana soba"
+            },
+            "carpetboost": {
+                "name": "Pospeševanje preprog"
+            },
+            "carpetavoid": {
+                "name": "Izogibajte se preprogi"
+            },
+            "carpetdisplay": {
+                "name": "Prikaz preprog"
+            },
+            "obstacleavoidance": {
+                "name": "Izogibanje oviram"
+            },
+            "dndenabled": {
+                "name": "Ne moti omogočeno"
+            },
+            "dnddisableairdry": {
+                "name": "Ne onemogočite sušenja na zraku"
+            },
+            "isdndpausingairdry": {
+                "name": "Ne ustavite sušenja na zraku"
+            },
+            "multifloormap": {
+                "name": "Zemljevid z več nadstropji"
+            },
+            "multifloormapautoswitch": {
+                "name": "Samodejni preklop na večnadstropni zemljevid"
+            },
+            "robotposereliable": {
+                "name": "Robotska poza zanesljiva"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stanje rezervoarja za vodo"
+            },
+            "ovcleaning_ended": {
+                "name": "Stanje čiščenja"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Konec kuhanja"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Omrežni ukaz"
+            },
+            "startupcommand": {
+                "name": "Ukaz za zagon"
+            },
+            "manualsync": {
+                "name": "Ročna sinhronizacija"
+            },
+            "executecommand": {
+                "name": "Moč"
+            },
+            "waterfilterstatereset": {
+                "name": "Ponastavite vodni filter"
+            },
+            "airfilterstatereset": {
+                "name": "Ponastavite zračni filter"
+            },
+            "saveappfavorite": {
+                "name": "Shrani priljubljeno"
+            },
+            "shortcutproglistcmd": {
+                "name": "Ukaz seznama programov bližnjic"
+            },
+            "filterreset": {
+                "name": "Ponastavitev filtra"
+            },
+            "hepafilterreset": {
+                "name": "Ponastavitev filtra Hepa"
+            },
+            "findme": {
+                "name": "Najdi me"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Čistilec zraka"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Začetni čas"
+            },
+            "targetduration": {
+                "name": "Ciljno trajanje"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Ciljna temperatura sonde za hrano c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Ciljna temperatura sonde za hrano f"
+            },
+            "targettemperaturec": {
+                "name": "Ciljna temperatura c"
+            },
+            "targettemperaturef": {
+                "name": "Ciljna temperatura f"
+            },
+            "remindertime": {
+                "name": "Čas opomnika zgornje pečice"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Lokalni časovni zamik naprave"
+            },
+            "lightintensity": {
+                "name": "Intenzivnost svetlobe"
+            },
+            "lightcolortemperature": {
+                "name": "Svetla barvna temperatura"
+            },
+            "stoptime": {
+                "name": "Ustavi čas"
+            },
+            "adtankadetstandarddose": {
+                "name": "Rezervoar standardnega odmerka detergenta"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Rezervoar b standardni odmerek detergenta"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Rezervoar b mehčalec standardni odmerek"
+            },
+            "adfinetunedetlevel": {
+                "name": "Natančno nastavite raven detergenta"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Natančna nastavitev stopnje mehčalca"
+            },
+            "extrarinsenumber": {
+                "name": "Dodatna izpiranja"
+            },
+            "maint1_id": {
+                "name": "Postavka vzdrževanja 1 id"
+            },
+            "maint2_id": {
+                "name": "Postavka vzdrževanja 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Prag elementa vzdrževanja 2"
+            },
+            "maint3_id": {
+                "name": "Postavka vzdrževanja 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Prag elementa vzdrževanja 3"
+            },
+            "maint4_id": {
+                "name": "Postavka vzdrževanja 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Prag elementa vzdrževanja 4"
+            },
+            "maint5_id": {
+                "name": "Postavka vzdrževanja 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Prag elementa vzdrževanja 5"
+            },
+            "maint6_id": {
+                "name": "Postavka vzdrževanja 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Prag elementa vzdrževanja 6"
+            },
+            "maint7_id": {
+                "name": "Postavka vzdrževanja 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Prag elementa vzdrževanja 7"
+            },
+            "maint8_id": {
+                "name": "Postavka vzdrževanja 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Prag elementa vzdrževanja 8"
+            },
+            "maint9_id": {
+                "name": "Postavka vzdrževanja 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Prag elementa vzdrževanja 9"
+            },
+            "maint10_id": {
+                "name": "Postavka vzdrževanja 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Prag postavke 10 vzdrževanja"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Jasna personalizacija cikla"
+            },
+            "memoryid": {
+                "name": "Pomnilniška reža"
+            },
+            "dryingtime": {
+                "name": "Časovno sušenje (aktivno)"
+            },
+            "timetonotify": {
+                "name": "Čas za obvestilo"
+            },
+            "anticreasevalue": {
+                "name": "Proti mečkanju (aktivno)"
+            },
+            "rinseaidlevel": {
+                "name": "Raven sredstva za izpiranje"
+            },
+            "targethumidity": {
+                "name": "Ciljna vlažnost"
+            },
+            "targettemperature": {
+                "name": "Ciljna temperatura"
+            },
+            "fanspeed": {
+                "name": "Hitrost ventilatorja"
+            },
+            "humiditytarget": {
+                "name": "Ciljna vlažnost"
+            },
+            "powermode": {
+                "name": "Način napajanja"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Razsvetljava zaslona"
+            },
+            "targettemperaturec": {
+                "name": "Dodatna temperatura votline"
+            },
+            "mode": {
+                "name": "Način"
+            },
+            "fanspeedsetting": {
+                "name": "Hitrost ventilatorja"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Opozorila"
+            },
+            "appliancestate": {
+                "name": "Stanje naprave"
+            },
+            "temperaturerepresentation": {
+                "name": "Predstavitev temperature"
+            },
+            "linkqualityindicator": {
+                "name": "Indikator kakovosti povezave omrežnega vmesnika"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Opis posodobitve Niu sw"
+            },
+            "otastate": {
+                "name": "Omrežni vmesnik ota stanje"
+            },
+            "swancandrevision": {
+                "name": "Sw anc in revizija"
+            },
+            "swversion": {
+                "name": "Različica sw omrežnega vmesnika"
+            },
+            "endofcyclesound": {
+                "name": "Zvok ob koncu cikla"
+            },
+            "programuid": {
+                "name": "uid programa"
+            },
+            "appliancetype": {
+                "name": "Vrsta naprave"
+            },
+            "capabilityhash": {
+                "name": "Razpršitev zmogljivosti"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Daljinski upravljalnik"
+            },
+            "totalcyclecounter": {
+                "name": "Skupni števec ciklov"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Skupni delovni čas aparata"
+            },
+            "timetoend": {
+                "name": "Čas za konec"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Prikaz temperature sonde za hrano"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Prikaz temperature sonde za hrano c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Prikaz temperature sonde za hrano f"
+            },
+            "displaytemperature": {
+                "name": "Prikaz temperature"
+            },
+            "displaytemperaturec": {
+                "name": "Prikaz temperature c"
+            },
+            "displaytemperaturef": {
+                "name": "Prikaz temperature f"
+            },
+            "processphase": {
+                "name": "Faza procesa"
+            },
+            "program": {
+                "name": "Program"
+            },
+            "runningtime": {
+                "name": "Čas delovanja"
+            },
+            "fastheatupfeature": {
+                "name": "Funkcija hitrega segrevanja zgornje pečice"
+            },
+            "preheatcomplete": {
+                "name": "Zgornje predgretje pečice je končano"
+            },
+            "targetdurationendaction": {
+                "name": "Zgornje ciljno trajanje pečice končno dejanje"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Končno delovanje zgornje ciljne sonde za hrano"
+            },
+            "watertanklevel": {
+                "name": "Zgornja raven rezervoarja za vodo v pečici"
+            },
+            "waterhardness": {
+                "name": "Trdota vode"
+            },
+            "descalingreminderstate": {
+                "name": "Opomnik za odstranjevanje vodnega kamna"
+            },
+            "clockstyle": {
+                "name": "Stil ure"
+            },
+            "language": {
+                "name": "Jezik"
+            },
+            "localtimeautomaticmode": {
+                "name": "Samodejni način po lokalnem času"
+            },
+            "autolocaltimeoffset": {
+                "name": "Samodejni zamik lokalnega časa"
+            },
+            "favoriteorder": {
+                "name": "Najljubši vrstni red"
+            },
+            "number": {
+                "name": "Število priljubljenih naročil"
+            },
+            "favoriteselect": {
+                "name": "Priljubljena izbira"
+            },
+            "favoritestatus": {
+                "name": "Najljubši status"
+            },
+            "activemessageindex": {
+                "name": "Indeks aktivnih sporočil"
+            },
+            "appliancemode": {
+                "name": "Način naprave"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Hitrost ventilatorja nape"
+            },
+            "hobtohoodstate": {
+                "name": "Stanje pokrova"
+            },
+            "hoodfanlevel": {
+                "name": "Raven ventilatorja"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Časovnik za filter z ogljem"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Časovnik maščobnega filtra"
+            },
+            "tvocfiltertime": {
+                "name": "Čas filtra Tvoc"
+            },
+            "fastmodetimetoend": {
+                "name": "Čas do konca hitrega načina zamrzovalnika"
+            },
+            "sensortemperaturec": {
+                "name": "Temperatura zamrzovalnika"
+            },
+            "vacationholidaymode": {
+                "name": "Počitniški počitniški način"
+            },
+            "sensorhumidity": {
+                "name": "Vlažnost"
+            },
+            "waterfilterstate": {
+                "name": "Stanje vodnega filtra"
+            },
+            "waterfilterlifetime": {
+                "name": "Življenjska doba vodnega filtra"
+            },
+            "waterfilterflow": {
+                "name": "Pretok vodnega filtra"
+            },
+            "airfilterstate": {
+                "name": "Stanje zračnega filtra"
+            },
+            "airfilterlifetime": {
+                "name": "Življenjska doba zračnega filtra"
+            },
+            "coolingvalvestate": {
+                "name": "Stanje hladilnega ventila"
+            },
+            "defrostroutinestate": {
+                "name": "Rutinsko stanje odmrzovanja"
+            },
+            "compressorstate": {
+                "name": "Stanje kompresorja"
+            },
+            "compressorspeed": {
+                "name": "Hitrost kompresorja"
+            },
+            "coefficient": {
+                "name": "Hitrostni koeficient kompresorja"
+            },
+            "exponent": {
+                "name": "Eksponent hitrosti kompresorja"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Način kloniranja dodatne votline"
+            },
+            "temperatureadjustingstate": {
+                "name": "Dodatna nastavitev votline"
+            },
+            "defrosttemperaturec": {
+                "name": "Temperatura odmrzovanja ledomata"
+            },
+            "evaporatorfanstate": {
+                "name": "Stanje ventilatorja ledomata"
+            },
+            "icedispenserstate": {
+                "name": "Stanje razdelilnika ledu"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Nastavitev polnjenja posode za led"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Prag za nakup zračnega filtra"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Prag menjave zračnega filtra"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Prag nakupa vodnega filtra (pretok)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Prag menjave vodnega filtra (pretok)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Prag za nakup vodnega filtra (čas)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Prag menjave vodnega filtra (čas)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Različica programske opreme glavne plošče"
+            },
+            "defaultextrarinse": {
+                "name": "Privzeto dodatno izpiranje"
+            },
+            "cyclephase": {
+                "name": "Faza cikla"
+            },
+            "cyclesubphase": {
+                "name": "Podfaza cikla"
+            },
+            "measuredloadweight": {
+                "name": "Izmerjena teža tovora"
+            },
+            "doorlock": {
+                "name": "Ključavnica vrat"
+            },
+            "totalwashcyclescount": {
+                "name": "Skupni cikli pranja"
+            },
+            "totalwashingtime": {
+                "name": "Skupni čas pranja"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Teža tovora"
+            },
+            "washingnominalloadweight": {
+                "name": "Teža perila"
+            },
+            "adtankaconfiguration": {
+                "name": "Konfiguracija rezervoarja"
+            },
+            "adtankbconfiguration": {
+                "name": "Konfiguracija rezervoarja b"
+            },
+            "steamvalue": {
+                "name": "Raven pare"
+            },
+            "timemanagerlevel": {
+                "name": "Upravljavec časa"
+            },
+            "adtankasel": {
+                "name": "Rezervoar za samodejno doziranje a"
+            },
+            "adtankbsel": {
+                "name": "Rezervoar za samodejno doziranje b"
+            },
+            "analogspinspeed": {
+                "name": "Hitrost ožemanja"
+            },
+            "analogtemperature": {
+                "name": "Temperatura"
+            },
+            "watersoftenermode": {
+                "name": "Način mehčanja vode"
+            },
+            "maint1_threshold": {
+                "name": "Prag vzdrževanja"
+            },
+            "detergentextradosage": {
+                "name": "Dodaten odmerek detergenta"
+            },
+            "optisenseresult": {
+                "name": "Teža tovora"
+            },
+            "softenerextradosage": {
+                "name": "Dodatni odmerek mehčalca"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tank a det load for nominal weight"
+            },
+            "tankareserve": {
+                "name": "Rezervoar za rezervo"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Rezervoar b det. obremenitev za nazivno težo"
+            },
+            "tankbreserve": {
+                "name": "Rezervoar b"
+            },
+            "waterusage": {
+                "name": "Poraba vode"
+            },
+            "adtankadetloaded": {
+                "name": "Posoda z naloženim detergentom"
+            },
+            "adtankbdetloaded": {
+                "name": "Rezervoar b je napolnjen z detergentom"
+            },
+            "adtankbsoftloaded": {
+                "name": "Rezervoar b je napolnjen z mehčalcem"
+            },
+            "ecolevel": {
+                "name": "Eko raven"
+            },
+            "applianceuiswversion": {
+                "name": "Različica programske opreme uporabniškega vmesnika naprave"
+            },
+            "remotenotificationpending": {
+                "name": "Oddaljeno obvestilo v teku"
+            },
+            "minfinishintime": {
+                "name": "Minimalni zaključek v času"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Varčni način"
+            },
+            "adfinetunedetlevel": {
+                "name": "Samodejna nastavitev doziranja detergenta"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Natančna nastavitev samodejnega odmerjanja mehčalca"
+            },
+            "extrarinsenumber": {
+                "name": "Dodatno izpiranje"
+            },
+            "threshold": {
+                "name": "Prag vzdrževanja 1"
+            },
+            "timezonedatabasename": {
+                "name": "Baza časovnih pasov"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Števec celotnega parnega cikla"
+            },
+            "prewashphase": {
+                "name": "Faza predpranja"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nazivna teža obremenitve"
+            },
+            "humiditytarget": {
+                "name": "Ciljna vlažnost (aktivno)"
+            },
+            "tankalevel": {
+                "name": "Rezervoar ravni"
+            },
+            "tankblevel": {
+                "name": "Rezervoar b nivo"
+            },
+            "totaldrycyclescount": {
+                "name": "Skupni suhi cikli"
+            },
+            "totaldryingtime": {
+                "name": "Skupni čas sušenja"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Skupni cikli pranja+sušenja"
+            },
+            "programsorder": {
+                "name": "Vrstni red programa"
+            },
+            "carelevel": {
+                "name": "Stopnja oskrbe"
+            },
+            "drynessvalue": {
+                "name": "Stopnja suhosti (aktivna)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: teža perila"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: izperite vlago"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: predviden čas sušenja"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: zastavica preobremenitve obremenitve"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: napaka pri nalaganju perila"
+            },
+            "wmsn": {
+                "name": "Dwyw: seznanjena serija pralnega stroja"
+            },
+            "command": {
+                "name": "Dwyw: ukaz"
+            },
+            "displayonfloor": {
+                "name": "Prikaz na tleh"
+            },
+            "energyscore": {
+                "name": "Energetski rezultat"
+            },
+            "waterscore": {
+                "name": "Vodni rezultat"
+            },
+            "ecoscore": {
+                "name": "Eco rezultat"
+            },
+            "miscellaneousstate": {
+                "name": "Razno stanje"
+            },
+            "ambienttemperaturec": {
+                "name": "Temperatura okolja c"
+            },
+            "ambienttemperaturef": {
+                "name": "Temperatura okolja f"
+            },
+            "fanmode": {
+                "name": "Ventilatorski način"
+            },
+            "swingmode": {
+                "name": "Način nihanja"
+            },
+            "ambienthumidity": {
+                "name": "Vlažnost okolja"
+            },
+            "filterstatus": {
+                "name": "Stanje filtra"
+            },
+            "powerconsumption": {
+                "name": "Poraba energije"
+            },
+            "energyconsumption": {
+                "name": "Poraba energije"
+            },
+            "fanspeedstate": {
+                "name": "Stanje hitrosti ventilatorja"
+            },
+            "filterstate": {
+                "name": "Stanje filtra"
+            },
+            "hepafilterlifetime": {
+                "name": "Življenjska doba filtra Hepa"
+            },
+            "appliancecategory": {
+                "name": "Kategorija naprave"
+            },
+            "vmno_niu": {
+                "name": "Različica Niu"
+            },
+            "vmno_mcu": {
+                "name": "Različica Mcu"
+            },
+            "schedulersession": {
+                "name": "Seja razporejevalnika"
+            },
+            "schedulermode": {
+                "name": "Način razporejevalnika"
+            },
+            "totalruntime": {
+                "name": "Skupni čas delovanja"
+            },
+            "compressorcoolingruntime": {
+                "name": "Čas delovanja hlajenja kompresorja"
+            },
+            "compressorheatingruntime": {
+                "name": "Čas ogrevanja kompresorja"
+            },
+            "mainunittemp": {
+                "name": "Temperatura glavne enote"
+            },
+            "loge": {
+                "name": "Dnevnik e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Odziv na povpraševanje au"
+            },
+            "pm25": {
+                "name": "Pm2,5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Stanje načina"
+            },
+            "filterruntime": {
+                "name": "Čas delovanja filtra"
+            },
+            "hepafilterstate": {
+                "name": "Stanje Hepa filtra"
+            },
+            "airqualitylevel": {
+                "name": "Raven kakovosti zraka"
+            },
+            "temperature": {
+                "name": "Temperatura okolja"
+            },
+            "mode": {
+                "name": "Način"
+            },
+            "temp": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Vlažnost"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2,5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Vrsta filtra"
+            },
+            "filterlife": {
+                "name": "Življenjska doba filtra"
+            },
+            "workmode": {
+                "name": "Način dela"
+            },
+            "aqilight": {
+                "name": "Aqi svetloba"
+            },
+            "louverswing": {
+                "name": "Louver gugalnica"
+            },
+            "quietfan": {
+                "name": "Tih ventilator"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Datum ponastavitve filtra za vlaženje"
+            },
+            "filterlife_1": {
+                "name": "Življenjska doba filtra"
+            },
+            "filterlife_2": {
+                "name": "Življenjska doba filtra 2"
+            },
+            "filtertype_1": {
+                "name": "Vrsta filtra"
+            },
+            "filtertype_2": {
+                "name": "Vrsta filtra 2"
+            },
+            "filteruid_1": {
+                "name": "Filter 1 uid oznake nfc"
+            },
+            "filteruid_2": {
+                "name": "Filter 2 uid oznake nfc"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (približno)"
+            },
+            "uvruntime": {
+                "name": "UV čas izvajanja"
+            },
+            "schedulingstate": {
+                "name": "Stanje razporejanja"
+            },
+            "errimpellerstuck": {
+                "name": "Napaka: impeler se je zagozdil"
+            },
+            "errpmnotresp": {
+                "name": "Napaka: pm senzor se ne odziva"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Napaka: komunikacija zaslonske plošče"
+            },
+            "errcommsensoruibrd": {
+                "name": "Napaka: komunikacija plošče ui"
+            },
+            "signalstrength": {
+                "name": "Moč signala"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "RFID filter"
+            },
+            "errgasnotresp": {
+                "name": "Napaka: senzor plina se ne odziva"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Napaka: oznaka nfc filtra 1 ni prisotna"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Napaka: oznaka nfc filtra 2 ni prisotna"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Napaka: filter 1 oznaka nfc ni veljaven"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Napaka: oznaka nfc filtra 2 ni veljavna"
+            },
+            "errnfctransceiver_1": {
+                "name": "Napaka: filter 1 sprejemnik-sprejemnik nfc"
+            },
+            "errnfctransceiver_2": {
+                "name": "Napaka: filter 2 nfc oddajnik-sprejemnik"
+            },
+            "errtemprhnotresp": {
+                "name": "Napaka: senzor temperature/vlažnosti se ne odziva"
+            },
+            "errwatertrayremoved": {
+                "name": "Napaka: pladenj za vodo je odstranjen"
+            },
+            "waterbucketlevel": {
+                "name": "Raven vodnega vedra"
+            },
+            "batterystatus": {
+                "name": "Baterija"
+            },
+            "robotstatus": {
+                "name": "Status robota"
+            },
+            "cleaningcommand": {
+                "name": "Ukaz za čiščenje"
+            },
+            "dustbinstatus": {
+                "name": "Stanje smetnjaka"
+            },
+            "mainbrushsqm": {
+                "name": "Uporaba glavne krtače"
+            },
+            "sidebrushsqm": {
+                "name": "Uporaba stranske krtače"
+            },
+            "filtersqm": {
+                "name": "Uporaba filtra"
+            },
+            "state": {
+                "name": "Stanje čiščenja"
+            },
+            "chargingstatus": {
+                "name": "Stanje polnjenja"
+            },
+            "vacuummode": {
+                "name": "Vakuumski način"
+            },
+            "cleaningtype": {
+                "name": "Vrsta čiščenja"
+            },
+            "cleaningmode": {
+                "name": "Način čiščenja"
+            },
+            "waterpumprate": {
+                "name": "Stopnja vodne črpalke"
+            },
+            "waterstationaction": {
+                "name": "Akcija vodne postaje"
+            },
+            "moproute": {
+                "name": "Mop pot"
+            },
+            "notificationevent": {
+                "name": "Obvestilni dogodek"
+            },
+            "dirtcleanmode": {
+                "name": "Način čiščenja umazanije"
+            },
+            "faultcode": {
+                "name": "Koda napake"
+            },
+            "filterusage": {
+                "name": "Uporaba filtra"
+            },
+            "cleansize": {
+                "name": "Čista velikost"
+            },
+            "cleantime": {
+                "name": "Čisti čas"
+            },
+            "dustbagusage": {
+                "name": "Uporaba vrečke za prah"
+            },
+            "dustboxusage": {
+                "name": "Uporaba škatle za prah"
+            },
+            "emptyingtime": {
+                "name": "Čas praznjenja"
+            },
+            "mainbrushusage": {
+                "name": "Uporaba glavne krtače"
+            },
+            "sidebrushusage": {
+                "name": "Uporaba stranske krtače"
+            },
+            "mopusage": {
+                "name": "Uporaba mopa"
+            },
+            "moparmextensionfreq": {
+                "name": "Frekvenca iztegovanja roke za brisanje"
+            },
+            "mopdrytime": {
+                "name": "Čas sušenja"
+            },
+            "mopwashfreqarea": {
+                "name": "Pogostost pranja z mopom"
+            },
+            "mopwashfreqtime": {
+                "name": "Čas frekvence pranja"
+            },
+            "mopwashfreqtype": {
+                "name": "Vrsta frekvence pranja z mopom"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Ponovitve čiščenja"
+            },
+            "voicevolume": {
+                "name": "Glasnost glasu"
+            },
+            "upgradeprogress": {
+                "name": "Napredek nadgradnje"
+            },
+            "stationupgradestatus": {
+                "name": "Stanje nadgradnje postaje"
+            },
+            "upgradestate": {
+                "name": "Stanje nadgradnje"
+            },
+            "selectedroomid": {
+                "name": "ID izbrane sobe"
+            },
+            "maxusagedustbox": {
+                "name": "Največja poraba posode za prah"
+            },
+            "maxusagestationbag": {
+                "name": "Največja uporaba torbe na postaji"
+            },
+            "dndstarttime": {
+                "name": "Dnd začetni čas"
+            },
+            "dndendtime": {
+                "name": "Dnd končni čas"
+            },
+            "datamodelversion": {
+                "name": "Različica podatkovnega modela"
+            },
+            "basestationversion": {
+                "name": "Različica bazne postaje"
+            },
+            "deviceid": {
+                "name": "ID naprave"
+            },
+            "timezonedaylightrule": {
+                "name": "Pravilo dnevne svetlobe časovnega pasu"
+            },
+            "timezonestandardname": {
+                "name": "Standardno ime časovnega pasu"
+            },
+            "bintank": {
+                "name": "Rezervoar za smeti"
+            },
+            "setvoicevolume": {
+                "name": "Raven glasnosti glasu"
+            },
+            "mapid": {
+                "name": "Trajni ID zemljevida"
+            },
+            "sessionid": {
+                "name": "ID seje čiščenja"
+            },
+            "completion": {
+                "name": "Zaključek čiščenja"
+            },
+            "areacovered": {
+                "name": "Pokrito območje"
+            },
+            "zones": {
+                "name": "Število con zemljevida"
+            },
+            "zonestatus": {
+                "name": "Stanje območja čiščenja"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stanje rezervoarja za vodo"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Prehranska sonda"
+            },
+            "ovcleaning_ended": {
+                "name": "Stanje čiščenja"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Konec kuhanja"
+            },
+            "connectivitystate": {
+                "name": "Stanje povezljivosti"
+            },
+            "executionstate": {
+                "name": "Stanje izvedbe"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Notranja otroška ključavnica"
+            },
+            "cavitylight": {
+                "name": "Svetloba votline"
+            },
+            "childlock": {
+                "name": "Otroška ključavnica"
+            },
+            "soundvolume": {
+                "name": "Glasnost zvoka"
+            },
+            "keysoundtone": {
+                "name": "Zvok tipk"
+            },
+            "windownotification": {
+                "name": "Obvestilo o oknu"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Omogoči filter z ogljem"
+            },
+            "fastmode": {
+                "name": "Hitri način zamrzovanja"
+            },
+            "sabbathmode": {
+                "name": "Sabatni način"
+            },
+            "ecomode": {
+                "name": "Eco način"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2lock način"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Predpranje"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Proti mečkanju (brez pare)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Proti mečkanju s paro"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Nočni cikel"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Varčni način"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Zadrži izpiranje"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intenzivno pranje"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Senzor temperature"
+            },
+            "ewx1493a_stain": {
+                "name": "Zdravljenje madežev"
+            },
+            "ewx1493a_drymode": {
+                "name": "Suhi način"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Enostavno likanje"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Parni način"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra mešanica"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Mokri način"
+            },
+            "networkinterfacealwayson": {
+                "name": "Omrežje vedno vklopljeno"
+            },
+            "adlocalfinetuning": {
+                "name": "Lokalna fina nastavitev samodejnega odmerjanja"
+            },
+            "anticreasenosteam": {
+                "name": "Proti mečkanju brez pare"
+            },
+            "anticreasewsteam": {
+                "name": "Proti mečkanju s paro"
+            },
+            "ultramix": {
+                "name": "Ultra mešanica"
+            },
+            "prewashphase": {
+                "name": "Predpranje"
+            },
+            "stain": {
+                "name": "Delovanje madežev"
+            },
+            "nightcycle": {
+                "name": "Nočni cikel"
+            },
+            "wmeconomy": {
+                "name": "Varčni način"
+            },
+            "rinsehold": {
+                "name": "Zadrži izpiranje"
+            },
+            "tcsensor": {
+                "name": "Senzor temperature"
+            },
+            "soak": {
+                "name": "Namočite"
+            },
+            "softener": {
+                "name": "Mehčalec"
+            },
+            "defaultsoftplus": {
+                "name": "Privzeti mehki plus"
+            },
+            "intensive": {
+                "name": "Intenzivno"
+            },
+            "reverseplus": {
+                "name": "Obratni plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco način"
+            },
+            "tdeconomy_night": {
+                "name": "Nočni način"
+            },
+            "tdeconomy_quick": {
+                "name": "Hitri način"
+            },
+            "refresh": {
+                "name": "Osveži program"
+            },
+            "keytone": {
+                "name": "Ton tipke"
+            },
+            "preselectlast": {
+                "name": "Vnaprej izberite zadnje"
+            },
+            "extrapoweroption": {
+                "name": "Dodatna moč"
+            },
+            "extrasilentoption": {
+                "name": "Zelo tiho"
+            },
+            "glasscareoption": {
+                "name": "Nega stekla"
+            },
+            "sprayzoneoption": {
+                "name": "Spray cona"
+            },
+            "autodooropener": {
+                "name": "Avtomatsko odpiranje vrat"
+            },
+            "sanitizeoption": {
+                "name": "Razkužiti"
+            },
+            "onerackoption": {
+                "name": "Eno stojalo"
+            },
+            "zonecleanoption": {
+                "name": "Zonsko čisto"
+            },
+            "xtradryoption": {
+                "name": "Ekstra suho"
+            },
+            "cleanairmode": {
+                "name": "Način čistega zraka"
+            },
+            "sleepmode": {
+                "name": "Način mirovanja"
+            },
+            "batchschedulermode": {
+                "name": "Način paketnega načrtovalca"
+            },
+            "verticalswing": {
+                "name": "Navpično nihanje"
+            },
+            "turbofunction": {
+                "name": "Turbo funkcija"
+            },
+            "energysavingmode": {
+                "name": "Način varčevanja z energijo"
+            },
+            "autocleantrigger": {
+                "name": "Samodejno čiščenje sprožilca"
+            },
+            "flappositionavoiduser": {
+                "name": "Uporabnik se izogiba položaju lopute"
+            },
+            "horizontalswing": {
+                "name": "Horizontalni zamah"
+            },
+            "humidification": {
+                "name": "Vlaženje"
+            },
+            "uilight": {
+                "name": "Ui svetloba"
+            },
+            "safetylock": {
+                "name": "Varnostna ključavnica"
+            },
+            "ionizer": {
+                "name": "Ionizator"
+            },
+            "uvstate": {
+                "name": "UV svetloba"
+            },
+            "mute": {
+                "name": "Mute"
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 SERVICE_START_ZONE_CLEANING = "start_zone_cleaning"
 
-SERVICE_START_ZONE_CLEANING_SCHEMA = vol.Schema(
+SERVICE_START_ZONE_CLEANING_SCHEMA = cv.make_entity_service_schema(
     {
         vol.Required("persistent_map_id"): vol.All(cv.string, vol.Length(min=1)),
         vol.Required("zones"): vol.All(
@@ -118,6 +118,17 @@ _PUREI9_FAN_SPEEDS: list[str] = ["Eco", "Standard", "Power"]
 _PUREI9_SPEED_TO_INT: dict[str, int] = {"Eco": 1, "Standard": 2, "Power": 3}
 _PUREI9_INT_TO_SPEED: dict[int, str] = {v: k for k, v in _PUREI9_SPEED_TO_INT.items()}
 
+# PUREi9 gen 1 (original Pure i9) uses a boolean ecoMode in reported state
+# instead of the integer powerMode.  The device only has two modes: Eco and
+# Power.  The API rejects direct ecoMode writes, so we send powerMode
+# integers (1=Eco, 3=Power) as a workaround.
+# See https://github.com/TTLucian/ha-electrolux/issues/81
+# and https://github.com/JohNan/homeassistant-wellbeing/pull/194
+_PUREI9_GEN1_FAN_SPEEDS: list[str] = ["Eco", "Power"]
+_PUREI9_GEN1_SPEED_TO_INT: dict[str, int] = {"Eco": 1, "Power": 3}
+_PUREI9_GEN1_ECO_TO_SPEED: dict[bool, str] = {True: "Eco", False: "Power"}
+_PUREI9_GEN1_SPEED_TO_ECO: dict[str, bool] = {"Eco": True, "Power": False}
+
 
 # ── Platform setup ────────────────────────────────────────────────────────────
 
@@ -177,7 +188,8 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     Legacy (PUREi9):
         State:    robotStatus  (int 1-14)
         Commands: CleaningCommand (play / stop / pause / home)
-        Speed:    powerMode (int 1-3)
+        Speed:    powerMode (int 1-3) — gen 2 (Pure i9.2)
+                  ecoMode (boolean)  — gen 1 (original Pure i9, 2 modes only)
 
     Modern (Cybele, Gordias, 700series):
         State:    state (string: idle / inProgress / goingHome / paused / …)
@@ -223,6 +235,19 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         )
         self._appliance_type = appliance_type
         self._is_purei9 = appliance_type in _PUREI9_TYPES
+
+    @property
+    def _is_purei9_gen1(self) -> bool:
+        """Detect gen 1 Pure i9 (original, uses boolean ecoMode).
+
+        Gen 1 devices report ``ecoMode`` (boolean) in state but NOT
+        ``powerMode`` (int).  Gen 2 (Pure i9.2) reports ``powerMode`` (int).
+        Both gens expose the ``powerMode`` capability (min=1, max=3) in the
+        API, so capability inspection alone cannot distinguish them.
+        """
+        if not self._is_purei9:
+            return False
+        return self.get_state_attr("ecoMode") is not None and self.get_state_attr("powerMode") is None
 
     # ── Entity metadata ───────────────────────────────────────────────────────
 
@@ -283,7 +308,14 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             return None
         try:
             return _PUREI9_STATUS_TO_ACTIVITY.get(int(status_value))
-        except ValueError, TypeError:
+        except ValueError:
+            _LOGGER.debug(
+                "Invalid robotStatus value '%s' for appliance %s",
+                status_value,
+                self.pnc_id,
+            )
+            return None
+        except TypeError:
             _LOGGER.debug(
                 "Invalid robotStatus value '%s' for appliance %s",
                 status_value,
@@ -298,7 +330,14 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         if value is not None:
             try:
                 battery_value = float(value)
-            except TypeError, ValueError:
+            except TypeError:
+                _LOGGER.debug(
+                    "Invalid batteryStatus value '%s' for appliance %s",
+                    value,
+                    self.pnc_id,
+                )
+                return None
+            except ValueError:
                 _LOGGER.debug(
                     "Invalid batteryStatus value '%s' for appliance %s",
                     value,
@@ -313,12 +352,8 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             if battery_max == 100 and battery_min in (0, 1):
                 return round(battery_value)
 
-            battery_value = max(
-                float(battery_min), min(float(battery_max), battery_value)
-            )
-            percentage = (
-                (battery_value - battery_min) / (battery_max - battery_min)
-            ) * 100
+            battery_value = max(float(battery_min), min(float(battery_max), battery_value))
+            percentage = ((battery_value - battery_min) / (battery_max - battery_min)) * 100
             return round(max(0.0, min(100.0, percentage)))
         return None
 
@@ -346,9 +381,16 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     def fan_speed(self) -> str | None:
         """Return the current fan speed / vacuum mode.
 
-        PUREi9 reports an integer powerMode (1-3); translate to the
+        PUREi9 gen 2 reports an integer powerMode (1-3); translate to the
         human-readable label (Eco / Standard / Power).
+        PUREi9 gen 1 reports a boolean ecoMode; translate to Eco / Power.
         """
+        if self._is_purei9_gen1:
+            eco = self.get_state_attr("ecoMode")
+            if eco is None:
+                return None
+            return _PUREI9_GEN1_ECO_TO_SPEED.get(bool(eco))
+
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
         value = self.get_state_attr(attr)
         if value is None:
@@ -356,7 +398,9 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         if self._is_purei9:
             try:
                 return _PUREI9_INT_TO_SPEED.get(int(value))
-            except ValueError, TypeError:
+            except ValueError:
+                return None
+            except TypeError:
                 return None
         return str(value)
 
@@ -364,20 +408,20 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     def fan_speed_list(self) -> list[str]:
         """Return the list of available fan speeds.
 
-        For PUREi9 the speed list is built dynamically from the device's
-        actual powerMode capability (min/max), so that models with only
-        2 modes (e.g. ECO + POWER) show the correct subset.
-        See https://github.com/TTLucian/ha-electrolux/issues/82
+        For PUREi9 gen 1 (original) the device only has 2 modes (Eco, Power)
+        controlled via boolean ecoMode.  For PUREi9 gen 2 (Pure i9.2) the
+        speed list is built dynamically from the device's actual powerMode
+        capability (min/max).
+        See https://github.com/TTLucian/ha-electrolux/issues/81
         """
         if not self._is_purei9:
             return _MODERN_FAN_SPEEDS
 
+        if self._is_purei9_gen1:
+            return _PUREI9_GEN1_FAN_SPEEDS
+
         pm_min, pm_max = self._purei9_power_mode_range()
-        return [
-            _PUREI9_INT_TO_SPEED[i]
-            for i in range(pm_min, pm_max + 1)
-            if i in _PUREI9_INT_TO_SPEED
-        ]
+        return [_PUREI9_INT_TO_SPEED[i] for i in range(pm_min, pm_max + 1) if i in _PUREI9_INT_TO_SPEED]
 
     def _purei9_power_mode_range(self) -> tuple[int, int]:
         """Return the (min, max) powerMode range from device capabilities.
@@ -392,8 +436,11 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                     pm_min = int(cap.get("min", 1))
                     pm_max = int(cap.get("max", 3))
                     return pm_min, pm_max
-        except Exception:
-            pass
+        except TypeError, ValueError:
+            _LOGGER.debug(
+                "Could not read powerMode capability for %s, using default range",
+                self.pnc_id,
+            )
         return 1, 3
 
     # ── Commands ───────────────────────────────────────────────────────────────
@@ -436,9 +483,28 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
         """Set the vacuum mode / suction level.
 
-        PUREi9 accepts the human-readable label (Eco / Standard / Power)
-        and translates it back to the integer the API expects.
+        PUREi9 gen 2 accepts the human-readable label (Eco / Standard / Power)
+        and translates it to the integer the API expects.
+        PUREi9 gen 1 only has 2 modes (Eco / Power); the API rejects direct
+        ecoMode writes, so we send powerMode integers (1 / 3) as a workaround
+        and optimistically update ecoMode for immediate UI feedback.
         """
+        if self._is_purei9_gen1:
+            pm_value = _PUREI9_GEN1_SPEED_TO_INT.get(fan_speed)
+            if pm_value is None:
+                _LOGGER.error(
+                    "Invalid PUREi9 gen 1 fan speed '%s' — expected one of %s",
+                    fan_speed,
+                    _PUREI9_GEN1_FAN_SPEEDS,
+                )
+                return
+            await self._send_command("powerMode", pm_value)
+            # Optimistically update ecoMode (what fan_speed reads for gen 1)
+            eco_value = _PUREI9_GEN1_SPEED_TO_ECO.get(fan_speed)
+            if eco_value is not None:
+                self._apply_optimistic_update("ecoMode", eco_value)
+            return
+
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
         if self._is_purei9:
             value: Any = _PUREI9_SPEED_TO_INT.get(fan_speed)
@@ -446,7 +512,14 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                 # Fall back to direct integer for backward compatibility
                 try:
                     value = int(fan_speed)
-                except ValueError, TypeError:
+                except ValueError:
+                    _LOGGER.error(
+                        "Invalid PUREi9 fan speed '%s' — expected one of %s",
+                        fan_speed,
+                        _PUREI9_FAN_SPEEDS,
+                    )
+                    return
+                except TypeError:
                     _LOGGER.error(
                         "Invalid PUREi9 fan speed '%s' — expected one of %s",
                         fan_speed,
@@ -479,6 +552,12 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         for z in zones:
             pm = z["power_mode"]
             if isinstance(pm, str):
+                if pm not in _PUREI9_SPEED_TO_INT:
+                    _LOGGER.warning(
+                        "Unknown power mode '%s' for zone %s — defaulting to Eco (1)",
+                        pm,
+                        z["zone_id"],
+                    )
                 pm = _PUREI9_SPEED_TO_INT.get(pm, 1)
             api_zones.append({"goZonesId": z["zone_id"], "powerMode": pm})
 
@@ -509,9 +588,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         _LOGGER.debug("Electrolux vacuum command: %s", command)
 
         try:
-            await execute_command_with_error_handling(
-                client, self.pnc_id, command, attr, _LOGGER, self.capability
-            )
+            await execute_command_with_error_handling(client, self.pnc_id, command, attr, _LOGGER, self.capability)
             self._apply_optimistic_update(attr, value)
         except Exception as ex:
             _LOGGER.error("Electrolux vacuum command failed for %s: %s", attr, ex)

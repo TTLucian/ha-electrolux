@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Aggiorna le credenziali API Electrolux",
-                        "description": "I tuoi token API Electrolux sono scaduti e l'aggiornamento automatico non è riuscito. Inserisci le nuove credenziali dal Portale per sviluppatori Electrolux per ripristinare la funzionalità.\n\n**Per generare nuove credenziali:**\n1. Visita ___PLACEholder_0___\n2. Genera nuova chiave API, token di accesso e token di aggiornamento\n3. Inseriscili qui sotto",
+                        "description": "I tuoi token API Electrolux sono scaduti e l'aggiornamento automatico non è riuscito. Inserisci le nuove credenziali dal Portale per sviluppatori Electrolux per ripristinare la funzionalità.\n\n**Per generare nuove credenziali:**\n1. Visita {url}\n2. Genera nuova chiave API, token di accesso e token di aggiornamento\n3. Inseriscili qui sotto",
                         "data": {
                             "api_key": "Chiave API",
                             "access_token": "Gettone di accesso",
@@ -105,16 +105,16 @@
             "message": "Troppi comandi inviati. Attendi un attimo e riprova."
         },
         "control_locked": {
-            "message": "{attr} è bloccato in {value} per il programma {program}."
+            "message": "{attr} è bloccato su {value} per il programma {program}."
         },
         "food_probe_locked_by_program": {
-            "message": "La temperatura della sonda dell'alimento è bloccata a {value}°C per il programma {program}."
+            "message": "La temperatura della sonda alimentare è bloccata a {value}°C per il programma {program}."
         },
         "food_probe_not_inserted": {
             "message": "La sonda alimentare deve essere inserita per impostare la temperatura target."
         },
         "food_probe_not_supported_by_program": {
-            "message": "La temperatura della sonda cibo non è supportata dal programma {program}."
+            "message": "La temperatura della sonda alimentare non è supportata dal programma {program}."
         },
         "invalid_option": {
             "message": "Opzione selezionata non valida."
@@ -142,6 +142,1399 @@
         },
         "value_below_minimum": {
             "message": "Il valore {value} è inferiore al minimo {min_val} per {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Stato della connettività"
+            },
+            "doorstate": {
+                "name": "Stato della porta"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Sonda alimentare"
+            },
+            "foodprobesupported": {
+                "name": "Supporto sonda alimentare"
+            },
+            "watertrayinsertionstate": {
+                "name": "Vassoio per l'acqua"
+            },
+            "watertankempty": {
+                "name": "Serbatoio dell'acqua vuoto"
+            },
+            "cleaningreminder": {
+                "name": "Promemoria per la pulizia"
+            },
+            "drawerstatus": {
+                "name": "Cassetto"
+            },
+            "humancentriclighteventstate": {
+                "name": "Luce incentrata sull'uomo"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Spegnimento automatico"
+            },
+            "appliancestate": {
+                "name": "Stato congelatore"
+            },
+            "fanstate": {
+                "name": "Stato ventola cavità extra"
+            },
+            "autosense": {
+                "name": "Rilevamento automatico"
+            },
+            "maint1_occured": {
+                "name": "Manutenzione richiesta"
+            },
+            "maint2_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 2"
+            },
+            "maint3_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 3"
+            },
+            "maint4_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 4"
+            },
+            "maint5_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 5"
+            },
+            "maint6_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 6"
+            },
+            "maint7_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 7"
+            },
+            "maint8_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 8"
+            },
+            "maint9_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 9"
+            },
+            "maint10_occured": {
+                "name": "Si è verificato l'elemento di manutenzione 10"
+            },
+            "occured": {
+                "name": "Si è verificata la manutenzione 1"
+            },
+            "ecomode": {
+                "name": "Modalità ecologica"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "È necessaria la pulizia del filtro dell'aria"
+            },
+            "hmepn_acalerts": {
+                "name": "Avvisi AC supportati"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Filtro Hepa inserito"
+            },
+            "dooropen": {
+                "name": "Porta aperta"
+            },
+            "watertraylevellow": {
+                "name": "Livello del vassoio dell'acqua basso"
+            },
+            "autodustcollection": {
+                "name": "Raccolta automatica della polvere"
+            },
+            "automoparmextension": {
+                "name": "Estensione del braccio del mocio automatico"
+            },
+            "automopdry": {
+                "name": "Asciugatura automatica"
+            },
+            "automopwash": {
+                "name": "Lavaggio automatico del panno"
+            },
+            "autodetergentusage": {
+                "name": "Utilizzo del detersivo automatico"
+            },
+            "mopinstalled": {
+                "name": "Mocio installato"
+            },
+            "incharger": {
+                "name": "Nel caricabatterie"
+            },
+            "returntowash": {
+                "name": "Tornare a lavarsi"
+            },
+            "roomselected": {
+                "name": "Camera selezionata"
+            },
+            "carpetboost": {
+                "name": "Spinta del tappeto"
+            },
+            "carpetavoid": {
+                "name": "Evitare il tappeto"
+            },
+            "carpetdisplay": {
+                "name": "Esposizione di tappeti"
+            },
+            "obstacleavoidance": {
+                "name": "Elusione degli ostacoli"
+            },
+            "dndenabled": {
+                "name": "Non disturbare abilitato"
+            },
+            "dnddisableairdry": {
+                "name": "Non disattivare l'asciugatura all'aria"
+            },
+            "isdndpausingairdry": {
+                "name": "Non fare una pausa per asciugare all'aria"
+            },
+            "multifloormap": {
+                "name": "Mappa multipiano"
+            },
+            "multifloormapautoswitch": {
+                "name": "Cambio automatico mappa multi-piano"
+            },
+            "robotposereliable": {
+                "name": "La posa del robot è affidabile"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stato del serbatoio dell'acqua"
+            },
+            "ovcleaning_ended": {
+                "name": "Stato della pulizia"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Fine Cottura"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Comando di rete"
+            },
+            "startupcommand": {
+                "name": "Comando di avvio"
+            },
+            "manualsync": {
+                "name": "Sincronizzazione manuale"
+            },
+            "executecommand": {
+                "name": "Energia"
+            },
+            "waterfilterstatereset": {
+                "name": "Reimpostare il filtro dell'acqua"
+            },
+            "airfilterstatereset": {
+                "name": "Reimpostare il filtro dell'aria"
+            },
+            "saveappfavorite": {
+                "name": "Salva preferito"
+            },
+            "shortcutproglistcmd": {
+                "name": "Comando dell'elenco dei programmi di scelta rapida"
+            },
+            "filterreset": {
+                "name": "Reimpostazione del filtro"
+            },
+            "hepafilterreset": {
+                "name": "Ripristino del filtro Hepa"
+            },
+            "findme": {
+                "name": "Trovami"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Purificatore d'aria"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Ora di inizio"
+            },
+            "targetduration": {
+                "name": "Durata obiettivo"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Temperatura target della sonda per alimenti c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Temperatura target della sonda per alimenti f"
+            },
+            "targettemperaturec": {
+                "name": "Temperatura target c"
+            },
+            "targettemperaturef": {
+                "name": "Temperatura target f"
+            },
+            "remindertime": {
+                "name": "Orario promemoria forno superiore"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Differenza dell'ora locale dell'appliance"
+            },
+            "lightintensity": {
+                "name": "Intensità della luce"
+            },
+            "lightcolortemperature": {
+                "name": "Temperatura del colore della luce"
+            },
+            "stoptime": {
+                "name": "Fermare il tempo"
+            },
+            "adtankadetstandarddose": {
+                "name": "Riempire una dose standard di detersivo"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Dose standard detergente vasca b"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Dose standard ammorbidente vasca b"
+            },
+            "adfinetunedetlevel": {
+                "name": "Regolazione fine del livello del detersivo"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Regolazione fine del livello dell'ammorbidente"
+            },
+            "extrarinsenumber": {
+                "name": "Risciacqui aggiuntivi"
+            },
+            "maint1_id": {
+                "name": "Articolo di manutenzione 1 id"
+            },
+            "maint2_id": {
+                "name": "Articolo di manutenzione 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Soglia dell'articolo 2 della manutenzione"
+            },
+            "maint3_id": {
+                "name": "Articolo di manutenzione 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Soglia dell'elemento 3 della manutenzione"
+            },
+            "maint4_id": {
+                "name": "Articolo di manutenzione 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Soglia dell'elemento 4 della manutenzione"
+            },
+            "maint5_id": {
+                "name": "Articolo di manutenzione 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Soglia dell'elemento 5 della manutenzione"
+            },
+            "maint6_id": {
+                "name": "Articolo di manutenzione 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Soglia dell'elemento 6 della manutenzione"
+            },
+            "maint7_id": {
+                "name": "Articolo di manutenzione 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Soglia dell'articolo 7 della manutenzione"
+            },
+            "maint8_id": {
+                "name": "Articolo di manutenzione 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Soglia dell'articolo 8 della manutenzione"
+            },
+            "maint9_id": {
+                "name": "Articolo di manutenzione 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Soglia dell'articolo 9 della manutenzione"
+            },
+            "maint10_id": {
+                "name": "Articolo di manutenzione 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Soglia dell'articolo 10 della manutenzione"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Personalizzazione chiara del ciclo"
+            },
+            "memoryid": {
+                "name": "Slot di memoria"
+            },
+            "dryingtime": {
+                "name": "Asciugatura a tempo (attiva)"
+            },
+            "timetonotify": {
+                "name": "È ora di avvisare"
+            },
+            "anticreasevalue": {
+                "name": "Antipiega (attivo)"
+            },
+            "rinseaidlevel": {
+                "name": "Livello del brillantante"
+            },
+            "targethumidity": {
+                "name": "Umidità target"
+            },
+            "targettemperature": {
+                "name": "Temperatura target"
+            },
+            "fanspeed": {
+                "name": "Velocità della ventola"
+            },
+            "humiditytarget": {
+                "name": "Umidità target"
+            },
+            "powermode": {
+                "name": "Modalità di alimentazione"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Luce di visualizzazione"
+            },
+            "targettemperaturec": {
+                "name": "Temperatura extra della cavità"
+            },
+            "mode": {
+                "name": "Modalità"
+            },
+            "fanspeedsetting": {
+                "name": "Velocità della ventola"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Avvisi"
+            },
+            "appliancestate": {
+                "name": "Stato dell'appliance"
+            },
+            "temperaturerepresentation": {
+                "name": "Rappresentazione della temperatura"
+            },
+            "linkqualityindicator": {
+                "name": "Indicatore della qualità del collegamento dell'interfaccia di rete"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Descrizione dell'aggiornamento niu sw"
+            },
+            "otastate": {
+                "name": "Stato ota dell'interfaccia di rete"
+            },
+            "swancandrevision": {
+                "name": "Sw anc e revisione"
+            },
+            "swversion": {
+                "name": "Versione sw interfaccia di rete"
+            },
+            "endofcyclesound": {
+                "name": "Suono di fine ciclo"
+            },
+            "programuid": {
+                "name": "Uido del programma"
+            },
+            "appliancetype": {
+                "name": "Tipo di apparecchio"
+            },
+            "capabilityhash": {
+                "name": "Hash di capacità"
+            },
+            "cpv": {
+                "name": "CPV"
+            },
+            "remotecontrol": {
+                "name": "Telecomando"
+            },
+            "totalcyclecounter": {
+                "name": "Contatore cicli totale"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Tempo di funzionamento totale dell'apparecchio"
+            },
+            "timetoend": {
+                "name": "È ora di finire"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Visualizza la temperatura della sonda cibo"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Visualizzare la temperatura della sonda cibo c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Visualizzare la temperatura della sonda cibo f"
+            },
+            "displaytemperature": {
+                "name": "Visualizza la temperatura"
+            },
+            "displaytemperaturec": {
+                "name": "Visualizzazione della temperatura c"
+            },
+            "displaytemperaturef": {
+                "name": "Visualizzazione della temperatura f"
+            },
+            "processphase": {
+                "name": "Fase del processo"
+            },
+            "program": {
+                "name": "Programma"
+            },
+            "runningtime": {
+                "name": "Tempo di esecuzione"
+            },
+            "fastheatupfeature": {
+                "name": "Funzione di riscaldamento rapido del forno superiore"
+            },
+            "preheatcomplete": {
+                "name": "Preriscaldamento del forno superiore completato"
+            },
+            "targetdurationendaction": {
+                "name": "Azione finale della durata target del forno superiore"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Azione finale della temperatura target della sonda per alimenti del forno superiore"
+            },
+            "watertanklevel": {
+                "name": "Livello del serbatoio dell'acqua del forno superiore"
+            },
+            "waterhardness": {
+                "name": "Durezza dell'acqua"
+            },
+            "descalingreminderstate": {
+                "name": "Promemoria decalcificazione"
+            },
+            "clockstyle": {
+                "name": "Stile orologio"
+            },
+            "language": {
+                "name": "Lingua"
+            },
+            "localtimeautomaticmode": {
+                "name": "Modalità automatica ora locale"
+            },
+            "autolocaltimeoffset": {
+                "name": "Compensazione automatica dell'ora locale"
+            },
+            "favoriteorder": {
+                "name": "Ordine preferito"
+            },
+            "number": {
+                "name": "Conteggio degli ordini preferiti"
+            },
+            "favoriteselect": {
+                "name": "Seleziona preferito"
+            },
+            "favoritestatus": {
+                "name": "Stato preferito"
+            },
+            "activemessageindex": {
+                "name": "Indice dei messaggi attivi"
+            },
+            "appliancemode": {
+                "name": "Modalità apparecchio"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Velocità della ventola della cappa"
+            },
+            "hobtohoodstate": {
+                "name": "Stato del cofano"
+            },
+            "hoodfanlevel": {
+                "name": "Livello della ventola"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Temporizzatore del filtro al carbone"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Temporizzatore filtro antigrasso"
+            },
+            "tvocfiltertime": {
+                "name": "Tempo di filtro TVOC"
+            },
+            "fastmodetimetoend": {
+                "name": "È ora di terminare la modalità rapida del congelatore"
+            },
+            "sensortemperaturec": {
+                "name": "Temperatura del congelatore"
+            },
+            "vacationholidaymode": {
+                "name": "Modalità vacanza vacanza"
+            },
+            "sensorhumidity": {
+                "name": "Umidità"
+            },
+            "waterfilterstate": {
+                "name": "Stato del filtro dell'acqua"
+            },
+            "waterfilterlifetime": {
+                "name": "Durata del filtro dell'acqua"
+            },
+            "waterfilterflow": {
+                "name": "Flusso del filtro dell'acqua"
+            },
+            "airfilterstate": {
+                "name": "Stato del filtro dell'aria"
+            },
+            "airfilterlifetime": {
+                "name": "Durata del filtro dell'aria"
+            },
+            "coolingvalvestate": {
+                "name": "Stato della valvola di raffreddamento"
+            },
+            "defrostroutinestate": {
+                "name": "Stato di routine dello sbrinamento"
+            },
+            "compressorstate": {
+                "name": "Stato del compressore"
+            },
+            "compressorspeed": {
+                "name": "Velocità del compressore"
+            },
+            "coefficient": {
+                "name": "Coefficiente di velocità del compressore"
+            },
+            "exponent": {
+                "name": "Esponente della velocità del compressore"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Modalità clone cavità extra"
+            },
+            "temperatureadjustingstate": {
+                "name": "Regolazione extra della cavità"
+            },
+            "defrosttemperaturec": {
+                "name": "Temperatura di sbrinamento del produttore di ghiaccio"
+            },
+            "evaporatorfanstate": {
+                "name": "Stato della ventola del produttore di ghiaccio"
+            },
+            "icedispenserstate": {
+                "name": "Stato del distributore di ghiaccio"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Ice tray fill setting"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Soglia di acquisto del filtro dell'aria"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Soglia di sostituzione del filtro dell'aria"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Soglia di acquisto del filtro dell'acqua (flusso)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Soglia cambio filtro acqua (flusso)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Soglia di acquisto del filtro dell'acqua (tempo)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Soglia cambio filtro acqua (tempo)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Versione del software della scheda principale"
+            },
+            "defaultextrarinse": {
+                "name": "Risciacquo extra predefinito"
+            },
+            "cyclephase": {
+                "name": "Fase del ciclo"
+            },
+            "cyclesubphase": {
+                "name": "Sottofase del ciclo"
+            },
+            "measuredloadweight": {
+                "name": "Peso del carico misurato"
+            },
+            "doorlock": {
+                "name": "Serratura della porta"
+            },
+            "totalwashcyclescount": {
+                "name": "Cicli di lavaggio totali"
+            },
+            "totalwashingtime": {
+                "name": "Tempo di lavaggio totale"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Caricare il peso"
+            },
+            "washingnominalloadweight": {
+                "name": "Peso del carico di lavaggio"
+            },
+            "adtankaconfiguration": {
+                "name": "Serbatoio una configurazione"
+            },
+            "adtankbconfiguration": {
+                "name": "Configurazione del serbatoio b"
+            },
+            "steamvalue": {
+                "name": "Livello del vapore"
+            },
+            "timemanagerlevel": {
+                "name": "Gestore del tempo"
+            },
+            "adtankasel": {
+                "name": "Serbatoio di dosaggio automatico a"
+            },
+            "adtankbsel": {
+                "name": "Serbatoio di dosaggio automatico b"
+            },
+            "analogspinspeed": {
+                "name": "Velocità di rotazione"
+            },
+            "analogtemperature": {
+                "name": "Temperatura"
+            },
+            "watersoftenermode": {
+                "name": "Modalità addolcitore d'acqua"
+            },
+            "maint1_threshold": {
+                "name": "Soglia di manutenzione"
+            },
+            "detergentextradosage": {
+                "name": "Dosaggio extra di detersivo"
+            },
+            "optisenseresult": {
+                "name": "Caricare il peso"
+            },
+            "softenerextradosage": {
+                "name": "Dosaggio extra di ammorbidente"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Riempire un carico det per il peso nominale"
+            },
+            "tankareserve": {
+                "name": "Fai una riserva"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Carico del serbatoio b det per il peso nominale"
+            },
+            "tankbreserve": {
+                "name": "Riserva serbatoio b"
+            },
+            "waterusage": {
+                "name": "Utilizzo dell'acqua"
+            },
+            "adtankadetloaded": {
+                "name": "Serbatoio un detersivo caricato"
+            },
+            "adtankbdetloaded": {
+                "name": "Detersivo nella vasca b caricato"
+            },
+            "adtankbsoftloaded": {
+                "name": "Addolcitore vasca b caricato"
+            },
+            "ecolevel": {
+                "name": "Livello ecologico"
+            },
+            "applianceuiswversion": {
+                "name": "Versione sw dell'interfaccia utente dell'appliance"
+            },
+            "remotenotificationpending": {
+                "name": "Notifica remota in sospeso"
+            },
+            "minfinishintime": {
+                "name": "Finitura minima in tempo"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Modalità economica"
+            },
+            "adfinetunedetlevel": {
+                "name": "Regolazione fine del detersivo con dosaggio automatico"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Regolazione fine dell'ammorbidente con dosaggio automatico"
+            },
+            "extrarinsenumber": {
+                "name": "Risciacquo extra"
+            },
+            "threshold": {
+                "name": "Soglia manutenzione 1"
+            },
+            "timezonedatabasename": {
+                "name": "Banca dati del fuso orario"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Contatore totale cicli vapore"
+            },
+            "prewashphase": {
+                "name": "Fase di prelavaggio"
+            },
+            "dryingnominalloadweight": {
+                "name": "Peso del carico nominale"
+            },
+            "humiditytarget": {
+                "name": "Obiettivo umidità (attivo)"
+            },
+            "tankalevel": {
+                "name": "Riempi un livello"
+            },
+            "tankblevel": {
+                "name": "Livello serbatoio b"
+            },
+            "totaldrycyclescount": {
+                "name": "Cicli di asciugatura totali"
+            },
+            "totaldryingtime": {
+                "name": "Tempo totale di asciugatura"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Cicli totali di lavaggio+asciugatura"
+            },
+            "programsorder": {
+                "name": "Ordine del programma"
+            },
+            "carelevel": {
+                "name": "Livello di cura"
+            },
+            "drynessvalue": {
+                "name": "Livello di asciugatura (attivo)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: peso del carico di lavaggio"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: lavare l'umidità del carico"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: tempo di asciugatura stimato"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: flag di sovraccarico del carico"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: errore di caricamento del lavaggio"
+            },
+            "wmsn": {
+                "name": "Dwyw: seriale lavatrice abbinata"
+            },
+            "command": {
+                "name": "Dwyw: comando"
+            },
+            "displayonfloor": {
+                "name": "Esposizione a pavimento"
+            },
+            "energyscore": {
+                "name": "Punteggio energetico"
+            },
+            "waterscore": {
+                "name": "Punteggio dell'acqua"
+            },
+            "ecoscore": {
+                "name": "Punteggio ecologico"
+            },
+            "miscellaneousstate": {
+                "name": "Stato vario"
+            },
+            "ambienttemperaturec": {
+                "name": "Temperatura ambientec"
+            },
+            "ambienttemperaturef": {
+                "name": "Temperatura ambiente f"
+            },
+            "fanmode": {
+                "name": "Modalità ventola"
+            },
+            "swingmode": {
+                "name": "Modalità altalena"
+            },
+            "ambienthumidity": {
+                "name": "Umidità ambientale"
+            },
+            "filterstatus": {
+                "name": "Stato del filtro"
+            },
+            "powerconsumption": {
+                "name": "Consumo energetico"
+            },
+            "energyconsumption": {
+                "name": "Consumo energetico"
+            },
+            "fanspeedstate": {
+                "name": "Stato della velocità della ventola"
+            },
+            "filterstate": {
+                "name": "Stato del filtro"
+            },
+            "hepafilterlifetime": {
+                "name": "Durata del filtro Hepa"
+            },
+            "appliancecategory": {
+                "name": "Categoria elettrodomestici"
+            },
+            "vmno_niu": {
+                "name": "Versione Niu"
+            },
+            "vmno_mcu": {
+                "name": "Versione Mcu"
+            },
+            "schedulersession": {
+                "name": "Sessione di pianificazione"
+            },
+            "schedulermode": {
+                "name": "Modalità pianificazione"
+            },
+            "totalruntime": {
+                "name": "Autonomia totale"
+            },
+            "compressorcoolingruntime": {
+                "name": "Tempo di funzionamento del raffreddamento del compressore"
+            },
+            "compressorheatingruntime": {
+                "name": "Tempo di funzionamento del riscaldamento del compressore"
+            },
+            "mainunittemp": {
+                "name": "Temp. unità principale"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Registro w"
+            },
+            "demandresponseau": {
+                "name": "Risposta alla domanda au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Stato della modalità"
+            },
+            "filterruntime": {
+                "name": "Filtra il tempo di esecuzione"
+            },
+            "hepafilterstate": {
+                "name": "Stato del filtro Hepa"
+            },
+            "airqualitylevel": {
+                "name": "Livello di qualità dell'aria"
+            },
+            "temperature": {
+                "name": "Temperatura ambiente"
+            },
+            "mode": {
+                "name": "Modalità"
+            },
+            "temp": {
+                "name": "Temperatura"
+            },
+            "humidity": {
+                "name": "Umidità"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "TVOC"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Tipo di filtro"
+            },
+            "filterlife": {
+                "name": "Filtra la vita"
+            },
+            "workmode": {
+                "name": "Modalità di lavoro"
+            },
+            "aqilight": {
+                "name": "Aqi luce"
+            },
+            "louverswing": {
+                "name": "Oscillazione della feritoia"
+            },
+            "quietfan": {
+                "name": "Ventilatore silenzioso"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Data di ripristino del filtro di umidificazione"
+            },
+            "filterlife_1": {
+                "name": "Filtra la vita"
+            },
+            "filterlife_2": {
+                "name": "Durata del filtro 2"
+            },
+            "filtertype_1": {
+                "name": "Tipo di filtro"
+            },
+            "filtertype_2": {
+                "name": "Tipo di filtro 2"
+            },
+            "filteruid_1": {
+                "name": "Filtra 1 uid tag NFC"
+            },
+            "filteruid_2": {
+                "name": "Filtra 2 uid tag NFC"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (approssimativo)"
+            },
+            "uvruntime": {
+                "name": "Autonomia UV"
+            },
+            "schedulingstate": {
+                "name": "Stato di pianificazione"
+            },
+            "errimpellerstuck": {
+                "name": "Errore: girante bloccata"
+            },
+            "errpmnotresp": {
+                "name": "Errore: sensore pm non risponde"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Errore: comunicazione tabellone"
+            },
+            "errcommsensoruibrd": {
+                "name": "Errore: comunicazione sulla scheda ui"
+            },
+            "signalstrength": {
+                "name": "Potenza del segnale"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filtra RFID"
+            },
+            "errgasnotresp": {
+                "name": "Errore: sensore gas non risponde"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Errore: tag NFC filtro 1 non presente"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Errore: tag NFC filtro 2 non presente"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Errore: tag NFC filtro 1 non valido"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Errore: tag NFC filtro 2 non valido"
+            },
+            "errnfctransceiver_1": {
+                "name": "Errore: filtrare 1 ricetrasmettitore NFC"
+            },
+            "errnfctransceiver_2": {
+                "name": "Errore: filtro 2 ricetrasmettitore NFC"
+            },
+            "errtemprhnotresp": {
+                "name": "Errore: il sensore di temperatura/umidità non risponde"
+            },
+            "errwatertrayremoved": {
+                "name": "Errore: vaschetta dell'acqua rimossa"
+            },
+            "waterbucketlevel": {
+                "name": "Livello del secchio d'acqua"
+            },
+            "batterystatus": {
+                "name": "Batteria"
+            },
+            "robotstatus": {
+                "name": "Stato del robot"
+            },
+            "cleaningcommand": {
+                "name": "Comando di pulizia"
+            },
+            "dustbinstatus": {
+                "name": "Stato del cestino"
+            },
+            "mainbrushsqm": {
+                "name": "Utilizzo della spazzola principale"
+            },
+            "sidebrushsqm": {
+                "name": "Utilizzo della spazzola laterale"
+            },
+            "filtersqm": {
+                "name": "Filtra l'utilizzo"
+            },
+            "state": {
+                "name": "Stato di pulizia"
+            },
+            "chargingstatus": {
+                "name": "Stato di carica"
+            },
+            "vacuummode": {
+                "name": "Modalità vuoto"
+            },
+            "cleaningtype": {
+                "name": "Tipo di pulizia"
+            },
+            "cleaningmode": {
+                "name": "Modalità di pulizia"
+            },
+            "waterpumprate": {
+                "name": "Tasso della pompa dell'acqua"
+            },
+            "waterstationaction": {
+                "name": "Azione della stazione idrica"
+            },
+            "moproute": {
+                "name": "Percorso di pulizia"
+            },
+            "notificationevent": {
+                "name": "Evento di notifica"
+            },
+            "dirtcleanmode": {
+                "name": "Modalità pulizia sporco"
+            },
+            "faultcode": {
+                "name": "Codice guasto"
+            },
+            "filterusage": {
+                "name": "Filtra l'utilizzo"
+            },
+            "cleansize": {
+                "name": "Dimensioni pulite"
+            },
+            "cleantime": {
+                "name": "Tempo pulito"
+            },
+            "dustbagusage": {
+                "name": "Utilizzo del sacchetto per la polvere"
+            },
+            "dustboxusage": {
+                "name": "Utilizzo del contenitore per la polvere"
+            },
+            "emptyingtime": {
+                "name": "Tempo di svuotamento"
+            },
+            "mainbrushusage": {
+                "name": "Utilizzo della spazzola principale"
+            },
+            "sidebrushusage": {
+                "name": "Utilizzo della spazzola laterale"
+            },
+            "mopusage": {
+                "name": "Utilizzo dello straccio"
+            },
+            "moparmextensionfreq": {
+                "name": "Frequenza di estensione del braccio del lavapavimenti"
+            },
+            "mopdrytime": {
+                "name": "Tempo di asciugatura"
+            },
+            "mopwashfreqarea": {
+                "name": "Area della frequenza di lavaggio del panno"
+            },
+            "mopwashfreqtime": {
+                "name": "Tempo di frequenza del lavaggio del mop"
+            },
+            "mopwashfreqtype": {
+                "name": "Tipo di frequenza di lavaggio del panno"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Ripetizioni di pulizia"
+            },
+            "voicevolume": {
+                "name": "Volume della voce"
+            },
+            "upgradeprogress": {
+                "name": "Avanzamento dell'aggiornamento"
+            },
+            "stationupgradestatus": {
+                "name": "Stato di aggiornamento della stazione"
+            },
+            "upgradestate": {
+                "name": "Stato di aggiornamento"
+            },
+            "selectedroomid": {
+                "name": "ID della stanza selezionata"
+            },
+            "maxusagedustbox": {
+                "name": "Utilizzo massimo del contenitore della polvere"
+            },
+            "maxusagestationbag": {
+                "name": "Utilizzo massimo della borsa della stazione"
+            },
+            "dndstarttime": {
+                "name": "Non importa l'ora di inizio"
+            },
+            "dndendtime": {
+                "name": "Non è prevista l'ora di fine"
+            },
+            "datamodelversion": {
+                "name": "Versione del modello dati"
+            },
+            "basestationversion": {
+                "name": "Versione stazione base"
+            },
+            "deviceid": {
+                "name": "ID dispositivo"
+            },
+            "timezonedaylightrule": {
+                "name": "Regola della luce del giorno del fuso orario"
+            },
+            "timezonestandardname": {
+                "name": "Nome standard del fuso orario"
+            },
+            "bintank": {
+                "name": "Serbatoio del bidone"
+            },
+            "setvoicevolume": {
+                "name": "Livello del volume della voce"
+            },
+            "mapid": {
+                "name": "ID mappa persistente"
+            },
+            "sessionid": {
+                "name": "ID sessione di pulizia"
+            },
+            "completion": {
+                "name": "Completamento della pulizia"
+            },
+            "areacovered": {
+                "name": "Area coperta"
+            },
+            "zones": {
+                "name": "Conteggio delle zone della mappa"
+            },
+            "zonestatus": {
+                "name": "Stato della zona di pulizia"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stato del serbatoio dell'acqua"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Sonda alimentare"
+            },
+            "ovcleaning_ended": {
+                "name": "Stato della pulizia"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Fine Cottura"
+            },
+            "connectivitystate": {
+                "name": "Stato della connettività"
+            },
+            "executionstate": {
+                "name": "Stato di esecuzione"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Blocco bambini interno"
+            },
+            "cavitylight": {
+                "name": "Luce della cavità"
+            },
+            "childlock": {
+                "name": "Blocco bambini"
+            },
+            "soundvolume": {
+                "name": "Volume del suono"
+            },
+            "keysoundtone": {
+                "name": "Suono chiave"
+            },
+            "windownotification": {
+                "name": "Notifica della finestra"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Abilitazione filtro al carbone"
+            },
+            "fastmode": {
+                "name": "Modalità veloce del congelatore"
+            },
+            "sabbathmode": {
+                "name": "Modalità sabato"
+            },
+            "ecomode": {
+                "name": "Modalità ecologica"
+            },
+            "ui2lockmode": {
+                "name": "Modalità di blocco dell'interfaccia utente 2"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Prelavaggio"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Antipiega (senza vapore)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Antipiega con vapore"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Ciclo notturno"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Modalità economica"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Risciacquo"
+            },
+            "ewx1493a_intensive": {
+                "name": "Lavaggio intensivo"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Sensore di temperatura"
+            },
+            "ewx1493a_stain": {
+                "name": "Trattamento antimacchia"
+            },
+            "ewx1493a_drymode": {
+                "name": "Modalità asciutta"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Stiratura facile"
+            },
+            "ewx1493a_pod": {
+                "name": "Baccello"
+            },
+            "ewx1493a_steammode": {
+                "name": "Modalità vapore"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Miscela ultra"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Modalità bagnata"
+            },
+            "networkinterfacealwayson": {
+                "name": "Rete sempre attiva"
+            },
+            "adlocalfinetuning": {
+                "name": "Regolazione fine locale della dose automatica"
+            },
+            "anticreasenosteam": {
+                "name": "Antipiega senza vapore"
+            },
+            "anticreasewsteam": {
+                "name": "Antipiega con vapore"
+            },
+            "ultramix": {
+                "name": "Miscela ultra"
+            },
+            "prewashphase": {
+                "name": "Prelavaggio"
+            },
+            "stain": {
+                "name": "Azione macchia"
+            },
+            "nightcycle": {
+                "name": "Ciclo notturno"
+            },
+            "wmeconomy": {
+                "name": "Modalità economica"
+            },
+            "rinsehold": {
+                "name": "Risciacquo"
+            },
+            "tcsensor": {
+                "name": "Sensore di temperatura"
+            },
+            "soak": {
+                "name": "Immergere"
+            },
+            "softener": {
+                "name": "Ammorbidente"
+            },
+            "defaultsoftplus": {
+                "name": "Plus morbido predefinito"
+            },
+            "intensive": {
+                "name": "Intensivo"
+            },
+            "reverseplus": {
+                "name": "Più inverso"
+            },
+            "tdeconomy_eco": {
+                "name": "Modalità ecologica"
+            },
+            "tdeconomy_night": {
+                "name": "Modalità notturna"
+            },
+            "tdeconomy_quick": {
+                "name": "Modalità veloce"
+            },
+            "refresh": {
+                "name": "Aggiorna il programma"
+            },
+            "keytone": {
+                "name": "Tono chiave"
+            },
+            "preselectlast": {
+                "name": "Preseleziona per ultimo"
+            },
+            "extrapoweroption": {
+                "name": "Potenza extra"
+            },
+            "extrasilentoption": {
+                "name": "Extra silenzioso"
+            },
+            "glasscareoption": {
+                "name": "Cura del vetro"
+            },
+            "sprayzoneoption": {
+                "name": "Zona di spruzzo"
+            },
+            "autodooropener": {
+                "name": "Apriporta automatico"
+            },
+            "sanitizeoption": {
+                "name": "Igienizzare"
+            },
+            "onerackoption": {
+                "name": "Una rastrelliera"
+            },
+            "zonecleanoption": {
+                "name": "Zona pulita"
+            },
+            "xtradryoption": {
+                "name": "Extra secco"
+            },
+            "cleanairmode": {
+                "name": "Modalità aria pulita"
+            },
+            "sleepmode": {
+                "name": "Modalità di sospensione"
+            },
+            "batchschedulermode": {
+                "name": "Modalità di pianificazione batch"
+            },
+            "verticalswing": {
+                "name": "Oscillazione verticale"
+            },
+            "turbofunction": {
+                "name": "Funzione Turbo"
+            },
+            "energysavingmode": {
+                "name": "Modalità di risparmio energetico"
+            },
+            "autocleantrigger": {
+                "name": "Trigger di pulizia automatica"
+            },
+            "flappositionavoiduser": {
+                "name": "La posizione dell'aletta evita l'utente"
+            },
+            "horizontalswing": {
+                "name": "Oscillazione orizzontale"
+            },
+            "humidification": {
+                "name": "Umidificazione"
+            },
+            "uilight": {
+                "name": "Luce dell'interfaccia utente"
+            },
+            "safetylock": {
+                "name": "Blocco di sicurezza"
+            },
+            "ionizer": {
+                "name": "Ionizzatore"
+            },
+            "uvstate": {
+                "name": "Luce UV"
+            },
+            "mute": {
+                "name": "Muto"
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Znovu ověřit Electrolux",
-                "description": "Platnost vašich tokenů Electrolux API vypršela nebo jsou neplatné. Aktualizujte je pomocí nových tokenů z portálu Electrolux Developer Portal.\n\nNavštivte {url} a vygenerujte nové tokeny.",
+                "description": "Platnost vašich tokenů Electrolux API vypršela nebo jsou neplatné. Aktualizujte je pomocí nových tokenů z portálu Electrolux Developer Portal.\n\nNavštivte stránku {url} a vygenerujte nové tokeny.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Překonfigurujte Electrolux",
-                "description": "Aktualizujte své přihlašovací údaje Electrolux API.\n\nNavštivte {url} a vygenerujte nové tokeny.",
+                "description": "Aktualizujte své přihlašovací údaje Electrolux API.\n\nNavštivte stránku {url} a vygenerujte nové tokeny.",
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
@@ -99,7 +99,7 @@
             "message": "Nastavení nelze změnit: stav spotřebiče je neúplný. Počkejte, až se zařízení inicializuje."
         },
         "command_not_accepted": {
-            "message": "Příkaz nepřijal zařízení. Zkontrolujte, zda spotřebič tuto operaci podporuje."
+            "message": "Příkaz zařízení nepřijal. Zkontrolujte, zda spotřebič tuto operaci podporuje."
         },
         "command_rate_limited": {
             "message": "Bylo odesláno příliš mnoho příkazů. Chvíli počkejte a zkuste to znovu."
@@ -114,7 +114,7 @@
             "message": "Pro nastavení cílové teploty musí být vložena potravinová sonda."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Teplota potravinové sondy není podporována programem {program}."
+            "message": "Teplotu potravinové sondy program {program} nepodporuje."
         },
         "invalid_option": {
             "message": "Vybrána neplatná možnost."
@@ -142,6 +142,1399 @@
         },
         "value_below_minimum": {
             "message": "Hodnota {value} je nižší než minimální hodnota {min_val} pro {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Stav připojení"
+            },
+            "doorstate": {
+                "name": "Stav dveří"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Potravinová sonda"
+            },
+            "foodprobesupported": {
+                "name": "Podpora potravinové sondy"
+            },
+            "watertrayinsertionstate": {
+                "name": "Zásobník na vodu"
+            },
+            "watertankempty": {
+                "name": "Prázdná nádrž na vodu"
+            },
+            "cleaningreminder": {
+                "name": "Upomínka na čištění"
+            },
+            "drawerstatus": {
+                "name": "Výstavce"
+            },
+            "humancentriclighteventstate": {
+                "name": "Světlo zaměřené na člověka"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automatické vypínání"
+            },
+            "appliancestate": {
+                "name": "Stav mrazáku"
+            },
+            "fanstate": {
+                "name": "Stav ventilátoru extra dutiny"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Nutná údržba"
+            },
+            "maint2_occured": {
+                "name": "Došlo k bodu údržby 2"
+            },
+            "maint3_occured": {
+                "name": "Došlo k bodu údržby 3"
+            },
+            "maint4_occured": {
+                "name": "Došlo k bodu údržby 4"
+            },
+            "maint5_occured": {
+                "name": "Došlo k bodu údržby 5"
+            },
+            "maint6_occured": {
+                "name": "Došlo k bodu údržby 6"
+            },
+            "maint7_occured": {
+                "name": "Došlo k bodu údržby 7"
+            },
+            "maint8_occured": {
+                "name": "Došlo k bodu údržby 8"
+            },
+            "maint9_occured": {
+                "name": "Došlo k bodu údržby 9"
+            },
+            "maint10_occured": {
+                "name": "Došlo k bodu údržby 10"
+            },
+            "occured": {
+                "name": "Proběhla údržba 1"
+            },
+            "ecomode": {
+                "name": "Eco režim"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Je nutné vyčistit vzduchový filtr"
+            },
+            "hmepn_acalerts": {
+                "name": "Podpora AC výstrah"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Vložen hepa filtr"
+            },
+            "dooropen": {
+                "name": "Dveře otevřené"
+            },
+            "watertraylevellow": {
+                "name": "Nízká hladina zásobníku na vodu"
+            },
+            "autodustcollection": {
+                "name": "Automatický sběr prachu"
+            },
+            "automoparmextension": {
+                "name": "Automatické prodloužení ramene mopu"
+            },
+            "automopdry": {
+                "name": "Automop suchý"
+            },
+            "automopwash": {
+                "name": "Auto mytí mopy"
+            },
+            "autodetergentusage": {
+                "name": "Použití automatického mycího prostředku"
+            },
+            "mopinstalled": {
+                "name": "Mop nainstalován"
+            },
+            "incharger": {
+                "name": "V nabíječce"
+            },
+            "returntowash": {
+                "name": "Vraťte se k mytí"
+            },
+            "roomselected": {
+                "name": "Místnost vybrána"
+            },
+            "carpetboost": {
+                "name": "Zvýšení koberce"
+            },
+            "carpetavoid": {
+                "name": "Vyhněte se koberci"
+            },
+            "carpetdisplay": {
+                "name": "Výstava koberců"
+            },
+            "obstacleavoidance": {
+                "name": "Vyhýbání se překážkám"
+            },
+            "dndenabled": {
+                "name": "Nerušit povoleno"
+            },
+            "dnddisableairdry": {
+                "name": "Dnd zakázat sušení vzduchem"
+            },
+            "isdndpausingairdry": {
+                "name": "Nepřestávejte sušit vzduchem"
+            },
+            "multifloormap": {
+                "name": "Vícepatrová mapa"
+            },
+            "multifloormapautoswitch": {
+                "name": "Automatické přepínání vícepodlažních map"
+            },
+            "robotposereliable": {
+                "name": "Spolehlivá pozice robota"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stav vodní nádrže"
+            },
+            "ovcleaning_ended": {
+                "name": "Stav čištění"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Konec vaření"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Síťový příkaz"
+            },
+            "startupcommand": {
+                "name": "Příkaz spuštění"
+            },
+            "manualsync": {
+                "name": "Ruční synchronizace"
+            },
+            "executecommand": {
+                "name": "Moc"
+            },
+            "waterfilterstatereset": {
+                "name": "Resetujte vodní filtr"
+            },
+            "airfilterstatereset": {
+                "name": "Resetujte vzduchový filtr"
+            },
+            "saveappfavorite": {
+                "name": "Uložit oblíbené"
+            },
+            "shortcutproglistcmd": {
+                "name": "Příkaz seznamu zástupců programů"
+            },
+            "filterreset": {
+                "name": "Reset filtru"
+            },
+            "hepafilterreset": {
+                "name": "Resetování hepa filtru"
+            },
+            "findme": {
+                "name": "Najdi mě"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Čistička vzduchu"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Čas zahájení"
+            },
+            "targetduration": {
+                "name": "Cílová doba trvání"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Cílová teplota potravinové sondy c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Cílová teplota potravinové sondy f"
+            },
+            "targettemperaturec": {
+                "name": "Cílová teplota c"
+            },
+            "targettemperaturef": {
+                "name": "Cílová teplota f"
+            },
+            "remindertime": {
+                "name": "Čas připomenutí horní trouby"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Posun místního času spotřebiče"
+            },
+            "lightintensity": {
+                "name": "Intenzita světla"
+            },
+            "lightcolortemperature": {
+                "name": "Teplota barvy světla"
+            },
+            "stoptime": {
+                "name": "Zastavit čas"
+            },
+            "adtankadetstandarddose": {
+                "name": "Nádrž se standardní dávkou mycího prostředku"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Nádrž b standardní dávka mycího prostředku"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Nádrž b aviváž standardní dávka"
+            },
+            "adfinetunedetlevel": {
+                "name": "Jemně dolaďte hladinu pracího prostředku"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Jemně dolaďte úroveň změkčovače"
+            },
+            "extrarinsenumber": {
+                "name": "Extra máchání"
+            },
+            "maint1_id": {
+                "name": "Položka údržby 1 id"
+            },
+            "maint2_id": {
+                "name": "Položka údržby 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Práh položky 2 údržby"
+            },
+            "maint3_id": {
+                "name": "Položka údržby 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Práh položky 3 údržby"
+            },
+            "maint4_id": {
+                "name": "Položka údržby 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Práh položky údržby 4"
+            },
+            "maint5_id": {
+                "name": "Položka údržby 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Práh položky údržby 5"
+            },
+            "maint6_id": {
+                "name": "Položka údržby 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Práh položky údržby 6"
+            },
+            "maint7_id": {
+                "name": "Položka údržby 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Práh položky 7 údržby"
+            },
+            "maint8_id": {
+                "name": "Položka údržby 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Práh položky 8 údržby"
+            },
+            "maint9_id": {
+                "name": "Položka údržby 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Práh položky 9 údržby"
+            },
+            "maint10_id": {
+                "name": "Položka údržby 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Práh položky 10 údržby"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Jasná personalizace cyklu"
+            },
+            "memoryid": {
+                "name": "Paměťový slot"
+            },
+            "dryingtime": {
+                "name": "Časované sušení (aktivní)"
+            },
+            "timetonotify": {
+                "name": "Čas na oznámení"
+            },
+            "anticreasevalue": {
+                "name": "Proti zmačkání (aktivní)"
+            },
+            "rinseaidlevel": {
+                "name": "Hladina leštidla"
+            },
+            "targethumidity": {
+                "name": "Cílová vlhkost"
+            },
+            "targettemperature": {
+                "name": "Cílová teplota"
+            },
+            "fanspeed": {
+                "name": "Rychlost ventilátoru"
+            },
+            "humiditytarget": {
+                "name": "Cílová vlhkost"
+            },
+            "powermode": {
+                "name": "Režim napájení"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Podsvícení displeje"
+            },
+            "targettemperaturec": {
+                "name": "Extra teplota dutiny"
+            },
+            "mode": {
+                "name": "Režim"
+            },
+            "fanspeedsetting": {
+                "name": "Rychlost ventilátoru"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Upozornění"
+            },
+            "appliancestate": {
+                "name": "Stav spotřebiče"
+            },
+            "temperaturerepresentation": {
+                "name": "Zobrazení teploty"
+            },
+            "linkqualityindicator": {
+                "name": "Indikátor kvality spojení síťového rozhraní"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Popis aktualizace Niu sw"
+            },
+            "otastate": {
+                "name": "Stav síťového rozhraní"
+            },
+            "swancandrevision": {
+                "name": "SW anc a revize"
+            },
+            "swversion": {
+                "name": "Verze sw síťového rozhraní"
+            },
+            "endofcyclesound": {
+                "name": "Zvuk konce cyklu"
+            },
+            "programuid": {
+                "name": "Uid programu"
+            },
+            "appliancetype": {
+                "name": "Typ spotřebiče"
+            },
+            "capabilityhash": {
+                "name": "Hash schopností"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Dálkové ovládání"
+            },
+            "totalcyclecounter": {
+                "name": "Celkové počítadlo cyklů"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Celková pracovní doba spotřebiče"
+            },
+            "timetoend": {
+                "name": "Čas skončit"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Zobrazení teploty potravinové sondy"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Zobrazení teploty potravinové sondy c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Zobrazení teploty potravinové sondy f"
+            },
+            "displaytemperature": {
+                "name": "Zobrazení teploty"
+            },
+            "displaytemperaturec": {
+                "name": "Teplota displeje c"
+            },
+            "displaytemperaturef": {
+                "name": "Zobrazení teploty f"
+            },
+            "processphase": {
+                "name": "Procesní fáze"
+            },
+            "program": {
+                "name": "Naprogramovat"
+            },
+            "runningtime": {
+                "name": "Doba běhu"
+            },
+            "fastheatupfeature": {
+                "name": "Funkce rychlého ohřevu horní trouby"
+            },
+            "preheatcomplete": {
+                "name": "Předehřívání horní trouby je dokončeno"
+            },
+            "targetdurationendaction": {
+                "name": "Akce ukončení cílové doby trvání horní trouby"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Ukončení činnosti cílové teplotní sondy pokrmu v horní části trouby"
+            },
+            "watertanklevel": {
+                "name": "Horní hladina nádrže na vodu v troubě"
+            },
+            "waterhardness": {
+                "name": "Tvrdost vody"
+            },
+            "descalingreminderstate": {
+                "name": "Připomenutí odvápnění"
+            },
+            "clockstyle": {
+                "name": "Styl hodin"
+            },
+            "language": {
+                "name": "Jazyk"
+            },
+            "localtimeautomaticmode": {
+                "name": "Automatický režim místního času"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automatický posun místního času"
+            },
+            "favoriteorder": {
+                "name": "Oblíbená objednávka"
+            },
+            "number": {
+                "name": "Počet oblíbených objednávek"
+            },
+            "favoriteselect": {
+                "name": "Oblíbený výběr"
+            },
+            "favoritestatus": {
+                "name": "Oblíbený stav"
+            },
+            "activemessageindex": {
+                "name": "Aktivní index zpráv"
+            },
+            "appliancemode": {
+                "name": "Režim spotřebiče"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Rychlost ventilátoru kapoty"
+            },
+            "hobtohoodstate": {
+                "name": "Stav kapuce"
+            },
+            "hoodfanlevel": {
+                "name": "Úroveň ventilátoru"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Časovač uhlíkového filtru"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Časovač tukového filtru"
+            },
+            "tvocfiltertime": {
+                "name": "Doba filtrování Tvoc"
+            },
+            "fastmodetimetoend": {
+                "name": "Čas do konce rychlého režimu mrazničky"
+            },
+            "sensortemperaturec": {
+                "name": "Teplota mrazáku"
+            },
+            "vacationholidaymode": {
+                "name": "Prázdninový prázdninový režim"
+            },
+            "sensorhumidity": {
+                "name": "Vlhkost"
+            },
+            "waterfilterstate": {
+                "name": "Stav vodního filtru"
+            },
+            "waterfilterlifetime": {
+                "name": "Životnost vodního filtru"
+            },
+            "waterfilterflow": {
+                "name": "Průtok vodního filtru"
+            },
+            "airfilterstate": {
+                "name": "Stav vzduchového filtru"
+            },
+            "airfilterlifetime": {
+                "name": "Životnost vzduchového filtru"
+            },
+            "coolingvalvestate": {
+                "name": "Stav ventilu chlazení"
+            },
+            "defrostroutinestate": {
+                "name": "Běžný stav odmrazování"
+            },
+            "compressorstate": {
+                "name": "Stav kompresoru"
+            },
+            "compressorspeed": {
+                "name": "Rychlost kompresoru"
+            },
+            "coefficient": {
+                "name": "Koeficient otáček kompresoru"
+            },
+            "exponent": {
+                "name": "Exponent rychlosti kompresoru"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Režim klonování extra dutiny"
+            },
+            "temperatureadjustingstate": {
+                "name": "Extra úprava dutiny"
+            },
+            "defrosttemperaturec": {
+                "name": "Teplota rozmrazování výrobníku ledu"
+            },
+            "evaporatorfanstate": {
+                "name": "Stav ventilátoru výrobníku ledu"
+            },
+            "icedispenserstate": {
+                "name": "Stav dávkovače ledu"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Nastavení plnění zásobníku na led"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Prahová hodnota nákupu vzduchového filtru"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Práh výměny vzduchového filtru"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Prahová hodnota nákupu vodního filtru (průtok)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Práh výměny vodního filtru (průtok)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Práh nákupu vodního filtru (čas)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Práh výměny vodního filtru (čas)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Verze softwaru základní desky"
+            },
+            "defaultextrarinse": {
+                "name": "Výchozí extra máchání"
+            },
+            "cyclephase": {
+                "name": "Fáze cyklu"
+            },
+            "cyclesubphase": {
+                "name": "Dílčí fáze cyklu"
+            },
+            "measuredloadweight": {
+                "name": "Změřená hmotnost nákladu"
+            },
+            "doorlock": {
+                "name": "Zámek dveří"
+            },
+            "totalwashcyclescount": {
+                "name": "Celkový počet mycích cyklů"
+            },
+            "totalwashingtime": {
+                "name": "Celková doba praní"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Hmotnost nákladu"
+            },
+            "washingnominalloadweight": {
+                "name": "Hmotnost náplně na praní"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank konfigurace"
+            },
+            "adtankbconfiguration": {
+                "name": "Konfigurace nádrže b"
+            },
+            "steamvalue": {
+                "name": "Úroveň páry"
+            },
+            "timemanagerlevel": {
+                "name": "Časový manažer"
+            },
+            "adtankasel": {
+                "name": "Nádrž s automatickým dávkováním a"
+            },
+            "adtankbsel": {
+                "name": "Nádrž s automatickým dávkováním b"
+            },
+            "analogspinspeed": {
+                "name": "Rychlost otáčení"
+            },
+            "analogtemperature": {
+                "name": "Teplota"
+            },
+            "watersoftenermode": {
+                "name": "Režim změkčování vody"
+            },
+            "maint1_threshold": {
+                "name": "Práh údržby"
+            },
+            "detergentextradosage": {
+                "name": "Extra dávkování mycího prostředku"
+            },
+            "optisenseresult": {
+                "name": "Hmotnost nákladu"
+            },
+            "softenerextradosage": {
+                "name": "Extra dávkování aviváže"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Nádrž det zatížení pro nominální hmotnost"
+            },
+            "tankareserve": {
+                "name": "Zásobník"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Nádrž b det zatížení pro jmenovitou hmotnost"
+            },
+            "tankbreserve": {
+                "name": "Rezerva nádrže b"
+            },
+            "waterusage": {
+                "name": "Spotřeba vody"
+            },
+            "adtankadetloaded": {
+                "name": "Nádrž naplněná čisticím prostředkem"
+            },
+            "adtankbdetloaded": {
+                "name": "Nádrž b je naplněna čisticím prostředkem"
+            },
+            "adtankbsoftloaded": {
+                "name": "Zásobník b změkčovač naplněn"
+            },
+            "ecolevel": {
+                "name": "Eko úroveň"
+            },
+            "applianceuiswversion": {
+                "name": "Verze sw uživatelského rozhraní zařízení"
+            },
+            "remotenotificationpending": {
+                "name": "Čeká se na vzdálené upozornění"
+            },
+            "minfinishintime": {
+                "name": "Minimální čas dokončení"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Economy mode"
+            },
+            "adfinetunedetlevel": {
+                "name": "Jemné doladění automatického dávkování pracího prostředku"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Jemné doladění automatického dávkování změkčovače"
+            },
+            "extrarinsenumber": {
+                "name": "Extra máchání"
+            },
+            "threshold": {
+                "name": "Prahová hodnota údržby 1"
+            },
+            "timezonedatabasename": {
+                "name": "Databáze časových pásem"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Celkové počítadlo parních cyklů"
+            },
+            "prewashphase": {
+                "name": "Předmycí fáze"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominální hmotnost nákladu"
+            },
+            "humiditytarget": {
+                "name": "Cílová vlhkost (aktivní)"
+            },
+            "tankalevel": {
+                "name": "Tankujte úroveň"
+            },
+            "tankblevel": {
+                "name": "Úroveň nádrže b"
+            },
+            "totaldrycyclescount": {
+                "name": "Celkové suché cykly"
+            },
+            "totaldryingtime": {
+                "name": "Celková doba sušení"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Celkové cykly praní + sušení"
+            },
+            "programsorder": {
+                "name": "Pořadí programu"
+            },
+            "carelevel": {
+                "name": "Úroveň péče"
+            },
+            "drynessvalue": {
+                "name": "Úroveň suchosti (aktivní)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: hmotnost prádla"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: vlhkost prádla"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: odhadovaná doba sušení"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: příznak přetížení zatížení"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: Chyba náplně praní"
+            },
+            "wmsn": {
+                "name": "Dwyw: sériová spárovaná pračka"
+            },
+            "command": {
+                "name": "Dwyw: příkaz"
+            },
+            "displayonfloor": {
+                "name": "Displej na podlaze"
+            },
+            "energyscore": {
+                "name": "Energetické skóre"
+            },
+            "waterscore": {
+                "name": "Vodní skóre"
+            },
+            "ecoscore": {
+                "name": "Eko skóre"
+            },
+            "miscellaneousstate": {
+                "name": "Různý stav"
+            },
+            "ambienttemperaturec": {
+                "name": "Okolní teplota c"
+            },
+            "ambienttemperaturef": {
+                "name": "Okolní teplota f"
+            },
+            "fanmode": {
+                "name": "Režim ventilátoru"
+            },
+            "swingmode": {
+                "name": "Swing režim"
+            },
+            "ambienthumidity": {
+                "name": "Okolní vlhkost"
+            },
+            "filterstatus": {
+                "name": "Stav filtru"
+            },
+            "powerconsumption": {
+                "name": "Spotřeba energie"
+            },
+            "energyconsumption": {
+                "name": "Spotřeba energie"
+            },
+            "fanspeedstate": {
+                "name": "Stav otáček ventilátoru"
+            },
+            "filterstate": {
+                "name": "Stav filtru"
+            },
+            "hepafilterlifetime": {
+                "name": "Životnost hepa filtru"
+            },
+            "appliancecategory": {
+                "name": "Kategorie spotřebičů"
+            },
+            "vmno_niu": {
+                "name": "Verze Niu"
+            },
+            "vmno_mcu": {
+                "name": "Verze Mcu"
+            },
+            "schedulersession": {
+                "name": "Plánovač relace"
+            },
+            "schedulermode": {
+                "name": "Režim plánovače"
+            },
+            "totalruntime": {
+                "name": "Celková doba běhu"
+            },
+            "compressorcoolingruntime": {
+                "name": "Doba chodu chlazení kompresoru"
+            },
+            "compressorheatingruntime": {
+                "name": "Doba chodu topení kompresoru"
+            },
+            "mainunittemp": {
+                "name": "Teplota hlavní jednotky"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Reakce na poptávku au"
+            },
+            "pm25": {
+                "name": "Pm2,5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Stav režimu"
+            },
+            "filterruntime": {
+                "name": "Doba běhu filtru"
+            },
+            "hepafilterstate": {
+                "name": "Stav hepa filtru"
+            },
+            "airqualitylevel": {
+                "name": "Úroveň kvality vzduchu"
+            },
+            "temperature": {
+                "name": "Okolní teplota"
+            },
+            "mode": {
+                "name": "Režim"
+            },
+            "temp": {
+                "name": "Teplota"
+            },
+            "humidity": {
+                "name": "Vlhkost"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2,5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eco2"
+            },
+            "filtertype": {
+                "name": "Typ filtru"
+            },
+            "filterlife": {
+                "name": "Životnost filtru"
+            },
+            "workmode": {
+                "name": "Pracovní režim"
+            },
+            "aqilight": {
+                "name": "Světlo Aqi"
+            },
+            "louverswing": {
+                "name": "Houpačka žaluzie"
+            },
+            "quietfan": {
+                "name": "Tichý ventilátor"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Datum resetování zvlhčovacího filtru"
+            },
+            "filterlife_1": {
+                "name": "Životnost filtru"
+            },
+            "filterlife_2": {
+                "name": "Životnost filtru 2"
+            },
+            "filtertype_1": {
+                "name": "Typ filtru"
+            },
+            "filtertype_2": {
+                "name": "Typ filtru 2"
+            },
+            "filteruid_1": {
+                "name": "Filtr 1 nfc tag uid"
+            },
+            "filteruid_2": {
+                "name": "Filtr 2 nfc tag uid"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (přibližně)"
+            },
+            "uvruntime": {
+                "name": "Doba provozu UV"
+            },
+            "schedulingstate": {
+                "name": "Stav plánování"
+            },
+            "errimpellerstuck": {
+                "name": "Chyba: oběžné kolo se zaseklo"
+            },
+            "errpmnotresp": {
+                "name": "Chyba: snímač pm nereaguje"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Chyba: komunikace na desce displeje"
+            },
+            "errcommsensoruibrd": {
+                "name": "Chyba: komunikace na desce ui"
+            },
+            "signalstrength": {
+                "name": "Síla signálu"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "Filtr RFID"
+            },
+            "errgasnotresp": {
+                "name": "Chyba: snímač plynu nereaguje"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Chyba: filtr 1 značka nfc není přítomna"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Chyba: Značka nfc filtru 2 není přítomna"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Chyba: Filtr 1 značky nfc je neplatný"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Chyba: neplatná značka nfc filtru 2"
+            },
+            "errnfctransceiver_1": {
+                "name": "Chyba: filtr 1 nfc transceiver"
+            },
+            "errnfctransceiver_2": {
+                "name": "Chyba: filtr 2 nfc transceiver"
+            },
+            "errtemprhnotresp": {
+                "name": "Chyba: snímač teploty/vlhkosti nereaguje"
+            },
+            "errwatertrayremoved": {
+                "name": "Chyba: zásobník na vodu odstraněn"
+            },
+            "waterbucketlevel": {
+                "name": "Hladina kbelíku na vodu"
+            },
+            "batterystatus": {
+                "name": "Baterie"
+            },
+            "robotstatus": {
+                "name": "Stav robota"
+            },
+            "cleaningcommand": {
+                "name": "Příkaz čištění"
+            },
+            "dustbinstatus": {
+                "name": "Stav popelnice"
+            },
+            "mainbrushsqm": {
+                "name": "Použití hlavního kartáče"
+            },
+            "sidebrushsqm": {
+                "name": "Použití bočního kartáče"
+            },
+            "filtersqm": {
+                "name": "Použití filtru"
+            },
+            "state": {
+                "name": "Stav čištění"
+            },
+            "chargingstatus": {
+                "name": "Stav nabíjení"
+            },
+            "vacuummode": {
+                "name": "Vakuový režim"
+            },
+            "cleaningtype": {
+                "name": "Typ čištění"
+            },
+            "cleaningmode": {
+                "name": "Režim čištění"
+            },
+            "waterpumprate": {
+                "name": "Rychlost vodní pumpy"
+            },
+            "waterstationaction": {
+                "name": "Akce vodárny"
+            },
+            "moproute": {
+                "name": "Mopová trasa"
+            },
+            "notificationevent": {
+                "name": "Oznamovací událost"
+            },
+            "dirtcleanmode": {
+                "name": "Režim čištění nečistot"
+            },
+            "faultcode": {
+                "name": "Kód závady"
+            },
+            "filterusage": {
+                "name": "Použití filtru"
+            },
+            "cleansize": {
+                "name": "Čistá velikost"
+            },
+            "cleantime": {
+                "name": "Čistý čas"
+            },
+            "dustbagusage": {
+                "name": "Použití prachového sáčku"
+            },
+            "dustboxusage": {
+                "name": "Použití prachového boxu"
+            },
+            "emptyingtime": {
+                "name": "Čas vyprazdňování"
+            },
+            "mainbrushusage": {
+                "name": "Použití hlavního kartáče"
+            },
+            "sidebrushusage": {
+                "name": "Použití bočního kartáče"
+            },
+            "mopusage": {
+                "name": "Použití mopu"
+            },
+            "moparmextensionfreq": {
+                "name": "Frekvence vysouvání ramen mopu"
+            },
+            "mopdrytime": {
+                "name": "Doba schnutí mopu"
+            },
+            "mopwashfreqarea": {
+                "name": "Oblast frekvence mytí mopu"
+            },
+            "mopwashfreqtime": {
+                "name": "Frekvence mytí mopem"
+            },
+            "mopwashfreqtype": {
+                "name": "Typ frekvence mytí mopu"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Opakování čištění"
+            },
+            "voicevolume": {
+                "name": "Hlasitost hlasu"
+            },
+            "upgradeprogress": {
+                "name": "Průběh upgradu"
+            },
+            "stationupgradestatus": {
+                "name": "Stav upgradu stanice"
+            },
+            "upgradestate": {
+                "name": "Stav upgradu"
+            },
+            "selectedroomid": {
+                "name": "ID vybrané místnosti"
+            },
+            "maxusagedustbox": {
+                "name": "Maximální využití prachového boxu"
+            },
+            "maxusagestationbag": {
+                "name": "Maximální využití tašky na stanici"
+            },
+            "dndstarttime": {
+                "name": "Dnd počáteční čas"
+            },
+            "dndendtime": {
+                "name": "Dnd čas konce"
+            },
+            "datamodelversion": {
+                "name": "Verze datového modelu"
+            },
+            "basestationversion": {
+                "name": "Verze základnové stanice"
+            },
+            "deviceid": {
+                "name": "ID zařízení"
+            },
+            "timezonedaylightrule": {
+                "name": "Pravidlo časového pásma denního světla"
+            },
+            "timezonestandardname": {
+                "name": "Standardní název časového pásma"
+            },
+            "bintank": {
+                "name": "Popelnicová nádrž"
+            },
+            "setvoicevolume": {
+                "name": "Úroveň hlasitosti hlasu"
+            },
+            "mapid": {
+                "name": "Trvalé ID mapy"
+            },
+            "sessionid": {
+                "name": "ID úklidové relace"
+            },
+            "completion": {
+                "name": "Dokončení čištění"
+            },
+            "areacovered": {
+                "name": "Oblast pokrytá"
+            },
+            "zones": {
+                "name": "Počet zón mapy"
+            },
+            "zonestatus": {
+                "name": "Stav čisticí zóny"
+            },
+            "ovwater_tank_empty": {
+                "name": "Stav vodní nádrže"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Potravinová sonda"
+            },
+            "ovcleaning_ended": {
+                "name": "Stav čištění"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Sonda Konec vaření"
+            },
+            "connectivitystate": {
+                "name": "Stav připojení"
+            },
+            "executionstate": {
+                "name": "Prováděcí stát"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Vnitřní dětský zámek"
+            },
+            "cavitylight": {
+                "name": "Dutinové světlo"
+            },
+            "childlock": {
+                "name": "Dětský zámek"
+            },
+            "soundvolume": {
+                "name": "Hlasitost zvuku"
+            },
+            "keysoundtone": {
+                "name": "Zvuk klíče"
+            },
+            "windownotification": {
+                "name": "Upozornění na okno"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Aktivace uhlíkového filtru"
+            },
+            "fastmode": {
+                "name": "Rychlý režim mrazničky"
+            },
+            "sabbathmode": {
+                "name": "Sabatový režim"
+            },
+            "ecomode": {
+                "name": "Eco režim"
+            },
+            "ui2lockmode": {
+                "name": "Režim uzamčení Ui 2"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Předmytí"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Proti zmačkání (bez páry)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Proti pomačkání pomocí páry"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Noční cyklus"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Economy mode"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Zastavení máchání"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intenzivní mytí"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Snímač teploty"
+            },
+            "ewx1493a_stain": {
+                "name": "Ošetření skvrn"
+            },
+            "ewx1493a_drymode": {
+                "name": "Suchý režim"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Snadné žehlení"
+            },
+            "ewx1493a_pod": {
+                "name": "Lusk"
+            },
+            "ewx1493a_steammode": {
+                "name": "Režim páry"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra mix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Mokrý režim"
+            },
+            "networkinterfacealwayson": {
+                "name": "Síť vždy zapnutá"
+            },
+            "adlocalfinetuning": {
+                "name": "Automatické místní jemné doladění"
+            },
+            "anticreasenosteam": {
+                "name": "Proti pomačkání bez páry"
+            },
+            "anticreasewsteam": {
+                "name": "Proti pomačkání pomocí páry"
+            },
+            "ultramix": {
+                "name": "Ultra mix"
+            },
+            "prewashphase": {
+                "name": "Předmytí"
+            },
+            "stain": {
+                "name": "Akce skvrn"
+            },
+            "nightcycle": {
+                "name": "Noční cyklus"
+            },
+            "wmeconomy": {
+                "name": "Economy mode"
+            },
+            "rinsehold": {
+                "name": "Zastavení máchání"
+            },
+            "tcsensor": {
+                "name": "Snímač teploty"
+            },
+            "soak": {
+                "name": "Namočit"
+            },
+            "softener": {
+                "name": "Změkčovač"
+            },
+            "defaultsoftplus": {
+                "name": "Výchozí soft plus"
+            },
+            "intensive": {
+                "name": "Intenzivní"
+            },
+            "reverseplus": {
+                "name": "Reverzní plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eco režim"
+            },
+            "tdeconomy_night": {
+                "name": "Noční režim"
+            },
+            "tdeconomy_quick": {
+                "name": "Rychlý režim"
+            },
+            "refresh": {
+                "name": "Osvěžující program"
+            },
+            "keytone": {
+                "name": "Tón kláves"
+            },
+            "preselectlast": {
+                "name": "Předvolba poslední"
+            },
+            "extrapoweroption": {
+                "name": "Extra výkon"
+            },
+            "extrasilentoption": {
+                "name": "Extra tichý"
+            },
+            "glasscareoption": {
+                "name": "Péče o sklo"
+            },
+            "sprayzoneoption": {
+                "name": "Sprejová zóna"
+            },
+            "autodooropener": {
+                "name": "Automatický otvírač dveří"
+            },
+            "sanitizeoption": {
+                "name": "Dezinfikujte"
+            },
+            "onerackoption": {
+                "name": "Jeden stojan"
+            },
+            "zonecleanoption": {
+                "name": "Zóna čistá"
+            },
+            "xtradryoption": {
+                "name": "Extra suché"
+            },
+            "cleanairmode": {
+                "name": "Režim čistého vzduchu"
+            },
+            "sleepmode": {
+                "name": "Režim spánku"
+            },
+            "batchschedulermode": {
+                "name": "Režim dávkového plánovače"
+            },
+            "verticalswing": {
+                "name": "Vertikální houpačka"
+            },
+            "turbofunction": {
+                "name": "Turbo funkce"
+            },
+            "energysavingmode": {
+                "name": "Režim úspory energie"
+            },
+            "autocleantrigger": {
+                "name": "Spoušť automatického čištění"
+            },
+            "flappositionavoiduser": {
+                "name": "Poloha klapky se vyhněte uživateli"
+            },
+            "horizontalswing": {
+                "name": "Horizontální houpačka"
+            },
+            "humidification": {
+                "name": "Zvlhčování"
+            },
+            "uilight": {
+                "name": "Ui světlo"
+            },
+            "safetylock": {
+                "name": "Bezpečnostní zámek"
+            },
+            "ionizer": {
+                "name": "Ionizátor"
+            },
+            "uvstate": {
+                "name": "UV světlo"
+            },
+            "mute": {
+                "name": "Ztlumit"
+            }
         }
     }
 }

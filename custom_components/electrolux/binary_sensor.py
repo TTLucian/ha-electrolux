@@ -67,15 +67,6 @@ def infer_boolean_from_enum(value: str) -> bool:
     return True
 
 
-FRIENDLY_NAMES = {
-    "ovwater_tank_empty": "Water Tank Status",
-    "foodProbeInsertionState": "Food Probe",
-    "foodProbeSupported": "Food Probe Support",
-    "ovcleaning_ended": "Cleaning Status",
-    "ovfood_probe_end_of_cooking": "Probe End of Cooking",
-}
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -85,11 +76,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity
-                for entity in appliance.entities
-                if entity.entity_type == BINARY_SENSOR
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == BINARY_SENSOR]
             _LOGGER.debug(
                 "Electrolux add %d BINARY_SENSOR entities to registry for appliance %s",
                 len(entities),
@@ -100,18 +87,6 @@ async def async_setup_entry(
 
 class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
     """Electrolux binary_sensor class."""
-
-    @property
-    def name(self) -> str:
-        """Return the name of the binary sensor."""
-        # Check for friendly name first using entity_name
-        friendly_name = FRIENDLY_NAMES.get(self.entity_name)
-        if friendly_name:
-            return friendly_name
-        # Fall back to catalog entry friendly name
-        if self.catalog_entry and self.catalog_entry.friendly_name:
-            return self.catalog_entry.friendly_name.capitalize()
-        return self._name
 
     @property
     def entity_domain(self):

@@ -39,11 +39,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity
-                for entity in appliance.entities
-                if entity.entity_type == "entity"
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == "entity"]
 
             # Filter out fPPN_ prefixed entities if a matching non-prefixed entity exists
             filtered_entities = []
@@ -53,11 +49,7 @@ async def async_setup_entry(
                 entity_attr_lower = entity.entity_attr.lower()
                 # Skip fPPN prefixed entities if a matching non-prefixed entity exists
                 if entity_attr_lower.startswith("fppn"):
-                    base_attr = (
-                        entity_attr_lower.replace("fppn_", "")
-                        .replace("fppn", "")
-                        .strip("_")
-                    )
+                    base_attr = entity_attr_lower.replace("fppn_", "").replace("fppn", "").strip("_")
                     # Build a set of candidate bare names to match against.
                     # fPPN keys often embed a 2-4 char appliance-type abbreviation
                     # (e.g. "fPPN_OVWaterTankEmpty" → base "ovwatertankempty" → also
@@ -68,11 +60,7 @@ async def async_setup_entry(
                             base_attrs_to_try.add(base_attr[prefix_len:])
                     # Check if any non-fPPN version exists
                     has_matching_base = any(
-                        other_attr.lower()
-                        .replace("fppn_", "")
-                        .replace("fppn", "")
-                        .strip("_")
-                        in base_attrs_to_try
+                        other_attr.lower().replace("fppn_", "").replace("fppn", "").strip("_") in base_attrs_to_try
                         for other_attr in entity_attrs
                         if not other_attr.lower().startswith("fppn")
                     )
@@ -103,17 +91,13 @@ async def async_setup_entry(
                         name = getattr(appliance, "name", "") or ""
                         source = entity.entity_source or ""
                         attr = entity.entity_attr or ""
-                        object_id = "_".join(
-                            part for part in [brand, name, source, attr] if part
-                        )
+                        object_id = "_".join(part for part in [brand, name, source, attr] if part)
                         object_id = slugify(object_id)
                         if not object_id:
                             fallback_parts = [entity.pnc_id]
                             if attr:
                                 fallback_parts.append(str(attr))
-                            object_id = (
-                                slugify("_".join(fallback_parts)) or "electrolux_entity"
-                            )
+                            object_id = slugify("_".join(fallback_parts)) or "electrolux_entity"
                         registry.async_get_or_create(
                             entity.entity_domain,
                             DOMAIN,
@@ -121,16 +105,10 @@ async def async_setup_entry(
                             suggested_object_id=object_id,
                             config_entry=entry,
                         )
-                    except (
-                        Exception
-                    ):  # defensive: ensure entity creation still proceeds
-                        _LOGGER.debug(
-                            "Could not register suggested id for entity %s", entity
-                        )
+                    except Exception:  # defensive: ensure entity creation still proceeds
+                        _LOGGER.debug("Could not register suggested id for entity %s", entity)
             except Exception:
-                _LOGGER.debug(
-                    "Entity registry unavailable, skipping suggested id registration"
-                )
+                _LOGGER.debug("Entity registry unavailable, skipping suggested id registration")
 
             async_add_entities(entities)
 
@@ -176,6 +154,7 @@ class ElectroluxEntity(CoordinatorEntity):
                     self.appliance_status = appliance.state
 
         self._name = name
+        self._attr_name = name
         self._icon = icon
         self._device_class = device_class
         self._entity_category = entity_category
@@ -194,9 +173,7 @@ class ElectroluxEntity(CoordinatorEntity):
         # Initialize cache from appliance_status if available
         self._reported_state_cache: dict[str, Any] = {}
         if self.appliance_status and isinstance(self.appliance_status, dict):
-            self._reported_state_cache = self.appliance_status.get(
-                "properties", {}
-            ).get("reported", {})
+            self._reported_state_cache = self.appliance_status.get("properties", {}).get("reported", {})
 
         # Performance cache: program support/constraints (cleared on program change)
         # Initialize from current program if available (check multiple locations)
@@ -206,9 +183,7 @@ class ElectroluxEntity(CoordinatorEntity):
             if isinstance(user_selections, dict):
                 program_key = user_selections.get("programUID")
         if not program_key:
-            cycle_personalization = self._reported_state_cache.get(
-                "cyclePersonalization", {}
-            )
+            cycle_personalization = self._reported_state_cache.get("cyclePersonalization", {})
             if isinstance(cycle_personalization, dict):
                 program_key = cycle_personalization.get("programUID")
         self._program_cache_key: str | None = program_key
@@ -255,9 +230,7 @@ class ElectroluxEntity(CoordinatorEntity):
         """Return a unique ID to use for this entity."""
         # Use stable unique_id based on API key hash for consistent entity IDs
         api_key = self.config_entry.data.get(CONF_API_KEY, "")
-        api_key_hash = (
-            hashlib.sha256(api_key.encode()).hexdigest()[:16] if api_key else "unknown"
-        )
+        api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()[:16] if api_key else "unknown"
         # Normalize entity_attr by removing fPPN prefix for consistent unique_ids
         normalized_attr = self.entity_attr.lower()
         if normalized_attr.startswith("fppn_"):
@@ -314,9 +287,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # Performance: Cache reported_state to avoid repeated dict lookups
         if self.appliance_status and isinstance(self.appliance_status, dict):
-            self._reported_state_cache = self.appliance_status.get(
-                "properties", {}
-            ).get("reported", {})
+            self._reported_state_cache = self.appliance_status.get("properties", {}).get("reported", {})
         else:
             self._reported_state_cache = {}
 
@@ -328,9 +299,7 @@ class ElectroluxEntity(CoordinatorEntity):
             if isinstance(user_selections, dict):
                 current_program = user_selections.get("programUID")
         if not current_program:
-            cycle_personalization = self._reported_state_cache.get(
-                "cyclePersonalization", {}
-            )
+            cycle_personalization = self._reported_state_cache.get("cyclePersonalization", {})
             if isinstance(cycle_personalization, dict):
                 current_program = cycle_personalization.get("programUID")
 
@@ -371,9 +340,7 @@ class ElectroluxEntity(CoordinatorEntity):
         # Ensure properties structure exists
         if not isinstance(self.appliance_status, dict):
             self.appliance_status = {"properties": {"reported": {}}}
-        elif "properties" not in self.appliance_status or not isinstance(
-            self.appliance_status["properties"], dict
-        ):
+        elif "properties" not in self.appliance_status or not isinstance(self.appliance_status["properties"], dict):
             self.appliance_status["properties"] = {"reported": {}}
         elif "reported" not in self.appliance_status["properties"] or not isinstance(
             self.appliance_status["properties"]["reported"], dict
@@ -388,9 +355,7 @@ class ElectroluxEntity(CoordinatorEntity):
             # Also update the cache for testing (normally done by _handle_coordinator_update)
             self._reported_state_cache = value
 
-    def _apply_optimistic_update(
-        self, attr: str, value: Any, log_message: str | None = None
-    ) -> None:
+    def _apply_optimistic_update(self, attr: str, value: Any, log_message: str | None = None) -> None:
         """Apply optimistic state update after successful command.
 
         This updates the local state immediately to prevent UI "snap back" while
@@ -434,9 +399,7 @@ class ElectroluxEntity(CoordinatorEntity):
                     if not isinstance(reported.get(self.entity_source), dict):
                         reported[self.entity_source] = {}
                     reported[self.entity_source][attr] = value
-                    if not isinstance(
-                        self._reported_state_cache.get(self.entity_source), dict
-                    ):
+                    if not isinstance(self._reported_state_cache.get(self.entity_source), dict):
                         self._reported_state_cache[self.entity_source] = {}
                     self._reported_state_cache[self.entity_source][attr] = value
             else:
@@ -495,15 +458,11 @@ class ElectroluxEntity(CoordinatorEntity):
         appliance = self.get_appliance
         if not (hasattr(appliance, "data") and appliance.data):
             return
-        if not (
-            hasattr(appliance.data, "capabilities") and appliance.data.capabilities
-        ):
+        if not (hasattr(appliance.data, "capabilities") and appliance.data.capabilities):
             return
 
         cap_key = f"{self.entity_source}/{attr}" if self.entity_source else attr
-        cap_def = appliance.data.capabilities.get(
-            cap_key
-        ) or appliance.data.capabilities.get(attr)
+        cap_def = appliance.data.capabilities.get(cap_key) or appliance.data.capabilities.get(attr)
         if not isinstance(cap_def, dict):
             return
 
@@ -511,9 +470,7 @@ class ElectroluxEntity(CoordinatorEntity):
         if not triggers:
             return
 
-        reported = (
-            cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
-        )
+        reported = cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
         if not isinstance(reported, dict):
             return
         applied = False
@@ -569,8 +526,7 @@ class ElectroluxEntity(CoordinatorEntity):
                 # separate code path against the same ``action_def``.
                 if action_def.keys() != {"default"}:
                     _LOGGER.debug(
-                        "Skipping trigger default for %s — action declares "
-                        "constraints, not a forced value",
+                        "Skipping trigger default for %s — action declares constraints, not a forced value",
                         affected_key,
                     )
                     continue
@@ -624,9 +580,7 @@ class ElectroluxEntity(CoordinatorEntity):
         appliance = self.get_appliance
         if not (hasattr(appliance, "data") and appliance.data):
             return False
-        if not (
-            hasattr(appliance.data, "capabilities") and appliance.data.capabilities
-        ):
+        if not (hasattr(appliance.data, "capabilities") and appliance.data.capabilities):
             return False
 
         caps = appliance.data.capabilities
@@ -660,21 +614,16 @@ class ElectroluxEntity(CoordinatorEntity):
                 if (
                     condition.get("operator") == "eq"
                     and condition.get("operand_1") == "value"
-                    and str(condition.get("operand_2")).casefold()
-                    == str(current_value).casefold()
+                    and str(condition.get("operand_2")).casefold() == str(current_value).casefold()
                 ):
                     action = trigger.get("action", {})
                     action_for_attr = action.get(attr_name)
-                    if isinstance(action_for_attr, dict) and action_for_attr.get(
-                        "disabled"
-                    ):
+                    if isinstance(action_for_attr, dict) and action_for_attr.get("disabled"):
                         return True
 
         return False
 
-    def _build_full_user_selections(
-        self, changed_attr: str, new_value: Any
-    ) -> dict[str, Any]:
+    def _build_full_user_selections(self, changed_attr: str, new_value: Any) -> dict[str, Any]:
         """Return a complete ``userSelections`` payload for a command.
 
         Some appliances (e.g. certain Electrolux dishwashers) treat a partial
@@ -691,9 +640,7 @@ class ElectroluxEntity(CoordinatorEntity):
         payload rather than left for the appliance to silently override.
         """
         reported = (
-            cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
-            if self.appliance_status
-            else {}
+            cast(dict, self.appliance_status).get("properties", {}).get("reported", {}) if self.appliance_status else {}
         )
         current: dict[str, Any] = dict(reported.get("userSelections", {}))
 
@@ -766,13 +713,6 @@ class ElectroluxEntity(CoordinatorEntity):
         return self.pnc_id.startswith("1:")
 
     @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        if self.catalog_entry and self.catalog_entry.friendly_name:
-            return self.catalog_entry.friendly_name.capitalize()
-        return self._name
-
-    @property
     def available(self) -> bool:
         """Return True if entity is available.
 
@@ -780,9 +720,7 @@ class ElectroluxEntity(CoordinatorEntity):
         Only unavailable if appliance_status doesn't exist (integration not loaded).
         """
         # Must have appliance status to be available
-        return not (
-            not hasattr(self, "appliance_status") or self.appliance_status is None
-        )
+        return not (not hasattr(self, "appliance_status") or self.appliance_status is None)
 
     def is_connected(self) -> bool:
         """Check if the appliance is connected.
@@ -836,11 +774,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # Hide DWYW (Dry-What-You-Wash) entities by default - they're only relevant
         # when a washer is communicating with a dryer, not for standalone appliances
-        entity_path = (
-            f"{self.entity_source}/{self.entity_attr}"
-            if self.entity_source
-            else self.entity_attr
-        )
+        entity_path = f"{self.entity_source}/{self.entity_attr}" if self.entity_source else self.entity_attr
         return "dwyw" not in entity_path.lower()
 
     # @property
@@ -895,12 +829,8 @@ class ElectroluxEntity(CoordinatorEntity):
             dash_pos = raw_suffix.rfind("-")
             if dash_pos != -1:
                 mac_raw = raw_suffix[dash_pos + 1 :]
-                if len(mac_raw) == 12 and all(
-                    c in "0123456789ABCDEFabcdef" for c in mac_raw
-                ):
-                    mac_address = ":".join(
-                        mac_raw[i : i + 2].upper() for i in range(0, 12, 2)
-                    )
+                if len(mac_raw) == 12 and all(c in "0123456789ABCDEFabcdef" for c in mac_raw):
+                    mac_address = ":".join(mac_raw[i : i + 2].upper() for i in range(0, 12, 2))
                 else:
                     mac_address = raw_suffix
             else:
@@ -911,16 +841,12 @@ class ElectroluxEntity(CoordinatorEntity):
 
         if is_standard:
             # e.g. "Model: TD-916099949_00" or "Model: AC-950022200_00" (DAM prefix stripped)
-            type_display = (
-                appliance_type.replace("DAM_", "") if appliance_type else None
-            )
+            type_display = appliance_type.replace("DAM_", "") if appliance_type else None
             type_part = f"{type_display}-" if type_display else ""
             display_model = f"Model: {type_part}{short_id}"
         else:
             # Long/Muju IDs – show as-is with type prefix when known
-            type_display = (
-                appliance_type.replace("DAM_", "") if appliance_type else None
-            )
+            type_display = appliance_type.replace("DAM_", "") if appliance_type else None
             type_part = f"{type_display}-" if type_display else ""
             display_model = f"Model: {type_part}{short_id}"
 
@@ -967,9 +893,7 @@ class ElectroluxEntity(CoordinatorEntity):
         if not self._is_supported_by_program():
             if self.entity_attr == "targetFoodProbeTemperatureC":
                 # Look for program-specific min first, then global min, then default to 0
-                min_val = self._get_program_constraint("min") or self.capability.get(
-                    "min", 0
-                )
+                min_val = self._get_program_constraint("min") or self.capability.get("min", 0)
                 # Throttle logging to reduce noise - only log once per hour or when value changes
                 current_time = time.time()
                 log_key = f"probe_not_supported_{self.entity_attr}"
@@ -1067,8 +991,7 @@ class ElectroluxEntity(CoordinatorEntity):
             status_str = str(remote_control_status)
             # Check for any enabled variant
             result = (
-                REMOTE_CONTROL_ENABLED in status_str
-                or REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED in status_str
+                REMOTE_CONTROL_ENABLED in status_str or REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED in status_str
             ) and REMOTE_CONTROL_DISABLED not in status_str
             _LOGGER.debug(
                 "Remote control enabled check for %s: %s -> %s",
@@ -1116,34 +1039,24 @@ class ElectroluxEntity(CoordinatorEntity):
             return {}
 
         appliance_data = self.get_appliance.data
-        if not (
-            hasattr(appliance_data, "capabilities") and appliance_data.capabilities
-        ):
+        if not (hasattr(appliance_data, "capabilities") and appliance_data.capabilities):
             return {}
 
         capabilities = appliance_data.capabilities
 
         # Try "program" location first (ovens, dishwashers, washers)
-        program_caps = (
-            capabilities.get("program", {}).get("values", {}).get(current_program, {})
-        )
+        program_caps = capabilities.get("program", {}).get("values", {}).get(current_program, {})
         if program_caps:
             return program_caps
 
         # Try "userSelections/programUID" location (dryers)
-        program_caps = (
-            capabilities.get("userSelections/programUID", {})
-            .get("values", {})
-            .get(current_program, {})
-        )
+        program_caps = capabilities.get("userSelections/programUID", {}).get("values", {}).get(current_program, {})
         if program_caps:
             return program_caps
 
         # Try "cyclePersonalization/programUID" location (alternative)
         program_caps = (
-            capabilities.get("cyclePersonalization/programUID", {})
-            .get("values", {})
-            .get(current_program, {})
+            capabilities.get("cyclePersonalization/programUID", {}).get("values", {}).get(current_program, {})
         )
         return program_caps
 
@@ -1224,22 +1137,14 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # Build the full capability path (entity_source/entity_attr)
         # Program capabilities use full paths like "userSelections/humidityTarget"
-        full_entity_path = (
-            f"{self.entity_source}/{self.entity_attr}"
-            if self.entity_source
-            else self.entity_attr
-        )
+        full_entity_path = f"{self.entity_source}/{self.entity_attr}" if self.entity_source else self.entity_attr
 
         # If the entity is not in the program capabilities, it's not supported
         # For temperature entities, also check the other unit since API may only have C or F constraints
-        entity_found = (
-            full_entity_path in program_caps or self.entity_attr in program_caps
-        )
+        entity_found = full_entity_path in program_caps or self.entity_attr in program_caps
 
         if not entity_found:
-            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith(
-                "FoodProbeTemperatureF"
-            ):
+            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith("FoodProbeTemperatureF"):
                 # F entity: check for C counterpart
                 counterpart_attr = self.entity_attr[:-1] + "C"
                 entity_found = counterpart_attr in program_caps
@@ -1250,9 +1155,7 @@ class ElectroluxEntity(CoordinatorEntity):
                         counterpart_attr,
                         current_program,
                     )
-            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith(
-                "FoodProbeTemperatureC"
-            ):
+            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith("FoodProbeTemperatureC"):
                 # C entity: check for F counterpart
                 counterpart_attr = self.entity_attr[:-1] + "F"
                 entity_found = counterpart_attr in program_caps
@@ -1273,21 +1176,15 @@ class ElectroluxEntity(CoordinatorEntity):
             return False
 
         # Get the entity capability definition (try full path first, then just attr)
-        entity_cap = program_caps.get(full_entity_path) or program_caps.get(
-            self.entity_attr
-        )
+        entity_cap = program_caps.get(full_entity_path) or program_caps.get(self.entity_attr)
 
         # For temperature entities, also try the other unit if not found
         if not entity_cap:
-            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith(
-                "FoodProbeTemperatureF"
-            ):
+            if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith("FoodProbeTemperatureF"):
                 # F entity: try C counterpart
                 counterpart_attr = self.entity_attr[:-1] + "C"
                 entity_cap = program_caps.get(counterpart_attr)
-            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith(
-                "FoodProbeTemperatureC"
-            ):
+            elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith("FoodProbeTemperatureC"):
                 # C entity: try F counterpart
                 counterpart_attr = self.entity_attr[:-1] + "F"
                 entity_cap = program_caps.get(counterpart_attr)
@@ -1299,10 +1196,7 @@ class ElectroluxEntity(CoordinatorEntity):
         if not (hasattr(self.get_appliance, "data") and self.get_appliance.data):
             self._is_supported_cache = not disabled
             return not disabled
-        if not (
-            hasattr(self.get_appliance.data, "capabilities")
-            and self.get_appliance.data.capabilities
-        ):
+        if not (hasattr(self.get_appliance.data, "capabilities") and self.get_appliance.data.capabilities):
             self._is_supported_cache = not disabled
             return not disabled
 
@@ -1315,15 +1209,10 @@ class ElectroluxEntity(CoordinatorEntity):
                         # Check if this trigger affects our entity
                         if self.entity_attr in action:
                             # Check if the condition is met
-                            if self._evaluate_trigger_condition(
-                                trigger.get("condition", {}), cap_name
-                            ):
+                            if self._evaluate_trigger_condition(trigger.get("condition", {}), cap_name):
                                 # Apply the action
                                 entity_action = action[self.entity_attr]
-                                if (
-                                    isinstance(entity_action, dict)
-                                    and "disabled" in entity_action
-                                ):
+                                if isinstance(entity_action, dict) and "disabled" in entity_action:
                                     disabled = entity_action["disabled"]
                                     _LOGGER.debug(
                                         "Trigger applied to %s: disabled=%s (trigger from %s)",
@@ -1395,13 +1284,9 @@ class ElectroluxEntity(CoordinatorEntity):
             # If not found and this is a temperature entity, try the other unit
             # API may provide constraints in only C or only F depending on appliance region
             if value is None:
-                if self.entity_attr.endswith(
-                    "TemperatureF"
-                ) or self.entity_attr.endswith("FoodProbeTemperatureF"):
+                if self.entity_attr.endswith("TemperatureF") or self.entity_attr.endswith("FoodProbeTemperatureF"):
                     # F entity: try C counterpart
-                    counterpart_attr = (
-                        self.entity_attr[:-1] + "C"
-                    )  # temperatureF -> temperatureC
+                    counterpart_attr = self.entity_attr[:-1] + "C"  # temperatureF -> temperatureC
                     value = program_caps.get(counterpart_attr, {}).get(key)
                     if value is not None:
                         _LOGGER.debug(
@@ -1411,13 +1296,9 @@ class ElectroluxEntity(CoordinatorEntity):
                             value,
                             counterpart_attr,
                         )
-                elif self.entity_attr.endswith(
-                    "TemperatureC"
-                ) or self.entity_attr.endswith("FoodProbeTemperatureC"):
+                elif self.entity_attr.endswith("TemperatureC") or self.entity_attr.endswith("FoodProbeTemperatureC"):
                     # C entity: try F counterpart
-                    counterpart_attr = (
-                        self.entity_attr[:-1] + "F"
-                    )  # temperatureC -> temperatureF
+                    counterpart_attr = self.entity_attr[:-1] + "F"  # temperatureC -> temperatureF
                     value = program_caps.get(counterpart_attr, {}).get(key)
                     if value is not None:
                         _LOGGER.debug(
@@ -1431,12 +1312,12 @@ class ElectroluxEntity(CoordinatorEntity):
             # Cache the result (cleared on program change)
             self._constraints_cache[key] = value
             return value
-        except AttributeError, KeyError:
+        except AttributeError:
+            return None
+        except KeyError:
             return None
 
-    def _evaluate_trigger_condition(
-        self, condition: dict, trigger_cap_name: str
-    ) -> bool:
+    def _evaluate_trigger_condition(self, condition: dict, trigger_cap_name: str) -> bool:
         """Evaluate a trigger condition."""
         if not condition:
             return True
@@ -1461,9 +1342,7 @@ class ElectroluxEntity(CoordinatorEntity):
 
         return False
 
-    def _evaluate_operand(
-        self, operand: dict, trigger_cap_name: str
-    ) -> int | float | str | bool | None:
+    def _evaluate_operand(self, operand: dict, trigger_cap_name: str) -> int | float | str | bool | None:
         """Evaluate a trigger operand."""
         if "operand_1" in operand and "operand_2" in operand:
             # This is a nested condition

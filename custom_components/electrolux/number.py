@@ -46,9 +46,7 @@ PARALLEL_UPDATES = 0
 # AC target-temperature attributes that share the off-state HTTP 500 contract
 # with the climate entity — set-value while applianceState=Off is rejected by
 # the Electrolux cloud.
-_AC_TEMPERATURE_ATTRS: frozenset[str] = frozenset(
-    {"targetTemperatureC", "targetTemperatureF"}
-)
+_AC_TEMPERATURE_ATTRS: frozenset[str] = frozenset({"targetTemperatureC", "targetTemperatureF"})
 
 
 def _get_capability_constraint(capability: dict, key: str) -> float | None:
@@ -110,9 +108,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [
-                entity for entity in appliance.entities if entity.entity_type == NUMBER
-            ]
+            entities = [entity for entity in appliance.entities if entity.entity_type == NUMBER]
             _LOGGER.debug(
                 "Electrolux add %d NUMBER entities to registry for appliance %s",
                 len(entities),
@@ -232,15 +228,14 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # ``_f`` slider is stuck at the catalog default 16°F (#59).
         # Devices that DO populate ``_f`` directly (e.g. F-locale ovens)
         # bypass the derive and read their own field.
-        if (
-            self.entity_attr == "targetTemperatureF"
-            and self.reported_state.get("targetTemperatureF") is None
-        ):
+        if self.entity_attr == "targetTemperatureF" and self.reported_state.get("targetTemperatureF") is None:
             c_value = self.reported_state.get("targetTemperatureC")
             if c_value is not None:
                 try:
                     derived = celsius_to_fahrenheit(float(c_value))
-                except TypeError, ValueError:
+                except TypeError:
+                    derived = None
+                except ValueError:
                     derived = None
                 if derived is not None:
                     return derived
@@ -260,9 +255,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 program_default = self._get_program_constraint("default")
                 if program_default is not None:
                     value = program_default
-                    _LOGGER.debug(
-                        "Using program default for %s: %s", self.entity_attr, value
-                    )
+                    _LOGGER.debug("Using program default for %s: %s", self.entity_attr, value)
                 elif self.entity_attr in ["targetTemperatureC", "targetTemperatureF"]:
                     value = self.capability.get("default", 0.0)
             # Fall back to base capability default
@@ -345,7 +338,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             return False
 
         # Program and global duration/time entities are never locked
-        if self.entity_attr in ["program", "targetDuration", "startTime"]:
+        if self.entity_attr in ["program", "targetDuration", "startTime", "stopTime"]:
             return False
 
         # Food probe temperature locked when probe not inserted
@@ -439,9 +432,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # that the control is read-only and prevents confusing "adjustable but blocked" UX
         # _is_disabled_by_trigger covers dynamic trigger-based locks (e.g. Fanspeed in Auto/Quiet
         # mode on air purifiers) — these follow the same greyed-out pattern as program locks.
-        if (
-            self._is_locked_by_program() or self._is_disabled_by_trigger()
-        ) and key != "step":
+        if (self._is_locked_by_program() or self._is_disabled_by_trigger()) and key != "step":
             locked_value = self._get_locked_value()
             # For time entities, convert locked value if needed
             if self.unit == UnitOfTime.SECONDS:
@@ -450,10 +441,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # For non-locked or step constraint, fall through to normal logic
         # 1. Catalog is the Source of Truth (already in correct units - seconds)
-        if (
-            self._catalog_entry
-            and (cat_val := self._catalog_entry.capability_info.get(key)) is not None
-        ):
+        if self._catalog_entry and (cat_val := self._catalog_entry.capability_info.get(key)) is not None:
             # Ensure cat_val is numeric
             if not isinstance(cat_val, (int, float)):
                 _LOGGER.warning(
@@ -494,10 +482,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         # For
         # C and targetFoodProbeTemperatureC, use 0.0 as last resort if no API values
-        if (
-            self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"]
-            and val is None
-        ):
+        if self.entity_attr in ["targetTemperatureC", "targetFoodProbeTemperatureC"] and val is None:
             val = 0.0
 
         # 3. Convert only if coming from API (seconds) and entity is time-based
@@ -652,13 +637,12 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if self.entity_attr in _AC_TEMPERATURE_ATTRS:
             appliance_state = self.reported_state.get("applianceState")
             mode_value = self.reported_state.get("mode")
-            is_off = (
-                isinstance(appliance_state, str) and appliance_state.upper() == "OFF"
-            ) or (isinstance(mode_value, str) and mode_value.upper() == "OFF")
+            is_off = (isinstance(appliance_state, str) and appliance_state.upper() == "OFF") or (
+                isinstance(mode_value, str) and mode_value.upper() == "OFF"
+            )
             if is_off:
                 raise HomeAssistantError(
-                    f"Cannot set '{self.entity_attr}' while appliance is off. "
-                    "Turn the appliance on first.",
+                    f"Cannot set '{self.entity_attr}' while appliance is off. Turn the appliance on first.",
                     translation_domain=DOMAIN,
                     translation_key="set_temperature_while_off",
                     translation_placeholders={"attr": self.entity_attr},
@@ -698,7 +682,10 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         ):
             try:
                 c_target = fahrenheit_to_celsius(float(value))
-            except TypeError, ValueError:
+
+            except TypeError:
+                c_target = None
+            except ValueError:
                 c_target = None
             if c_target is None:
                 return
@@ -707,9 +694,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             if hasattr(appliance, "data") and appliance.data:
                 caps = getattr(appliance.data, "capabilities", None) or {}
                 c_capability = caps.get("targetTemperatureC", self.capability)
-            formatted = format_command_for_appliance(
-                c_capability, "targetTemperatureC", c_target
-            )
+            formatted = format_command_for_appliance(c_capability, "targetTemperatureC", c_target)
             _LOGGER.debug(
                 "Redirecting %s write %s°F → targetTemperatureC %s°C (#59)",
                 self.entity_attr,
@@ -765,19 +750,13 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         # 90.0 to the API for integer-stepped controls like antiCreaseValue,
         # which returns HTTP 500 when it receives a float.
         step_has_fraction = cap_step is not None and cap_step != int(cap_step)
-        if (
-            not step_has_fraction
-            and isinstance(command_value, float)
-            and command_value.is_integer()
-        ):
+        if not step_has_fraction and isinstance(command_value, float) and command_value.is_integer():
             command_value = int(command_value)
 
         client: ElectroluxApiClient = self.api
 
         # Format the value according to appliance capabilities
-        formatted_value = format_command_for_appliance(
-            self.capability, self.entity_attr, command_value
-        )
+        formatted_value = format_command_for_appliance(self.capability, self.entity_attr, command_value)
 
         # Save old cached value for rollback BEFORE sse update
         old_cached_value = command_value
@@ -789,9 +768,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             # when the capability key has a slash (e.g. userSelections/antiCreaseValue).
             if self.entity_source == "userSelections":
                 reported = (
-                    self.appliance_status.get("properties", {}).get("reported", {})
-                    if self.appliance_status
-                    else {}
+                    self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
                 if program_uid:
@@ -809,26 +786,18 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                 command = {self.entity_attr: formatted_value}
         elif self.entity_attr in ["targetDuration", "startTime"]:
             # DAM appliances: time settings wrapped in appliance type
-            appliance_type = getattr(
-                self.get_appliance, "appliance_type", "oven"
-            ).lower()
+            appliance_type = getattr(self.get_appliance, "appliance_type", "oven").lower()
             command = {appliance_type: {self.entity_attr: formatted_value}}
         elif self.entity_source == "latamUserSelections":
-            _LOGGER.debug(
-                "Electrolux: Detected latamUserSelections, building full command."
-            )
+            _LOGGER.debug("Electrolux: Detected latamUserSelections, building full command.")
             # Get the current state of all latam selections
             current_selections = (
-                self.appliance_status.get("properties", {})
-                .get("reported", {})
-                .get("latamUserSelections", {})
+                self.appliance_status.get("properties", {}).get("reported", {}).get("latamUserSelections", {})
                 if self.appliance_status
                 else {}
             )
             if not current_selections:
-                _LOGGER.error(
-                    "Could not retrieve current latamUserSelections to build command."
-                )
+                _LOGGER.error("Could not retrieve current latamUserSelections to build command.")
                 return
 
             # Create a copy to modify
@@ -839,11 +808,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             command = {"latamUserSelections": new_selections}
         elif self.entity_source == "userSelections":
             # Safer access to avoid KeyError if userSelections is missing
-            reported = (
-                self.appliance_status.get("properties", {}).get("reported", {})
-                if self.appliance_status
-                else {}
-            )
+            reported = self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
             program_uid = reported.get("userSelections", {}).get("programUID")
 
             # Validate programUID
@@ -875,9 +840,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             command = {"commands": [command]}  # type: ignore[dict-item]
 
         _LOGGER.debug("Electrolux set value %s", command)
-        _LOGGER.debug(
-            "Electrolux sending command to appliance %s: %s", self.pnc_id, command
-        )
+        _LOGGER.debug("Electrolux sending command to appliance %s: %s", self.pnc_id, command)
         try:
             result = await execute_command_with_error_handling(
                 client, self.pnc_id, command, self.entity_attr, _LOGGER, self.capability

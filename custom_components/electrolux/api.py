@@ -122,17 +122,12 @@ class ElectroluxLibraryEntity:
                 if (
                     (char.isupper() or char.isdigit())
                     and (sensor[i - 1].isupper() or sensor[i - 1].isdigit())
-                    and (
-                        (i == len(sensor) - 1)
-                        or (sensor[i + 1].isupper() or sensor[i + 1].isdigit())
-                    )
+                    and ((i == len(sensor) - 1) or (sensor[i + 1].isupper() or sensor[i + 1].isdigit()))
                 ):
                     group += char
                 elif (char.isupper() or char.isdigit()) and sensor[i - 1].islower():
                     if re.match("^[A-Z0-9]+$", group):
-                        words.append(
-                            group
-                        )  # pragma: no cover  (unreachable: group last char is lowercase)
+                        words.append(group)  # pragma: no cover  (unreachable: group last char is lowercase)
                     else:
                         words.append(group.lower())
                     group = char
@@ -206,9 +201,7 @@ class ElectroluxLibraryEntity:
             return UnitOfTemperature.CELSIUS
         return None
 
-    def get_entity_device_class(
-        self, attr_name: str
-    ) -> NumberDeviceClass | SensorDeviceClass | None:
+    def get_entity_device_class(self, attr_name: str) -> NumberDeviceClass | SensorDeviceClass | None:
         """Get entity device class."""
         capability_def: dict[str, Any] | None = self.get_capability(attr_name)
         if not capability_def:
@@ -243,11 +236,7 @@ class ElectroluxLibraryEntity:
             return None
 
         # Exception (Electrolux bug)
-        if (
-            type_object == "boolean"
-            and access == "readwrite"
-            and capability_def.get("values", None) is not None
-        ):
+        if type_object == "boolean" and access == "readwrite" and capability_def.get("values", None) is not None:
             return SWITCH
 
         # List of values? if values is defined and has at least 1 entry.
@@ -255,9 +244,7 @@ class ElectroluxLibraryEntity:
         # before any logic that depends on the value set.
         raw_values: dict[str, Any] | None = capability_def.get("values", None)
         values: dict[str, Any] | None = (
-            _filter_numeric_sentinel_values(raw_values)
-            if isinstance(raw_values, dict)
-            else raw_values
+            _filter_numeric_sentinel_values(raw_values) if isinstance(raw_values, dict) else raw_values
         )
 
         if values and isinstance(values, dict) and len(values) > 0:
@@ -279,10 +266,7 @@ class ElectroluxLibraryEntity:
                     or capability_def.get("max") is not None
                     or capability_def.get("range") is not None
                 )
-                if (
-                    type_object not in ["number", "temperature"]
-                    or not has_continuous_range
-                ):
+                if type_object not in ["number", "temperature"] or not has_continuous_range:
                     return Platform.SELECT
 
         match type_object:
@@ -300,8 +284,7 @@ class ElectroluxLibraryEntity:
                 return SENSOR
             case _:
                 if (
-                    self.get_entity_name(attr_name) == "executeCommand"
-                    and access == "read"
+                    self.get_entity_name(attr_name) == "executeCommand" and access == "read"
                 ):  # FIX for https://github.com/TTLucian/ha-electrolux/issues/74
                     return BUTTON
                 if access == "write":
@@ -353,11 +336,7 @@ class ElectroluxLibraryEntity:
 
             if isinstance(value, dict):
                 for sub_key, sub_value in value.items():
-                    if (
-                        isinstance(sub_value, dict)
-                        and "access" in sub_value
-                        and "type" in sub_value
-                    ):
+                    if isinstance(sub_value, dict) and "access" in sub_value and "type" in sub_value:
                         sources.append(f"{key}/{sub_key}")
             elif "access" in value and "type" in value:  # pragma: no cover
                 sources.append(key)  # pragma: no cover

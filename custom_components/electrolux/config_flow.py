@@ -38,27 +38,17 @@ from .util import get_electrolux_session
 _LOGGER = logging.getLogger(__name__)
 
 
-def _validate_credentials(
-    api_key: str | None, access_token: str | None, refresh_token: str | None
-) -> list[str]:
+def _validate_credentials(api_key: str | None, access_token: str | None, refresh_token: str | None) -> list[str]:
     """Validate credential inputs for security and format requirements."""
     errors = []
 
     if not api_key or not isinstance(api_key, str) or len(api_key.strip()) < 10:
         errors.append("API key must be at least 10 characters long")
 
-    if (
-        not access_token
-        or not isinstance(access_token, str)
-        or len(access_token.strip()) < 20
-    ):
+    if not access_token or not isinstance(access_token, str) or len(access_token.strip()) < 20:
         errors.append("Access token must be at least 20 characters long")
 
-    if (
-        not refresh_token
-        or not isinstance(refresh_token, str)
-        or len(refresh_token.strip()) < 20
-    ):
+    if not refresh_token or not isinstance(refresh_token, str) or len(refresh_token.strip()) < 20:
         errors.append("Refresh token must be at least 20 characters long")
 
     # Check for potentially dangerous characters that might indicate injection attempts
@@ -172,9 +162,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         """Initialize."""
         self._errors: dict[str, str] = {}
 
-    async def _validate_user_input_for_config(
-        self, user_input: dict[str, Any]
-    ) -> ConfigFlowResult | None:
+    async def _validate_user_input_for_config(self, user_input: dict[str, Any]) -> ConfigFlowResult | None:
         """Validate user input for config flow."""
         # Validate credential format and security
         validation_errors = _validate_credentials(
@@ -184,18 +172,13 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         )
         if validation_errors:
             self._errors["base"] = "invalid_format"
-            _LOGGER.warning(
-                "Credential validation failed: %s", "; ".join(validation_errors)
-            )
+            _LOGGER.warning("Credential validation failed: %s", "; ".join(validation_errors))
             return None
 
         # check if the specified account is configured already
         # to prevent them from being added twice
         api_key = user_input.get("api_key")
-        if api_key and any(
-            api_key == entry.data.get("api_key", None)
-            for entry in self._async_current_entries()
-        ):
+        if api_key and any(api_key == entry.data.get("api_key", None) for entry in self._async_current_entries()):
             return self.async_abort(reason="already_configured_account")
 
         credential_data = await _validate_credentials_and_capture_rotation(
@@ -209,8 +192,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             if token_expiry is not None:
                 time_remaining = cast(int, token_expiry) - time.time()
                 _LOGGER.info(
-                    f"Initial token expires in {time_remaining/3600:.1f} hours "
-                    f"(at timestamp {token_expiry})"
+                    f"Initial token expires in {time_remaining / 3600:.1f} hours (at timestamp {token_expiry})"
                 )
             else:
                 _LOGGER.warning("Could not extract token expiry from JWT")
@@ -219,9 +201,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self._errors["base"] = "invalid_auth"
         return None
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
         self._errors = {}
 
@@ -235,9 +215,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
 
     async def async_step_reauth(self, entry: ConfigEntry) -> ConfigFlowResult:
         """Handle configuration by re-auth."""
-        _LOGGER.warning(
-            f"Reauth flow initiated for entry {entry.entry_id} (title: {entry.title})"
-        )
+        _LOGGER.warning(f"Reauth flow initiated for entry {entry.entry_id} (title: {entry.title})")
         # Store the entry for later use
         self._reauth_entry = entry
         _LOGGER.info("Displaying reauth form to user")
@@ -250,9 +228,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             raise RuntimeError("No reauth entry available")
         return entry
 
-    async def _validate_reauth_input(
-        self, user_input: UserInput | dict[str, Any]
-    ) -> ConfigFlowResult | None:
+    async def _validate_reauth_input(self, user_input: UserInput | dict[str, Any]) -> ConfigFlowResult | None:
         """Validate user input for reauth."""
         _LOGGER.info(
             "Validating reauth credentials (api_key: %s, access_token: %s, refresh_token: %s)",
@@ -285,9 +261,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             token_expiry = entry_data.get("token_expires_at")
             if token_expiry is not None:
                 time_remaining = cast(int, token_expiry) - time.time()
-                _LOGGER.info(
-                    f"New token expires in {time_remaining/3600:.1f} hours (at timestamp {token_expiry})"
-                )
+                _LOGGER.info(f"New token expires in {time_remaining / 3600:.1f} hours (at timestamp {token_expiry})")
             else:
                 _LOGGER.warning("Could not extract token expiry from JWT during reauth")
 
@@ -298,9 +272,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         self._errors["base"] = "invalid_auth"
         return None
 
-    async def async_step_reauth_validate(
-        self, user_input: UserInput | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_reauth_validate(self, user_input: UserInput | None = None) -> ConfigFlowResult:
         """Handle reauth and validation."""
         self._errors = {}
         if user_input is not None:
@@ -321,14 +293,10 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         )
         return await self._show_config_form(defaults, "reauth_validate")
 
-    async def async_step_reconfigure(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle reconfiguration of an existing entry."""
         self._errors = {}
-        entry = self.hass.config_entries.async_get_entry(
-            cast(str, self.context.get("entry_id", ""))
-        )
+        entry = self.hass.config_entries.async_get_entry(cast(str, self.context.get("entry_id", "")))
         if entry is None:
             return self.async_abort(reason="entry_not_found")
 
@@ -379,24 +347,14 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
     def _get_config_schema(self, defaults: dict[str, Any]) -> vol.Schema:
         """Get the config schema with defaults."""
         data_schema: dict[Any, Any] = {
-            vol.Required(
-                CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")
-            ): TextSelector(
+            vol.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
                 TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
             ),
-            vol.Required(
-                CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")
-            ): TextSelector(
-                TextSelectorConfig(
-                    type=TextSelectorType.PASSWORD, autocomplete="access-token"
-                )
+            vol.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
+                TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
             ),
-            vol.Required(
-                CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")
-            ): TextSelector(
-                TextSelectorConfig(
-                    type=TextSelectorType.PASSWORD, autocomplete="refresh-token"
-                )
+            vol.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
+                TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
             ),
         }
         if self.show_advanced_options:
@@ -429,9 +387,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             description_placeholders={"url": "https://developer.electrolux.one/"},
         )
 
-    async def _test_credentials(
-        self, api_key: str | None, access_token: str | None, refresh_token: str | None
-    ) -> bool:
+    async def _test_credentials(self, api_key: str | None, access_token: str | None, refresh_token: str | None) -> bool:
         """Return true if credentials is valid."""
         _LOGGER.debug(
             "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
@@ -440,12 +396,7 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
             _mask_token(refresh_token),
         )
         try:
-            return (
-                await _validate_credentials_and_capture_rotation(
-                    api_key, access_token, refresh_token
-                )
-                is not None
-            )
+            return await _validate_credentials_and_capture_rotation(api_key, access_token, refresh_token) is not None
         except Exception:
             _LOGGER.exception("Electrolux credential validation failed")
             return False
@@ -468,12 +419,8 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         current_api_key = self._config_entry.data.get(CONF_API_KEY, "")
         current_access_token = self._config_entry.data.get(CONF_ACCESS_TOKEN, "")
         current_refresh_token = self._config_entry.data.get(CONF_REFRESH_TOKEN, "")
-        current_notify_default = self._config_entry.data.get(
-            CONF_NOTIFICATION_DEFAULT, True
-        )
-        current_notify_warning = self._config_entry.data.get(
-            CONF_NOTIFICATION_WARNING, False
-        )
+        current_notify_default = self._config_entry.data.get(CONF_NOTIFICATION_DEFAULT, True)
+        current_notify_warning = self._config_entry.data.get(CONF_NOTIFICATION_WARNING, False)
         current_notify_diag = self._config_entry.data.get(CONF_NOTIFICATION_DIAG, False)
 
         # For security, never pre-fill access_token and refresh_token fields
@@ -484,39 +431,21 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         return vol.Schema(
             {
                 vol.Optional(CONF_API_KEY, default=current_api_key): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.TEXT, autocomplete="api-key"
-                    )
+                    TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
                 ),
-                vol.Optional(
-                    CONF_ACCESS_TOKEN, default=current_access_token
-                ): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.PASSWORD, autocomplete="access-token"
-                    )
+                vol.Optional(CONF_ACCESS_TOKEN, default=current_access_token): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
                 ),
-                vol.Optional(
-                    CONF_REFRESH_TOKEN, default=current_refresh_token
-                ): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.PASSWORD, autocomplete="refresh-token"
-                    )
+                vol.Optional(CONF_REFRESH_TOKEN, default=current_refresh_token): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
                 ),
-                vol.Optional(
-                    CONF_NOTIFICATION_DEFAULT, default=current_notify_default
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_NOTIFICATION_WARNING, default=current_notify_warning
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_NOTIFICATION_DIAG, default=current_notify_diag
-                ): cv.boolean,
+                vol.Optional(CONF_NOTIFICATION_DEFAULT, default=current_notify_default): cv.boolean,
+                vol.Optional(CONF_NOTIFICATION_WARNING, default=current_notify_warning): cv.boolean,
+                vol.Optional(CONF_NOTIFICATION_DIAG, default=current_notify_diag): cv.boolean,
             }
         )
 
-    async def _test_credentials(
-        self, api_key: str | None, access_token: str | None, refresh_token: str | None
-    ) -> bool:
+    async def _test_credentials(self, api_key: str | None, access_token: str | None, refresh_token: str | None) -> bool:
         """Return true if credentials is valid."""
         _LOGGER.debug(
             "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
@@ -525,42 +454,26 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
             _mask_token(refresh_token),
         )
         try:
-            return (
-                await _validate_credentials_and_capture_rotation(
-                    api_key, access_token, refresh_token
-                )
-                is not None
-            )
+            return await _validate_credentials_and_capture_rotation(api_key, access_token, refresh_token) is not None
         except Exception:
             _LOGGER.exception("Electrolux credential validation failed")
             return False
 
-    async def _validate_and_update_options(
-        self, user_input: dict[str, Any]
-    ) -> ConfigFlowResult | None:
+    async def _validate_and_update_options(self, user_input: dict[str, Any]) -> ConfigFlowResult | None:
         """Validate credentials and update options if provided."""
         credential_input_present = any(
-            user_input.get(key)
-            for key in [CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN]
+            user_input.get(key) for key in [CONF_API_KEY, CONF_ACCESS_TOKEN, CONF_REFRESH_TOKEN]
         )
         credential_data: dict[str, Any] | None = None
 
         # Test credentials only when the user actually entered credential values.
         # Empty password fields are normal in the options form.
         if credential_input_present:
-            api_key = user_input.get(
-                CONF_API_KEY, self._config_entry.data.get(CONF_API_KEY)
-            )
-            access_token = user_input.get(
-                CONF_ACCESS_TOKEN
-            ) or self._config_entry.data.get(CONF_ACCESS_TOKEN)
-            refresh_token = user_input.get(
-                CONF_REFRESH_TOKEN
-            ) or self._config_entry.data.get(CONF_REFRESH_TOKEN)
+            api_key = user_input.get(CONF_API_KEY, self._config_entry.data.get(CONF_API_KEY))
+            access_token = user_input.get(CONF_ACCESS_TOKEN) or self._config_entry.data.get(CONF_ACCESS_TOKEN)
+            refresh_token = user_input.get(CONF_REFRESH_TOKEN) or self._config_entry.data.get(CONF_REFRESH_TOKEN)
 
-            credential_data = await _validate_credentials_and_capture_rotation(
-                api_key, access_token, refresh_token
-            )
+            credential_data = await _validate_credentials_and_capture_rotation(api_key, access_token, refresh_token)
             if credential_data is None:
                 return None  # Invalid, caller will show form with errors
 
@@ -572,24 +485,16 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         if credential_data:
             new_data.update(credential_data)
         if CONF_NOTIFICATION_DEFAULT in user_input:
-            new_data[CONF_NOTIFICATION_DEFAULT] = user_input.get(
-                CONF_NOTIFICATION_DEFAULT
-            )
+            new_data[CONF_NOTIFICATION_DEFAULT] = user_input.get(CONF_NOTIFICATION_DEFAULT)
         if CONF_NOTIFICATION_WARNING in user_input:
-            new_data[CONF_NOTIFICATION_WARNING] = user_input.get(
-                CONF_NOTIFICATION_WARNING
-            )
+            new_data[CONF_NOTIFICATION_WARNING] = user_input.get(CONF_NOTIFICATION_WARNING)
         if CONF_NOTIFICATION_DIAG in user_input:
             new_data[CONF_NOTIFICATION_DIAG] = user_input.get(CONF_NOTIFICATION_DIAG)
 
-        self.hass.config_entries.async_update_entry(
-            self._config_entry, data=new_data, options=new_options
-        )
+        self.hass.config_entries.async_update_entry(self._config_entry, data=new_data, options=new_options)
         return self.async_create_entry(title="", data={})
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the user step."""
         if user_input is not None:
             result = await self._validate_and_update_options(user_input)
@@ -600,17 +505,13 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
                 step_id="user",
                 data_schema=await self._get_options_schema(),
                 errors={"base": "invalid_auth"},
-                description_placeholders={
-                    "url": "https://developer.electrolux.one/dashboard"
-                },
+                description_placeholders={"url": "https://developer.electrolux.one/dashboard"},
             )
 
         return self.async_show_form(
             step_id="user",
             data_schema=await self._get_options_schema(),
-            description_placeholders={
-                "url": "https://developer.electrolux.one/dashboard"
-            },
+            description_placeholders={"url": "https://developer.electrolux.one/dashboard"},
         )
 
 
@@ -637,15 +538,11 @@ class ElectroluxRepairFlow(FlowHandler):
         """Return the repair issue ID from HA context or constructor."""
         return cast(str, self.context.get("issue_id") or self._issue_id or "")
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the first step of a repair flow."""
         return await self.async_step_confirm_repair(user_input)
 
-    async def async_step_confirm_repair(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_confirm_repair(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Show the form to confirm repair and enter new credentials."""
         errors = {}
 
@@ -666,19 +563,13 @@ class ElectroluxRepairFlow(FlowHandler):
             refresh_token = user_input.get(CONF_REFRESH_TOKEN)
 
             # Validate credential format
-            validation_errors = _validate_credentials(
-                api_key, access_token, refresh_token
-            )
+            validation_errors = _validate_credentials(api_key, access_token, refresh_token)
             if validation_errors:
                 errors["base"] = "invalid_format"
-                _LOGGER.warning(
-                    "Credential validation failed: %s", "; ".join(validation_errors)
-                )
+                _LOGGER.warning("Credential validation failed: %s", "; ".join(validation_errors))
             else:
                 # Test credentials and store any rotated tokens produced by validation.
-                credential_data = await _validate_credentials_and_capture_rotation(
-                    api_key, access_token, refresh_token
-                )
+                credential_data = await _validate_credentials_and_capture_rotation(api_key, access_token, refresh_token)
                 if credential_data:
                     # Update config entry with new credentials
                     new_data = dict(entry.data)
@@ -687,9 +578,7 @@ class ElectroluxRepairFlow(FlowHandler):
                     token_expiry = new_data.get("token_expires_at")
                     if token_expiry is not None:
                         time_remaining = cast(int, token_expiry) - time.time()
-                        _LOGGER.info(
-                            f"Repair: Token expires in {time_remaining/3600:.1f} hours"
-                        )
+                        _LOGGER.info(f"Repair: Token expires in {time_remaining / 3600:.1f} hours")
 
                     self.hass.config_entries.async_update_entry(entry, data=new_data)
 
@@ -699,9 +588,7 @@ class ElectroluxRepairFlow(FlowHandler):
                     # Reload the config entry
                     await self.hass.config_entries.async_reload(entry.entry_id)
 
-                    _LOGGER.info(
-                        "Repair successful for entry %s, credentials updated", entry_id
-                    )
+                    _LOGGER.info("Repair successful for entry %s, credentials updated", entry_id)
                     return self.async_create_entry(title="", data={})
 
                 errors["base"] = "invalid_auth"
@@ -722,26 +609,14 @@ class ElectroluxRepairFlow(FlowHandler):
 
         data_schema = vol.Schema(
             {
-                vol.Required(
-                    CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")
-                ): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.TEXT, autocomplete="api-key"
-                    )
+                vol.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
                 ),
-                vol.Required(
-                    CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")
-                ): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.PASSWORD, autocomplete="access-token"
-                    )
+                vol.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
                 ),
-                vol.Required(
-                    CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")
-                ): TextSelector(
-                    TextSelectorConfig(
-                        type=TextSelectorType.PASSWORD, autocomplete="refresh-token"
-                    )
+                vol.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
                 ),
             }
         )
@@ -750,14 +625,10 @@ class ElectroluxRepairFlow(FlowHandler):
             step_id="confirm_repair",
             data_schema=data_schema,
             errors=errors,
-            description_placeholders={
-                "url": "https://developer.electrolux.one/dashboard"
-            },
+            description_placeholders={"url": "https://developer.electrolux.one/dashboard"},
         )
 
-    async def _test_credentials(
-        self, api_key: str | None, access_token: str | None, refresh_token: str | None
-    ) -> bool:
+    async def _test_credentials(self, api_key: str | None, access_token: str | None, refresh_token: str | None) -> bool:
         """Return true if credentials is valid."""
         _LOGGER.debug(
             "Testing credentials: API key=%s, access_token=%s, refresh_token=%s",
@@ -766,12 +637,7 @@ class ElectroluxRepairFlow(FlowHandler):
             _mask_token(refresh_token),
         )
         try:
-            return (
-                await _validate_credentials_and_capture_rotation(
-                    api_key, access_token, refresh_token
-                )
-                is not None
-            )
+            return await _validate_credentials_and_capture_rotation(api_key, access_token, refresh_token) is not None
         except Exception:
             _LOGGER.exception("Electrolux credential validation failed")
             return False

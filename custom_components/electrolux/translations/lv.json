@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Electrolux iestatīšana",
-                "description": "Pievienojiet savas Electrolux ierīces, izmantojot API akreditācijas datus no Electrolux izstrādātāju portāla.\n\n**Lai iegūtu API akreditācijas datus:**\n1. Apmeklējiet vietni {url}\n2. Reģistrējieties un izveidojiet pieteikumu\n3. Iegūstiet savu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n\nJa jums nepieciešama palīdzība, apmeklējiet integrācijas dokumentāciju.",
+                "description": "Pievienojiet savas Electrolux ierīces, izmantojot API akreditācijas datus no Electrolux izstrādātāju portāla.\n\n**Lai iegūtu API akreditācijas datus:**\n1. Apmeklējiet {url}\n2. Reģistrējieties un izveidojiet pieteikumu\n3. Iegūstiet savu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n\nJa jums nepieciešama palīdzība, apmeklējiet integrācijas dokumentāciju.",
                 "data": {
                     "api_key": "API atslēga",
                     "access_token": "Piekļuves marķieris",
@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Atkārtoti autentificējiet Electrolux",
-                "description": "Jūsu Electrolux API marķieriem ir beidzies derīguma termiņš vai tie ir nederīgi. Lūdzu, atjauniniet tos ar jauniem marķieriem no Electrolux izstrādātāju portāla.\n\nApmeklējiet vietni {url}, lai ģenerētu jaunus marķierus.",
+                "description": "Jūsu Electrolux API marķieriem ir beidzies derīguma termiņš vai tie ir nederīgi. Lūdzu, atjauniniet tos ar jauniem marķieriem no Electrolux izstrādātāju portāla.\n\nApmeklējiet {url}, lai ģenerētu jaunus marķierus.",
                 "data": {
                     "api_key": "API atslēga",
                     "access_token": "Piekļuves marķieris",
@@ -24,7 +24,7 @@
             },
             "reconfigure": {
                 "title": "Pārkonfigurējiet Electrolux",
-                "description": "Atjauniniet savus Electrolux API akreditācijas datus.\n\nApmeklējiet vietni {url}, lai ģenerētu jaunus marķierus.",
+                "description": "Atjauniniet savus Electrolux API akreditācijas datus.\n\nApmeklējiet {url}, lai ģenerētu jaunus marķierus.",
                 "data": {
                     "api_key": "API atslēga",
                     "access_token": "Piekļuves marķieris",
@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Electrolux opcijas",
-                "description": "Atjauniniet savus Electrolux API akreditācijas datus, ja tiem ir beidzies derīguma termiņš.\n\n**Lai ģenerētu jaunus akreditācijas datus:**\n1. Apmeklējiet vietni {url}\n2. Ģenerējiet jaunu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n3. Atjauniniet tālāk norādītos laukus\n\n**Drošības piezīme:** Access Token un Refresh Token lauki ir apzināti atstāti tukši. Vienmēr ģenerējiet jaunus marķierus no portāla — nekad neizmantojiet vai nekopīgojiet esošos marķierus.",
+                "description": "Atjauniniet savus Electrolux API akreditācijas datus, ja tiem ir beidzies derīguma termiņš.\n\n**Lai ģenerētu jaunus akreditācijas datus:**\n1. Apmeklējiet {url}\n2. Ģenerējiet jaunu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n3. Atjauniniet tālāk norādītos laukus\n\n**Drošības piezīme:** Access Token un Refresh Token lauki ir apzināti atstāti tukši. Vienmēr ģenerējiet jaunus marķierus no portāla — nekad neizmantojiet vai nekopīgojiet esošos marķierus.",
                 "data": {
                     "api_key": "API atslēga",
                     "access_token": "Piekļuves marķieris",
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Atjauniniet Electrolux API akreditācijas datus",
-                        "description": "Jūsu Electrolux API marķieriem ir beidzies derīguma termiņš, un automātiskā atsvaidzināšana neizdevās. Lūdzu, ievadiet jaunus akreditācijas datus no Electrolux izstrādātāju portāla, lai atjaunotu funkcionalitāti.\n\n**Lai ģenerētu jaunus akreditācijas datus:**\n1. Apmeklējiet vietni {url}\n2. Ģenerējiet jaunu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n3. Ievadiet tos zemāk",
+                        "description": "Jūsu Electrolux API marķieriem ir beidzies derīguma termiņš, un automātiskā atsvaidzināšana neizdevās. Lūdzu, ievadiet jaunus akreditācijas datus no Electrolux izstrādātāju portāla, lai atjaunotu funkcionalitāti.\n\n**Lai ģenerētu jaunus akreditācijas datus:**\n1. Apmeklējiet {url}\n2. Ģenerējiet jaunu API atslēgu, piekļuves pilnvaru un atsvaidzināšanas pilnvaru\n3. Ievadiet tos zemāk",
                         "data": {
                             "api_key": "API atslēga",
                             "access_token": "Piekļuves marķieris",
@@ -105,7 +105,7 @@
             "message": "Nosūtīts pārāk daudz komandu. Lūdzu, uzgaidiet brīdi un mēģiniet vēlreiz."
         },
         "control_locked": {
-            "message": "{attr} ir bloķēts {value} programmā {program}."
+            "message": "{attr} ir bloķēts {value} programmai {program}."
         },
         "food_probe_locked_by_program": {
             "message": "Pārtikas zondes temperatūra programmai {program} ir bloķēta {value}°C."
@@ -135,13 +135,1406 @@
             "message": "Nevar iestatīt {attr}, kamēr ierīce ir izslēgta. Vispirms ieslēdziet ierīci."
         },
         "type_mismatch": {
-            "message": "Integrācijas kļūda: datu veida neatbilstība vietnei {attr}. Paredzētais Būla vērtība."
+            "message": "Integrācijas kļūda: datu veida neatbilstība {attr}. Paredzētais Būla vērtība."
         },
         "value_above_maximum": {
             "message": "Vērtība {value} pārsniedz maksimālo vērtību {max_val} {attr}."
         },
         "value_below_minimum": {
-            "message": "Vērtība {value} ir zemāka par {attr} minimālo vērtību {min_val}."
+            "message": "Vērtība {value} ir zemāka par minimālo {min_val} {attr}."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Savienojuma stāvoklis"
+            },
+            "doorstate": {
+                "name": "Durvju stāvoklis"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Pārtikas zonde"
+            },
+            "foodprobesupported": {
+                "name": "Pārtikas zondes atbalsts"
+            },
+            "watertrayinsertionstate": {
+                "name": "Ūdens paplāte"
+            },
+            "watertankempty": {
+                "name": "Ūdens tvertne tukša"
+            },
+            "cleaningreminder": {
+                "name": "Tīrīšanas atgādinājums"
+            },
+            "drawerstatus": {
+                "name": "Atvilktne"
+            },
+            "humancentriclighteventstate": {
+                "name": "Uz cilvēku orientēta gaisma"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Automātiska izslēgšanās"
+            },
+            "appliancestate": {
+                "name": "Saldētavas stāvoklis"
+            },
+            "fanstate": {
+                "name": "Papildu dobuma ventilatora stāvoklis"
+            },
+            "autosense": {
+                "name": "Autosense"
+            },
+            "maint1_occured": {
+                "name": "Nepieciešama apkope"
+            },
+            "maint2_occured": {
+                "name": "Notika 2. apkopes vienums"
+            },
+            "maint3_occured": {
+                "name": "Notika 3. apkopes vienums"
+            },
+            "maint4_occured": {
+                "name": "Notika 4. apkopes vienums"
+            },
+            "maint5_occured": {
+                "name": "Notika 5. apkopes vienums"
+            },
+            "maint6_occured": {
+                "name": "Notika 6. apkopes punkts"
+            },
+            "maint7_occured": {
+                "name": "Notika 7. apkopes punkts"
+            },
+            "maint8_occured": {
+                "name": "Notika 8. apkopes punkts"
+            },
+            "maint9_occured": {
+                "name": "Notika 9. apkopes punkts"
+            },
+            "maint10_occured": {
+                "name": "Notika 10. apkopes vienums"
+            },
+            "occured": {
+                "name": "Notika 1. apkope"
+            },
+            "ecomode": {
+                "name": "Eko režīms"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Nepieciešama gaisa filtra tīrīšana"
+            },
+            "hmepn_acalerts": {
+                "name": "Atbalstīti maiņstrāvas brīdinājumi"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Ielikts hepa filtrs"
+            },
+            "dooropen": {
+                "name": "Durvis vaļā"
+            },
+            "watertraylevellow": {
+                "name": "Zems ūdens paplātes līmenis"
+            },
+            "autodustcollection": {
+                "name": "Auto putekļu savākšana"
+            },
+            "automoparmextension": {
+                "name": "Automātiskā mopa sviras pagarinājums"
+            },
+            "automopdry": {
+                "name": "Automātiskā mopa žāvēšana"
+            },
+            "automopwash": {
+                "name": "Automātiskā mopu mazgāšana"
+            },
+            "autodetergentusage": {
+                "name": "Automātiskā mazgāšanas līdzekļa lietošana"
+            },
+            "mopinstalled": {
+                "name": "Mops uzstādīts"
+            },
+            "incharger": {
+                "name": "Lādētājā"
+            },
+            "returntowash": {
+                "name": "Atgriezties mazgāties"
+            },
+            "roomselected": {
+                "name": "Istaba atlasīta"
+            },
+            "carpetboost": {
+                "name": "Paklāja stimuls"
+            },
+            "carpetavoid": {
+                "name": "Izvairieties no paklāja"
+            },
+            "carpetdisplay": {
+                "name": "Paklāju displejs"
+            },
+            "obstacleavoidance": {
+                "name": "Izvairīšanās no šķēršļiem"
+            },
+            "dndenabled": {
+                "name": "Netraucēt ir iespējots"
+            },
+            "dnddisableairdry": {
+                "name": "Neizslēdziet gaisa žāvēšanu"
+            },
+            "isdndpausingairdry": {
+                "name": "Dnd apturēt gaisa žāvēšanu"
+            },
+            "multifloormap": {
+                "name": "Daudzstāvu karte"
+            },
+            "multifloormapautoswitch": {
+                "name": "Vairāku stāvu kartes automātiskais slēdzis"
+            },
+            "robotposereliable": {
+                "name": "Robot pose reliable"
+            },
+            "ovwater_tank_empty": {
+                "name": "Ūdens tvertnes statuss"
+            },
+            "ovcleaning_ended": {
+                "name": "Tīrīšanas statuss"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Zonde gatavošanas beigas"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Tīkla komanda"
+            },
+            "startupcommand": {
+                "name": "Startēšanas komanda"
+            },
+            "manualsync": {
+                "name": "Manuālā sinhronizācija"
+            },
+            "executecommand": {
+                "name": "Jauda"
+            },
+            "waterfilterstatereset": {
+                "name": "Atiestatīt ūdens filtru"
+            },
+            "airfilterstatereset": {
+                "name": "Atiestatīt gaisa filtru"
+            },
+            "saveappfavorite": {
+                "name": "Saglabāt izlasi"
+            },
+            "shortcutproglistcmd": {
+                "name": "Īsceļu programmu saraksta komanda"
+            },
+            "filterreset": {
+                "name": "Filtra atiestatīšana"
+            },
+            "hepafilterreset": {
+                "name": "Hepa filtra atiestatīšana"
+            },
+            "findme": {
+                "name": "Atrodi mani"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Gaisa attīrītājs"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Sākuma laiks"
+            },
+            "targetduration": {
+                "name": "Mērķa ilgums"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Pārtikas zondes mērķa temperatūra c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Pārtikas zondes mērķa temperatūra f"
+            },
+            "targettemperaturec": {
+                "name": "Mērķa temperatūra c"
+            },
+            "targettemperaturef": {
+                "name": "Mērķa temperatūra f"
+            },
+            "remindertime": {
+                "name": "Augšējā krāsns atgādinājuma laiks"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Ierīces vietējā laika nobīde"
+            },
+            "lightintensity": {
+                "name": "Gaismas intensitāte"
+            },
+            "lightcolortemperature": {
+                "name": "Gaismas krāsas temperatūra"
+            },
+            "stoptime": {
+                "name": "Apturēt laiku"
+            },
+            "adtankadetstandarddose": {
+                "name": "Uzpildiet mazgāšanas līdzekļa standarta devu"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Tvertne b mazgāšanas līdzekļa standarta deva"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tvertne b mīkstinātāja standarta deva"
+            },
+            "adfinetunedetlevel": {
+                "name": "Noregulējiet mazgāšanas līdzekļa līmeni"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Noregulējiet mīkstinātāja līmeni"
+            },
+            "extrarinsenumber": {
+                "name": "Papildu skalošana"
+            },
+            "maint1_id": {
+                "name": "Apkopes vienības 1 id"
+            },
+            "maint2_id": {
+                "name": "Apkopes vienības 2 id"
+            },
+            "maint2_threshold": {
+                "name": "Apkopes vienības 2 slieksnis"
+            },
+            "maint3_id": {
+                "name": "Apkopes vienums 3 id"
+            },
+            "maint3_threshold": {
+                "name": "Apkopes pozīcijas 3 slieksnis"
+            },
+            "maint4_id": {
+                "name": "Apkopes vienums 4 id"
+            },
+            "maint4_threshold": {
+                "name": "Apkopes pozīcijas 4 slieksnis"
+            },
+            "maint5_id": {
+                "name": "Apkopes vienums 5 id"
+            },
+            "maint5_threshold": {
+                "name": "Apkopes pozīcijas 5 slieksnis"
+            },
+            "maint6_id": {
+                "name": "Apkopes vienums 6 id"
+            },
+            "maint6_threshold": {
+                "name": "Apkopes posteņa 6 slieksnis"
+            },
+            "maint7_id": {
+                "name": "Apkopes vienums 7 id"
+            },
+            "maint7_threshold": {
+                "name": "Apkopes posteņa 7 slieksnis"
+            },
+            "maint8_id": {
+                "name": "Apkopes vienums 8 id"
+            },
+            "maint8_threshold": {
+                "name": "Apkopes posteņa 8 slieksnis"
+            },
+            "maint9_id": {
+                "name": "Apkopes vienums 9 id"
+            },
+            "maint9_threshold": {
+                "name": "Apkopes pozīcijas 9 slieksnis"
+            },
+            "maint10_id": {
+                "name": "Apkopes vienums 10 id"
+            },
+            "maint10_threshold": {
+                "name": "Apkopes pozīcijas 10 slieksnis"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Skaidra cikla personalizēšana"
+            },
+            "memoryid": {
+                "name": "Atmiņas slots"
+            },
+            "dryingtime": {
+                "name": "Laika žāvēšana (aktīva)"
+            },
+            "timetonotify": {
+                "name": "Laiks paziņot"
+            },
+            "anticreasevalue": {
+                "name": "Pretburzīšanās (aktīvs)"
+            },
+            "rinseaidlevel": {
+                "name": "Skalošanas līdzekļa līmenis"
+            },
+            "targethumidity": {
+                "name": "Mērķa mitrums"
+            },
+            "targettemperature": {
+                "name": "Mērķa temperatūra"
+            },
+            "fanspeed": {
+                "name": "Ventilatora ātrums"
+            },
+            "humiditytarget": {
+                "name": "Mērķa mitrums"
+            },
+            "powermode": {
+                "name": "Jaudas režīms"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Displeja gaisma"
+            },
+            "targettemperaturec": {
+                "name": "Papildu dobuma temperatūra"
+            },
+            "mode": {
+                "name": "Režīms"
+            },
+            "fanspeedsetting": {
+                "name": "Ventilatora ātrums"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Brīdinājumi"
+            },
+            "appliancestate": {
+                "name": "Ierīces stāvoklis"
+            },
+            "temperaturerepresentation": {
+                "name": "Temperatūras attēlojums"
+            },
+            "linkqualityindicator": {
+                "name": "Tīkla interfeisa saites kvalitātes indikators"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw atjauninājuma apraksts"
+            },
+            "otastate": {
+                "name": "Tīkla interfeisa statuss"
+            },
+            "swancandrevision": {
+                "name": "Sw anc un pārskatīšana"
+            },
+            "swversion": {
+                "name": "Tīkla interfeisa sw versija"
+            },
+            "endofcyclesound": {
+                "name": "Cikla beigu skaņa"
+            },
+            "programuid": {
+                "name": "Programmas uid"
+            },
+            "appliancetype": {
+                "name": "Ierīces tips"
+            },
+            "capabilityhash": {
+                "name": "Iespēju hash"
+            },
+            "cpv": {
+                "name": "Cpv"
+            },
+            "remotecontrol": {
+                "name": "Tālvadības pults"
+            },
+            "totalcyclecounter": {
+                "name": "Kopējais cikla skaitītājs"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Iekārtas kopējais darba laiks"
+            },
+            "timetoend": {
+                "name": "Laiks beigt"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Parādīt ēdiena zondes temperatūru"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Parādīt ēdiena zondes temperatūru c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Parādīt ēdiena zondes temperatūru f"
+            },
+            "displaytemperature": {
+                "name": "Displeja temperatūra"
+            },
+            "displaytemperaturec": {
+                "name": "Displeja temperatūra c"
+            },
+            "displaytemperaturef": {
+                "name": "Displeja temperatūra f"
+            },
+            "processphase": {
+                "name": "Procesa fāze"
+            },
+            "program": {
+                "name": "Programma"
+            },
+            "runningtime": {
+                "name": "Darbības laiks"
+            },
+            "fastheatupfeature": {
+                "name": "Augšējā cepeškrāsns ātras uzsildīšanas funkcija"
+            },
+            "preheatcomplete": {
+                "name": "Cepeškrāsns augšējā uzsildīšana ir pabeigta"
+            },
+            "targetdurationendaction": {
+                "name": "Augšējā krāsns mērķa ilguma beigu darbība"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Augšējā cepeškrāsns mērķa pārtikas zondes temperatūras beigu darbība"
+            },
+            "watertanklevel": {
+                "name": "Augšējais krāsns ūdens tvertnes līmenis"
+            },
+            "waterhardness": {
+                "name": "Ūdens cietība"
+            },
+            "descalingreminderstate": {
+                "name": "Atgādinājums par atkaļķošanu"
+            },
+            "clockstyle": {
+                "name": "Pulksteņa stils"
+            },
+            "language": {
+                "name": "Valoda"
+            },
+            "localtimeautomaticmode": {
+                "name": "Vietējā laika automātiskais režīms"
+            },
+            "autolocaltimeoffset": {
+                "name": "Automātiska vietējā laika nobīde"
+            },
+            "favoriteorder": {
+                "name": "Mīļākais pasūtījums"
+            },
+            "number": {
+                "name": "Iecienītāko pasūtījumu skaits"
+            },
+            "favoriteselect": {
+                "name": "Izlases izlase"
+            },
+            "favoritestatus": {
+                "name": "Izlases statuss"
+            },
+            "activemessageindex": {
+                "name": "Aktīvs ziņojumu rādītājs"
+            },
+            "appliancemode": {
+                "name": "Ierīces režīms"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Pārsega ventilatora ātrums"
+            },
+            "hobtohoodstate": {
+                "name": "Kapuces stāvoklis"
+            },
+            "hoodfanlevel": {
+                "name": "Ventilatora līmenis"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Ogļu filtra taimeris"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Tauku filtra taimeris"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc filtra laiks"
+            },
+            "fastmodetimetoend": {
+                "name": "Saldētavas ātrā režīma laiks līdz beigām"
+            },
+            "sensortemperaturec": {
+                "name": "Saldētavas temperatūra"
+            },
+            "vacationholidaymode": {
+                "name": "Brīvdienu režīms"
+            },
+            "sensorhumidity": {
+                "name": "Mitrums"
+            },
+            "waterfilterstate": {
+                "name": "Ūdens filtra stāvoklis"
+            },
+            "waterfilterlifetime": {
+                "name": "Ūdens filtra kalpošanas laiks"
+            },
+            "waterfilterflow": {
+                "name": "Ūdens filtra plūsma"
+            },
+            "airfilterstate": {
+                "name": "Gaisa filtra statuss"
+            },
+            "airfilterlifetime": {
+                "name": "Gaisa filtra kalpošanas laiks"
+            },
+            "coolingvalvestate": {
+                "name": "Dzesēšanas vārsta stāvoklis"
+            },
+            "defrostroutinestate": {
+                "name": "Atkausēšanas rutīnas stāvoklis"
+            },
+            "compressorstate": {
+                "name": "Kompresora stāvoklis"
+            },
+            "compressorspeed": {
+                "name": "Kompresora ātrums"
+            },
+            "coefficient": {
+                "name": "Kompresora ātruma koeficients"
+            },
+            "exponent": {
+                "name": "Kompresora ātruma eksponents"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Papildu dobuma klona režīms"
+            },
+            "temperatureadjustingstate": {
+                "name": "Papildu dobuma regulēšana"
+            },
+            "defrosttemperaturec": {
+                "name": "Ledus veidotāja atkausēšanas temperatūra"
+            },
+            "evaporatorfanstate": {
+                "name": "Ledus veidotāja ventilatora stāvoklis"
+            },
+            "icedispenserstate": {
+                "name": "Ledus dozatora stāvoklis"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Ledus paplātes piepildīšanas iestatījums"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Gaisa filtra iegādes slieksnis"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Gaisa filtra maiņas slieksnis"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Ūdens filtra iegādes slieksnis (plūsma)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Ūdens filtra maiņas slieksnis (plūsma)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Ūdens filtra iegādes slieksnis (laiks)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Ūdens filtra maiņas slieksnis (laiks)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Galvenās plates programmatūras versija"
+            },
+            "defaultextrarinse": {
+                "name": "Noklusējuma papildu skalošana"
+            },
+            "cyclephase": {
+                "name": "Cikla fāze"
+            },
+            "cyclesubphase": {
+                "name": "Cikla apakšfāze"
+            },
+            "measuredloadweight": {
+                "name": "Izmērītais kravas svars"
+            },
+            "doorlock": {
+                "name": "Durvju slēdzene"
+            },
+            "totalwashcyclescount": {
+                "name": "Kopējie mazgāšanas cikli"
+            },
+            "totalwashingtime": {
+                "name": "Kopējais mazgāšanas laiks"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Kravas svars"
+            },
+            "washingnominalloadweight": {
+                "name": "Mazgāšanas kravas svars"
+            },
+            "adtankaconfiguration": {
+                "name": "Tvertnes konfigurācija"
+            },
+            "adtankbconfiguration": {
+                "name": "Tvertnes b konfigurācija"
+            },
+            "steamvalue": {
+                "name": "Tvaika līmenis"
+            },
+            "timemanagerlevel": {
+                "name": "Laika menedžeris"
+            },
+            "adtankasel": {
+                "name": "Automātiskās dozēšanas tvertne a"
+            },
+            "adtankbsel": {
+                "name": "Automātiskās dozēšanas tvertne b"
+            },
+            "analogspinspeed": {
+                "name": "Griešanas ātrums"
+            },
+            "analogtemperature": {
+                "name": "Temperatūra"
+            },
+            "watersoftenermode": {
+                "name": "Ūdens mīkstinātāja režīms"
+            },
+            "maint1_threshold": {
+                "name": "Uzturēšanas slieksnis"
+            },
+            "detergentextradosage": {
+                "name": "Mazgāšanas līdzekļa papildu deva"
+            },
+            "optisenseresult": {
+                "name": "Kravas svars"
+            },
+            "softenerextradosage": {
+                "name": "Mīkstinātāja papildu deva"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Tvertne ar det slodzi nominālajam svaram"
+            },
+            "tankareserve": {
+                "name": "Tvertne rezerve"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Tvertnes b slodze nominālajam svaram"
+            },
+            "tankbreserve": {
+                "name": "B tvertnes rezerve"
+            },
+            "waterusage": {
+                "name": "Ūdens patēriņš"
+            },
+            "adtankadetloaded": {
+                "name": "Tvertnē ir ievietots mazgāšanas līdzeklis"
+            },
+            "adtankbdetloaded": {
+                "name": "Tvertnē b ir ievietots mazgāšanas līdzeklis"
+            },
+            "adtankbsoftloaded": {
+                "name": "Tvertne b ir ielādēta mīkstinātājs"
+            },
+            "ecolevel": {
+                "name": "Eko līmenis"
+            },
+            "applianceuiswversion": {
+                "name": "Ierīces ui sw versija"
+            },
+            "remotenotificationpending": {
+                "name": "Gaida attālo paziņojumu"
+            },
+            "minfinishintime": {
+                "name": "Minimālais finišs laikā"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonomiskais režīms"
+            },
+            "adfinetunedetlevel": {
+                "name": "Automātiskās devas mazgāšanas līdzekļa precīza noregulēšana"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Automātiskās devas mīkstinātāja precīza noregulēšana"
+            },
+            "extrarinsenumber": {
+                "name": "Papildu skalošana"
+            },
+            "threshold": {
+                "name": "Uzturēšana 1 slieksnis"
+            },
+            "timezonedatabasename": {
+                "name": "Laika joslu datu bāze"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Kopējais tvaika cikla skaitītājs"
+            },
+            "prewashphase": {
+                "name": "Pirmsmazgāšanas fāze"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominālais kravas svars"
+            },
+            "humiditytarget": {
+                "name": "Mitruma mērķis (aktīvs)"
+            },
+            "tankalevel": {
+                "name": "Tvertne līmenis"
+            },
+            "tankblevel": {
+                "name": "Tvertnes b līmenis"
+            },
+            "totaldrycyclescount": {
+                "name": "Kopējie sausie cikli"
+            },
+            "totaldryingtime": {
+                "name": "Kopējais žāvēšanas laiks"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Kopējie mazgāšanas+žāvēšanas cikli"
+            },
+            "programsorder": {
+                "name": "Programmas pasūtījums"
+            },
+            "carelevel": {
+                "name": "Aprūpes līmenis"
+            },
+            "drynessvalue": {
+                "name": "Sausuma līmenis (aktīvs)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: mazgāšanas kravas svars"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: mazgāšanas kravas mitrums"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: paredzamais žāvēšanas laiks"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: slodzes pārslodzes karodziņš"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: mazgāšanas ielādes kļūda"
+            },
+            "wmsn": {
+                "name": "Dwyw: pāra mazgātāju sērija"
+            },
+            "command": {
+                "name": "Dwyw: komanda"
+            },
+            "displayonfloor": {
+                "name": "Displejs uz grīdas"
+            },
+            "energyscore": {
+                "name": "Enerģijas rādītājs"
+            },
+            "waterscore": {
+                "name": "Ūdens rādītājs"
+            },
+            "ecoscore": {
+                "name": "Eko rezultāts"
+            },
+            "miscellaneousstate": {
+                "name": "Dažāds stāvoklis"
+            },
+            "ambienttemperaturec": {
+                "name": "Apkārtējā temperatūra c"
+            },
+            "ambienttemperaturef": {
+                "name": "Apkārtējā temperatūra f"
+            },
+            "fanmode": {
+                "name": "Ventilatora režīms"
+            },
+            "swingmode": {
+                "name": "Šūpošanās režīms"
+            },
+            "ambienthumidity": {
+                "name": "Apkārtējais mitrums"
+            },
+            "filterstatus": {
+                "name": "Filtra statuss"
+            },
+            "powerconsumption": {
+                "name": "Enerģijas patēriņš"
+            },
+            "energyconsumption": {
+                "name": "Enerģijas patēriņš"
+            },
+            "fanspeedstate": {
+                "name": "Ventilatora ātruma stāvoklis"
+            },
+            "filterstate": {
+                "name": "Filtra stāvoklis"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa filtra kalpošanas laiks"
+            },
+            "appliancecategory": {
+                "name": "Ierīces kategorija"
+            },
+            "vmno_niu": {
+                "name": "Niu versija"
+            },
+            "vmno_mcu": {
+                "name": "Mcu versija"
+            },
+            "schedulersession": {
+                "name": "Plānotāja sesija"
+            },
+            "schedulermode": {
+                "name": "Plānotāja režīms"
+            },
+            "totalruntime": {
+                "name": "Kopējais izpildes laiks"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompresora dzesēšanas darbības laiks"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompresora apkures darbības laiks"
+            },
+            "mainunittemp": {
+                "name": "Galvenās vienības temp"
+            },
+            "loge": {
+                "name": "Log e"
+            },
+            "logw": {
+                "name": "Log w"
+            },
+            "demandresponseau": {
+                "name": "Pieprasījuma reakcija au"
+            },
+            "pm25": {
+                "name": "Pm2.5"
+            },
+            "pm10": {
+                "name": "Pm10"
+            },
+            "modestate": {
+                "name": "Režīma stāvoklis"
+            },
+            "filterruntime": {
+                "name": "Filtra izpildlaiks"
+            },
+            "hepafilterstate": {
+                "name": "Hepa filtra stāvoklis"
+            },
+            "airqualitylevel": {
+                "name": "Gaisa kvalitātes līmenis"
+            },
+            "temperature": {
+                "name": "Apkārtējās vides temperatūra"
+            },
+            "mode": {
+                "name": "Režīms"
+            },
+            "temp": {
+                "name": "Temperatūra"
+            },
+            "humidity": {
+                "name": "Mitrums"
+            },
+            "pm1": {
+                "name": "Pm1"
+            },
+            "pm2_5": {
+                "name": "Pm2.5"
+            },
+            "tvoc": {
+                "name": "Tvoc"
+            },
+            "eco2": {
+                "name": "Eko2"
+            },
+            "filtertype": {
+                "name": "Filtra veids"
+            },
+            "filterlife": {
+                "name": "Filtra kalpošanas laiks"
+            },
+            "workmode": {
+                "name": "Darba režīms"
+            },
+            "aqilight": {
+                "name": "Aqi gaisma"
+            },
+            "louverswing": {
+                "name": "Žalūziju šūpoles"
+            },
+            "quietfan": {
+                "name": "Kluss ventilators"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Mitrināšanas filtra atiestatīšanas datums"
+            },
+            "filterlife_1": {
+                "name": "Filtra kalpošanas laiks"
+            },
+            "filterlife_2": {
+                "name": "Filtra kalpošanas laiks 2"
+            },
+            "filtertype_1": {
+                "name": "Filtra veids"
+            },
+            "filtertype_2": {
+                "name": "Filtra veids 2"
+            },
+            "filteruid_1": {
+                "name": "Filtrēt 1 nfc taga uid"
+            },
+            "filteruid_2": {
+                "name": "Filtrs 2 nfc taga uid"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (aptuvena)"
+            },
+            "uvruntime": {
+                "name": "UV izpildlaiks"
+            },
+            "schedulingstate": {
+                "name": "Plānošanas stāvoklis"
+            },
+            "errimpellerstuck": {
+                "name": "Kļūda: iestrēdzis lāpstiņritenis"
+            },
+            "errpmnotresp": {
+                "name": "Kļūda: pm sensors nereaģē"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Kļūda: displeja paneļa komunikācija"
+            },
+            "errcommsensoruibrd": {
+                "name": "Kļūda: ui dēļa komunikācija"
+            },
+            "signalstrength": {
+                "name": "Signāla stiprums"
+            },
+            "rssi": {
+                "name": "Rssi"
+            },
+            "filterrfid": {
+                "name": "RFID filtrs"
+            },
+            "errgasnotresp": {
+                "name": "Kļūda: gāzes sensors nereaģē"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Kļūda: 1. filtra nfc tags nav"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Kļūda: 2. filtra nfc tags nav"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Kļūda: 1. filtra nfc tags nav derīgs"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Kļūda: 2. filtra nfc tags nav derīgs"
+            },
+            "errnfctransceiver_1": {
+                "name": "Kļūda: filtrs 1 nfc raiduztvērējs"
+            },
+            "errnfctransceiver_2": {
+                "name": "Kļūda: filtrs 2 nfc raiduztvērējs"
+            },
+            "errtemprhnotresp": {
+                "name": "Kļūda: temperatūras/mitruma sensors nereaģē"
+            },
+            "errwatertrayremoved": {
+                "name": "Kļūda: ūdens paplāte noņemta"
+            },
+            "waterbucketlevel": {
+                "name": "Ūdens spaiņa līmenis"
+            },
+            "batterystatus": {
+                "name": "Akumulators"
+            },
+            "robotstatus": {
+                "name": "Robota statuss"
+            },
+            "cleaningcommand": {
+                "name": "Tīrīšanas komanda"
+            },
+            "dustbinstatus": {
+                "name": "Miskastes statuss"
+            },
+            "mainbrushsqm": {
+                "name": "Galvenās otas izmantošana"
+            },
+            "sidebrushsqm": {
+                "name": "Sānu birstes lietošana"
+            },
+            "filtersqm": {
+                "name": "Filtru lietošana"
+            },
+            "state": {
+                "name": "Tīrīšanas stāvoklis"
+            },
+            "chargingstatus": {
+                "name": "Uzlādes statuss"
+            },
+            "vacuummode": {
+                "name": "Vakuuma režīms"
+            },
+            "cleaningtype": {
+                "name": "Tīrīšanas veids"
+            },
+            "cleaningmode": {
+                "name": "Tīrīšanas režīms"
+            },
+            "waterpumprate": {
+                "name": "Ūdens sūkņa ātrums"
+            },
+            "waterstationaction": {
+                "name": "Ūdens stacijas darbība"
+            },
+            "moproute": {
+                "name": "Mopu maršruts"
+            },
+            "notificationevent": {
+                "name": "Paziņojuma pasākums"
+            },
+            "dirtcleanmode": {
+                "name": "Netīrumu tīrīšanas režīms"
+            },
+            "faultcode": {
+                "name": "Kļūdas kods"
+            },
+            "filterusage": {
+                "name": "Filtru lietošana"
+            },
+            "cleansize": {
+                "name": "Tīrs izmērs"
+            },
+            "cleantime": {
+                "name": "Tīrs laiks"
+            },
+            "dustbagusage": {
+                "name": "Putekļu maisa lietošana"
+            },
+            "dustboxusage": {
+                "name": "Putekļu kastes izmantošana"
+            },
+            "emptyingtime": {
+                "name": "Iztukšošanas laiks"
+            },
+            "mainbrushusage": {
+                "name": "Galvenās otas izmantošana"
+            },
+            "sidebrushusage": {
+                "name": "Sānu birstes lietošana"
+            },
+            "mopusage": {
+                "name": "Mopu lietošana"
+            },
+            "moparmextensionfreq": {
+                "name": "Mopu rokas pagarinājuma biežums"
+            },
+            "mopdrytime": {
+                "name": "Mopu žūšanas laiks"
+            },
+            "mopwashfreqarea": {
+                "name": "Mopu mazgāšanas biežuma apgabals"
+            },
+            "mopwashfreqtime": {
+                "name": "Mopu mazgāšanas biežuma laiks"
+            },
+            "mopwashfreqtype": {
+                "name": "Mopu mazgāšanas biežuma veids"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Tīrīšanas atkārtojumi"
+            },
+            "voicevolume": {
+                "name": "Balss skaļums"
+            },
+            "upgradeprogress": {
+                "name": "Jaunināšanas progress"
+            },
+            "stationupgradestatus": {
+                "name": "Stacijas jaunināšanas statuss"
+            },
+            "upgradestate": {
+                "name": "Jaunināšanas stāvoklis"
+            },
+            "selectedroomid": {
+                "name": "Atlasītās telpas ID"
+            },
+            "maxusagedustbox": {
+                "name": "Maksimālais putekļu kastes lietojums"
+            },
+            "maxusagestationbag": {
+                "name": "Maksimālais stacijas somas lietojums"
+            },
+            "dndstarttime": {
+                "name": "Dnd sākuma laiks"
+            },
+            "dndendtime": {
+                "name": "Dnd beigu laiks"
+            },
+            "datamodelversion": {
+                "name": "Datu modeļa versija"
+            },
+            "basestationversion": {
+                "name": "Bāzes stacijas versija"
+            },
+            "deviceid": {
+                "name": "Ierīces ID"
+            },
+            "timezonedaylightrule": {
+                "name": "Time zone daylight rule"
+            },
+            "timezonestandardname": {
+                "name": "Laika joslas standarta nosaukums"
+            },
+            "bintank": {
+                "name": "Bin tvertne"
+            },
+            "setvoicevolume": {
+                "name": "Balss skaļuma līmenis"
+            },
+            "mapid": {
+                "name": "Pastāvīgs kartes ID"
+            },
+            "sessionid": {
+                "name": "Tīrīšanas sesijas ID"
+            },
+            "completion": {
+                "name": "Tīrīšanas pabeigšana"
+            },
+            "areacovered": {
+                "name": "Aptvertā platība"
+            },
+            "zones": {
+                "name": "Kartes zonu skaits"
+            },
+            "zonestatus": {
+                "name": "Tīrīšanas zonas statuss"
+            },
+            "ovwater_tank_empty": {
+                "name": "Ūdens tvertnes statuss"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Pārtikas zonde"
+            },
+            "ovcleaning_ended": {
+                "name": "Tīrīšanas statuss"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Zonde gatavošanas beigas"
+            },
+            "connectivitystate": {
+                "name": "Savienojamības stāvoklis"
+            },
+            "executionstate": {
+                "name": "Izpildes valsts"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Iekšējā bērnu slēdzene"
+            },
+            "cavitylight": {
+                "name": "Dobuma gaisma"
+            },
+            "childlock": {
+                "name": "Bērnu slēdzene"
+            },
+            "soundvolume": {
+                "name": "Skaņas skaļums"
+            },
+            "keysoundtone": {
+                "name": "Taustiņu skaņa"
+            },
+            "windownotification": {
+                "name": "Logu paziņojums"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Ogļu filtra iespējošana"
+            },
+            "fastmode": {
+                "name": "Saldētavas ātrais režīms"
+            },
+            "sabbathmode": {
+                "name": "Sabata režīms"
+            },
+            "ecomode": {
+                "name": "Eko režīms"
+            },
+            "ui2lockmode": {
+                "name": "Ui 2 bloķēšanas režīms"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Iepriekšēja mazgāšana"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Pretburzīšanās (bez tvaika)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Pretburzīšanās ar tvaiku"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Nakts cikls"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonomiskais režīms"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Skalošanas aizturēšana"
+            },
+            "ewx1493a_intensive": {
+                "name": "Intensīva mazgāšana"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Temperatūras sensors"
+            },
+            "ewx1493a_stain": {
+                "name": "Traipu apstrāde"
+            },
+            "ewx1493a_drymode": {
+                "name": "Sausais režīms"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Viegls gludeklis"
+            },
+            "ewx1493a_pod": {
+                "name": "Pod"
+            },
+            "ewx1493a_steammode": {
+                "name": "Tvaika režīms"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra maisījums"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Mitrā režīms"
+            },
+            "networkinterfacealwayson": {
+                "name": "Tīkls vienmēr ieslēgts"
+            },
+            "adlocalfinetuning": {
+                "name": "Automātiskās devas vietējā precīzā regulēšana"
+            },
+            "anticreasenosteam": {
+                "name": "Pretburzīšanās bez tvaika"
+            },
+            "anticreasewsteam": {
+                "name": "Pretburzīšanās ar tvaiku"
+            },
+            "ultramix": {
+                "name": "Ultra maisījums"
+            },
+            "prewashphase": {
+                "name": "Iepriekšēja mazgāšana"
+            },
+            "stain": {
+                "name": "Traipu darbība"
+            },
+            "nightcycle": {
+                "name": "Nakts cikls"
+            },
+            "wmeconomy": {
+                "name": "Ekonomiskais režīms"
+            },
+            "rinsehold": {
+                "name": "Skalošanas aizturēšana"
+            },
+            "tcsensor": {
+                "name": "Temperatūras sensors"
+            },
+            "soak": {
+                "name": "Mērcēt"
+            },
+            "softener": {
+                "name": "Mīkstinātājs"
+            },
+            "defaultsoftplus": {
+                "name": "Noklusējuma soft plus"
+            },
+            "intensive": {
+                "name": "Intensīvi"
+            },
+            "reverseplus": {
+                "name": "Reverss plus"
+            },
+            "tdeconomy_eco": {
+                "name": "Eko režīms"
+            },
+            "tdeconomy_night": {
+                "name": "Nakts režīms"
+            },
+            "tdeconomy_quick": {
+                "name": "Ātrais režīms"
+            },
+            "refresh": {
+                "name": "Atsvaidziniet programmu"
+            },
+            "keytone": {
+                "name": "Taustiņu tonis"
+            },
+            "preselectlast": {
+                "name": "Iepriekšējā atlase pēdējā"
+            },
+            "extrapoweroption": {
+                "name": "Papildu jauda"
+            },
+            "extrasilentoption": {
+                "name": "Īpaši kluss"
+            },
+            "glasscareoption": {
+                "name": "Stikla kopšana"
+            },
+            "sprayzoneoption": {
+                "name": "Izsmidzināšanas zona"
+            },
+            "autodooropener": {
+                "name": "Automātiskais durvju atvērējs"
+            },
+            "sanitizeoption": {
+                "name": "Dezinficējiet"
+            },
+            "onerackoption": {
+                "name": "Viens statīvs"
+            },
+            "zonecleanoption": {
+                "name": "Zona tīra"
+            },
+            "xtradryoption": {
+                "name": "Īpaši sauss"
+            },
+            "cleanairmode": {
+                "name": "Tīra gaisa režīms"
+            },
+            "sleepmode": {
+                "name": "Miega režīms"
+            },
+            "batchschedulermode": {
+                "name": "Pakešu plānotāja režīms"
+            },
+            "verticalswing": {
+                "name": "Vertikālās šūpoles"
+            },
+            "turbofunction": {
+                "name": "Turbo funkcija"
+            },
+            "energysavingmode": {
+                "name": "Enerģijas taupīšanas režīms"
+            },
+            "autocleantrigger": {
+                "name": "Automātiskā tīrīšanas palaidējs"
+            },
+            "flappositionavoiduser": {
+                "name": "Atloka pozīcija, izvairieties no lietotāja"
+            },
+            "horizontalswing": {
+                "name": "Horizontālās šūpoles"
+            },
+            "humidification": {
+                "name": "Mitrināšana"
+            },
+            "uilight": {
+                "name": "Ui gaisma"
+            },
+            "safetylock": {
+                "name": "Drošības slēdzene"
+            },
+            "ionizer": {
+                "name": "Jonizators"
+            },
+            "uvstate": {
+                "name": "UV gaisma"
+            },
+            "mute": {
+                "name": "Izslēgt skaņu"
+            }
         }
     }
 }
