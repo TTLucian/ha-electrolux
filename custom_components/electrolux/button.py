@@ -146,23 +146,19 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         an enabled Start button that can only ever answer 406.
         """
         caps = self._appliance_capabilities()
-
         caps_id = id(caps)
 
         if hasattr(self, "_execute_states_cache") and getattr(self, "_execute_states_cache_caps_id", None) == caps_id:
             return cast(dict[str, list[str]] | None, self._execute_states_cache)
 
         derived = execute_states_from_capabilities(caps, entity_source=self.entity_source)
-
         states = derived
 
         if states is None and self._catalog_entry:
             states = self._catalog_entry.available_when_states
 
         self._execute_states_cache = states
-
         self._execute_states_cache_caps_id = caps_id
-
         return states
 
     def _appliance_capabilities(self) -> dict[str, Any] | None:
@@ -218,7 +214,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         # Remote control validation removed - API handles this with precise appliance-specific rules.
         # Different appliances have different states (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, persistentRemoteControl)
         # that only the API can accurately validate. Error handling in util.py displays friendly messages.
-        
+
         client: ElectroluxApiClient = self.api
         value = self.val_to_send
         command: dict[str, Any]
