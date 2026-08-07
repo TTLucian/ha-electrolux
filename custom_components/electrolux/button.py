@@ -193,18 +193,19 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         if appliance is None:
             return None
         return getattr(getattr(appliance, "data", None), "capabilities", None)
-
-# Check state restrictions first, appliance-derived or catalog-defined.
-# A command absent from the rules is left unrestricted, as before.
-if execute_states := self._execute_states:
-    allowed_states = execute_states.get(self.val_to_send)
-
-if allowed_states is not None:
-    current_state = self.reported_state.get("applianceState")
-    if current_state not in allowed_states:
-        return False
-
-return super().available
+        
+    @property
+    def available(self) -> bool:
+        # Check state restrictions first, appliance-derived or catalog-defined.
+        # A command absent from the rules is left unrestricted, as before.
+        if execute_states := self._execute_states:
+            allowed_states = execute_states.get(self.val_to_send)
+            if allowed_states is not None:
+                current_state = self.reported_state.get("applianceState")
+                if current_state not in allowed_states:
+                    return False
+        
+        return super().available
 
 
     @property
