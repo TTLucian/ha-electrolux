@@ -53,7 +53,7 @@ SERVICE_START_ZONE_CLEANING_SCHEMA = cv.make_entity_service_schema(
 
 # All appliance types that get a vacuum entity.
 # Extend this tuple as new RVC models are confirmed.
-_RVC_TYPES = {"PUREi9", "Gordias", "Cybele"}
+_RVC_TYPES = {"PUREi9", "Gordias", "Cybele", "700series"}
 
 # PUREi9 uses a legacy integer robotStatus (1-14), uppercase CleaningCommand, and numeric powerMode.
 # All other types (Gordias, Cybele, 700series) use the modern string state +
