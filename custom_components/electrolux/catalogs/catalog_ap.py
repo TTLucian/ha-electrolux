@@ -5,11 +5,10 @@ from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import (
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    CONCENTRATION_PARTS_PER_BILLION,
-    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     EntityCategory,
+    UnitOfDensity,
+    UnitOfRatio,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -35,21 +34,21 @@ CATALOG_AP = {
     "PM1": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.PM1,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         friendly_name="PM1",
     ),
     "PM2_5": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.PM25,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         friendly_name="PM2.5",
     ),
     "PM10": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.PM10,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         friendly_name="PM10",
     ),
@@ -59,7 +58,7 @@ CATALOG_AP = {
         # normalise ppb values to a dimensionless ratio (× 1e-9), turning e.g. 1070 → 1.07e-6.
         # Without a device class HA displays the raw integer with the ppb unit label as-is.
         device_class=None,
-        unit=CONCENTRATION_PARTS_PER_BILLION,
+        unit=UnitOfRatio.PARTS_PER_BILLION,
         entity_category=None,
         entity_icon="mdi:molecule",
         friendly_name="TVOC",
@@ -67,7 +66,7 @@ CATALOG_AP = {
     "ECO2": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=SensorDeviceClass.CO2,
-        unit=CONCENTRATION_PARTS_PER_MILLION,
+        unit=UnitOfRatio.PARTS_PER_MILLION,
         entity_category=None,
         friendly_name="eCO2",
     ),
@@ -392,7 +391,7 @@ CATALOG_AP = {
             "step": 1,
         },
         device_class=SensorDeviceClass.PM25,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         friendly_name="PM2.5 (Approximate)",
     ),

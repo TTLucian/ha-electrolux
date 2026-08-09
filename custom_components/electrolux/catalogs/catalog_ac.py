@@ -5,9 +5,9 @@ from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import (
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     PERCENTAGE,
     EntityCategory,
+    UnitOfDensity,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -603,7 +603,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
     "pm25": ElectroluxDevice(
         capability_info={"access": "read", "type": "int"},
         device_class=SensorDeviceClass.PM25,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         entity_icon="mdi:air-filter",
         friendly_name="PM2.5",
@@ -611,7 +611,7 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
     "pm10": ElectroluxDevice(
         capability_info={"access": "read", "type": "int"},
         device_class=SensorDeviceClass.PM10,
-        unit=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        unit=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         entity_category=None,
         entity_icon="mdi:air-filter",
         friendly_name="PM10",
