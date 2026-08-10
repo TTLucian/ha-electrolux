@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Nosūtīts pārāk daudz komandu. Lūdzu, uzgaidiet brīdi un mēģiniet vēlreiz."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nevar pielāgot pašreizējā režīmā."
+        },
         "control_locked": {
-            "message": "{attr} ir bloķēts {value} programmai {program}."
+            "message": "{attr} is locked at {value} for program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Ventilatora ātrumu nevar regulēt režīmā {mode}. Vispirms pārslēdzieties uz manuālo režīmu, lai kontrolētu ventilatora ātrumu."
         },
         "food_probe_locked_by_program": {
             "message": "Pārtikas zondes temperatūra programmai {program} ir bloķēta {value}°C."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Vērtība {value} ir zemāka par minimālo {min_val} {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Sāciet zonas tīrīšanu",
+            "description": "Sāciet uz zonu balstītu tīrīšanas sesiju ar PUREi9 robota putekļsūcēju. Zonu UUID un pastāvīgās kartes UUID ir atrodami integrācijas diagnostikā (mapData/mapMatch/zones un persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Pastāvīgs kartes ID",
+                    "description": "Izmantojamās pastāvīgās kartes UUID (no diagnostikas: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonas",
+                    "description": "Tīrāmo zonu saraksts. Katram ierakstam ir nepieciešams zone_id (UUID no mapData/mapMatch/zones[].uuid) un izvēles power_mode (1=kluss, 2=viedais, 3=jauda, ​​noklusējuma 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -228,7 +252,7 @@
                 "name": "Atbalstīti maiņstrāvas brīdinājumi"
             },
             "hepafilterinsertedstate": {
-                "name": "Ielikts hepa filtrs"
+                "name": "Ielikts Hepa filtrs"
             },
             "dooropen": {
                 "name": "Durvis vaļā"
@@ -282,7 +306,7 @@
                 "name": "Neizslēdziet gaisa žāvēšanu"
             },
             "isdndpausingairdry": {
-                "name": "Dnd apturēt gaisa žāvēšanu"
+                "name": "Dnd apturēt gaisa sausumu"
             },
             "multifloormap": {
                 "name": "Daudzstāvu karte"
@@ -291,7 +315,7 @@
                 "name": "Vairāku stāvu kartes automātiskais slēdzis"
             },
             "robotposereliable": {
-                "name": "Robot pose reliable"
+                "name": "Uzticama robota poza"
             },
             "ovwater_tank_empty": {
                 "name": "Ūdens tvertnes statuss"
@@ -420,13 +444,13 @@
                 "name": "Apkopes vienums 5 id"
             },
             "maint5_threshold": {
-                "name": "Apkopes pozīcijas 5 slieksnis"
+                "name": "Apkopes posteņa 5 slieksnis"
             },
             "maint6_id": {
                 "name": "Apkopes vienums 6 id"
             },
             "maint6_threshold": {
-                "name": "Apkopes posteņa 6 slieksnis"
+                "name": "Apkopes pozīcijas 6 slieksnis"
             },
             "maint7_id": {
                 "name": "Apkopes vienums 7 id"
@@ -586,7 +610,7 @@
                 "name": "Cepeškrāsns augšējā uzsildīšana ir pabeigta"
             },
             "targetdurationendaction": {
-                "name": "Augšējā krāsns mērķa ilguma beigu darbība"
+                "name": "Upper oven target duration end action"
             },
             "targetfoodprobetemperatureendaction": {
                 "name": "Augšējā cepeškrāsns mērķa pārtikas zondes temperatūras beigu darbība"
@@ -787,7 +811,7 @@
                 "name": "Ūdens mīkstinātāja režīms"
             },
             "maint1_threshold": {
-                "name": "Uzturēšanas slieksnis"
+                "name": "Maintenance threshold"
             },
             "detergentextradosage": {
                 "name": "Mazgāšanas līdzekļa papildu deva"
@@ -973,7 +997,7 @@
                 "name": "Plānotāja režīms"
             },
             "totalruntime": {
-                "name": "Kopējais izpildes laiks"
+                "name": "Kopējais izpildlaiks"
             },
             "compressorcoolingruntime": {
                 "name": "Kompresora dzesēšanas darbības laiks"
@@ -1069,7 +1093,7 @@
                 "name": "Filtra veids 2"
             },
             "filteruid_1": {
-                "name": "Filtrēt 1 nfc taga uid"
+                "name": "Filtrs 1 nfc taga uid"
             },
             "filteruid_2": {
                 "name": "Filtrs 2 nfc taga uid"
@@ -1093,7 +1117,7 @@
                 "name": "Kļūda: displeja paneļa komunikācija"
             },
             "errcommsensoruibrd": {
-                "name": "Kļūda: ui dēļa komunikācija"
+                "name": "Error: ui board communication"
             },
             "signalstrength": {
                 "name": "Signāla stiprums"
@@ -1270,7 +1294,7 @@
                 "name": "Ierīces ID"
             },
             "timezonedaylightrule": {
-                "name": "Time zone daylight rule"
+                "name": "Laika joslas dienasgaismas likums"
             },
             "timezonestandardname": {
                 "name": "Laika joslas standarta nosaukums"
@@ -1392,10 +1416,10 @@
                 "name": "Tvaika režīms"
             },
             "ewx1493a_ultramix": {
-                "name": "Ultra maisījums"
+                "name": "Ultra mix"
             },
             "ewx1493a_wetmode": {
-                "name": "Mitrā režīms"
+                "name": "Wet mode"
             },
             "networkinterfacealwayson": {
                 "name": "Tīkls vienmēr ieslēgts"
@@ -1410,7 +1434,7 @@
                 "name": "Pretburzīšanās ar tvaiku"
             },
             "ultramix": {
-                "name": "Ultra maisījums"
+                "name": "Ultra mix"
             },
             "prewashphase": {
                 "name": "Iepriekšēja mazgāšana"
@@ -1479,7 +1503,7 @@
                 "name": "Automātiskais durvju atvērējs"
             },
             "sanitizeoption": {
-                "name": "Dezinficējiet"
+                "name": "Dezinficē"
             },
             "onerackoption": {
                 "name": "Viens statīvs"

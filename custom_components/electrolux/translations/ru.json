@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Неверные учетные данные API. Пожалуйста, проверьте свой ключ API, токен доступа и токен обновления на портале разработчиков Electrolux."
+            "invalid_auth": "Неверные учетные данные API. Проверьте свой ключ API, токен доступа и токен обновления на портале разработчиков Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Допускается только одна конфигурация Electrolux.",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Отправлено слишком много команд. Пожалуйста, подождите немного и повторите попытку."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} невозможно настроить в текущем режиме."
+        },
         "control_locked": {
             "message": "{attr} заблокирован в {value} для программы {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Скорость вентилятора нельзя регулировать в режиме {mode}. Сначала переключитесь в ручной режим, чтобы контролировать скорость вентилятора."
         },
         "food_probe_locked_by_program": {
             "message": "Температура пищевого зонда зафиксирована на уровне {value}°C для программы {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Значение {value} ниже минимального {min_val} для {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Начать очистку зоны",
+            "description": "Начните сеанс уборки по зонам на роботе-пылесосе PUREi9. UUID зоны и UUID постоянной карты можно найти в диагностике интеграции (mapData/mapMatch/zones и persistMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Постоянный идентификатор карты",
+                    "description": "UUID используемой постоянной карты (из диагностики: persistMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Зоны",
+                    "description": "Список зон для очистки. Для каждой записи требуется Zone_id (UUID из mapData/mapMatch/zones[].uuid) и необязательный power_mode (1=тихий, 2=умный, 3=питание, по умолчанию 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {

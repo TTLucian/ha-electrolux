@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Настройка на Electrolux",
-                "description": "Свържете вашите уреди Electrolux с помощта на API идентификационни данни от портала за разработчици на Electrolux.\n\n**За да получите идентификационни данни за API:**\n1. Посетете {url}\n2. Регистрирайте се и създайте приложение\n3. Получете вашия API ключ, токен за достъп и токен за обновяване\n\nАко имате нужда от помощ, посетете документацията за интегриране.",
+                "description": "Свържете вашите уреди Electrolux с помощта на идентификационни данни за API от портала за разработчици на Electrolux.\n\n**За да получите идентификационни данни за API:**\n1. Посетете {url}\n2. Регистрирайте се и създайте приложение\n3. Получете вашия API ключ, токен за достъп и токен за обновяване\n\nАко имате нужда от помощ, посетете документацията за интегриране.",
                 "data": {
                     "api_key": "API ключ",
                     "access_token": "Токен за достъп",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Изпратени са твърде много команди. Моля, изчакайте малко и опитайте отново."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} не може да се коригира в текущия режим."
+        },
         "control_locked": {
             "message": "{attr} е заключен на {value} за програма {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Скоростта на вентилатора не може да се регулира в режим {mode}. Първо превключете на ръчен режим, за да контролирате скоростта на вентилатора."
         },
         "food_probe_locked_by_program": {
             "message": "Температурата на сондата за храна е заключена на {value}°C за програма {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Стойността {value} е под минималната {min_val} за {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Стартирайте почистване на зоната",
+            "description": "Започнете сесия за почистване на базата на зони на робот-прахосмукачка PUREi9. UUID на зоните и UUID на постоянната карта се намират в диагностиката на интеграцията (mapData/mapMatch/zones и persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Постоянно ID на картата",
+                    "description": "UUID на постоянната карта за използване (от диагностика: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Зони",
+                    "description": "Списък на зоните за почистване. Всеки запис се нуждае от zone_id (UUID от mapData/mapMatch/zones[].uuid) и незадължителен power_mode (1=тих, 2=интелигентен, 3=мощен, по подразбиране 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -402,7 +426,7 @@
                 "name": "Позиция поддръжка 2 id"
             },
             "maint2_threshold": {
-                "name": "Праг на артикул 2 за поддръжка"
+                "name": "Праг на елемент за поддръжка 2"
             },
             "maint3_id": {
                 "name": "Позиция поддръжка 3 id"
@@ -625,7 +649,7 @@
                 "name": "Любим статус"
             },
             "activemessageindex": {
-                "name": "Активен индекс на съобщенията"
+                "name": "Активен индекс на съобщения"
             },
             "appliancemode": {
                 "name": "Режим на уреда"
@@ -745,7 +769,7 @@
                 "name": "Измерено тегло на товара"
             },
             "doorlock": {
-                "name": "Door lock"
+                "name": "Заключване на вратата"
             },
             "totalwashcyclescount": {
                 "name": "Общи цикли на пране"
@@ -928,10 +952,10 @@
                 "name": "Околна температура c"
             },
             "ambienttemperaturef": {
-                "name": "Околна температура f"
+                "name": "Ambient temperature f"
             },
             "fanmode": {
-                "name": "Режим вентилатор"
+                "name": "Fan mode"
             },
             "swingmode": {
                 "name": "Режим на люлеене"
@@ -940,7 +964,7 @@
                 "name": "Влажност на околната среда"
             },
             "filterstatus": {
-                "name": "Състояние на филтъра"
+                "name": "Filter status"
             },
             "powerconsumption": {
                 "name": "Консумирана мощност"
@@ -949,16 +973,16 @@
                 "name": "Консумация на енергия"
             },
             "fanspeedstate": {
-                "name": "Състояние на скоростта на вентилатора"
+                "name": "Fan speed state"
             },
             "filterstate": {
-                "name": "Състояние на филтъра"
+                "name": "Filter state"
             },
             "hepafilterlifetime": {
-                "name": "Живот на филтъра Hepa"
+                "name": "Hepa filter life time"
             },
             "appliancecategory": {
-                "name": "Категория на уреда"
+                "name": "Appliance category"
             },
             "vmno_niu": {
                 "name": "Версия на Ниу"
@@ -1524,7 +1548,7 @@
                 "name": "Ui светлина"
             },
             "safetylock": {
-                "name": "Предпазно заключване"
+                "name": "Предпазна ключалка"
             },
             "ionizer": {
                 "name": "Йонизатор"

@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Troppi comandi inviati. Attendi un attimo e riprova."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} non può essere regolato nella modalità corrente."
+        },
         "control_locked": {
             "message": "{attr} è bloccato su {value} per il programma {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "La velocità della ventola non può essere regolata in modalità {mode}. Passare prima alla modalità manuale per controllare la velocità della ventola."
         },
         "food_probe_locked_by_program": {
             "message": "La temperatura della sonda alimentare è bloccata a {value}°C per il programma {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Il valore {value} è inferiore al minimo {min_val} per {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Avvia la pulizia della zona",
+            "description": "Avvia una sessione di pulizia a zone su un robot aspirapolvere PUREi9. Gli UUID di zona e l'UUID della mappa persistente si trovano nella diagnostica di integrazione (mapData/mapMatch/zones e persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "ID mappa persistente",
+                    "description": "UUID della mappa persistente da utilizzare (dalla diagnostica: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zone",
+                    "description": "Elenco delle zone da pulire. Ogni voce necessita di zone_id (UUID da mapData/mapMatch/zones[].uuid) e power_mode opzionale (1=silenzioso, 2=intelligente, 3=potenza, predefinito 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -390,7 +414,7 @@
                 "name": "Regolazione fine del livello del detersivo"
             },
             "adfinetunesoftlevel": {
-                "name": "Regolazione fine del livello dell'ammorbidente"
+                "name": "Regolazione fine del livello dell'addolcitore"
             },
             "extrarinsenumber": {
                 "name": "Risciacqui aggiuntivi"
@@ -426,7 +450,7 @@
                 "name": "Articolo di manutenzione 6 id"
             },
             "maint6_threshold": {
-                "name": "Soglia dell'elemento 6 della manutenzione"
+                "name": "Soglia dell'articolo 6 della manutenzione"
             },
             "maint7_id": {
                 "name": "Articolo di manutenzione 7 id"
@@ -709,7 +733,7 @@
                 "name": "Stato del distributore di ghiaccio"
             },
             "icetraywaterfillsetting": {
-                "name": "Ice tray fill setting"
+                "name": "Impostazione di riempimento della vaschetta del ghiaccio"
             },
             "airfilterlifetimebuythreshold": {
                 "name": "Soglia di acquisto del filtro dell'aria"
@@ -925,7 +949,7 @@
                 "name": "Stato vario"
             },
             "ambienttemperaturec": {
-                "name": "Temperatura ambientec"
+                "name": "Temperatura ambiente c"
             },
             "ambienttemperaturef": {
                 "name": "Temperatura ambiente f"
@@ -1069,7 +1093,7 @@
                 "name": "Tipo di filtro 2"
             },
             "filteruid_1": {
-                "name": "Filtra 1 uid tag NFC"
+                "name": "Filtra 1 uid del tag NFC"
             },
             "filteruid_2": {
                 "name": "Filtra 2 uid tag NFC"

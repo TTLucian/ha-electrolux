@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Tokenul de acces și Tokenul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, token-ul de acces și token-ul de reîmprospătare de pe portalul pentru dezvoltatori Electrolux."
         },
         "abort": {
             "single_instance_allowed": "Este permisă doar o singură configurație Electrolux.",
@@ -59,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare."
+            "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, token-ul de acces și token-ul de reîmprospătare."
         }
     },
     "issues": {
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Actualizați acreditările API Electrolux",
-                        "description": "Tokenurile tale Electrolux API au expirat și reîmprospătarea automată a eșuat. Vă rugăm să introduceți noi acreditări de pe Portalul pentru dezvoltatori Electrolux pentru a restabili funcționalitatea.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o nouă cheie API, un token de acces și un token de reîmprospătare\n3. Introduceți-le mai jos",
+                        "description": "Tokenurile API Electrolux au expirat și reîmprospătarea automată a eșuat. Vă rugăm să introduceți noi acreditări de pe Portalul pentru dezvoltatori Electrolux pentru a restabili funcționalitatea.\n\n**Pentru a genera noi acreditări:**\n1. Vizitați {url}\n2. Generați o cheie API nouă, un token de acces și un token de reîmprospătare\n3. Introduceți-le mai jos",
                         "data": {
                             "api_key": "Cheia API",
                             "access_token": "Token de acces",
@@ -78,7 +78,7 @@
                     }
                 },
                 "error": {
-                    "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, Token-ul de acces și Token-ul de reîmprospătare.",
+                    "invalid_auth": "Acreditări API nevalide. Vă rugăm să verificați cheia API, token-ul de acces și token-ul de reîmprospătare.",
                     "invalid_format": "Format de autentificare nevalid. Vă rugăm să vă asigurați că toate câmpurile sunt completate corect.",
                     "entry_not_found": "Intrarea de configurare nu a fost găsită."
                 },
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Prea multe comenzi trimise. Vă rugăm să așteptați un moment și să încercați din nou."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nu poate fi ajustat în modul curent."
+        },
         "control_locked": {
             "message": "{attr} este blocat la {value} pentru programul {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Viteza ventilatorului nu poate fi reglată în modul {mode}. Treceți mai întâi la modul Manual pentru a controla viteza ventilatorului."
         },
         "food_probe_locked_by_program": {
             "message": "Temperatura sondei alimentare este blocată la {value}°C pentru programul {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Valoarea {value} este sub minimul {min_val} pentru {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Începeți curățarea zonei",
+            "description": "Începeți o sesiune de curățare pe zone pe un aspirator robot PUREi9. UUID-urile zonei și UUID-ul hărții persistente se găsesc în diagnosticele de integrare (mapData/mapMatch/zones și persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "ID-ul hărții persistent",
+                    "description": "UUID-ul hărții persistente de utilizat (din diagnosticare: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonele",
+                    "description": "Lista zonelor de curățat. Fiecare intrare are nevoie de zone_id (UUID din mapData/mapMatch/zones[].uuid) și opțional power_mode (1=liniștit, 2=inteligent, 3=putere, implicit 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -210,7 +234,7 @@
                 "name": "Elementul de întreținere 8 a avut loc"
             },
             "maint9_occured": {
-                "name": "Maintenance item 9 occurred"
+                "name": "Elementul de întreținere 9 a avut loc"
             },
             "maint10_occured": {
                 "name": "Elementul de întreținere 10 a avut loc"
@@ -219,7 +243,7 @@
                 "name": "A avut loc întreținerea 1"
             },
             "ecomode": {
-                "name": "Mod Eco"
+                "name": "Modul Eco"
             },
             "hmepn_acairfilterclean": {
                 "name": "Este necesară curățarea filtrului de aer"
@@ -243,7 +267,7 @@
                 "name": "Extensie automată a brațului mopului"
             },
             "automopdry": {
-                "name": "Mop uscat"
+                "name": "Mop uscat automat"
             },
             "automopwash": {
                 "name": "Spălarea automată a mopului"
@@ -390,7 +414,7 @@
                 "name": "Reglați fin nivelul detergentului"
             },
             "adfinetunesoftlevel": {
-                "name": "Reglați fin nivelul de balsam"
+                "name": "Fine tune softener level"
             },
             "extrarinsenumber": {
                 "name": "Clătiri suplimentare"
@@ -408,7 +432,7 @@
                 "name": "Element de întreținere 3 id"
             },
             "maint3_threshold": {
-                "name": "Elementul de întreținere 3 prag"
+                "name": "Punctul de întreținere 3 prag"
             },
             "maint4_id": {
                 "name": "Articol de întreținere 4 id"
@@ -694,7 +718,7 @@
                 "name": "Exponentul vitezei compresorului"
             },
             "clonetargettemperaturemode": {
-                "name": "Modul de clonare cu cavitate suplimentară"
+                "name": "Mod de clonare cu cavitate suplimentară"
             },
             "temperatureadjustingstate": {
                 "name": "Reglare suplimentară a cavității"
@@ -790,7 +814,7 @@
                 "name": "Pragul de întreținere"
             },
             "detergentextradosage": {
-                "name": "Doza suplimentara de detergent"
+                "name": "Doza suplimentară de detergent"
             },
             "optisenseresult": {
                 "name": "Greutatea încărcăturii"
@@ -805,7 +829,7 @@
                 "name": "Rezervă o rezervă"
             },
             "tankbdetloadfornominalweight": {
-                "name": "Sarcina de det rezervor b pentru greutatea nominală"
+                "name": "Rezervor b det sarcină pentru greutatea nominală"
             },
             "tankbreserve": {
                 "name": "Rezervorul b"
@@ -823,7 +847,7 @@
                 "name": "Rezervorul b dedurizator încărcat"
             },
             "ecolevel": {
-                "name": "Nivel ecologic"
+                "name": "Nivelul Eco"
             },
             "applianceuiswversion": {
                 "name": "Versiunea sw a aparatului ui"
@@ -856,7 +880,7 @@
                 "name": "Contor total de cicluri de abur"
             },
             "prewashphase": {
-                "name": "Faza de pre-spălare"
+                "name": "Faza de prespălare"
             },
             "dryingnominalloadweight": {
                 "name": "Greutatea nominală a sarcinii"
@@ -898,7 +922,7 @@
                 "name": "Dwyw: timpul estimat de uscare"
             },
             "tdecpoverload": {
-                "name": "Dwyw: indicatorul de supraîncărcare de încărcare"
+                "name": "Dwyw: indicatorul de suprasarcină de încărcare"
             },
             "wmloaderror": {
                 "name": "Dwyw: eroare de încărcare de spălare"
@@ -973,7 +997,7 @@
                 "name": "Modul programator"
             },
             "totalruntime": {
-                "name": "Durată totală de rulare"
+                "name": "Timp total de rulare"
             },
             "compressorcoolingruntime": {
                 "name": "Timp de funcționare de răcire a compresorului"
@@ -1156,7 +1180,7 @@
                 "name": "Utilizarea filtrului"
             },
             "state": {
-                "name": "Stare de curatare"
+                "name": "Stare de curățare"
             },
             "chargingstatus": {
                 "name": "Starea de încărcare"
@@ -1222,7 +1246,7 @@
                 "name": "Mop timp de uscare"
             },
             "mopwashfreqarea": {
-                "name": "Zona de frecvență de spălare a mopului"
+                "name": "Zona de frecvență de spălare cu mopul"
             },
             "mopwashfreqtime": {
                 "name": "Durata frecvenței de spălare a mopului"
@@ -1240,7 +1264,7 @@
                 "name": "Progresul upgrade-ului"
             },
             "stationupgradestatus": {
-                "name": "Starea de actualizare a stației"
+                "name": "Starea upgrade-ului stației"
             },
             "upgradestate": {
                 "name": "Stare de upgrade"
@@ -1252,7 +1276,7 @@
                 "name": "Utilizare maximă a cutiei de praf"
             },
             "maxusagestationbag": {
-                "name": "Utilizare maximă a pungii stației"
+                "name": "Utilizarea maximă a sacului de stație"
             },
             "dndstarttime": {
                 "name": "Dnd ora de începere"
@@ -1347,7 +1371,7 @@
                 "name": "Modul Sabat"
             },
             "ecomode": {
-                "name": "Mod Eco"
+                "name": "Modul Eco"
             },
             "ui2lockmode": {
                 "name": "Modul Ui 2lock"
@@ -1368,7 +1392,7 @@
                 "name": "Modul economic"
             },
             "ewx1493a_rinsehold": {
-                "name": "Clătire hold"
+                "name": "Se clătește"
             },
             "ewx1493a_intensive": {
                 "name": "Spălare intensivă"
@@ -1401,7 +1425,7 @@
                 "name": "Rețeaua mereu pornită"
             },
             "adlocalfinetuning": {
-                "name": "Reglare fină locală a dozei automate"
+                "name": "Reglare fină locală a dozării automate"
             },
             "anticreasenosteam": {
                 "name": "Anti sifonare fara abur"
@@ -1425,7 +1449,7 @@
                 "name": "Modul economic"
             },
             "rinsehold": {
-                "name": "Clătire hold"
+                "name": "Se clătește"
             },
             "tcsensor": {
                 "name": "Senzor de temperatura"
@@ -1446,7 +1470,7 @@
                 "name": "Plus invers"
             },
             "tdeconomy_eco": {
-                "name": "Mod Eco"
+                "name": "Modul Eco"
             },
             "tdeconomy_night": {
                 "name": "Modul de noapte"
@@ -1461,7 +1485,7 @@
                 "name": "Tonul tastei"
             },
             "preselectlast": {
-                "name": "Preselectați ultimul"
+                "name": "Pre-selectați ultimul"
             },
             "extrapoweroption": {
                 "name": "Putere suplimentară"

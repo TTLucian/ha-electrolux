@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Zu viele Befehle gesendet. Bitte warten Sie einen Moment und versuchen Sie es erneut."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} kann im aktuellen Modus nicht angepasst werden."
+        },
         "control_locked": {
             "message": "{attr} ist bei {value} für Programm {program} gesperrt."
+        },
+        "fanspeed_disabled": {
+            "message": "Die Lüftergeschwindigkeit kann im {mode}-Modus nicht angepasst werden. Wechseln Sie zunächst in den manuellen Modus, um die Lüftergeschwindigkeit zu steuern."
         },
         "food_probe_locked_by_program": {
             "message": "Die Temperatur des Lebensmittelfühlers ist für Programm {program} auf {value}°C gesperrt."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Der Wert {value} liegt unter dem Mindestwert {min_val} für {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Zonenreinigung starten",
+            "description": "Starten Sie eine zonenbasierte Reinigungssitzung auf einem PUREi9-Roboterstaubsauger. Zonen-UUIDs und die persistente Karten-UUID finden Sie in der Integrationsdiagnose (mapData/mapMatch/zones und persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Persistente Karten-ID",
+                    "description": "UUID der zu verwendenden persistenten Karte (aus der Diagnose: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonen",
+                    "description": "Liste der zu reinigenden Zonen. Jeder Eintrag benötigt zone_id (UUID aus mapData/mapMatch/zones[].uuid) und optional power_mode (1=leise, 2=smart, 3=power, Standard 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -393,7 +417,7 @@
                 "name": "Feinabstimmung des Weichspülerniveaus"
             },
             "extrarinsenumber": {
-                "name": "Zusätzliche Spülungen"
+                "name": "Zusätzliche Spülgänge"
             },
             "maint1_id": {
                 "name": "Wartungselement 1-ID"
@@ -982,7 +1006,7 @@
                 "name": "Laufzeit der Kompressorheizung"
             },
             "mainunittemp": {
-                "name": "Haupteinheitstemperatur"
+                "name": "Temperatur der Haupteinheit"
             },
             "loge": {
                 "name": "Protokoll e"
@@ -1165,7 +1189,7 @@
                 "name": "Vakuummodus"
             },
             "cleaningtype": {
-                "name": "Reinigungsart"
+                "name": "Reinigungstyp"
             },
             "cleaningmode": {
                 "name": "Reinigungsmodus"

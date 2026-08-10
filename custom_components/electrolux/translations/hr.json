@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Ponovno provjerite autentičnost Electroluxa",
-                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s portala za razvojne programere Electrolux.\n\nPosjetite {url} za generiranje novih tokena.",
+                "description": "Vaši Electrolux API tokeni su istekli ili su nevažeći. Ažurirajte ih novim tokenima s Electroluxovog portala za razvojne programere.\n\nPosjetite {url} za generiranje novih tokena.",
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Pristupni token",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Poslano je previše naredbi. Pričekajte trenutak i pokušajte ponovo."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nije moguće prilagoditi u trenutnom načinu rada."
+        },
         "control_locked": {
             "message": "{attr} je zaključan na {value} za program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Brzina ventilatora ne može se podesiti u načinu rada {mode}. Najprije prijeđite na ručni način rada za kontrolu brzine ventilatora."
         },
         "food_probe_locked_by_program": {
             "message": "Temperatura sonde za hranu je zaključana na {value}°C za program {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Vrijednost {value} ispod je minimalne {min_val} za {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Pokrenite čišćenje zone",
+            "description": "Započnite sesiju čišćenja po zonama na robotskom usisavaču PUREi9. UUID-ovi zona i trajni UUID karte nalaze se u dijagnostici integracije (mapData/mapMatch/zones i persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Postojani ID karte",
+                    "description": "UUID trajne karte za korištenje (iz dijagnostike: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zone",
+                    "description": "Popis zona za čišćenje. Svaki unos treba zone_id (UUID iz mapData/mapMatch/zones[].uuid) i izborni power_mode (1=tih, 2=pametan, 3=napajanje, zadano 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -192,7 +216,7 @@
                 "name": "Pojavila se stavka održavanja 2"
             },
             "maint3_occured": {
-                "name": "Pojavila se stavka održavanja 3"
+                "name": "Dogodila se stavka održavanja 3"
             },
             "maint4_occured": {
                 "name": "Pojavila se stavka održavanja 4"
@@ -255,7 +279,7 @@
                 "name": "Mop instaliran"
             },
             "incharger": {
-                "name": "In charger"
+                "name": "U punjaču"
             },
             "returntowash": {
                 "name": "Vratite se na pranje"
@@ -351,7 +375,7 @@
                 "name": "Ciljano trajanje"
             },
             "targetfoodprobetemperaturec": {
-                "name": "Target food probe temperature c"
+                "name": "Ciljana temperatura sonde za hranu c"
             },
             "targetfoodprobetemperaturef": {
                 "name": "Ciljana temperatura sonde za hranu f"
@@ -366,7 +390,7 @@
                 "name": "Vrijeme podsjetnika gornje pećnice"
             },
             "appliancelocaltimeoffset": {
-                "name": "Odmak lokalnog vremena uređaja"
+                "name": "Lokalni vremenski pomak uređaja"
             },
             "lightintensity": {
                 "name": "Intenzitet svjetlosti"
@@ -444,7 +468,7 @@
                 "name": "Stavka održavanja 9 id"
             },
             "maint9_threshold": {
-                "name": "Prag stavke održavanja 9"
+                "name": "Prag stavke 9 održavanja"
             },
             "maint10_id": {
                 "name": "Stavka održavanja 10 id"
@@ -673,7 +697,7 @@
                 "name": "Status zračnog filtra"
             },
             "airfilterlifetime": {
-                "name": "Životni vijek filtera za zrak"
+                "name": "Vijek trajanja zračnog filtra"
             },
             "coolingvalvestate": {
                 "name": "Stanje ventila za hlađenje"
@@ -991,7 +1015,7 @@
                 "name": "Log w"
             },
             "demandresponseau": {
-                "name": "Odgovor na potražnju au"
+                "name": "Odgovor na zahtjev au"
             },
             "pm25": {
                 "name": "Pm2,5"
@@ -1048,7 +1072,7 @@
                 "name": "Aqi svjetlo"
             },
             "louverswing": {
-                "name": "Ljuljačka žaluzine"
+                "name": "Ljuljačka žaluzina"
             },
             "quietfan": {
                 "name": "Tihi ventilator"
@@ -1129,7 +1153,7 @@
                 "name": "Greška: senzor temperature/vlažnosti ne reagira"
             },
             "errwatertrayremoved": {
-                "name": "Pogreška: posuda za vodu uklonjena"
+                "name": "Greška: posuda za vodu uklonjena"
             },
             "waterbucketlevel": {
                 "name": "Razina kante za vodu"

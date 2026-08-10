@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "„Electrolux“ sąranka",
-                "description": "Prijunkite savo Electrolux prietaisus naudodami API kredencialus iš Electrolux kūrėjų portalo.\n\n**Kad gautumėte API kredencialus:**\n1. Apsilankykite {url}\n2. Užsiregistruokite ir sukurkite programą\n3. Gaukite API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n\nJei jums reikia pagalbos, apsilankykite integravimo dokumentacijoje.",
+                "description": "Prijunkite savo Electrolux prietaisus naudodami API kredencialus iš Electrolux kūrėjų portalo.\n\n**Kad gautumėte API kredencialus:**\n1. Apsilankykite {url}\n2. Užsiregistruokite ir sukurkite programą\n3. Gaukite API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n\nJei reikia pagalbos, apsilankykite integravimo dokumentacijoje.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -40,14 +40,14 @@
             "already_configured": "Šis įrenginys jau sukonfigūruotas.",
             "already_configured_account": "Šis API raktas jau sukonfigūruotas.",
             "entry_not_found": "Nepavyko rasti konfigūracijos įrašo.",
-            "reconfigure_successful": "Pakartotinis konfigūravimas buvo sėkmingas."
+            "reconfigure_successful": "Iš naujo konfigūruoti pavyko."
         }
     },
     "options": {
         "step": {
             "user": {
                 "title": "„Electrolux“ parinktys",
-                "description": "Atnaujinkite savo Electrolux API kredencialus, jei jų galiojimo laikas baigėsi.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Atnaujinkite toliau pateiktus laukus\n\n**Saugumo pastaba:** Prieigos prieigos rakto ir Atnaujinimo prieigos rakto laukai tyčia paliekami tušti. Visada generuokite naujus žetonus iš portalo – niekada nenaudokite pakartotinai ir nedalykite esamų žetonų.",
+                "description": "Atnaujinkite savo Electrolux API kredencialus, jei jų galiojimo laikas baigėsi.\n\n**Kad sugeneruotumėte naujus kredencialus:**\n1. Apsilankykite {url}\n2. Sugeneruokite naują API raktą, prieigos prieigos raktą ir atnaujinimo prieigos raktą\n3. Atnaujinkite toliau pateiktus laukus\n\n**Saugumo pastaba:** Prieigos prieigos rakto ir Atnaujinimo prieigos rakto laukai tyčia paliekami tušti. Visada generuokite naujus žetonus iš portalo – niekada nenaudokite ir nedalykite esamų žetonų.",
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Išsiųsta per daug komandų. Šiek tiek palaukite ir bandykite dar kartą."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} negalima reguliuoti dabartiniu režimu."
+        },
         "control_locked": {
             "message": "{attr} yra užrakintas {value} programai {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Ventiliatoriaus greičio negalima reguliuoti {mode} režimu. Norėdami valdyti ventiliatoriaus greitį, pirmiausia perjunkite į rankinį režimą."
         },
         "food_probe_locked_by_program": {
             "message": "Maisto zondo temperatūra užrakinta {value}°C programai {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Vertė {value} yra mažesnė už minimalią {min_val} {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Pradėkite zonos valymą",
+            "description": "Pradėkite zonoje pagrįstą valymo seansą naudodami PUREi9 robotą dulkių siurblį. Zonos UUID ir nuolatinis žemėlapio UUID randami integravimo diagnostikoje (mapData/mapMatch/zones ir persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Nuolatinis žemėlapio ID",
+                    "description": "Naudotino nuolatinio žemėlapio UUID (iš diagnostikos: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonos",
+                    "description": "Valytinų zonų sąrašas. Kiekvienam įrašui reikalingas zonos_id (UUID iš mapData/mapMatch/zones[].uuid) ir pasirenkamas power_mode (1 = tylus, 2 = išmanusis, 3 = galia, numatytasis 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -300,7 +324,7 @@
                 "name": "Valymo būsena"
             },
             "ovfood_probe_end_of_cooking": {
-                "name": "Gaminimo pabaigos zondas"
+                "name": "Probe End of Cooking"
             }
         },
         "button": {
@@ -351,7 +375,7 @@
                 "name": "Tikslinė trukmė"
             },
             "targetfoodprobetemperaturec": {
-                "name": "Tikslinė maisto zondo temperatūra c"
+                "name": "Target food probe temperature c"
             },
             "targetfoodprobetemperaturef": {
                 "name": "Tikslinė maisto zondo temperatūra f"
@@ -366,7 +390,7 @@
                 "name": "Viršutinės krosnies priminimo laikas"
             },
             "appliancelocaltimeoffset": {
-                "name": "Prietaiso vietos laiko nuokrypis"
+                "name": "Prietaiso vietinio laiko nuokrypis"
             },
             "lightintensity": {
                 "name": "Šviesos intensyvumas"
@@ -396,7 +420,7 @@
                 "name": "Papildomi skalavimai"
             },
             "maint1_id": {
-                "name": "Priežiūros prekės 1 id"
+                "name": "Maintenance item 1 id"
             },
             "maint2_id": {
                 "name": "Priežiūros elemento 2 id"
@@ -970,7 +994,7 @@
                 "name": "Planuotojo sesija"
             },
             "schedulermode": {
-                "name": "Planuoklio režimas"
+                "name": "Planavimo režimas"
             },
             "totalruntime": {
                 "name": "Bendras vykdymo laikas"
@@ -1276,7 +1300,7 @@
                 "name": "Standartinis laiko juostos pavadinimas"
             },
             "bintank": {
-                "name": "Šiukšlių bakas"
+                "name": "Šiukšliadėžės bakas"
             },
             "setvoicevolume": {
                 "name": "Balso garsumo lygis"
@@ -1309,7 +1333,7 @@
                 "name": "Valymo būsena"
             },
             "ovfood_probe_end_of_cooking": {
-                "name": "Gaminimo pabaigos zondas"
+                "name": "Probe End of Cooking"
             },
             "connectivitystate": {
                 "name": "Ryšio būsena"

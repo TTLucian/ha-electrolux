@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Preveč poslanih ukazov. Počakajte trenutek in poskusite znova."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} ni mogoče prilagoditi v trenutnem načinu."
+        },
         "control_locked": {
             "message": "{attr} je zaklenjen na {value} za program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Hitrosti ventilatorja ni mogoče prilagoditi v načinu {mode}. Najprej preklopite v ročni način, da nadzirate hitrost ventilatorja."
         },
         "food_probe_locked_by_program": {
             "message": "Temperatura sonde za hrano je zaklenjena na {value}°C za program {program}."
@@ -144,6 +150,24 @@
             "message": "Vrednost {value} je pod najmanjšo vrednostjo {min_val} za {attr}."
         }
     },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Začnite čiščenje območja",
+            "description": "Začnite območno sejo čiščenja na robotskem sesalniku PUREi9. UUID cone in UUID trajnega zemljevida najdete v diagnostiki integracije (mapData/mapMatch/zones in persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Trajni ID zemljevida",
+                    "description": "UUID obstojnega zemljevida za uporabo (iz diagnostike: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Cone",
+                    "description": "Seznam območij za čiščenje. Vsak vnos potrebuje zone_id (UUID iz mapData/mapMatch/zones[].uuid) in izbirni power_mode (1=tiho, 2=pametno, 3=moč, privzeto 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "connectivitystate": {
@@ -174,7 +198,7 @@
                 "name": "Svetloba, osredotočena na človeka"
             },
             "hoodautoswitchoffevent": {
-                "name": "Auto switch-off"
+                "name": "Samodejni izklop"
             },
             "appliancestate": {
                 "name": "Stanje zamrzovalnika"
@@ -592,7 +616,7 @@
                 "name": "Končno delovanje zgornje ciljne sonde za hrano"
             },
             "watertanklevel": {
-                "name": "Zgornja raven rezervoarja za vodo v pečici"
+                "name": "Nivo zgornjega rezervoarja za vodo v pečici"
             },
             "waterhardness": {
                 "name": "Trdota vode"
@@ -1123,7 +1147,7 @@
                 "name": "Napaka: filter 1 sprejemnik-sprejemnik nfc"
             },
             "errnfctransceiver_2": {
-                "name": "Napaka: filter 2 nfc oddajnik-sprejemnik"
+                "name": "Napaka: filter 2 nfc sprejemnik-sprejemnik"
             },
             "errtemprhnotresp": {
                 "name": "Napaka: senzor temperature/vlažnosti se ne odziva"

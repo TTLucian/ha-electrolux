@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
+            "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Je povolená iba jedna konfigurácia Electrolux.",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Bolo odoslaných príliš veľa príkazov. Chvíľu počkajte a skúste to znova."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nie je možné upraviť v aktuálnom režime."
+        },
         "control_locked": {
             "message": "{attr} je uzamknuté na {value} pre program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Rýchlosť ventilátora nie je možné upraviť v režime {mode}. Najprv prepnite do manuálneho režimu, aby ste mohli ovládať rýchlosť ventilátora."
         },
         "food_probe_locked_by_program": {
             "message": "Teplota potravinovej sondy je uzamknutá na {value}°C pre program {program}."
@@ -138,16 +144,34 @@
             "message": "Chyba integrácie: nezhoda typu údajov pre {attr}. Očakávaná logická hodnota."
         },
         "value_above_maximum": {
-            "message": "Value {value} is above the maximum {max_val} for {attr}."
+            "message": "Hodnota {value} je vyššia ako maximum {max_val} pre {attr}."
         },
         "value_below_minimum": {
             "message": "Hodnota {value} je nižšia ako minimum {min_val} pre {attr}."
         }
     },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Spustite čistenie zóny",
+            "description": "Začnite zónové čistenie na robotickom vysávači PUREi9. Zónové UUID a trvalé mapové UUID sa nachádzajú v integračnej diagnostike (mapData/mapMatch/zones a persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Trvalé ID mapy",
+                    "description": "UUID trvalej mapy, ktorá sa má použiť (z diagnostiky: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zóny",
+                    "description": "Zoznam zón na čistenie. Každý záznam potrebuje zone_id (UUID z mapData/mapMatch/zones[].uuid) a voliteľný power_mode (1=tichý, 2=inteligentný, 3=napájanie, predvolené 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "connectivitystate": {
-                "name": "Connectivity state"
+                "name": "Stav pripojenia"
             },
             "doorstate": {
                 "name": "Stav dverí"
@@ -261,16 +285,16 @@
                 "name": "Vráťte sa umyť"
             },
             "roomselected": {
-                "name": "Room selected"
+                "name": "Vybraná miestnosť"
             },
             "carpetboost": {
-                "name": "Carpet boost"
+                "name": "Zosilnenie koberca"
             },
             "carpetavoid": {
                 "name": "Vyhnite sa kobercom"
             },
             "carpetdisplay": {
-                "name": "Displej na koberce"
+                "name": "Displej kobercov"
             },
             "obstacleavoidance": {
                 "name": "Vyhýbanie sa prekážkam"
@@ -814,7 +838,7 @@
                 "name": "Spotreba vody"
             },
             "adtankadetloaded": {
-                "name": "Nádrž naplnený čistiacim prostriedkom"
+                "name": "Nádrž s čistiacim prostriedkom"
             },
             "adtankbdetloaded": {
                 "name": "Nádrž b na čistiaci prostriedok je naplnená"
@@ -1048,7 +1072,7 @@
                 "name": "Aqi svetlo"
             },
             "louverswing": {
-                "name": "Hojdačka žalúzií"
+                "name": "Hojdačka žalúzie"
             },
             "quietfan": {
                 "name": "Tichý ventilátor"
@@ -1123,7 +1147,7 @@
                 "name": "Chyba: filter 1 nfc transceiver"
             },
             "errnfctransceiver_2": {
-                "name": "Error: filter 2 nfc transceiver"
+                "name": "Chyba: filter 2 nfc transceiver"
             },
             "errtemprhnotresp": {
                 "name": "Chyba: snímač teploty/vlhkosti nereaguje"
@@ -1237,7 +1261,7 @@
                 "name": "Hlasitosť hlasu"
             },
             "upgradeprogress": {
-                "name": "Priebeh inovácie"
+                "name": "Pokrok v inovácii"
             },
             "stationupgradestatus": {
                 "name": "Stav aktualizácie stanice"
@@ -1323,7 +1347,7 @@
                 "name": "Vnútorná detská poistka"
             },
             "cavitylight": {
-                "name": "Dutinové svetlo"
+                "name": "Cavity light"
             },
             "childlock": {
                 "name": "Detská poistka"

@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Ze vill Kommandoen geschéckt. Waart e Moment a probéiert nach eng Kéier."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} kann net am aktuellen Modus ugepasst ginn."
+        },
         "control_locked": {
             "message": "{attr} ass um {value} fir de Programm {program} gespaart."
+        },
+        "fanspeed_disabled": {
+            "message": "Fan Vitesse kann net am Modus {mode} ugepasst ginn. Wiesselt als éischt op de manuelle Modus fir d'Fangeschwindegkeet ze kontrolléieren."
         },
         "food_probe_locked_by_program": {
             "message": "D'Liewensmëttelsondetemperatur ass bei {value}°C fir de Programm {program} gespaart."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "De Wäert {value} ass ënner dem Minimum {min_val} fir {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Start Zone Botzen",
+            "description": "Start eng Zone-baséiert Botzen Sessioun op engem PUREi9 Roboter Vakuum. Zone UUIDs an déi persistent Kaart UUID ginn an der Integratiounsdiagnostik fonnt (mapData/mapMatch/zones and persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Persistent Kaart ID",
+                    "description": "UUID vun der persistent Kaart ze benotzen (vun Diagnostik: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonen",
+                    "description": "Lëscht vun Zonen ze botzen. All Entrée brauch zone_id (UUID aus mapData/mapMatch/zones[].uuid) an optional power_mode (1 = roueg, 2 = Smart, 3 = Muecht, Standard 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -228,7 +252,7 @@
                 "name": "Ac Alarmer ënnerstëtzt"
             },
             "hepafilterinsertedstate": {
-                "name": "Hepa Filter agebaut"
+                "name": "Hepa Filter agesat"
             },
             "dooropen": {
                 "name": "Dier op"
@@ -243,7 +267,7 @@
                 "name": "Auto Mop Arm Extensioun"
             },
             "automopdry": {
-                "name": "Auto mop dréchen"
+                "name": "Automop dréchen"
             },
             "automopwash": {
                 "name": "Automatesch Wäschmaschinn"
@@ -390,7 +414,7 @@
                 "name": "Den Niveau vun der Wäschmëttelen finjustéieren"
             },
             "adfinetunesoftlevel": {
-                "name": "Fine Tune softener Niveau"
+                "name": "Fintune d'Weicherniveau"
             },
             "extrarinsenumber": {
                 "name": "Extra Spülen"
@@ -468,7 +492,7 @@
                 "name": "Anti-Kriibs (aktiv)"
             },
             "rinseaidlevel": {
-                "name": "Spullmëttel Niveau"
+                "name": "Spülmëttel Niveau"
             },
             "targethumidity": {
                 "name": "Zil Fiichtegkeet"
@@ -619,7 +643,7 @@
                 "name": "Léifsten Uerdnung Zuel"
             },
             "favoriteselect": {
-                "name": "Léifsten auswielen"
+                "name": "Léifsten wielt"
             },
             "favoritestatus": {
                 "name": "Léifsten Status"
@@ -700,7 +724,7 @@
                 "name": "Extra Kavitéit Upassung"
             },
             "defrosttemperaturec": {
-                "name": "Eis Hiersteller Entdeckungstemperatur"
+                "name": "D'Temperatur vun der Äismaschinn offrost"
             },
             "evaporatorfanstate": {
                 "name": "Eis Maker Fan Staat"
@@ -730,7 +754,7 @@
                 "name": "Waasserfilter änneren Schwell (Zäit)"
             },
             "appliancemainboardswversion": {
-                "name": "Haaptsäit Software Versioun"
+                "name": "Haaptplat Software Versioun"
             },
             "defaultextrarinse": {
                 "name": "Standard extra Spülen"
@@ -874,7 +898,7 @@
                 "name": "Total dréchen Zyklen"
             },
             "totaldryingtime": {
-                "name": "Total Trocknungszäit"
+                "name": "Total dréchen Zäit"
             },
             "totalwashdrycyclescount": {
                 "name": "Total wäschen + dréchen Zyklen"
@@ -1246,7 +1270,7 @@
                 "name": "Upgrade Staat"
             },
             "selectedroomid": {
-                "name": "Ausgewielten Zëmmer ID"
+                "name": "Ausgewielt Sall ID"
             },
             "maxusagedustbox": {
                 "name": "Max Stëbs Këscht Benotzung"
@@ -1338,7 +1362,7 @@
                 "name": "Fënster Notifikatioun"
             },
             "hoodfiltercharcenable": {
-                "name": "Holzkuel Filter aktivéieren"
+                "name": "Kuelfilter aktivéieren"
             },
             "fastmode": {
                 "name": "Frigo schnell Modus"
@@ -1404,7 +1428,7 @@
                 "name": "Automatesch Dosis lokal Fintuning"
             },
             "anticreasenosteam": {
-                "name": "Anti-Kreiz keen Damp"
+                "name": "Anti-Kriis keen Damp"
             },
             "anticreasewsteam": {
                 "name": "Anti-Kriibs mat Damp"
@@ -1473,7 +1497,7 @@
                 "name": "Glas Pfleeg"
             },
             "sprayzoneoption": {
-                "name": "Spray Zone"
+                "name": "Sprayzone"
             },
             "autodooropener": {
                 "name": "Auto Dierenöffner"

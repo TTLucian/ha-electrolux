@@ -15,7 +15,7 @@
             },
             "reauth_validate": {
                 "title": "Todenna Electrolux uudelleen",
-                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheelliset. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
+                "description": "Electrolux API -tunnuksesi ovat vanhentuneet tai virheellisiä. Päivitä ne uusilla Tokeneilla Electroluxin kehittäjäportaalista.\n\nVieraile osoitteessa {url} luodaksesi uusia tunnuksia.",
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
@@ -90,7 +90,7 @@
     },
     "exceptions": {
         "appliance_disconnected": {
-            "message": "Laite on irrotettu tai ei ole käytettävissä. Tarkista laitteen verkkoyhteys."
+            "message": "Appliance is disconnected or not available. Check the appliance's network connection."
         },
         "appliance_offline": {
             "message": "Laite on offline-tilassa (nykyinen tila: {state}). Tarkista, että laite on kytketty verkkovirtaan, verkkoyhteys ja pilvipalveluihin."
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Liian monta komentoa lähetetty. Odota hetki ja yritä uudelleen."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} ei voida säätää nykyisessä tilassa."
+        },
         "control_locked": {
             "message": "{attr} on lukittu osoitteessa {value} ohjelmalle {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Tuulettimen nopeutta ei voi säätää tilassa {mode}. Vaihda ensin manuaaliseen tilaan ohjataksesi tuulettimen nopeutta."
         },
         "food_probe_locked_by_program": {
             "message": "Ruokaanturin lämpötila on lukittu {value}°C:een ohjelmalle {program}."
@@ -144,6 +150,24 @@
             "message": "Arvo {value} on alle vähimmäisarvon {min_val} kohteelle {attr}."
         }
     },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Aloita vyöhykkeen puhdistus",
+            "description": "Aloita vyöhykepohjainen puhdistusistunto PUREi9-robottiimurilla. Vyöhykkeen UUID:t ja pysyvä kartan UUID löytyvät integrointidiagnostiikasta (mapData/mapMatch/zones ja persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Pysyvä karttatunnus",
+                    "description": "Käytettävän pysyvän kartan UUID (diagnostiikasta: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Alueet",
+                    "description": "Luettelo puhdistettavista vyöhykkeistä. Jokainen merkintä tarvitsee zone_id:n (UUID kohteesta mapData/mapMatch/zones[].uuid) ja valinnaisen power_mode-arvon (1=hiljainen, 2=älykäs, 3=teho, oletusarvo 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "connectivitystate": {
@@ -156,7 +180,7 @@
                 "name": "Ruoka-anturi"
             },
             "foodprobesupported": {
-                "name": "Food Probe Support"
+                "name": "Ruokakoettimen tuki"
             },
             "watertrayinsertionstate": {
                 "name": "Vesisäiliö"
@@ -189,7 +213,7 @@
                 "name": "Huolto vaaditaan"
             },
             "maint2_occured": {
-                "name": "Huoltokohde 2 tapahtui"
+                "name": "Huoltokohta 2 tapahtui"
             },
             "maint3_occured": {
                 "name": "Huoltokohta 3 tapahtui"
@@ -411,7 +435,7 @@
                 "name": "Huoltokohteen 3 kynnys"
             },
             "maint4_id": {
-                "name": "Huoltokohteen 4 tunnus"
+                "name": "Huoltokohde 4 id"
             },
             "maint4_threshold": {
                 "name": "Huoltokohteen 4 kynnys"
@@ -432,7 +456,7 @@
                 "name": "Huoltokohde 7 id"
             },
             "maint7_threshold": {
-                "name": "Huoltokohteen 7 kynnys"
+                "name": "Maintenance item 7 threshold"
             },
             "maint8_id": {
                 "name": "Huoltokohde 8 id"
@@ -544,7 +568,7 @@
                 "name": "Kaukosäädin"
             },
             "totalcyclecounter": {
-                "name": "Total cycle counter"
+                "name": "Kokonaisjaksolaskuri"
             },
             "appliancetotalworkingtime": {
                 "name": "Laitteen kokonaistyöaika"
@@ -733,7 +757,7 @@
                 "name": "Emolevyn ohjelmistoversio"
             },
             "defaultextrarinse": {
-                "name": "Oletusarvoinen lisähuuhtelu"
+                "name": "Oletuslisähuuhtelu"
             },
             "cyclephase": {
                 "name": "Kiertovaihe"
@@ -832,7 +856,7 @@
                 "name": "Etäilmoitus odottaa"
             },
             "minfinishintime": {
-                "name": "Minimi viimeistely ajassa"
+                "name": "Minimum finish in time"
             },
             "ewx1493a_wmeconomy": {
                 "name": "Taloudellinen tila"
@@ -1177,7 +1201,7 @@
                 "name": "Vesiaseman toiminta"
             },
             "moproute": {
-                "name": "Moppireitti"
+                "name": "Mop reitti"
             },
             "notificationevent": {
                 "name": "Ilmoitustapahtuma"
@@ -1216,7 +1240,7 @@
                 "name": "Mopin käyttö"
             },
             "moparmextensionfreq": {
-                "name": "Moppivarren pidennystaajuus"
+                "name": "Moppivarren jatketaajuus"
             },
             "mopdrytime": {
                 "name": "Mopin kuivumisaika"
@@ -1356,7 +1380,7 @@
                 "name": "Esipesu"
             },
             "ewx1493a_anticreasenosteam": {
-                "name": "Rypistymisen esto (ei höyryä)"
+                "name": "Rypistymisenesto (ei höyryä)"
             },
             "ewx1493a_anticreasewsteam": {
                 "name": "Rypistymistä estävä höyryllä"
@@ -1476,7 +1500,7 @@
                 "name": "Ruiskutusalue"
             },
             "autodooropener": {
-                "name": "Automaattinen ovenavaaja"
+                "name": "Automaattinen oven avaaja"
             },
             "sanitizeoption": {
                 "name": "Puhdistaa"

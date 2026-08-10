@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Trop de commandes envoyées. Veuillez patienter un moment et réessayer."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} ne peut pas être ajusté dans le mode actuel."
+        },
         "control_locked": {
             "message": "{attr} est verrouillé à {value} pour le programme {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "La vitesse du ventilateur ne peut pas être réglée en mode {mode}. Passez d’abord en mode manuel pour contrôler la vitesse du ventilateur."
         },
         "food_probe_locked_by_program": {
             "message": "La température de la sonde alimentaire est verrouillée à {value}°C pour le programme {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "La valeur {value} est inférieure au minimum {min_val} pour {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Démarrer le nettoyage de la zone",
+            "description": "Démarrez une session de nettoyage par zone sur un robot aspirateur PUREi9. Les UUID de zone et l'UUID de carte persistante se trouvent dans les diagnostics d'intégration (mapData/mapMatch/zones et persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "ID de carte persistant",
+                    "description": "UUID de la carte persistante à utiliser (à partir des diagnostics : persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zones",
+                    "description": "Liste des zones à nettoyer. Chaque entrée nécessite zone_id (UUID de mapData/mapMatch/zones[].uuid) et power_mode facultatif (1=silencieux, 2=intelligent, 3=alimentation, 1 par défaut).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -399,7 +423,7 @@
                 "name": "Identifiant de l'élément d'entretien 1"
             },
             "maint2_id": {
-                "name": "Identifiant de l'élément d'entretien 2"
+                "name": "Identifiant de l'élément d'entretien 2"
             },
             "maint2_threshold": {
                 "name": "Seuil de l'élément de maintenance 2"
@@ -426,7 +450,7 @@
                 "name": "Identifiant de l'élément d'entretien 6"
             },
             "maint6_threshold": {
-                "name": "Seuil du point de maintenance 6"
+                "name": "Seuil du point d'entretien 6"
             },
             "maint7_id": {
                 "name": "Identifiant de l'élément d'entretien 7"
@@ -441,13 +465,13 @@
                 "name": "Seuil du point de maintenance 8"
             },
             "maint9_id": {
-                "name": "Identifiant de l'élément d'entretien 9"
+                "name": "Identifiant de l'élément d'entretien 9"
             },
             "maint9_threshold": {
                 "name": "Seuil du point d'entretien 9"
             },
             "maint10_id": {
-                "name": "Identifiant de l'élément d'entretien 10"
+                "name": "Identifiant de l'élément d'entretien 10"
             },
             "maint10_threshold": {
                 "name": "Seuil de l'élément d'entretien 10"

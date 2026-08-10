@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Wysłano zbyt wiele poleceń. Poczekaj chwilę i spróbuj ponownie."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nie można regulować w bieżącym trybie."
+        },
         "control_locked": {
             "message": "{attr} jest zablokowany w {value} dla programu {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Nie można regulować prędkości wentylatora w trybie {mode}. Najpierw przełącz się na tryb ręczny, aby kontrolować prędkość wentylatora."
         },
         "food_probe_locked_by_program": {
             "message": "Temperatura czujnika żywności jest zablokowana na poziomie {value}°C dla programu {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Wartość {value} jest niższa od minimum {min_val} dla {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Rozpocznij czyszczenie strefy",
+            "description": "Rozpocznij sesję sprzątania strefowego na odkurzaczu robotycznym PUREi9. Identyfikatory UUID stref i trwały identyfikator UUID mapy można znaleźć w diagnostyce integracji (mapData/mapMatch/zones i trwałeMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Stały identyfikator mapy",
+                    "description": "UUID trwałej mapy do użycia (z diagnostyki: permanentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Strefy",
+                    "description": "Lista stref do oczyszczenia. Każdy wpis wymaga identyfikatora strefy (UUID z mapData/mapMatch/zones[].uuid) i opcjonalnego trybu zasilania (1=cichy, 2=inteligentny, 3=moc, domyślnie 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -225,7 +249,7 @@
                 "name": "Wymagane czyszczenie filtra powietrza"
             },
             "hmepn_acalerts": {
-                "name": "Obsługiwane alerty Ac"
+                "name": "Obsługiwane alerty AC"
             },
             "hepafilterinsertedstate": {
                 "name": "Założony filtr Hepa"
@@ -892,7 +916,7 @@
                 "name": "Dwyw: waga wsadu prania"
             },
             "wmloadmoisture": {
-                "name": "Dwyw: wilgotność wsadu do prania"
+                "name": "Dwyw: wilgotność wsadu prania"
             },
             "tdcloudtte": {
                 "name": "Dwyw: szacunkowy czas suszenia"

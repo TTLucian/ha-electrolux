@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Muitos comandos enviados. Aguarde um momento e tente novamente."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} não pode ser ajustado no modo atual."
+        },
         "control_locked": {
             "message": "{attr} está bloqueado em {value} para o programa {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "A velocidade do ventilador não pode ser ajustada no modo {mode}. Mude primeiro para o modo Manual para controlar a velocidade do ventilador."
         },
         "food_probe_locked_by_program": {
             "message": "A temperatura da sonda de alimentos está bloqueada em {value}°C para o programa {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "O valor {value} está abaixo do mínimo {min_val} para {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Iniciar limpeza de zona",
+            "description": "Inicie uma sessão de limpeza baseada em zona em um aspirador robô PUREi9. Os UUIDs de zona e o UUID do mapa persistente são encontrados nos diagnósticos de integração (mapData/mapMatch/zones e persistenteMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "ID do mapa persistente",
+                    "description": "UUID do mapa persistente a ser usado (do diagnóstico: persistenteMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonas",
+                    "description": "Lista de zonas a limpar. Cada entrada precisa de zone_id (UUID de mapData/mapMatch/zones[].uuid) e power_mode opcional (1=quiet, 2=smart, 3=power, padrão 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -955,7 +979,7 @@
                 "name": "Estado do filtro"
             },
             "hepafilterlifetime": {
-                "name": "Tempo de vida do filtro Hepa"
+                "name": "Vida útil do filtro Hepa"
             },
             "appliancecategory": {
                 "name": "Categoria de aparelho"
@@ -1249,7 +1273,7 @@
                 "name": "ID do quarto selecionado"
             },
             "maxusagedustbox": {
-                "name": "Uso máximo da caixa de poeira"
+                "name": "Uso máximo da caixa de pó"
             },
             "maxusagestationbag": {
                 "name": "Uso máximo da bolsa da estação"

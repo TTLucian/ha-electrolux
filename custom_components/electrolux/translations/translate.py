@@ -96,27 +96,27 @@ def main():
 
     # Define the target languages (excluding English)
     languages = {
-        # "bg": ("български", "bg"),
-        # "cs": ("český", "cs"),
-        # "da": ("Dansk", "da"),
-        # "de": ("Deutsch", "de"),
-        # "el": ("ελληνικός", "el"),
-        # "es": ("Español", "es"),
-        # "et": ("eesti", "et"),
-        # "fi": ("Suomi", "fi"),
-        # "fr": ("Français", "fr"),
-        # "hr": ("Hrvatski", "hr"),
-        # "hu": ("magyar", "hu"),
-        # "it": ("Italiano", "it"),
-        # "lb": ("Lëtzebuergesch", "lb"),
-        # "lt": ("lietuvių", "lt"),
-        # "lv": ("latviešu", "lv"),
-        # "nl": ("nederlands", "nl"),
-        # "no": ("norsk", "no"),
-        # "pl": ("polski", "pl"),
-        # "pt_br": ("Português Brasil", "pt"),
-        # "pt": ("Português", "pt"),
-        # "ro": ("Română", "ro"),
+        "bg": ("български", "bg"),
+        "cs": ("český", "cs"),
+        "da": ("Dansk", "da"),
+        "de": ("Deutsch", "de"),
+        "el": ("ελληνικός", "el"),
+        "es": ("Español", "es"),
+        "et": ("eesti", "et"),
+        "fi": ("Suomi", "fi"),
+        "fr": ("Français", "fr"),
+        "hr": ("Hrvatski", "hr"),
+        "hu": ("magyar", "hu"),
+        "it": ("Italiano", "it"),
+        "lb": ("Lëtzebuergesch", "lb"),
+        "lt": ("lietuvių", "lt"),
+        "lv": ("latviešu", "lv"),
+        "nl": ("nederlands", "nl"),
+        "no": ("norsk", "no"),
+        "pl": ("polski", "pl"),
+        "pt_br": ("Português Brasil", "pt"),
+        "pt": ("Português", "pt"),
+        "ro": ("Română", "ro"),
         "ru": ("русский", "ru"),
         "sk": ("slovenský", "sk"),
         "sl": ("slovenščina", "sl"),
@@ -144,9 +144,7 @@ def main():
             continue
         # Skip manually translated languages
         if language_code in manually_translated:
-            print(
-                f"Skipping {language_name} ({language_code}.json) - already manually translated"
-            )
+            print(f"Skipping {language_name} ({language_code}.json) - already manually translated")
             continue
         print(f"Translating {language_name} ({language_code}.json)")
 
@@ -155,9 +153,7 @@ def main():
             cache = {}
             translated_data = translate_value(en_data, translator, cache)
 
-            output_path = os.path.join(
-                os.path.dirname(__file__), f"{language_code}.json"
-            )
+            output_path = os.path.join(os.path.dirname(__file__), f"{language_code}.json")
             with open(output_path, "w", encoding="utf-8") as file:
                 json.dump(translated_data, file, ensure_ascii=False, indent=4)
 
@@ -166,9 +162,7 @@ def main():
         except Exception as e:
             print(f"✗ Failed to translate {language_name}: {e}")
             # Fallback to English
-            output_path = os.path.join(
-                os.path.dirname(__file__), f"{language_code}.json"
-            )
+            output_path = os.path.join(os.path.dirname(__file__), f"{language_code}.json")
             with open(output_path, "w", encoding="utf-8") as file:
                 json.dump(en_data, file, ensure_ascii=False, indent=4)
 

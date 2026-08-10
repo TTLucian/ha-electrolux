@@ -33,7 +33,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Neplatné přihlašovací údaje rozhraní API. Zkontrolujte prosím svůj API klíč, přístupový token a obnovovací token z portálu Electrolux Developer Portal."
+            "invalid_auth": "Neplatné přihlašovací údaje rozhraní API. Zkontrolujte prosím svůj API klíč, přístupový token a obnovovací token na portálu Electrolux Developer Portal."
         },
         "abort": {
             "single_instance_allowed": "Je povolena pouze jedna konfigurace Electrolux.",
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Bylo odesláno příliš mnoho příkazů. Chvíli počkejte a zkuste to znovu."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} nelze v aktuálním režimu upravit."
+        },
         "control_locked": {
             "message": "{attr} je uzamčeno na {value} pro program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Rychlost ventilátoru nelze upravit v režimu {mode}. Chcete-li ovládat rychlost ventilátoru, nejprve přepněte do ručního režimu."
         },
         "food_probe_locked_by_program": {
             "message": "Teplota potravinové sondy je zablokována na {value}°C pro program {program}."
@@ -126,7 +132,7 @@
             "message": "Nelze změnit {attr}: není podporováno aktuálním programem {program}."
         },
         "remote_control_disabled": {
-            "message": "Dálkové ovládání je pro tento spotřebič deaktivováno. Aktivujte jej na ovládacím panelu spotřebiče."
+            "message": "Dálkové ovládání je pro tento spotřebič deaktivováno. Povolte jej na ovládacím panelu spotřebiče."
         },
         "service_temporarily_unavailable": {
             "message": "Služba Electrolux je dočasně nedostupná, zkuste to prosím znovu."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Hodnota {value} je nižší než minimální hodnota {min_val} pro {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Spusťte čištění zóny",
+            "description": "Spusťte zónový úklid na robotickém vysavači PUREi9. Zónové UUID a trvalé mapové UUID se nacházejí v diagnostice integrace (mapData/mapMatch/zones a persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Trvalé ID mapy",
+                    "description": "UUID trvalé mapy, která se má použít (z diagnostiky: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "zóny",
+                    "description": "Seznam zón k čištění. Každý záznam potřebuje zone_id (UUID z mapData/mapMatch/zones[].uuid) a volitelný power_mode (1=tichý, 2=inteligentní, 3=výkon, výchozí 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -279,7 +303,7 @@
                 "name": "Nerušit povoleno"
             },
             "dnddisableairdry": {
-                "name": "Dnd zakázat sušení vzduchem"
+                "name": "Dnd disable air dry"
             },
             "isdndpausingairdry": {
                 "name": "Nepřestávejte sušit vzduchem"
@@ -288,7 +312,7 @@
                 "name": "Vícepatrová mapa"
             },
             "multifloormapautoswitch": {
-                "name": "Automatické přepínání vícepodlažních map"
+                "name": "Automatické přepínání vícepatrových map"
             },
             "robotposereliable": {
                 "name": "Spolehlivá pozice robota"
@@ -835,7 +859,7 @@
                 "name": "Minimální čas dokončení"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Economy mode"
+                "name": "Ekonomický režim"
             },
             "adfinetunedetlevel": {
                 "name": "Jemné doladění automatického dávkování pracího prostředku"
@@ -1069,7 +1093,7 @@
                 "name": "Typ filtru 2"
             },
             "filteruid_1": {
-                "name": "Filtr 1 nfc tag uid"
+                "name": "Filter 1 nfc tag uid"
             },
             "filteruid_2": {
                 "name": "Filtr 2 nfc tag uid"
@@ -1365,7 +1389,7 @@
                 "name": "Noční cyklus"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Economy mode"
+                "name": "Ekonomický režim"
             },
             "ewx1493a_rinsehold": {
                 "name": "Zastavení máchání"
@@ -1422,7 +1446,7 @@
                 "name": "Noční cyklus"
             },
             "wmeconomy": {
-                "name": "Economy mode"
+                "name": "Ekonomický režim"
             },
             "rinsehold": {
                 "name": "Zastavení máchání"
@@ -1512,7 +1536,7 @@
                 "name": "Spoušť automatického čištění"
             },
             "flappositionavoiduser": {
-                "name": "Poloha klapky se vyhněte uživateli"
+                "name": "Poloha klapky vyhněte se uživateli"
             },
             "horizontalswing": {
                 "name": "Horizontální houpačka"

@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Se enviaron demasiados comandos. Espere un momento e inténtelo de nuevo."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} no se puede ajustar en el modo actual."
+        },
         "control_locked": {
             "message": "{attr} está bloqueado en {value} para el programa {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "La velocidad del ventilador no se puede ajustar en el modo {mode}. Cambie primero al modo Manual para controlar la velocidad del ventilador."
         },
         "food_probe_locked_by_program": {
             "message": "La temperatura de la sonda de alimentos está bloqueada en {value}°C para el programa {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "El valor {value} está por debajo del mínimo {min_val} para {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Iniciar limpieza de zona",
+            "description": "Inicie una sesión de limpieza por zonas en un robot aspirador PUREi9. Los UUID de zona y el UUID del mapa persistente se encuentran en los diagnósticos de integración (mapData/mapMatch/zones y persistenteMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "ID de mapa persistente",
+                    "description": "UUID del mapa persistente a utilizar (de diagnóstico: persistenteMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zonas",
+                    "description": "Listado de zonas a limpiar. Cada entrada necesita Zone_id (UUID de mapData/mapMatch/zones[].uuid) y power_mode opcional (1=silencioso, 2=inteligente, 3=encendido, predeterminado 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -396,13 +420,13 @@
                 "name": "enjuagues adicionales"
             },
             "maint1_id": {
-                "name": "Identificación del elemento de mantenimiento 1"
+                "name": "Identificación del artículo 1 de mantenimiento"
             },
             "maint2_id": {
                 "name": "Identificación del elemento de mantenimiento 2"
             },
             "maint2_threshold": {
-                "name": "Umbral del elemento 2 de mantenimiento"
+                "name": "Umbral del elemento de mantenimiento 2"
             },
             "maint3_id": {
                 "name": "Identificación del elemento de mantenimiento 3"
@@ -571,7 +595,7 @@
                 "name": "Temperatura de visualización f"
             },
             "processphase": {
-                "name": "Fase del proceso"
+                "name": "Fase de proceso"
             },
             "program": {
                 "name": "Programa"
@@ -721,7 +745,7 @@
                 "name": "Umbral de compra de filtro de agua (flujo)"
             },
             "waterfilterflowchangethreshold": {
-                "name": "Umbral de cambio de filtro de agua (caudal)"
+                "name": "Umbral de cambio de filtro de agua (flujo)"
             },
             "waterfilterlifetimebuythreshold": {
                 "name": "Umbral de compra de filtro de agua (tiempo)"

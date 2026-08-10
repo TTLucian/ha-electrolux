@@ -59,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, åtkomsttoken och uppdateringstoken."
+            "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, Access Token och Refresh Token."
         }
     },
     "issues": {
@@ -78,7 +78,7 @@
                     }
                 },
                 "error": {
-                    "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, åtkomsttoken och uppdateringstoken.",
+                    "invalid_auth": "Ogiltiga API-uppgifter. Kontrollera din API-nyckel, Access Token och Refresh Token.",
                     "invalid_format": "Ogiltigt autentiseringsformat. Se till att alla fält är korrekt ifyllda.",
                     "entry_not_found": "Konfigurationsposten hittades inte."
                 },
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "För många kommandon skickade. Vänta ett ögonblick och försök igen."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} kan inte justeras i det aktuella läget."
+        },
         "control_locked": {
             "message": "{attr} är låst vid {value} för program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Fläkthastigheten kan inte justeras i läget {mode}. Byt först till manuellt läge för att styra fläkthastigheten."
         },
         "food_probe_locked_by_program": {
             "message": "Matsondens temperatur är låst till {value}°C för program {program}."
@@ -144,6 +150,24 @@
             "message": "Värdet {value} är under det lägsta {min_val} för {attr}."
         }
     },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Starta zonrengöring",
+            "description": "Starta en zonbaserad rengöringssession på en PUREi9 robotdammsugare. Zon-UUID och den beständiga kartan-UUID finns i integrationsdiagnostiken (mapData/mapMatch/zones och persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Ihållande kart-ID",
+                    "description": "UUID för den beständiga kartan som ska användas (från diagnostik: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zoner",
+                    "description": "Lista över zoner att rengöra. Varje post behöver zone_id (UUID från mapData/mapMatch/zones[].uuid) och valfritt power_mode (1=tyst, 2=smart, 3=power, standard 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "connectivitystate": {
@@ -156,7 +180,7 @@
                 "name": "Matsond"
             },
             "foodprobesupported": {
-                "name": "Support för matsonden"
+                "name": "Matprobstöd"
             },
             "watertrayinsertionstate": {
                 "name": "Vattenbricka"
@@ -228,7 +252,7 @@
                 "name": "Ac-varningar stöds"
             },
             "hepafilterinsertedstate": {
-                "name": "Hepa-filter insatt"
+                "name": "Hepa-filter isatt"
             },
             "dooropen": {
                 "name": "Dörren öppen"
@@ -288,7 +312,7 @@
                 "name": "Flervåningskarta"
             },
             "multifloormapautoswitch": {
-                "name": "Flervånings karta automatisk switch"
+                "name": "Flervåningskarta automatisk switch"
             },
             "robotposereliable": {
                 "name": "Robotpose pålitlig"
@@ -772,7 +796,7 @@
                 "name": "Tidsansvarig"
             },
             "adtankasel": {
-                "name": "Autodoseringstank a"
+                "name": "Automatisk dostank a"
             },
             "adtankbsel": {
                 "name": "Automatisk dostank b"
@@ -898,7 +922,7 @@
                 "name": "Dwyw: beräknad torktid"
             },
             "tdecpoverload": {
-                "name": "Dwyw: load overload flag"
+                "name": "Dwyw: ladda överbelastningsflagga"
             },
             "wmloaderror": {
                 "name": "Dwyw: tvättladdningsfel"
@@ -1434,7 +1458,7 @@
                 "name": "Blöta"
             },
             "softener": {
-                "name": "Sköljmedel"
+                "name": "Mjukgörare"
             },
             "defaultsoftplus": {
                 "name": "Standard mjukt plus"

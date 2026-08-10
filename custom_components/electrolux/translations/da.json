@@ -47,7 +47,7 @@
         "step": {
             "user": {
                 "title": "Electrolux optioner",
-                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsbemærkning:** Felterne Adgangstoken og Opdater token efterlades med vilje tomme. Generer altid nye tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
+                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsnote:** Felterne Adgangstoken og Opdater Token efterlades med vilje tomme. Generer altid friske tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
                 "data": {
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
@@ -93,7 +93,7 @@
             "message": "Apparatet er afbrudt eller ikke tilgængeligt. Kontroller apparatets netværksforbindelse."
         },
         "appliance_offline": {
-            "message": "Apparatet er offline (nuværende tilstand: {state}). Kontroller venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
+            "message": "Apparatet er offline (nuværende tilstand: {state}). Tjek venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
         },
         "appliance_state_incomplete": {
             "message": "Kan ikke ændre indstilling: Apparatets tilstand er ufuldstændig. Vent venligst på, at apparatet initialiseres."
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Der er sendt for mange kommandoer. Vent et øjeblik, og prøv igen."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} kan ikke justeres i den aktuelle tilstand."
+        },
         "control_locked": {
             "message": "{attr} er låst på {value} for program {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Blæserhastigheden kan ikke justeres i tilstanden {mode}. Skift til manuel tilstand først for at styre blæserhastigheden."
         },
         "food_probe_locked_by_program": {
             "message": "Madsondetemperaturen er låst til {value}°C for program {program}."
@@ -114,7 +120,7 @@
             "message": "Madsonde skal indsættes for at indstille måltemperaturen."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Madsondetemperaturen understøttes ikke af program {program}."
+            "message": "Madsondetemperatur understøttes ikke af program {program}."
         },
         "invalid_option": {
             "message": "Ugyldig indstilling valgt."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Værdien {value} er under minimum {min_val} for {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Start zonerensning",
+            "description": "Start en zonebaseret rengøringssession på en PUREi9 robotstøvsuger. Zone-UUID'er og det vedvarende kort-UUID findes i integrationsdiagnostikken (mapData/mapMatch/zones og persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Vedvarende kort-id",
+                    "description": "UUID for det vedvarende kort, der skal bruges (fra diagnostik: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zoner",
+                    "description": "Liste over zoner, der skal renses. Hver post skal bruge zone_id (UUID fra mapData/mapMatch/zones[].uuid) og valgfri power_mode (1=stille, 2=smart, 3=power, standard 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -240,7 +264,7 @@
                 "name": "Auto støvopsamling"
             },
             "automoparmextension": {
-                "name": "Auto mop arm forlængelse"
+                "name": "Automatisk moppearm forlængelse"
             },
             "automopdry": {
                 "name": "Tør automatisk moppe"
@@ -459,7 +483,7 @@
                 "name": "Hukommelsesplads"
             },
             "dryingtime": {
-                "name": "Tidsindstillet tørring (aktiv)"
+                "name": "Tidsstyret tørring (aktiv)"
             },
             "timetonotify": {
                 "name": "Tid til at give besked"
@@ -556,7 +580,7 @@
                 "name": "Vis kogetermometerets temperatur"
             },
             "displayfoodprobetemperaturec": {
-                "name": "Vis kogetermometerets temperatur c"
+                "name": "Vis kogetermometeret c"
             },
             "displayfoodprobetemperaturef": {
                 "name": "Vis kogetermometertemperatur f"
@@ -592,7 +616,7 @@
                 "name": "Øvre ovnmål for madsondetemperatur slutvirkning"
             },
             "watertanklevel": {
-                "name": "Øverste ovnvandbeholderniveau"
+                "name": "Øverste ovnvandsbeholderniveau"
             },
             "waterhardness": {
                 "name": "Vandets hårdhed"
@@ -655,7 +679,7 @@
                 "name": "Fryser temperatur"
             },
             "vacationholidaymode": {
-                "name": "Ferie ferietilstand"
+                "name": "Ferietilstand"
             },
             "sensorhumidity": {
                 "name": "Fugtighed"
@@ -709,7 +733,7 @@
                 "name": "Isdispensertilstand"
             },
             "icetraywaterfillsetting": {
-                "name": "Indstilling af isbakkefyld"
+                "name": "Fyldningsindstilling for isbakke"
             },
             "airfilterlifetimebuythreshold": {
                 "name": "Luftfilter købstærskel"
@@ -784,7 +808,7 @@
                 "name": "Temperatur"
             },
             "watersoftenermode": {
-                "name": "Vandblødgøringstilstand"
+                "name": "Vandblødgøringsfunktion"
             },
             "maint1_threshold": {
                 "name": "Vedligeholdelsestærskel"
@@ -1117,7 +1141,7 @@
                 "name": "Fejl: filter 1 nfc-tag ugyldigt"
             },
             "errnfctagpresnotvalid_2": {
-                "name": "Fejl: filter 2 nfc tag ugyldigt"
+                "name": "Fejl: filter 2 nfc-tag ugyldigt"
             },
             "errnfctransceiver_1": {
                 "name": "Fejl: filter 1 nfc transceiver"
@@ -1312,7 +1336,7 @@
                 "name": "Probe Slut på madlavning"
             },
             "connectivitystate": {
-                "name": "Forbindelsestilstand"
+                "name": "Tilslutningstilstand"
             },
             "executionstate": {
                 "name": "Udførelsesstat"

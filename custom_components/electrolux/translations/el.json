@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Στάλθηκαν πάρα πολλές εντολές. Περιμένετε λίγο και προσπαθήστε ξανά."
         },
+        "control_disabled_by_mode": {
+            "message": "Το {attr} δεν μπορεί να προσαρμοστεί στην τρέχουσα λειτουργία."
+        },
         "control_locked": {
             "message": "Το {attr} είναι κλειδωμένο στο {value} για το πρόγραμμα {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "Η ταχύτητα του ανεμιστήρα δεν μπορεί να ρυθμιστεί στη λειτουργία {mode}. Μεταβείτε πρώτα στη χειροκίνητη λειτουργία για να ελέγξετε την ταχύτητα του ανεμιστήρα."
         },
         "food_probe_locked_by_program": {
             "message": "Η θερμοκρασία του αισθητήρα τροφίμων είναι κλειδωμένη στους {value}°C για το πρόγραμμα {program}."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "Η τιμή {value} είναι κάτω από το ελάχιστο {min_val} για {attr}."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Έναρξη καθαρισμού ζώνης",
+            "description": "Ξεκινήστε μια συνεδρία καθαρισμού βάσει ζώνης σε ηλεκτρική σκούπα ρομπότ PUREi9. Τα UUID ζώνης και το UUID του μόνιμου χάρτη βρίσκονται στα διαγνωστικά ενσωμάτωσης (mapData/mapMatch/zones και persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Επίμονο αναγνωριστικό χάρτη",
+                    "description": "UUID του επίμονου χάρτη προς χρήση (από διαγνωστικά: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Ζώνες",
+                    "description": "Λίστα ζωνών προς καθαρισμό. Κάθε καταχώριση χρειάζεται zone_id (UUID από mapData/mapMatch/zones[].uuid) και προαιρετική λειτουργία power_mode (1=αθόρυβη, 2=έξυπνη, 3=ισχύς, προεπιλογή 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -195,7 +219,7 @@
                 "name": "Παρουσιάστηκε το στοιχείο συντήρησης 3"
             },
             "maint4_occured": {
-                "name": "Maintenance item 4 occurred"
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 4"
             },
             "maint5_occured": {
                 "name": "Παρουσιάστηκε το στοιχείο συντήρησης 5"
@@ -204,7 +228,7 @@
                 "name": "Παρουσιάστηκε το στοιχείο συντήρησης 6"
             },
             "maint7_occured": {
-                "name": "Maintenance item 7 occurred"
+                "name": "Παρουσιάστηκε το στοιχείο συντήρησης 7"
             },
             "maint8_occured": {
                 "name": "Παρουσιάστηκε το στοιχείο συντήρησης 8"
@@ -1150,7 +1174,7 @@
                 "name": "Χρήση κύριας βούρτσας"
             },
             "sidebrushsqm": {
-                "name": "Χρήση πλαϊνής βούρτσας"
+                "name": "Χρήση πλευρικής βούρτσας"
             },
             "filtersqm": {
                 "name": "Χρήση φίλτρου"
@@ -1210,7 +1234,7 @@
                 "name": "Χρήση κύριας βούρτσας"
             },
             "sidebrushusage": {
-                "name": "Χρήση πλαϊνής βούρτσας"
+                "name": "Χρήση πλευρικής βούρτσας"
             },
             "mopusage": {
                 "name": "Χρήση σφουγγαρίστρας"

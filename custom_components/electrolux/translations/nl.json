@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Te veel opdrachten verzonden. Wacht even en probeer het opnieuw."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} kan niet worden aangepast in de huidige modus."
+        },
         "control_locked": {
             "message": "{attr} is vergrendeld op {value} voor programma {program}."
+        },
+        "fanspeed_disabled": {
+            "message": "De ventilatorsnelheid kan niet worden aangepast in de modus {mode}. Schakel eerst naar de handmatige modus om de ventilatorsnelheid te regelen."
         },
         "food_probe_locked_by_program": {
             "message": "De temperatuur van de voedselsonde is vergrendeld op {value}°C voor programma {program}."
@@ -144,6 +150,24 @@
             "message": "Waarde {value} ligt onder het minimum {min_val} voor {attr}."
         }
     },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Start zonereiniging",
+            "description": "Start een zonegebaseerde reinigingssessie op een PUREi9 robotstofzuiger. Zone-UUID's en de persistente kaart-UUID zijn te vinden in de integratiediagnostiek (mapData/mapMatch/zones en persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Persistente kaart-ID",
+                    "description": "UUID van de persistente kaart die moet worden gebruikt (uit diagnostische gegevens: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zones",
+                    "description": "Lijst met te reinigen zones. Elk item heeft zone_id nodig (UUID van mapData/mapMatch/zones[].uuid) en optionele power_mode (1=stil, 2=slim, 3=power, standaard 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "connectivitystate": {
@@ -180,7 +204,7 @@
                 "name": "Vriezer staat"
             },
             "fanstate": {
-                "name": "Staat van extra ventilatorventilator"
+                "name": "Extra ventilatorstatus"
             },
             "autosense": {
                 "name": "Autodetectie"
@@ -488,7 +512,7 @@
         },
         "select": {
             "displaylight": {
-                "name": "Displaylicht"
+                "name": "Display licht"
             },
             "targettemperaturec": {
                 "name": "Extra oventemperatuur"
@@ -535,7 +559,7 @@
                 "name": "Soort apparaat"
             },
             "capabilityhash": {
-                "name": "Mogelijkheid hasj"
+                "name": "Mogelijkheid hash"
             },
             "cpv": {
                 "name": "Cpv"
@@ -571,7 +595,7 @@
                 "name": "Weergavetemperatuur f"
             },
             "processphase": {
-                "name": "Procesfase"
+                "name": "Proces fase"
             },
             "program": {
                 "name": "Programma"
@@ -631,7 +655,7 @@
                 "name": "Toestelmodus"
             },
             "hobtohoodfanspeed": {
-                "name": "Snelheid ventilator kap"
+                "name": "Snelheid motorkapventilator"
             },
             "hobtohoodstate": {
                 "name": "Kap staat"

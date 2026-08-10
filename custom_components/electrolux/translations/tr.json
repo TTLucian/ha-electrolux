@@ -104,11 +104,17 @@
         "command_rate_limited": {
             "message": "Çok fazla komut gönderildi. Lütfen biraz bekleyip tekrar deneyin."
         },
+        "control_disabled_by_mode": {
+            "message": "{attr} mevcut modda ayarlanamaz."
+        },
         "control_locked": {
             "message": "{attr}, {program} programı için {value} konumunda kilitlendi."
         },
+        "fanspeed_disabled": {
+            "message": "Fan hızı {mode} modunda ayarlanamaz. Fan hızını kontrol etmek için önce Manuel moda geçin."
+        },
         "food_probe_locked_by_program": {
-            "message": "Yiyecek termometresi sıcaklığı {program} programı için {value}_°C'de kilitlendi."
+            "message": "Yemek termometresi sıcaklığı {program} programı için {value}°C'de kilitlendi."
         },
         "food_probe_not_inserted": {
             "message": "Hedef sıcaklığı ayarlamak için yemek termometresinin takılması gerekir."
@@ -123,7 +129,7 @@
             "message": "Geçersiz ön ayar modu {mode}. Kullanılabilir modlar: {modes}."
         },
         "not_supported_by_program": {
-            "message": "{attr} değiştirilemiyor: mevcut program {program} tarafından desteklenmiyor."
+            "message": "{attr} değiştirilemiyor: mevcut {program} programı tarafından desteklenmiyor."
         },
         "remote_control_disabled": {
             "message": "Bu cihaz için uzaktan kumanda devre dışı bırakıldı. Lütfen cihazın kontrol panelinde etkinleştirin."
@@ -142,6 +148,1417 @@
         },
         "value_below_minimum": {
             "message": "{value} değeri, {attr} için minimum {min_val} değerinin altında."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Bölge temizliğini başlat",
+            "description": "PUREi9 robot süpürgesinde bölge bazlı bir temizleme oturumu başlatın. Bölge UUID'leri ve kalıcı harita UUID'si entegrasyon tanılamasında bulunur (mapData/mapMatch/zones ve persistsMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Kalıcı harita kimliği",
+                    "description": "Kullanılacak kalıcı haritanın UUID'si (tanılamadan: persistMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Bölgeler",
+                    "description": "Temizlenecek bölgelerin listesi. Her giriş, Zone_id'ye (mapData/mapMatch/zones[.uuid'den UUID) ve isteğe bağlı power_mode'a (1=sessiz, 2=akıllı, 3=güç, varsayılan 1) ihtiyaç duyar.",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "connectivitystate": {
+                "name": "Bağlantı durumu"
+            },
+            "doorstate": {
+                "name": "Kapı durumu"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Gıda Sondası"
+            },
+            "foodprobesupported": {
+                "name": "Gıda Probu Desteği"
+            },
+            "watertrayinsertionstate": {
+                "name": "Su tepsisi"
+            },
+            "watertankempty": {
+                "name": "Su deposu boş"
+            },
+            "cleaningreminder": {
+                "name": "Temizlik hatırlatıcısı"
+            },
+            "drawerstatus": {
+                "name": "Çekmece"
+            },
+            "humancentriclighteventstate": {
+                "name": "İnsan merkezli ışık"
+            },
+            "hoodautoswitchoffevent": {
+                "name": "Otomatik kapanma"
+            },
+            "appliancestate": {
+                "name": "Dondurucu durumu"
+            },
+            "fanstate": {
+                "name": "Ekstra boşluklu fan durumu"
+            },
+            "autosense": {
+                "name": "Otomatik algılama"
+            },
+            "maint1_occured": {
+                "name": "Bakım gerekli"
+            },
+            "maint2_occured": {
+                "name": "Bakım öğesi 2 oluştu"
+            },
+            "maint3_occured": {
+                "name": "Bakım öğesi 3 oluştu"
+            },
+            "maint4_occured": {
+                "name": "Bakım öğesi 4 oluştu"
+            },
+            "maint5_occured": {
+                "name": "Bakım öğesi 5 oluştu"
+            },
+            "maint6_occured": {
+                "name": "Bakım öğesi 6 oluştu"
+            },
+            "maint7_occured": {
+                "name": "Bakım öğesi 7 oluştu"
+            },
+            "maint8_occured": {
+                "name": "Bakım öğesi 8 oluştu"
+            },
+            "maint9_occured": {
+                "name": "Bakım öğesi 9 oluştu"
+            },
+            "maint10_occured": {
+                "name": "Bakım öğesi 10 oluştu"
+            },
+            "occured": {
+                "name": "Bakım 1 gerçekleşti"
+            },
+            "ecomode": {
+                "name": "Eko modu"
+            },
+            "hmepn_acairfilterclean": {
+                "name": "Hava filtresi temizliği gerekli"
+            },
+            "hmepn_acalerts": {
+                "name": "Ac uyarıları desteklenir"
+            },
+            "hepafilterinsertedstate": {
+                "name": "Hepa filtresi takıldı"
+            },
+            "dooropen": {
+                "name": "Kapı açık"
+            },
+            "watertraylevellow": {
+                "name": "Su tepsisi seviyesi düşük"
+            },
+            "autodustcollection": {
+                "name": "Otomatik toz toplama"
+            },
+            "automoparmextension": {
+                "name": "Otomatik paspas kolu uzatması"
+            },
+            "automopdry": {
+                "name": "Otomatik paspasla kurutma"
+            },
+            "automopwash": {
+                "name": "Otomatik paspas yıkama"
+            },
+            "autodetergentusage": {
+                "name": "Oto deterjan kullanımı"
+            },
+            "mopinstalled": {
+                "name": "Paspas kuruldu"
+            },
+            "incharger": {
+                "name": "Şarj cihazında"
+            },
+            "returntowash": {
+                "name": "Yıkamaya geri dön"
+            },
+            "roomselected": {
+                "name": "Oda seçildi"
+            },
+            "carpetboost": {
+                "name": "Halı güçlendirme"
+            },
+            "carpetavoid": {
+                "name": "Halı önlemek"
+            },
+            "carpetdisplay": {
+                "name": "Halı ekranı"
+            },
+            "obstacleavoidance": {
+                "name": "Engellerden kaçınma"
+            },
+            "dndenabled": {
+                "name": "Rahatsız etmeyin etkin"
+            },
+            "dnddisableairdry": {
+                "name": "Havayla kurutmayı devre dışı bırakın"
+            },
+            "isdndpausingairdry": {
+                "name": "Havayla kurutmayı duraklatın"
+            },
+            "multifloormap": {
+                "name": "Çok katlı harita"
+            },
+            "multifloormapautoswitch": {
+                "name": "Çok katlı harita otomatik anahtarı"
+            },
+            "robotposereliable": {
+                "name": "Robot pozu güvenilir"
+            },
+            "ovwater_tank_empty": {
+                "name": "Su Deposu Durumu"
+            },
+            "ovcleaning_ended": {
+                "name": "Temizleme Durumu"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Pişirme Sonu Probu"
+            }
+        },
+        "button": {
+            "command": {
+                "name": "Ağ komutu"
+            },
+            "startupcommand": {
+                "name": "Başlatma komutu"
+            },
+            "manualsync": {
+                "name": "Manuel senkronizasyon"
+            },
+            "executecommand": {
+                "name": "Güç"
+            },
+            "waterfilterstatereset": {
+                "name": "Su filtresini sıfırla"
+            },
+            "airfilterstatereset": {
+                "name": "Hava filtresini sıfırla"
+            },
+            "saveappfavorite": {
+                "name": "Favoriyi kaydet"
+            },
+            "shortcutproglistcmd": {
+                "name": "Kısayol program listesi komutu"
+            },
+            "filterreset": {
+                "name": "Filtre sıfırlama"
+            },
+            "hepafilterreset": {
+                "name": "Hepa filtre sıfırlama"
+            },
+            "findme": {
+                "name": "Beni bul"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Hava temizleyici"
+            }
+        },
+        "number": {
+            "starttime": {
+                "name": "Başlangıç ​​zamanı"
+            },
+            "targetduration": {
+                "name": "Hedef süre"
+            },
+            "targetfoodprobetemperaturec": {
+                "name": "Hedef gıda termometresi sıcaklığı c"
+            },
+            "targetfoodprobetemperaturef": {
+                "name": "Hedef gıda termometresi sıcaklığı f"
+            },
+            "targettemperaturec": {
+                "name": "Hedef sıcaklık c"
+            },
+            "targettemperaturef": {
+                "name": "Hedef sıcaklık f"
+            },
+            "remindertime": {
+                "name": "Üst fırın hatırlatma zamanı"
+            },
+            "appliancelocaltimeoffset": {
+                "name": "Cihazın yerel saat farkı"
+            },
+            "lightintensity": {
+                "name": "Işık yoğunluğu"
+            },
+            "lightcolortemperature": {
+                "name": "Açık renk sıcaklığı"
+            },
+            "stoptime": {
+                "name": "Durdurma zamanı"
+            },
+            "adtankadetstandarddose": {
+                "name": "Bir deterjan standart dozunu depolayın"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Tank b deterjan standart dozu"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Tank b yumuşatıcı standart dozu"
+            },
+            "adfinetunedetlevel": {
+                "name": "Deterjan seviyesine ince ayar yapın"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Yumuşatıcı seviyesinin ince ayarı"
+            },
+            "extrarinsenumber": {
+                "name": "Ekstra durulamalar"
+            },
+            "maint1_id": {
+                "name": "Bakım öğesi 1 kimliği"
+            },
+            "maint2_id": {
+                "name": "Bakım öğesi 2 kimliği"
+            },
+            "maint2_threshold": {
+                "name": "Bakım öğesi 2 eşiği"
+            },
+            "maint3_id": {
+                "name": "Bakım öğesi 3 kimliği"
+            },
+            "maint3_threshold": {
+                "name": "Bakım öğesi 3 eşiği"
+            },
+            "maint4_id": {
+                "name": "Bakım öğesi 4 kimliği"
+            },
+            "maint4_threshold": {
+                "name": "Bakım öğesi 4 eşiği"
+            },
+            "maint5_id": {
+                "name": "Bakım öğesi 5 kimliği"
+            },
+            "maint5_threshold": {
+                "name": "Bakım öğesi 5 eşiği"
+            },
+            "maint6_id": {
+                "name": "Bakım öğesi 6 kimliği"
+            },
+            "maint6_threshold": {
+                "name": "Bakım öğesi 6 eşiği"
+            },
+            "maint7_id": {
+                "name": "Bakım öğesi 7 kimliği"
+            },
+            "maint7_threshold": {
+                "name": "Bakım öğesi 7 eşiği"
+            },
+            "maint8_id": {
+                "name": "Bakım öğesi 8 kimliği"
+            },
+            "maint8_threshold": {
+                "name": "Bakım öğesi 8 eşiği"
+            },
+            "maint9_id": {
+                "name": "Bakım öğesi 9 kimliği"
+            },
+            "maint9_threshold": {
+                "name": "Bakım öğesi 9 eşiği"
+            },
+            "maint10_id": {
+                "name": "Bakım öğesi 10 kimliği"
+            },
+            "maint10_threshold": {
+                "name": "Bakım öğesi 10 eşiği"
+            },
+            "clearcyclepersonalizationcmd": {
+                "name": "Döngü kişiselleştirmeyi temizle"
+            },
+            "memoryid": {
+                "name": "Bellek yuvası"
+            },
+            "dryingtime": {
+                "name": "Zamanlanmış kurutma (aktif)"
+            },
+            "timetonotify": {
+                "name": "Bildirim zamanı"
+            },
+            "anticreasevalue": {
+                "name": "Kırışık önleme (aktif)"
+            },
+            "rinseaidlevel": {
+                "name": "Parlatıcı seviyesi"
+            },
+            "targethumidity": {
+                "name": "Hedef nem"
+            },
+            "targettemperature": {
+                "name": "Hedef sıcaklık"
+            },
+            "fanspeed": {
+                "name": "Fan hızı"
+            },
+            "humiditytarget": {
+                "name": "Hedef nem"
+            },
+            "powermode": {
+                "name": "Güç modu"
+            }
+        },
+        "select": {
+            "displaylight": {
+                "name": "Ekran ışığı"
+            },
+            "targettemperaturec": {
+                "name": "Ekstra boşluk sıcaklığı"
+            },
+            "mode": {
+                "name": "Mod"
+            },
+            "fanspeedsetting": {
+                "name": "Fan hızı"
+            }
+        },
+        "sensor": {
+            "alerts": {
+                "name": "Uyarılar"
+            },
+            "appliancestate": {
+                "name": "Cihaz Durumu"
+            },
+            "temperaturerepresentation": {
+                "name": "Sıcaklık gösterimi"
+            },
+            "linkqualityindicator": {
+                "name": "Ağ arayüzü bağlantı kalitesi göstergesi"
+            },
+            "niuswupdatecurrentdescription": {
+                "name": "Niu sw güncelleme açıklaması"
+            },
+            "otastate": {
+                "name": "Ağ arayüzü ota durumu"
+            },
+            "swancandrevision": {
+                "name": "Anahtar ve revizyon"
+            },
+            "swversion": {
+                "name": "Ağ arayüzü yazılım sürümü"
+            },
+            "endofcyclesound": {
+                "name": "Döngü sonu sesi"
+            },
+            "programuid": {
+                "name": "Program kimliği"
+            },
+            "appliancetype": {
+                "name": "Cihaz tipi"
+            },
+            "capabilityhash": {
+                "name": "Yetenek karması"
+            },
+            "cpv": {
+                "name": "GBM"
+            },
+            "remotecontrol": {
+                "name": "Uzaktan kumanda"
+            },
+            "totalcyclecounter": {
+                "name": "Toplam döngü sayacı"
+            },
+            "appliancetotalworkingtime": {
+                "name": "Cihazın toplam çalışma süresi"
+            },
+            "timetoend": {
+                "name": "Bitme zamanı"
+            },
+            "displayfoodprobetemperature": {
+                "name": "Gıda termometresi sıcaklığını göster"
+            },
+            "displayfoodprobetemperaturec": {
+                "name": "Gıda termometresi sıcaklığının görüntülenmesi c"
+            },
+            "displayfoodprobetemperaturef": {
+                "name": "Gıda termometresi sıcaklığını görüntüleme f"
+            },
+            "displaytemperature": {
+                "name": "Ekran sıcaklığı"
+            },
+            "displaytemperaturec": {
+                "name": "Ekran sıcaklığı c"
+            },
+            "displaytemperaturef": {
+                "name": "Ekran sıcaklığı f"
+            },
+            "processphase": {
+                "name": "Süreç aşaması"
+            },
+            "program": {
+                "name": "programı"
+            },
+            "runningtime": {
+                "name": "Koşu süresi"
+            },
+            "fastheatupfeature": {
+                "name": "Üst fırın hızlı ısınma özelliği"
+            },
+            "preheatcomplete": {
+                "name": "Üst fırın ön ısıtması tamamlandı"
+            },
+            "targetdurationendaction": {
+                "name": "Üst fırın hedefi süre sonu eylemi"
+            },
+            "targetfoodprobetemperatureendaction": {
+                "name": "Üst fırın hedefi gıda sensörü sıcaklığı son eylemi"
+            },
+            "watertanklevel": {
+                "name": "Üst fırın su deposu seviyesi"
+            },
+            "waterhardness": {
+                "name": "Su sertliği"
+            },
+            "descalingreminderstate": {
+                "name": "Kireç çözme hatırlatıcısı"
+            },
+            "clockstyle": {
+                "name": "Saat stili"
+            },
+            "language": {
+                "name": "Dil"
+            },
+            "localtimeautomaticmode": {
+                "name": "Yerel saat otomatik modu"
+            },
+            "autolocaltimeoffset": {
+                "name": "Otomatik yerel saat farkı"
+            },
+            "favoriteorder": {
+                "name": "Favori sipariş"
+            },
+            "number": {
+                "name": "Favori sipariş sayısı"
+            },
+            "favoriteselect": {
+                "name": "Favori seçimi"
+            },
+            "favoritestatus": {
+                "name": "Favori durumu"
+            },
+            "activemessageindex": {
+                "name": "Aktif mesaj dizini"
+            },
+            "appliancemode": {
+                "name": "Cihaz modu"
+            },
+            "hobtohoodfanspeed": {
+                "name": "Davlumbaz fan hızı"
+            },
+            "hobtohoodstate": {
+                "name": "Başlık durumu"
+            },
+            "hoodfanlevel": {
+                "name": "Fan seviyesi"
+            },
+            "hoodcharcfiltertimer": {
+                "name": "Kömür filtre zamanlayıcısı"
+            },
+            "hoodgreasefiltertimer": {
+                "name": "Yağ filtresi zamanlayıcısı"
+            },
+            "tvocfiltertime": {
+                "name": "Tvoc filtre süresi"
+            },
+            "fastmodetimetoend": {
+                "name": "Dondurucu hızlı modunun bitme zamanı"
+            },
+            "sensortemperaturec": {
+                "name": "Dondurucu sıcaklığı"
+            },
+            "vacationholidaymode": {
+                "name": "Tatil tatili modu"
+            },
+            "sensorhumidity": {
+                "name": "Nem"
+            },
+            "waterfilterstate": {
+                "name": "Su filtresi durumu"
+            },
+            "waterfilterlifetime": {
+                "name": "Su filtresi ömrü"
+            },
+            "waterfilterflow": {
+                "name": "Su filtresi akışı"
+            },
+            "airfilterstate": {
+                "name": "Hava filtresi durumu"
+            },
+            "airfilterlifetime": {
+                "name": "Hava filtresi ömrü"
+            },
+            "coolingvalvestate": {
+                "name": "Soğutma valfi durumu"
+            },
+            "defrostroutinestate": {
+                "name": "Buz çözme rutin durumu"
+            },
+            "compressorstate": {
+                "name": "Kompresör durumu"
+            },
+            "compressorspeed": {
+                "name": "Kompresör hızı"
+            },
+            "coefficient": {
+                "name": "Kompresör hız katsayısı"
+            },
+            "exponent": {
+                "name": "Kompresör hız üssü"
+            },
+            "clonetargettemperaturemode": {
+                "name": "Ekstra boşluk klonlama modu"
+            },
+            "temperatureadjustingstate": {
+                "name": "Ekstra boşluk ayarı"
+            },
+            "defrosttemperaturec": {
+                "name": "Buz yapıcı buz çözme sıcaklığı"
+            },
+            "evaporatorfanstate": {
+                "name": "Buz yapıcı fan durumu"
+            },
+            "icedispenserstate": {
+                "name": "Buz pınarı durumu"
+            },
+            "icetraywaterfillsetting": {
+                "name": "Buz tepsisi doldurma ayarı"
+            },
+            "airfilterlifetimebuythreshold": {
+                "name": "Hava filtresi satın alma eşiği"
+            },
+            "airfilterlifetimechangethreshold": {
+                "name": "Hava filtresi değiştirme eşiği"
+            },
+            "waterfilterflowbuythreshold": {
+                "name": "Su filtresi satın alma eşiği (akış)"
+            },
+            "waterfilterflowchangethreshold": {
+                "name": "Su filtresi değişim eşiği (akış)"
+            },
+            "waterfilterlifetimebuythreshold": {
+                "name": "Su filtresi satın alma eşiği (zaman)"
+            },
+            "waterfilterlifetimechangethreshold": {
+                "name": "Su filtresi değişim eşiği (zaman)"
+            },
+            "appliancemainboardswversion": {
+                "name": "Ana kart yazılım sürümü"
+            },
+            "defaultextrarinse": {
+                "name": "Varsayılan ekstra durulama"
+            },
+            "cyclephase": {
+                "name": "Döngü aşaması"
+            },
+            "cyclesubphase": {
+                "name": "Döngü alt fazı"
+            },
+            "measuredloadweight": {
+                "name": "Ölçülen yük ağırlığı"
+            },
+            "doorlock": {
+                "name": "Kapı kilidi"
+            },
+            "totalwashcyclescount": {
+                "name": "Toplam yıkama çevrimleri"
+            },
+            "totalwashingtime": {
+                "name": "Toplam yıkama süresi"
+            },
+            "fcoptisenseloadweight": {
+                "name": "Yük ağırlığı"
+            },
+            "washingnominalloadweight": {
+                "name": "Yıkama yükü ağırlığı"
+            },
+            "adtankaconfiguration": {
+                "name": "Bir yapılandırmayı depolayın"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank b konfigürasyonu"
+            },
+            "steamvalue": {
+                "name": "Buhar seviyesi"
+            },
+            "timemanagerlevel": {
+                "name": "Zaman yöneticisi"
+            },
+            "adtankasel": {
+                "name": "Otomatik dozaj tankı a"
+            },
+            "adtankbsel": {
+                "name": "Otomatik doz tankı b"
+            },
+            "analogspinspeed": {
+                "name": "Sıkma hızı"
+            },
+            "analogtemperature": {
+                "name": "Sıcaklık"
+            },
+            "watersoftenermode": {
+                "name": "Su yumuşatıcı modu"
+            },
+            "maint1_threshold": {
+                "name": "Bakım eşiği"
+            },
+            "detergentextradosage": {
+                "name": "Deterjan ekstra dozajı"
+            },
+            "optisenseresult": {
+                "name": "Yük ağırlığı"
+            },
+            "softenerextradosage": {
+                "name": "Yumuşatıcı ekstra dozajı"
+            },
+            "tankadetloadfornominalweight": {
+                "name": "Nominal ağırlık için belirli bir yük depolayın"
+            },
+            "tankareserve": {
+                "name": "Rezerv depolayın"
+            },
+            "tankbdetloadfornominalweight": {
+                "name": "Nominal ağırlık için tank b det yükü"
+            },
+            "tankbreserve": {
+                "name": "Tank b rezervi"
+            },
+            "waterusage": {
+                "name": "Su kullanımı"
+            },
+            "adtankadetloaded": {
+                "name": "Deterjan dolu bir depoya koyun"
+            },
+            "adtankbdetloaded": {
+                "name": "Tank b deterjan yüklü"
+            },
+            "adtankbsoftloaded": {
+                "name": "Tank b yumuşatıcı yüklü"
+            },
+            "ecolevel": {
+                "name": "Eko düzeyi"
+            },
+            "applianceuiswversion": {
+                "name": "Cihaz kullanıcı arayüzü yazılım sürümü"
+            },
+            "remotenotificationpending": {
+                "name": "Uzaktan bildirim bekleniyor"
+            },
+            "minfinishintime": {
+                "name": "Minimum sürede bitirme"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonomi modu"
+            },
+            "adfinetunedetlevel": {
+                "name": "Otomatik doz deterjan ince ayarı"
+            },
+            "adfinetunesoftlevel": {
+                "name": "Otomatik doz yumuşatıcının ince ayarı"
+            },
+            "extrarinsenumber": {
+                "name": "Ekstra durulama"
+            },
+            "threshold": {
+                "name": "Bakım 1 eşiği"
+            },
+            "timezonedatabasename": {
+                "name": "Saat dilimi veritabanı"
+            },
+            "totalsteamcyclecounter": {
+                "name": "Toplam buhar döngüsü sayacı"
+            },
+            "prewashphase": {
+                "name": "Ön yıkama aşaması"
+            },
+            "dryingnominalloadweight": {
+                "name": "Nominal yük ağırlığı"
+            },
+            "humiditytarget": {
+                "name": "Nem hedefi (aktif)"
+            },
+            "tankalevel": {
+                "name": "Bir seviye tanklayın"
+            },
+            "tankblevel": {
+                "name": "Tank b seviyesi"
+            },
+            "totaldrycyclescount": {
+                "name": "Toplam kuru döngüler"
+            },
+            "totaldryingtime": {
+                "name": "Toplam kuruma süresi"
+            },
+            "totalwashdrycyclescount": {
+                "name": "Toplam yıkama+kurutma döngüleri"
+            },
+            "programsorder": {
+                "name": "Program sırası"
+            },
+            "carelevel": {
+                "name": "Bakım düzeyi"
+            },
+            "drynessvalue": {
+                "name": "Kuruluk seviyesi (aktif)"
+            },
+            "wmloadweight": {
+                "name": "Dwyw: yıkama yükünün ağırlığı"
+            },
+            "wmloadmoisture": {
+                "name": "Dwyw: yıkama yükü nemi"
+            },
+            "tdcloudtte": {
+                "name": "Dwyw: tahmini kuruma süresi"
+            },
+            "tdecpoverload": {
+                "name": "Dwyw: aşırı yükleme bayrağını yükle"
+            },
+            "wmloaderror": {
+                "name": "Dwyw: yıkama yükleme hatası"
+            },
+            "wmsn": {
+                "name": "Dwyw: eşleştirilmiş yıkayıcı serisi"
+            },
+            "command": {
+                "name": "Dwyw: komut"
+            },
+            "displayonfloor": {
+                "name": "Yerde sergileme"
+            },
+            "energyscore": {
+                "name": "Enerji puanı"
+            },
+            "waterscore": {
+                "name": "Su puanı"
+            },
+            "ecoscore": {
+                "name": "Eko puanı"
+            },
+            "miscellaneousstate": {
+                "name": "Çeşitli durum"
+            },
+            "ambienttemperaturec": {
+                "name": "Ortam sıcaklığı c"
+            },
+            "ambienttemperaturef": {
+                "name": "Ortam sıcaklığı f"
+            },
+            "fanmode": {
+                "name": "Fan modu"
+            },
+            "swingmode": {
+                "name": "Salınım modu"
+            },
+            "ambienthumidity": {
+                "name": "Ortam nemi"
+            },
+            "filterstatus": {
+                "name": "Filtre durumu"
+            },
+            "powerconsumption": {
+                "name": "Güç tüketimi"
+            },
+            "energyconsumption": {
+                "name": "Enerji tüketimi"
+            },
+            "fanspeedstate": {
+                "name": "Fan hızı durumu"
+            },
+            "filterstate": {
+                "name": "Filtre durumu"
+            },
+            "hepafilterlifetime": {
+                "name": "Hepa filtre ömrü"
+            },
+            "appliancecategory": {
+                "name": "Cihaz kategorisi"
+            },
+            "vmno_niu": {
+                "name": "Niu versiyonu"
+            },
+            "vmno_mcu": {
+                "name": "Mcu sürümü"
+            },
+            "schedulersession": {
+                "name": "Zamanlayıcı oturumu"
+            },
+            "schedulermode": {
+                "name": "Zamanlayıcı modu"
+            },
+            "totalruntime": {
+                "name": "Toplam çalışma süresi"
+            },
+            "compressorcoolingruntime": {
+                "name": "Kompresör soğutma çalışma süresi"
+            },
+            "compressorheatingruntime": {
+                "name": "Kompresör ısıtma çalışma süresi"
+            },
+            "mainunittemp": {
+                "name": "Ana ünite sıcaklığı"
+            },
+            "loge": {
+                "name": "Günlük e"
+            },
+            "logw": {
+                "name": "Günlük w"
+            },
+            "demandresponseau": {
+                "name": "Talep yanıtı au"
+            },
+            "pm25": {
+                "name": "PM2,5"
+            },
+            "pm10": {
+                "name": "PM10"
+            },
+            "modestate": {
+                "name": "Mod durumu"
+            },
+            "filterruntime": {
+                "name": "Çalışma zamanını filtrele"
+            },
+            "hepafilterstate": {
+                "name": "Hepa filtre durumu"
+            },
+            "airqualitylevel": {
+                "name": "Hava kalitesi seviyesi"
+            },
+            "temperature": {
+                "name": "Ortam sıcaklığı"
+            },
+            "mode": {
+                "name": "Mod"
+            },
+            "temp": {
+                "name": "Sıcaklık"
+            },
+            "humidity": {
+                "name": "Nem"
+            },
+            "pm1": {
+                "name": "PM1"
+            },
+            "pm2_5": {
+                "name": "PM2,5"
+            },
+            "tvoc": {
+                "name": "TVoc"
+            },
+            "eco2": {
+                "name": "Eko2"
+            },
+            "filtertype": {
+                "name": "Filtre türü"
+            },
+            "filterlife": {
+                "name": "Filtre ömrü"
+            },
+            "workmode": {
+                "name": "Çalışma modu"
+            },
+            "aqilight": {
+                "name": "Aqi ışığı"
+            },
+            "louverswing": {
+                "name": "Panjur salınımı"
+            },
+            "quietfan": {
+                "name": "Sessiz fan"
+            },
+            "humidificationfilter_resetdate": {
+                "name": "Nemlendirme filtresi sıfırlama tarihi"
+            },
+            "filterlife_1": {
+                "name": "Filtre ömrü"
+            },
+            "filterlife_2": {
+                "name": "Filtre ömrü 2"
+            },
+            "filtertype_1": {
+                "name": "Filtre türü"
+            },
+            "filtertype_2": {
+                "name": "Filtre türü 2"
+            },
+            "filteruid_1": {
+                "name": "1 nfc etiketi kullanıcı kimliğini filtrele"
+            },
+            "filteruid_2": {
+                "name": "Filtre 2 nfc etiketi kullanıcı kimliği"
+            },
+            "pm2_5_approximate": {
+                "name": "Pm2,5 (yaklaşık)"
+            },
+            "uvruntime": {
+                "name": "UV çalışma zamanı"
+            },
+            "schedulingstate": {
+                "name": "Planlama durumu"
+            },
+            "errimpellerstuck": {
+                "name": "Hata: pervane sıkışmış"
+            },
+            "errpmnotresp": {
+                "name": "Hata: pm sensörü yanıt vermiyor"
+            },
+            "errcommsensordisplaybrd": {
+                "name": "Hata: ekran kartı iletişimi"
+            },
+            "errcommsensoruibrd": {
+                "name": "Hata: kullanıcı arayüzü kartı iletişimi"
+            },
+            "signalstrength": {
+                "name": "Sinyal gücü"
+            },
+            "rssi": {
+                "name": "RSSI"
+            },
+            "filterrfid": {
+                "name": "RFID'yi filtrele"
+            },
+            "errgasnotresp": {
+                "name": "Hata: gaz sensörü yanıt vermiyor"
+            },
+            "errnfctagnotpres_1": {
+                "name": "Hata: filtre 1 nfc etiketi mevcut değil"
+            },
+            "errnfctagnotpres_2": {
+                "name": "Hata: filtre 2 nfc etiketi mevcut değil"
+            },
+            "errnfctagpresnotvalid_1": {
+                "name": "Hata: filtre 1 nfc etiketi geçersiz"
+            },
+            "errnfctagpresnotvalid_2": {
+                "name": "Hata: filtre 2 nfc etiketi geçersiz"
+            },
+            "errnfctransceiver_1": {
+                "name": "Hata: 1 nfc alıcı-vericiyi filtrele"
+            },
+            "errnfctransceiver_2": {
+                "name": "Hata: filtre 2 nfc alıcı-verici"
+            },
+            "errtemprhnotresp": {
+                "name": "Hata: sıcaklık/nem sensörü yanıt vermiyor"
+            },
+            "errwatertrayremoved": {
+                "name": "Hata: su tepsisi çıkarıldı"
+            },
+            "waterbucketlevel": {
+                "name": "Su kovası seviyesi"
+            },
+            "batterystatus": {
+                "name": "Pil"
+            },
+            "robotstatus": {
+                "name": "Robot durumu"
+            },
+            "cleaningcommand": {
+                "name": "Temizleme komutu"
+            },
+            "dustbinstatus": {
+                "name": "Çöp kutusu durumu"
+            },
+            "mainbrushsqm": {
+                "name": "Ana fırça kullanımı"
+            },
+            "sidebrushsqm": {
+                "name": "Yan fırça kullanımı"
+            },
+            "filtersqm": {
+                "name": "Filtre kullanımı"
+            },
+            "state": {
+                "name": "Temizleme durumu"
+            },
+            "chargingstatus": {
+                "name": "Şarj durumu"
+            },
+            "vacuummode": {
+                "name": "Vakum modu"
+            },
+            "cleaningtype": {
+                "name": "Temizleme türü"
+            },
+            "cleaningmode": {
+                "name": "Temizleme modu"
+            },
+            "waterpumprate": {
+                "name": "Su pompası hızı"
+            },
+            "waterstationaction": {
+                "name": "Su istasyonu eylemi"
+            },
+            "moproute": {
+                "name": "Paspas rotası"
+            },
+            "notificationevent": {
+                "name": "Bildirim etkinliği"
+            },
+            "dirtcleanmode": {
+                "name": "Kir temizleme modu"
+            },
+            "faultcode": {
+                "name": "Arıza kodu"
+            },
+            "filterusage": {
+                "name": "Filtre kullanımı"
+            },
+            "cleansize": {
+                "name": "Temiz boyut"
+            },
+            "cleantime": {
+                "name": "Temiz zaman"
+            },
+            "dustbagusage": {
+                "name": "Toz torbası kullanımı"
+            },
+            "dustboxusage": {
+                "name": "Toz kutusu kullanımı"
+            },
+            "emptyingtime": {
+                "name": "Boşaltma süresi"
+            },
+            "mainbrushusage": {
+                "name": "Ana fırça kullanımı"
+            },
+            "sidebrushusage": {
+                "name": "Yan fırça kullanımı"
+            },
+            "mopusage": {
+                "name": "Paspas kullanımı"
+            },
+            "moparmextensionfreq": {
+                "name": "Paspas kolu uzatma frekansı"
+            },
+            "mopdrytime": {
+                "name": "Paspasın kuruma süresi"
+            },
+            "mopwashfreqarea": {
+                "name": "Paspas yıkama sıklığı alanı"
+            },
+            "mopwashfreqtime": {
+                "name": "Paspas yıkama sıklığı süresi"
+            },
+            "mopwashfreqtype": {
+                "name": "Paspas yıkama sıklığı tipi"
+            },
+            "numberofcleaningrepetitions": {
+                "name": "Temizleme tekrarları"
+            },
+            "voicevolume": {
+                "name": "Ses seviyesi"
+            },
+            "upgradeprogress": {
+                "name": "Yükseltme ilerlemesi"
+            },
+            "stationupgradestatus": {
+                "name": "İstasyon yükseltme durumu"
+            },
+            "upgradestate": {
+                "name": "Yükseltme durumu"
+            },
+            "selectedroomid": {
+                "name": "Seçilen oda kimliği"
+            },
+            "maxusagedustbox": {
+                "name": "Maksimum toz kutusu kullanımı"
+            },
+            "maxusagestationbag": {
+                "name": "Maksimum istasyon çantası kullanımı"
+            },
+            "dndstarttime": {
+                "name": "Dnd başlangıç ​​zamanı"
+            },
+            "dndendtime": {
+                "name": "Bitiş zamanı"
+            },
+            "datamodelversion": {
+                "name": "Veri modeli sürümü"
+            },
+            "basestationversion": {
+                "name": "Baz istasyonu versiyonu"
+            },
+            "deviceid": {
+                "name": "Cihaz kimliği"
+            },
+            "timezonedaylightrule": {
+                "name": "Saat dilimi gün ışığı kuralı"
+            },
+            "timezonestandardname": {
+                "name": "Saat dilimi standart adı"
+            },
+            "bintank": {
+                "name": "Çöp kutusu tankı"
+            },
+            "setvoicevolume": {
+                "name": "Ses ses seviyesi"
+            },
+            "mapid": {
+                "name": "Kalıcı harita kimliği"
+            },
+            "sessionid": {
+                "name": "Temizleme oturumu kimliği"
+            },
+            "completion": {
+                "name": "Temizlemenin tamamlanması"
+            },
+            "areacovered": {
+                "name": "Kapsanan alan"
+            },
+            "zones": {
+                "name": "Harita bölgesi sayısı"
+            },
+            "zonestatus": {
+                "name": "Temizleme bölgesi durumu"
+            },
+            "ovwater_tank_empty": {
+                "name": "Su Deposu Durumu"
+            },
+            "foodprobeinsertionstate": {
+                "name": "Gıda Sondası"
+            },
+            "ovcleaning_ended": {
+                "name": "Temizleme Durumu"
+            },
+            "ovfood_probe_end_of_cooking": {
+                "name": "Pişirme Sonu Probu"
+            },
+            "connectivitystate": {
+                "name": "Bağlantı Durumu"
+            },
+            "executionstate": {
+                "name": "Yürütme Durumu"
+            }
+        },
+        "switch": {
+            "uilockmode": {
+                "name": "Çocuk kilidi dahili"
+            },
+            "cavitylight": {
+                "name": "Boşluk ışığı"
+            },
+            "childlock": {
+                "name": "Çocuk kilidi"
+            },
+            "soundvolume": {
+                "name": "Ses seviyesi"
+            },
+            "keysoundtone": {
+                "name": "Tuş sesi"
+            },
+            "windownotification": {
+                "name": "Pencere bildirimi"
+            },
+            "hoodfiltercharcenable": {
+                "name": "Kömür filtresini etkinleştir"
+            },
+            "fastmode": {
+                "name": "Dondurucu hızlı modu"
+            },
+            "sabbathmode": {
+                "name": "Şabat modu"
+            },
+            "ecomode": {
+                "name": "Eko modu"
+            },
+            "ui2lockmode": {
+                "name": "Kullanıcı arayüzü 2 kilit modu"
+            },
+            "ewx1493a_prewashphase": {
+                "name": "Ön yıkama"
+            },
+            "ewx1493a_anticreasenosteam": {
+                "name": "Kırışık önleme (buhar yok)"
+            },
+            "ewx1493a_anticreasewsteam": {
+                "name": "Buharla kırışıklık önleme"
+            },
+            "ewx1493a_nightcycle": {
+                "name": "Gece döngüsü"
+            },
+            "ewx1493a_wmeconomy": {
+                "name": "Ekonomi modu"
+            },
+            "ewx1493a_rinsehold": {
+                "name": "Durulamada bekletme"
+            },
+            "ewx1493a_intensive": {
+                "name": "Yoğun yıkama"
+            },
+            "ewx1493a_tcsensor": {
+                "name": "Sıcaklık sensörü"
+            },
+            "ewx1493a_stain": {
+                "name": "Leke tedavisi"
+            },
+            "ewx1493a_drymode": {
+                "name": "Kurutma modu"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Kolay ütü"
+            },
+            "ewx1493a_pod": {
+                "name": "Kapsül"
+            },
+            "ewx1493a_steammode": {
+                "name": "Buhar modu"
+            },
+            "ewx1493a_ultramix": {
+                "name": "Ultra karışım"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Islak mod"
+            },
+            "networkinterfacealwayson": {
+                "name": "Ağ her zaman açık"
+            },
+            "adlocalfinetuning": {
+                "name": "Otomatik doz yerel ince ayar"
+            },
+            "anticreasenosteam": {
+                "name": "Kırışık önleyici buhar yok"
+            },
+            "anticreasewsteam": {
+                "name": "Buharla kırışıklık önleme"
+            },
+            "ultramix": {
+                "name": "Ultra karışım"
+            },
+            "prewashphase": {
+                "name": "Ön yıkama"
+            },
+            "stain": {
+                "name": "Leke eylemi"
+            },
+            "nightcycle": {
+                "name": "Gece döngüsü"
+            },
+            "wmeconomy": {
+                "name": "Ekonomi modu"
+            },
+            "rinsehold": {
+                "name": "Durulamada bekletme"
+            },
+            "tcsensor": {
+                "name": "Sıcaklık sensörü"
+            },
+            "soak": {
+                "name": "Emmek"
+            },
+            "softener": {
+                "name": "Yumuşatıcı"
+            },
+            "defaultsoftplus": {
+                "name": "Varsayılan yumuşak artı"
+            },
+            "intensive": {
+                "name": "Yoğun"
+            },
+            "reverseplus": {
+                "name": "Ters artı"
+            },
+            "tdeconomy_eco": {
+                "name": "Eko modu"
+            },
+            "tdeconomy_night": {
+                "name": "Gece modu"
+            },
+            "tdeconomy_quick": {
+                "name": "Hızlı mod"
+            },
+            "refresh": {
+                "name": "Programı yenile"
+            },
+            "keytone": {
+                "name": "Tuş sesi"
+            },
+            "preselectlast": {
+                "name": "Pre select last"
+            },
+            "extrapoweroption": {
+                "name": "Ekstra güç"
+            },
+            "extrasilentoption": {
+                "name": "Extra silent"
+            },
+            "glasscareoption": {
+                "name": "Cam bakımı"
+            },
+            "sprayzoneoption": {
+                "name": "Püskürtme bölgesi"
+            },
+            "autodooropener": {
+                "name": "Otomatik kapı açıcı"
+            },
+            "sanitizeoption": {
+                "name": "Sterilize et"
+            },
+            "onerackoption": {
+                "name": "Bir raf"
+            },
+            "zonecleanoption": {
+                "name": "Bölge temizliği"
+            },
+            "xtradryoption": {
+                "name": "Ekstra kuru"
+            },
+            "cleanairmode": {
+                "name": "Temiz hava modu"
+            },
+            "sleepmode": {
+                "name": "Uyku modu"
+            },
+            "batchschedulermode": {
+                "name": "Toplu planlayıcı modu"
+            },
+            "verticalswing": {
+                "name": "Dikey salınım"
+            },
+            "turbofunction": {
+                "name": "Turbo işlevi"
+            },
+            "energysavingmode": {
+                "name": "Enerji tasarrufu modu"
+            },
+            "autocleantrigger": {
+                "name": "Otomatik temizleme tetikleyicisi"
+            },
+            "flappositionavoiduser": {
+                "name": "Flap konumu kullanıcıyı önler"
+            },
+            "horizontalswing": {
+                "name": "Yatay salıncak"
+            },
+            "humidification": {
+                "name": "Nemlendirme"
+            },
+            "uilight": {
+                "name": "Kullanıcı arayüzü ışığı"
+            },
+            "safetylock": {
+                "name": "Emniyet kilidi"
+            },
+            "ionizer": {
+                "name": "İyonlaştırıcı"
+            },
+            "uvstate": {
+                "name": "UV ışığı"
+            },
+            "mute": {
+                "name": "Sesini kapatmak"
+            }
         }
     }
 }

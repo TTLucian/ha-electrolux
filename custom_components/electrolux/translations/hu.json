@@ -59,7 +59,7 @@
             }
         },
         "error": {
-            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze API-kulcsát, hozzáférési tokent és frissítési tokent."
+            "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze az API-kulcsot, a hozzáférési tokent és a frissítési tokent."
         }
     },
     "issues": {
@@ -69,7 +69,7 @@
                 "step": {
                     "confirm_repair": {
                         "title": "Frissítse az Electrolux API hitelesítő adatait",
-                        "description": "Electrolux API-tokenjei lejártak, és az automatikus frissítés nem sikerült. Kérjük, adja meg az új hitelesítő adatokat az Electrolux fejlesztői portálról a működés visszaállításához.\n\n**Új hitelesítő adatok létrehozása:**\n1. Látogassa meg a {url}\n2. Hozzon létre új API-kulcsot, hozzáférési tokent és frissítési tokent\n3. Írja be őket alább",
+                        "description": "Electrolux API-tokenjei lejártak, és az automatikus frissítés nem sikerült. Kérjük, adjon meg új hitelesítő adatokat az Electrolux fejlesztői portálról a működés visszaállításához.\n\n**Új hitelesítő adatok létrehozása:**\n1. Látogassa meg a {url}\n2. Hozzon létre új API-kulcsot, hozzáférési tokent és frissítési tokent\n3. Írja be őket alább",
                         "data": {
                             "api_key": "API kulcs",
                             "access_token": "Hozzáférési token",
@@ -78,7 +78,7 @@
                     }
                 },
                 "error": {
-                    "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze API-kulcsát, hozzáférési tokent és frissítési tokent.",
+                    "invalid_auth": "Érvénytelen API hitelesítési adatok. Kérjük, ellenőrizze az API-kulcsot, a hozzáférési tokent és a frissítési tokent.",
                     "invalid_format": "Érvénytelen hitelesítő adatformátum. Kérjük, győződjön meg róla, hogy minden mezőt helyesen töltött ki.",
                     "entry_not_found": "A konfigurációs bejegyzés nem található."
                 },
@@ -104,8 +104,14 @@
         "command_rate_limited": {
             "message": "Túl sok parancs lett elküldve. Kérjük, várjon egy pillanatot, és próbálja újra."
         },
+        "control_disabled_by_mode": {
+            "message": "A {attr} nem állítható be az aktuális módban."
+        },
         "control_locked": {
             "message": "A {attr} zárolva van a {value} címen a {program} programhoz."
+        },
+        "fanspeed_disabled": {
+            "message": "A ventilátor sebessége nem állítható {mode} módban. A ventilátor sebességének szabályozásához először váltson kézi üzemmódba."
         },
         "food_probe_locked_by_program": {
             "message": "Az élelmiszerszonda hőmérséklete {value}°C-on zárva van a {program} programhoz."
@@ -142,6 +148,24 @@
         },
         "value_below_minimum": {
             "message": "A {value} érték a {attr} minimális {min_val} értéke alatt van."
+        }
+    },
+    "services": {
+        "start_zone_cleaning": {
+            "name": "Indítsa el a zóna tisztítását",
+            "description": "Indítson el egy zónaalapú tisztítási munkamenetet egy PUREi9 robotporszívóval. A zóna UUID-k és a perzisztens leképezési UUID megtalálhatók az integrációs diagnosztikában (mapData/mapMatch/zones és persistentMapsCreated/mapId).",
+            "fields": {
+                "persistent_map_id": {
+                    "name": "Állandó térképazonosító",
+                    "description": "A használandó állandó térkép UUID-je (a diagnosztikából: persistentMapsCreated/mapId).",
+                    "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
+                },
+                "zones": {
+                    "name": "Zónák",
+                    "description": "A tisztítandó zónák listája. Minden bejegyzéshez szükséges a zone_id (UUID a mapData/mapMatch/zones[].uuid-ból) és az opcionális power_mode (1=csendes, 2=okos, 3=teljesítmény, alapértelmezett 1).",
+                    "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
+                }
+            }
         }
     },
     "entity": {
@@ -243,7 +267,7 @@
                 "name": "Automatikus felmosókar hosszabbító"
             },
             "automopdry": {
-                "name": "Automatikus mop száraz"
+                "name": "Automatikus felmosószárító"
             },
             "automopwash": {
                 "name": "Automatikus mop mosás"
@@ -351,7 +375,7 @@
                 "name": "Cél időtartam"
             },
             "targetfoodprobetemperaturec": {
-                "name": "Az élelmiszerszonda célhőmérséklete c"
+                "name": "Ételszonda célhőmérséklete c"
             },
             "targetfoodprobetemperaturef": {
                 "name": "Élelmiszer-szonda célhőmérséklete f"
@@ -517,7 +541,7 @@
                 "name": "Niu sw frissítés leírása"
             },
             "otastate": {
-                "name": "Hálózati interfész ota állapot"
+                "name": "A hálózati interfész ota állapota"
             },
             "swancandrevision": {
                 "name": "Sw anc és revízió"
@@ -721,7 +745,7 @@
                 "name": "Vízszűrő vásárlási küszöb (áramlás)"
             },
             "waterfilterflowchangethreshold": {
-                "name": "Vízszűrő cseréjének küszöbértéke (áramlás)"
+                "name": "Vízszűrő csereküszöb (áramlás)"
             },
             "waterfilterlifetimebuythreshold": {
                 "name": "Vízszűrő vásárlási küszöb (idő)"
@@ -835,7 +859,7 @@
                 "name": "Minimális befejezési idő"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Gazdaságos mód"
+                "name": "Gazdaságos üzemmód"
             },
             "adfinetunedetlevel": {
                 "name": "Automatikus adagoló mosószer finomhangolása"
@@ -1078,7 +1102,7 @@
                 "name": "Pm2,5 (hozzávetőleges)"
             },
             "uvruntime": {
-                "name": "UV futási idő"
+                "name": "UV futásidő"
             },
             "schedulingstate": {
                 "name": "Ütemezési állapot"
@@ -1114,7 +1138,7 @@
                 "name": "Hiba: a 2. szűrő nfc címke nincs jelen"
             },
             "errnfctagpresnotvalid_1": {
-                "name": "Hiba: 1. szűrő nfc címke érvénytelen"
+                "name": "Hiba: az 1. szűrő nfc címke érvénytelen"
             },
             "errnfctagpresnotvalid_2": {
                 "name": "Hiba: a filter 2 nfc címke érvénytelen"
@@ -1228,7 +1252,7 @@
                 "name": "Mopmosás gyakorisága"
             },
             "mopwashfreqtype": {
-                "name": "Mop wash frequency type"
+                "name": "Mop mosási gyakoriság típusa"
             },
             "numberofcleaningrepetitions": {
                 "name": "Tisztítási ismétlések"
@@ -1261,7 +1285,7 @@
                 "name": "Dnd befejezési idő"
             },
             "datamodelversion": {
-                "name": "Az adatmodell verziója"
+                "name": "Adatmodell verzió"
             },
             "basestationversion": {
                 "name": "Bázisállomás verzió"
@@ -1365,7 +1389,7 @@
                 "name": "Éjszakai ciklus"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Gazdaságos mód"
+                "name": "Gazdaságos üzemmód"
             },
             "ewx1493a_rinsehold": {
                 "name": "Öblítő tartás"
@@ -1422,7 +1446,7 @@
                 "name": "Éjszakai ciklus"
             },
             "wmeconomy": {
-                "name": "Gazdaságos mód"
+                "name": "Gazdaságos üzemmód"
             },
             "rinsehold": {
                 "name": "Öblítő tartás"
