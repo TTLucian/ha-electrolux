@@ -1032,9 +1032,7 @@ class TestElectroluxVacuum700series:
             patch(
                 "custom_components.electrolux.vacuum.ElectroluxVacuum"
             ) as mock_vacuum_class,
-            patch(
-                "custom_components.electrolux.vacuum.async_get_current_platform"
-            ),
+            patch("custom_components.electrolux.vacuum.async_get_current_platform"),
         ):
             await async_setup_entry(hass, entry, async_add_entities)
 
