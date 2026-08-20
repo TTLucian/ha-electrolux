@@ -162,8 +162,7 @@ class TestAsyncSetupEntry:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry()
@@ -201,9 +200,7 @@ class TestAsyncSetupEntry:
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
-        mock_coordinator.async_login = AsyncMock(
-            side_effect=ConfigEntryAuthFailed("bad creds")
-        )
+        mock_coordinator.async_login = AsyncMock(side_effect=ConfigEntryAuthFailed("bad creds"))
 
         with (
             patch(
@@ -233,9 +230,7 @@ class TestAsyncSetupEntry:
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
-        mock_coordinator.async_login = AsyncMock(
-            side_effect=ConfigEntryNotReady("network down")
-        )
+        mock_coordinator.async_login = AsyncMock(side_effect=ConfigEntryNotReady("network down"))
 
         with (
             patch(
@@ -273,7 +268,7 @@ class TestAsyncSetupEntry:
 class TestAsyncUnloadEntry:
     @pytest.mark.asyncio
     async def test_unload_entry_success(self):
-        """async_unload_entry closes client and unloads platforms."""
+        """async_unload_entry closes coordinator and unloads platforms."""
         from unittest.mock import AsyncMock
 
         from custom_components.electrolux import async_unload_entry
@@ -281,12 +276,9 @@ class TestAsyncUnloadEntry:
         mock_hass = MagicMock()
         mock_hass.config_entries.async_unload_platforms = AsyncMock(return_value=True)
 
-        mock_client = MagicMock()
-        mock_client.close = AsyncMock()
-
         mock_coordinator = MagicMock()
-        mock_coordinator.api = mock_client
         mock_coordinator.async_cancel_capability_retry = AsyncMock()
+        mock_coordinator.close_websocket = AsyncMock()
 
         mock_entry = _make_mock_entry()
         mock_entry.runtime_data = mock_coordinator
@@ -295,7 +287,43 @@ class TestAsyncUnloadEntry:
 
         assert result is True
         mock_coordinator.async_cancel_capability_retry.assert_awaited_once()
-        mock_client.close.assert_awaited_once()
+        mock_coordinator.close_websocket.assert_awaited_once()
+        mock_hass.config_entries.async_unload_platforms.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_unload_entry_cancels_watchdog_tasks(self):
+        """async_unload_entry cancels the SSE and timeToEnd watchdog tasks via close_websocket."""
+        from unittest.mock import AsyncMock
+
+        from custom_components.electrolux import async_unload_entry
+
+        mock_hass = MagicMock()
+        mock_hass.config_entries.async_unload_platforms = AsyncMock(return_value=True)
+
+        # Simulate running watchdog tasks on the coordinator
+        sse_watchdog = asyncio.create_task(asyncio.sleep(3600))
+        time_to_end_watchdog = asyncio.create_task(asyncio.sleep(3600))
+
+        mock_coordinator = MagicMock()
+        mock_coordinator.async_cancel_capability_retry = AsyncMock()
+        mock_coordinator.close_websocket = AsyncMock(
+            side_effect=lambda: (
+                sse_watchdog.cancel(),
+                time_to_end_watchdog.cancel(),
+            )
+        )
+
+        mock_entry = _make_mock_entry()
+        mock_entry.runtime_data = mock_coordinator
+
+        result = await async_unload_entry(mock_hass, mock_entry)
+
+        assert result is True
+        mock_coordinator.close_websocket.assert_awaited_once()
+        # Allow the cancellation to complete
+        await asyncio.gather(sse_watchdog, time_to_end_watchdog, return_exceptions=True)
+        assert sse_watchdog.cancelled()
+        assert time_to_end_watchdog.cancelled()
         mock_hass.config_entries.async_unload_platforms.assert_awaited_once()
 
 
@@ -341,9 +369,7 @@ class TestUpdateListener:
 
         await update_listener(mock_hass, mock_entry)
 
-        mock_hass.config_entries.async_reload.assert_awaited_once_with(
-            mock_entry.entry_id
-        )
+        mock_hass.config_entries.async_reload.assert_awaited_once_with(mock_entry.entry_id)
 
 
 class TestAsyncSetupEntryAdditional:
@@ -363,8 +389,7 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry(
@@ -434,15 +459,12 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
-        mock_coordinator.async_config_entry_first_refresh = AsyncMock(
-            side_effect=asyncio.TimeoutError()
-        )
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock(side_effect=TimeoutError())
         mock_coordinator.last_update_success = True
 
         with (
@@ -521,9 +543,7 @@ class TestAsyncSetupEntryAdditional:
         assert result is True
         # Check that async_listen_once was called with EVENT_HOMEASSISTANT_STARTED
         started_calls = [
-            call
-            for call in mock_hass.bus.async_listen_once.call_args_list
-            if call[0][0] == EVENT_HOMEASSISTANT_STARTED
+            call for call in mock_hass.bus.async_listen_once.call_args_list if call[0][0] == EVENT_HOMEASSISTANT_STARTED
         ]
         assert len(started_calls) == 1
 
@@ -539,8 +559,7 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry()
@@ -572,9 +591,7 @@ class TestAsyncSetupEntryAdditional:
                 cleanup_fn = fn
                 break
 
-        assert (
-            cleanup_fn is not None
-        ), "cleanup_tasks not found in async_on_unload calls"
+        assert cleanup_fn is not None, "cleanup_tasks not found in async_on_unload calls"
         cleanup_fn()
 
         mock_coordinator.listen_task.cancel.assert_called()
@@ -594,8 +611,7 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry()
@@ -621,9 +637,7 @@ class TestAsyncSetupEntryAdditional:
                 stop_callback = call[0][1]
                 break
 
-        assert (
-            stop_callback is not None
-        ), "_close_coordinator not registered for STOP event"
+        assert stop_callback is not None, "_close_coordinator not registered for STOP event"
         await stop_callback(None)
         mock_coordinator.close_websocket.assert_awaited_once()
 
@@ -641,15 +655,12 @@ class TestAsyncSetupEntryAdditional:
         mock_hass.is_running = True
         mock_hass.config_entries.async_forward_entry_setups = AsyncMock()
         mock_hass.async_create_task = MagicMock(
-            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-            or MagicMock()
+            side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
         )
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
-        mock_coordinator.close_websocket = AsyncMock(
-            side_effect=Exception("websocket close failed")
-        )
+        mock_coordinator.close_websocket = AsyncMock(side_effect=Exception("websocket close failed"))
 
         with (
             patch(

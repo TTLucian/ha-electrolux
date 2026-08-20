@@ -279,18 +279,18 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
-    # 1. Retrieve the client before data is cleared
+    # 1. Retrieve the coordinator before data is cleared
     coordinator: ElectroluxCoordinator = entry.runtime_data
-    client = coordinator.api if coordinator else None
 
     if coordinator:
         await coordinator.async_cancel_capability_retry()
+        # close_websocket cancels the SSE listen/renew tasks, the SSE stall
+        # watchdog, the timeToEnd staleness watchdog, and closes the API.
+        # Without this, the watchdog tasks survive unload/reload and keep
+        # polling with stale credentials (issue #180).
+        await coordinator.close_websocket()
 
-    # 2. Trigger the decisive cleanup in util.py
-    if client:
-        await client.close()
-
-    # 3. Proceed with standard HA unloading
+    # 2. Proceed with standard HA unloading
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     return unload_ok
