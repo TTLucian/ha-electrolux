@@ -10,6 +10,11 @@ consumed by :class:`~custom_components.electrolux.button.ElectroluxButton`.
 Keeping them here means the rules for every appliance type live in one place and
 are easy to extend when new API samples become available.
 
+They are a fallback. An appliance that publishes ``applianceState`` triggers
+describes its own state machine, and :func:`execute_states_from_capabilities`
+reads that instead, so a model whose rules differ from its type's table gets the
+right buttons without a new constant.
+
 Sources (all from ``samples/*.json`` → ``applianceState`` → ``triggers``)
 -------
 * OV-944188772_00.json      → OVEN_EXECUTE_STATES
@@ -27,6 +32,8 @@ Sources (all from ``samples/*.json`` → ``applianceState`` → ``triggers``)
 * AC / ice maker: no state-gating triggers found in available samples;
   no constant defined — ``available_when_states`` defaults to ``None``.
 """
+
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Oven (OV) — OV-944188772_00.json
@@ -104,9 +111,9 @@ WASHER_DRYER_EXECUTE_STATES: dict[str, list[str]] = {
 # DELAYED_START   → PAUSE
 # PAUSED          → RESUME, STOPRESET
 # END_OF_CYCLE    → STOPRESET
-# ANTICREASE      → STOPRESET   ← dryer-specific
+# ANTICREASE      → STOPRESET    ← dryer-specific
 # READY_TO_START  → START
-# IDLE            → START       ← dryer-specific
+# IDLE            → START        ← dryer-specific
 DRYER_EXECUTE_STATES: dict[str, list[str]] = {
     "STOPRESET": ["PAUSED", "END_OF_CYCLE", "ANTICREASE"],
     "START": ["READY_TO_START", "IDLE"],
@@ -125,9 +132,9 @@ DRYER_EXECUTE_STATES: dict[str, list[str]] = {
 # RUNNING         → PAUSE
 # PAUSED          → RESUME, STOPRESET
 # END_OF_CYCLE    → STOPRESET
-# DELAYED_START   → STOPRESET   ← dishwasher-specific (not PAUSE)
+# DELAYED_START   → STOPRESET    ← dishwasher-specific (not PAUSE)
 # READY_TO_START  → START
-# IDLE            → START       ← dishwasher-specific
+# IDLE            → START        ← dishwasher-specific
 DISHWASHER_EXECUTE_STATES: dict[str, list[str]] = {
     "STOPRESET": ["PAUSED", "END_OF_CYCLE", "DELAYED_START"],
     "START": ["READY_TO_START", "IDLE"],
@@ -139,3 +146,68 @@ DISHWASHER_EXECUTE_STATES: dict[str, list[str]] = {
 # available samples. Do NOT add None constants here — omitting
 # ``available_when_states`` from the catalog entry achieves the same result
 # using the field's default value.
+
+
+def execute_states_from_capabilities(
+    capabilities: dict[str, Any] | None,
+    *,
+    entity_source: str | None = None,
+) -> dict[str, list[str]] | None:
+    """Derive the executeCommand rules from an appliance's own capabilities.
+
+    The tables above were transcribed from ``applianceState`` → ``triggers`` in
+    sample files, so the appliance already ships the same information. Reading
+    it at runtime keeps a model that deviates from its type's table working.
+
+    Returns a ``{command: [applianceState, ...]}`` mapping in the same shape as
+    the constants, or ``None`` when the appliance publishes no usable triggers,
+    in which case the caller should fall back to the catalog entry.
+
+    Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions are
+    read, matching the trigger handling in ``entity.py``. Compound conditions
+    (a dict operand) and ``disabled`` actions carry no command list and are
+    skipped.
+    """
+    if not isinstance(capabilities, dict):
+        return None
+
+    appliance_state: Any | None = None
+
+    if entity_source:
+        appliance_state = capabilities.get(f"{entity_source}/applianceState")
+
+    if appliance_state is None:
+        appliance_state = capabilities.get("applianceState")
+
+    if not isinstance(appliance_state, dict):
+        return None
+
+    states: dict[str, list[str]] = {}
+    for trigger in appliance_state.get("triggers", []):
+        if not isinstance(trigger, dict):
+            continue
+
+        condition = trigger.get("condition", {})
+        if not isinstance(condition, dict):
+            continue
+        if condition.get("operator") != "eq" or condition.get("operand_1") != "value":
+            continue
+        state = condition.get("operand_2")
+        if not isinstance(state, str):
+            continue
+
+        action = trigger.get("action", {})
+        if not isinstance(action, dict):
+            continue
+        execute_command = action.get("executeCommand")
+        if not isinstance(execute_command, dict):
+            continue
+        values = execute_command.get("values")
+        if not isinstance(values, dict):
+            continue
+
+        for command in values:
+            if state not in states.setdefault(command, []):
+                states[command].append(state)
+
+    return states or None

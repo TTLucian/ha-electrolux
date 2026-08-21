@@ -14,6 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import BUTTON, CONF_API_KEY, icon_mapping
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
+from .execute_command_states import execute_states_from_capabilities
 from .model import ElectroluxDevice
 from .util import (
     AuthenticationError,
@@ -45,6 +46,9 @@ async def async_setup_entry(
 
 class ElectroluxButton(ElectroluxEntity, ButtonEntity):
     """Electrolux button class."""
+
+    _execute_states_cache: dict[str, list[str]] | None = None
+    _execute_states_cache_caps_id: int | None = None
 
     def __init__(
         self,
@@ -133,15 +137,57 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         return f"{name} {self.val_to_send}"
 
     @property
+    def _execute_states(self) -> dict[str, list[str]] | None:
+        """Return the executeCommand rules that apply to this appliance.
+
+        The appliance's own ``applianceState`` triggers win over the catalog
+        table: the tables are per appliance type, and individual models differ.
+        A dryer that only accepts ON in IDLE, for example, would otherwise show
+        an enabled Start button that can only ever answer 406.
+        """
+        caps = self._appliance_capabilities()
+        caps_id = id(caps)
+
+        if hasattr(self, "_execute_states_cache") and getattr(self, "_execute_states_cache_caps_id", None) == caps_id:
+            return cast(dict[str, list[str]] | None, self._execute_states_cache)
+
+        derived = execute_states_from_capabilities(caps, entity_source=self.entity_source)
+        states = derived
+
+        if states is None and self._catalog_entry:
+            states = self._catalog_entry.available_when_states
+
+        self._execute_states_cache = states
+        self._execute_states_cache_caps_id = caps_id
+        return states
+
+    def _appliance_capabilities(self) -> dict[str, Any] | None:
+        """Return this appliance's capabilities, or None if not loaded yet.
+
+        available() is called during startup and teardown as well, so this must
+        not assume the coordinator holds an appliance for this entity.
+        """
+        if self.coordinator.data is None:
+            return None
+        appliances = self.coordinator.data.get("appliances", None)
+        if appliances is None:
+            return None
+        appliance = appliances.get_appliance(self.pnc_id)
+        if appliance is None:
+            return None
+        return getattr(getattr(appliance, "data", None), "capabilities", None)
+
+    @property
     def available(self) -> bool:
-        """Return True only when the button action is valid in the current appliance state."""
-        # Check catalog-defined state restrictions first
-        if self._catalog_entry and self._catalog_entry.available_when_states:
-            allowed_states = self._catalog_entry.available_when_states.get(self.val_to_send)
+        # Check state restrictions first, appliance-derived or catalog-defined.
+        # A command absent from the rules is left unrestricted, as before.
+        if execute_states := self._execute_states:
+            allowed_states = execute_states.get(self.val_to_send)
             if allowed_states is not None:
                 current_state = self.reported_state.get("applianceState")
                 if current_state not in allowed_states:
                     return False
+
         return super().available
 
     @property
