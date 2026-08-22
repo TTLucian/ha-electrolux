@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from typing import Any
 
 from electrolux_group_developer_sdk.client.appliance_client import (
@@ -298,9 +299,27 @@ class ElectroluxApiClient:
         try:
             result = await coro
             _LOGGER.debug("_handle_api_call: API call completed successfully")
+            if self.coordinator:
+                self.coordinator._api_connected = True
+                self.coordinator._last_api_success_time = time.time()
+                self.coordinator._last_api_status_code = 200
+                self.coordinator._last_api_error = None
+                if hasattr(self.coordinator, "_listeners"):
+                    self.coordinator.async_update_listeners()
             return result
         except Exception as ex:
             _LOGGER.debug(f"_handle_api_call: Exception caught: {ex}")
+            if self.coordinator:
+                self.coordinator._api_connected = False
+                self.coordinator._last_api_error = str(ex)
+                if hasattr(ex, "status"):
+                    self.coordinator._last_api_status_code = ex.status
+                elif hasattr(ex, "status_code"):
+                    self.coordinator._last_api_status_code = ex.status_code
+                else:
+                    self.coordinator._last_api_status_code = None
+                if hasattr(self.coordinator, "_listeners"):
+                    self.coordinator.async_update_listeners()
             # Check for authentication-related errors
             if is_auth_error(ex):
                 # Trigger token refresh handler by logging the error
@@ -467,6 +486,19 @@ class ElectroluxApiClient:
 
             # Add callback to handle task failures
             def _handle_sse_failure(task):
+                if self.coordinator:
+                    self.coordinator._sse_connected = False
+                    self.coordinator._sse_connection_state = "disconnected" if task.cancelled() else "reconnecting"
+                    self.coordinator._consecutive_sse_drops += 1
+                    if task.cancelled():
+                        self.coordinator._last_sse_disconnect_reason = "Stream cancelled"
+                    elif task.exception() is not None:
+                        self.coordinator._last_sse_disconnect_reason = str(task.exception())
+                    else:
+                        self.coordinator._last_sse_disconnect_reason = "Stream closed by server"
+                    if hasattr(self.coordinator, "_listeners"):
+                        self.coordinator.async_update_listeners()
+
                 if task.cancelled():
                     _LOGGER.debug(
                         "SSE event stream was cancelled for appliances %s",

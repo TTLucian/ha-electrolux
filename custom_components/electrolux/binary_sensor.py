@@ -1,13 +1,22 @@
 """Binary sensor platform for Electrolux."""
 
 import logging
+from datetime import UTC, datetime
+from typing import Any
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import BINARY_SENSOR
+from .const import BINARY_SENSOR, DOMAIN
+from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .util import get_capability, string_to_boolean
 
@@ -74,15 +83,28 @@ async def async_setup_entry(
 ) -> None:
     """Configure binary sensor platform."""
     coordinator = entry.runtime_data
+    entities: list[BinarySensorEntity] = [
+        ElectroluxCloudApiBinarySensor(
+            coordinator=coordinator,
+            config_entry=entry,
+        ),
+        ElectroluxSseStreamBinarySensor(
+            coordinator=coordinator,
+            config_entry=entry,
+        ),
+    ]
+
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [entity for entity in appliance.entities if entity.entity_type == BINARY_SENSOR]
+            appliance_entities = [entity for entity in appliance.entities if entity.entity_type == BINARY_SENSOR]
             _LOGGER.debug(
                 "Electrolux add %d BINARY_SENSOR entities to registry for appliance %s",
-                len(entities),
+                len(appliance_entities),
                 appliance_id,
             )
-            async_add_entities(entities)
+            entities.extend(appliance_entities)
+
+    async_add_entities(entities)
 
 
 class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
@@ -151,3 +173,106 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
             return bool(self.invert)
 
         return bool(not value if self.invert else value)
+
+
+class _ElectroluxCloudDiagnosticBinarySensor(CoordinatorEntity[ElectroluxCoordinator], BinarySensorEntity):
+    """Base class for Electrolux cloud diagnostic binary sensors."""
+
+    _attr_has_entity_name = True
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(
+        self,
+        coordinator: ElectroluxCoordinator,
+        config_entry: ConfigEntry,
+        name: str,
+        unique_suffix: str,
+    ) -> None:
+        """Initialize the diagnostic binary sensor."""
+        super().__init__(coordinator)
+        self.config_entry = config_entry
+        self._attr_name = name
+        self._attr_unique_id = f"{config_entry.entry_id}_{unique_suffix}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, config_entry.entry_id)},
+            name="Electrolux Cloud",
+            manufacturer="Electrolux",
+            model="Developer Cloud API",
+            entry_type=DeviceEntryType.SERVICE,
+            configuration_url="https://developer.electrolux.one",
+        )
+
+
+class ElectroluxCloudApiBinarySensor(_ElectroluxCloudDiagnosticBinarySensor):
+    """Binary sensor for Electrolux REST API gateway connectivity."""
+
+    def __init__(
+        self,
+        coordinator: ElectroluxCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the API connectivity binary sensor."""
+        super().__init__(coordinator, config_entry, name="API", unique_suffix="cloud_api")
+
+    @property
+    def is_on(self) -> bool:
+        """Return True if REST API is connected."""
+        return self.coordinator.api_connected
+
+    @property
+    def icon(self) -> str:
+        """Return dynamic icon based on state."""
+        return "mdi:cloud-check" if self.is_on else "mdi:cloud-alert"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return diagnostic state attributes."""
+        attrs: dict[str, Any] = {
+            "endpoint": "api.developer.electrolux.one",
+            "last_status_code": self.coordinator.last_api_status_code,
+        }
+        if self.coordinator.last_api_success_time > 0:
+            attrs["last_success_time"] = datetime.fromtimestamp(
+                self.coordinator.last_api_success_time, tz=UTC
+            ).isoformat()
+        if self.coordinator.last_api_error:
+            attrs["last_error"] = self.coordinator.last_api_error
+        return attrs
+
+
+class ElectroluxSseStreamBinarySensor(_ElectroluxCloudDiagnosticBinarySensor):
+    """Binary sensor for Electrolux live SSE event stream connectivity."""
+
+    def __init__(
+        self,
+        coordinator: ElectroluxCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the SSE stream connectivity binary sensor."""
+        super().__init__(coordinator, config_entry, name="Live Stream", unique_suffix="sse_stream")
+
+    @property
+    def is_on(self) -> bool:
+        """Return True if SSE stream is connected."""
+        return self.coordinator.sse_connected
+
+    @property
+    def icon(self) -> str:
+        """Return dynamic icon based on state."""
+        return "mdi:broadcast" if self.is_on else "mdi:broadcast-off"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return diagnostic state attributes."""
+        attrs: dict[str, Any] = {
+            "endpoint": "live.eu.developer.electrolux.one",
+            "connection_state": self.coordinator.sse_connection_state,
+            "consecutive_drops": self.coordinator.consecutive_sse_drops,
+            "backoff_seconds": self.coordinator.current_sse_backoff_seconds,
+        }
+        if self.coordinator.last_sse_event_time > 0:
+            attrs["last_event_time"] = datetime.fromtimestamp(self.coordinator.last_sse_event_time, tz=UTC).isoformat()
+        if self.coordinator.last_sse_disconnect_reason:
+            attrs["disconnect_reason"] = self.coordinator.last_sse_disconnect_reason
+        return attrs
