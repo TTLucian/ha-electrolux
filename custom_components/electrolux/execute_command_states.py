@@ -19,7 +19,10 @@ Sources (all from ``samples/*.json`` → ``applianceState`` → ``triggers``)
 -------
 * OV-944188772_00.json      → OVEN_EXECUTE_STATES
 * SO-944035035_01.json      → STRUCTURED_OVEN_EXECUTE_STATES
-* WM-914915144_00.json      → WASHER_EXECUTE_STATES
+* WM-914915144_00.json,
+  WM-914505603_03.json      → WASHER_EXECUTE_STATES (identical state machine;
+                              the AEG LR956SY6C sample also publishes ON in
+                              IDLE, which the catalog table omits entirely)
 * WD-914611500_00.json,
   WD-914611000_01.json      → WASHER_EXECUTE_STATES (identical state machine)
 * TD-916098401_00.json,

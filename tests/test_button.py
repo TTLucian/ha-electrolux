@@ -1,5 +1,6 @@
 """Test button platform for Electrolux."""
 
+from typing import ClassVar
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -9,6 +10,7 @@ from custom_components.electrolux.button import ElectroluxButton
 from custom_components.electrolux.const import BUTTON
 from custom_components.electrolux.execute_command_states import (
     DRYER_EXECUTE_STATES,
+    WASHER_EXECUTE_STATES,
     execute_states_from_capabilities,
 )
 
@@ -115,9 +117,7 @@ class TestElectroluxButton:
 
     def test_available_true_when_remote_control_enabled(self, button_entity):
         """Test available property when remote control is enabled."""
-        button_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        button_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
         assert button_entity.available is True
 
     def test_available_false_when_remote_control_disabled(self, button_entity):
@@ -130,9 +130,7 @@ class TestElectroluxButton:
                 }
             }
         }
-        assert (
-            button_entity.available is True
-        )  # Should be available even with remote control disabled
+        assert button_entity.available is True  # Should be available even with remote control disabled
 
     def test_available_false_when_no_remote_control_info(self, button_entity):
         """Test available property when no remote control info is available."""
@@ -148,9 +146,7 @@ class TestElectroluxButton:
     async def test_press_success(self, button_entity):
         """Test successful button press."""
         # Set remote control enabled
-        button_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}
-        }
+        button_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}}
 
         # Mock the API call
         button_entity.api.execute_appliance_command = AsyncMock(return_value=True)
@@ -158,9 +154,7 @@ class TestElectroluxButton:
         await button_entity.async_press()
 
         # Verify command was sent
-        button_entity.api.execute_appliance_command.assert_called_once_with(
-            "TEST_PNC", {"testAttr": "PRESS"}
-        )
+        button_entity.api.execute_appliance_command.assert_called_once_with("TEST_PNC", {"testAttr": "PRESS"})
 
     @pytest.mark.asyncio
     async def test_press_with_entity_source(self, mock_coordinator, mock_capability):
@@ -205,14 +199,10 @@ class TestElectroluxButton:
     async def test_press_api_failure(self, button_entity):
         """Test button press when API call fails."""
         # Set remote control enabled
-        button_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}
-        }
+        button_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}}
 
         # Mock the API call to raise an exception
-        button_entity.api.execute_appliance_command = AsyncMock(
-            side_effect=Exception("API failure")
-        )
+        button_entity.api.execute_appliance_command = AsyncMock(side_effect=Exception("API failure"))
 
         with pytest.raises(Exception, match="API failure"):
             await button_entity.async_press()
@@ -242,9 +232,7 @@ class TestElectroluxButton:
         )
 
         # Set remote control enabled
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
@@ -276,17 +264,13 @@ class TestElectroluxButton:
         )
 
         # Set remote control enabled
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED", "testAttr": True}}}
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
         await entity.async_press()
 
-        entity.api.execute_appliance_command.assert_called_once_with(
-            "TEST_PNC", {"testAttr": "PRESS"}
-        )
+        entity.api.execute_appliance_command.assert_called_once_with("TEST_PNC", {"testAttr": "PRESS"})
 
     def test_device_class_from_catalog(self, mock_coordinator, mock_capability):
         """Test device class from catalog entry."""
@@ -367,9 +351,7 @@ class TestButtonUniqueId:
 
     def test_unique_id_basic_structure(self, mock_coordinator, mock_capability):
         """Test unique_id contains attr, val_to_send, source=root, pnc_id."""
-        entity = self._make_entity(
-            mock_coordinator, mock_capability, "someAttr", None, "GO"
-        )
+        entity = self._make_entity(mock_coordinator, mock_capability, "someAttr", None, "GO")
         uid = entity.unique_id
         assert "someattr" in uid
         assert "GO" in uid
@@ -378,37 +360,27 @@ class TestButtonUniqueId:
 
     def test_unique_id_fppn_prefix_stripped(self, mock_coordinator, mock_capability):
         """Test fppn_ prefix is stripped from entity_attr in unique_id."""
-        entity = self._make_entity(
-            mock_coordinator, mock_capability, "fppn_cleaningCycle", None, "START"
-        )
+        entity = self._make_entity(mock_coordinator, mock_capability, "fppn_cleaningCycle", None, "START")
         uid = entity.unique_id
         assert "cleaningcycle" in uid
         assert "fppn_" not in uid
 
-    def test_unique_id_fppn_no_underscore_stripped(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_unique_id_fppn_no_underscore_stripped(self, mock_coordinator, mock_capability):
         """Test fppn prefix without underscore is stripped."""
-        entity = self._make_entity(
-            mock_coordinator, mock_capability, "fppnSomething", None, "ON"
-        )
+        entity = self._make_entity(mock_coordinator, mock_capability, "fppnSomething", None, "ON")
         uid = entity.unique_id
         assert "fppn" not in uid
         assert "something" in uid
 
     def test_unique_id_with_entity_source(self, mock_coordinator, mock_capability):
         """Test unique_id includes entity_source."""
-        entity = self._make_entity(
-            mock_coordinator, mock_capability, "action", "oven", "START"
-        )
+        entity = self._make_entity(mock_coordinator, mock_capability, "action", "oven", "START")
         assert "oven" in entity.unique_id
 
     def test_unique_id_empty_api_key(self, mock_coordinator, mock_capability):
         """Test unique_id with missing api_key uses 'unknown' hash placeholder."""
         mock_coordinator.config_entry.data = {}
-        entity = self._make_entity(
-            mock_coordinator, mock_capability, "action", None, "START"
-        )
+        entity = self._make_entity(mock_coordinator, mock_capability, "action", None, "START")
         assert "unknown" in entity.unique_id
 
 
@@ -430,9 +402,7 @@ class TestButtonNameProperty:
     def mock_capability(self):
         return {"access": "write", "type": "boolean"}
 
-    def test_name_with_catalog_entry_appliance_found(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_name_with_catalog_entry_appliance_found(self, mock_coordinator, mock_capability):
         """Test name when catalog_entry.friendly_name found + appliance found in coordinator."""
         from custom_components.electrolux.model import ElectroluxDevice
 
@@ -467,9 +437,7 @@ class TestButtonNameProperty:
         # name = "My Washer start" → last_word = "start" == "START" → return name (no duplicate)
         assert entity.name == "My Washer start"
 
-    def test_name_with_catalog_entry_no_appliance(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_name_with_catalog_entry_no_appliance(self, mock_coordinator, mock_capability):
         """Test name when catalog_entry.friendly_name found but appliance not in coordinator."""
         from custom_components.electrolux.model import ElectroluxDevice
 
@@ -502,9 +470,7 @@ class TestButtonNameProperty:
         # last_word = "State" != "RESET" → appended
         assert entity.name == "Filter State RESET"
 
-    def test_name_last_word_matches_val_to_send_no_suffix(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_name_last_word_matches_val_to_send_no_suffix(self, mock_coordinator, mock_capability):
         """Test name is not suffixed when last word matches val_to_send."""
         entity = ElectroluxButton(
             coordinator=mock_coordinator,
@@ -601,9 +567,7 @@ class TestButtonAvailableWhenStates:
         # state is "RUNNING", not in ["IDLE", "STANDBY"]
         assert entity.available is False
 
-    def test_available_when_states_key_not_in_dict(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_available_when_states_key_not_in_dict(self, mock_coordinator, mock_capability):
         """Test available when val_to_send not in available_when_states dict → falls through to super."""
         from custom_components.electrolux.model import ElectroluxDevice
 
@@ -639,9 +603,7 @@ DRYER_TRIGGERS = {
                 },
             },
             {
-                "action": {
-                    "executeCommand": {"values": {"RESUME": {}, "STOPRESET": {}}}
-                },
+                "action": {"executeCommand": {"values": {"RESUME": {}, "STOPRESET": {}}}},
                 "condition": {
                     "operand_1": "value",
                     "operand_2": "PAUSED",
@@ -948,9 +910,7 @@ class TestSourceScopedStateGating:
             )
             assert entity.available is True, root_state
 
-    def test_scoped_button_without_scoped_capability_falls_back_to_table(
-        self, mock_coordinator
-    ):
+    def test_scoped_button_without_scoped_capability_falls_back_to_table(self, mock_coordinator):
         """No upperOven/applianceState capability: the catalog table applies.
 
         The table is evaluated against the scoped state, never the root machine.
@@ -969,22 +929,15 @@ class TestSourceScopedStateGating:
 
     def test_scoped_derivation_ignores_root_appliance_state_capability(self):
         """With entity_source set, the root machine must not be derived."""
-        assert (
-            execute_states_from_capabilities(SO_CAPABILITIES, entity_source="upperOven")
-            == {
-                "STOPRESET": ["RUNNING", "PAUSED"],
-                "RESUME": ["PAUSED"],
-                "START": ["READY_TO_START"],
-            }
-        )
+        assert execute_states_from_capabilities(SO_CAPABILITIES, entity_source="upperOven") == {
+            "STOPRESET": ["RUNNING", "PAUSED"],
+            "RESUME": ["PAUSED"],
+            "START": ["READY_TO_START"],
+        }
 
     def test_scoped_derivation_returns_none_without_scoped_capability(self):
         """Missing scoped capability: caller falls back to the catalog table."""
-        caps = {
-            "applianceState": {
-                "triggers": DRYER_TRIGGERS["applianceState"]["triggers"]
-            }
-        }
+        caps = {"applianceState": {"triggers": DRYER_TRIGGERS["applianceState"]["triggers"]}}
         assert execute_states_from_capabilities(caps, entity_source="upperOven") is None
 
     def test_missing_current_state_fails_open(self, mock_coordinator):
@@ -998,9 +951,7 @@ class TestSourceScopedStateGating:
         )
         assert entity.available is True
 
-    def test_cache_invalidates_when_capabilities_object_changes(
-        self, mock_coordinator
-    ):
+    def test_cache_invalidates_when_capabilities_object_changes(self, mock_coordinator):
         """A new capabilities payload must refresh the rules, even if the old
         object is garbage-collected and its id() gets recycled."""
         entity = self._make_button(
@@ -1034,6 +985,163 @@ class TestSourceScopedStateGating:
 
         assert entity._execute_states == {"START": ["OFF"], "STOPRESET": ["RUNNING"]}
         assert entity.available is True
+
+
+class TestRealSampleWM914505603:
+    """Derive the washer rules from issue #188's real diagnostics sample.
+
+    The AEG 9000 LR956SY6C (WM-914505603_03) publishes a machine identical to
+    WASHER_EXECUTE_STATES plus ON in IDLE, which the catalog table omits — the
+    runtime derivation must pick it up. It also ships trigger shapes the
+    parser must ignore: compound ``or`` conditions, a ``ne`` operator and
+    non-executeCommand actions.
+
+    The applianceState node is embedded verbatim: samples/ is gitignored, so
+    the committed test must not depend on the file being present. A companion
+    test runs against the full local sample when it exists, keeping the two
+    in sync.
+    """
+
+    @staticmethod
+    def _local_sample_capabilities():
+        """Return the full capabilities from the local sample, if present."""
+        import json
+        from pathlib import Path
+
+        path = Path(__file__).parent.parent / "samples" / "WM-914505603_03.json"
+        if not path.exists():
+            return None
+        data = json.loads(path.read_text())
+        appliance = next(iter(data["data"]["appliances_detail"].values()))
+        return appliance["capabilities"]
+
+    WM_APPLIANCE_STATE: ClassVar[dict] = {
+        "access": "read",
+        "triggers": [
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"PAUSE": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "DELAYED_START", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"ON": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "IDLE", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"RESUME": {}, "STOPRESET": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "PAUSED", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"START": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "READY_TO_START", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"PAUSE": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "RUNNING", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"access": "write", "values": {"STOPRESET": {}}}},
+                "condition": {"operand_1": "value", "operand_2": "END_OF_CYCLE", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"disabled": True}},
+                "condition": {"operand_1": "value", "operand_2": "END_OF_CYCLE", "operator": "eq"},
+            },
+            {
+                "action": {"executeCommand": {"disabled": False}},
+                "condition": {"operand_1": "value", "operand_2": "END_OF_CYCLE", "operator": "ne"},
+            },
+            {
+                "action": {
+                    "defaultExtraRinse": {"access": "read"},
+                    "endOfCycleSound": {"access": "read"},
+                    "waterHardness": {"access": "read"},
+                    "waterSoftenerMode": {"access": "read"},
+                },
+                "condition": {
+                    "operand_1": {"operand_1": "value", "operand_2": "RUNNING", "operator": "eq"},
+                    "operand_2": {"operand_1": "value", "operand_2": "DELAYED_START", "operator": "eq"},
+                    "operator": "or",
+                },
+            },
+            {
+                "action": {
+                    "defaultExtraRinse": {"access": "default"},
+                    "endOfCycleSound": {"access": "default"},
+                    "waterHardness": {"access": "default"},
+                    "waterSoftenerMode": {"access": "default"},
+                },
+                "condition": {
+                    "operand_1": {"operand_1": "value", "operand_2": "READY_TO_START", "operator": "eq"},
+                    "operand_2": {"operand_1": "value", "operand_2": "IDLE", "operator": "eq"},
+                    "operator": "or",
+                },
+            },
+            {
+                "action": {
+                    "defaultExtraRinse": {"access": "read"},
+                    "endOfCycleSound": {"access": "read"},
+                    "waterHardness": {"access": "read"},
+                    "waterSoftenerMode": {"access": "read"},
+                },
+                "condition": {
+                    "operand_1": {"operand_1": "value", "operand_2": "PAUSED", "operator": "eq"},
+                    "operand_2": {"operand_1": "value", "operand_2": "END_OF_CYCLE", "operator": "eq"},
+                    "operator": "or",
+                },
+            },
+        ],
+        "type": "string",
+        "values": {
+            "ALARM": {},
+            "DELAYED_START": {},
+            "END_OF_CYCLE": {},
+            "IDLE": {},
+            "OFF": {},
+            "PAUSED": {},
+            "READY_TO_START": {},
+            "RUNNING": {},
+        },
+    }
+
+    def _derived(self):
+        return execute_states_from_capabilities({"applianceState": self.WM_APPLIANCE_STATE})
+
+    def test_derives_the_published_state_machine(self):
+        assert self._derived() == {
+            "PAUSE": ["DELAYED_START", "RUNNING"],
+            "ON": ["IDLE"],
+            "RESUME": ["PAUSED"],
+            "STOPRESET": ["PAUSED", "END_OF_CYCLE"],
+            "START": ["READY_TO_START"],
+        }
+
+    def test_on_gated_to_idle_although_catalog_table_has_no_on_entry(self):
+        """The catalog leaves ON unrestricted; the appliance does not."""
+        derived = self._derived()
+        assert derived is not None
+        assert "ON" in derived
+        assert "ON" not in WASHER_EXECUTE_STATES
+
+    def test_sample_ships_trigger_shapes_the_parser_must_skip(self):
+        """The real sample really does contain or/ne/disabled triggers."""
+        triggers = self.WM_APPLIANCE_STATE["triggers"]
+        assert any(isinstance(t["condition"].get("operand_1"), dict) for t in triggers)
+        assert any(t["condition"].get("operator") == "or" for t in triggers)
+        assert any(t["condition"].get("operator") == "ne" for t in triggers)
+        assert any(
+            isinstance(t.get("action"), dict)
+            and "executeCommand" in t["action"]
+            and "values" not in t["action"]["executeCommand"]
+            for t in triggers
+        )
+
+    def test_local_sample_matches_embedded_copy(self):
+        """Keep the embedded node in sync with the local diagnostics sample."""
+        caps = self._local_sample_capabilities()
+        if caps is None:
+            pytest.skip("samples/WM-914505603_03.json not present (gitignored)")
+        assert caps["applianceState"]["triggers"] == self.WM_APPLIANCE_STATE["triggers"]
+        assert execute_states_from_capabilities(caps) == self._derived()
 
 
 class TestButtonAvailabilityPrefersAppliance:
@@ -1150,9 +1258,7 @@ class TestButtonSendCommandPaths:
     def mock_capability(self):
         return {"access": "write", "type": "boolean"}
 
-    def _make_button(
-        self, coordinator, capability, pnc_id="TEST_PNC", entity_source=None
-    ):
+    def _make_button(self, coordinator, capability, pnc_id="TEST_PNC", entity_source=None):
         entity = ElectroluxButton(
             coordinator=coordinator,
             capability=capability,
@@ -1179,25 +1285,17 @@ class TestButtonSendCommandPaths:
         from homeassistant.exceptions import HomeAssistantError
 
         entity = self._make_button(mock_coordinator, mock_capability)
-        entity.appliance_status = {
-            "properties": {"reported": {"connectivityState": "disconnected"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"connectivityState": "disconnected"}}}
         entity._reported_state_cache = {"connectivityState": "disconnected"}
 
         with pytest.raises(HomeAssistantError, match="offline"):
             await entity.send_command()
 
     @pytest.mark.asyncio
-    async def test_send_command_dam_no_entity_source(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_send_command_dam_no_entity_source(self, mock_coordinator, mock_capability):
         """Test DAM appliance with no entity_source wraps command in commands list."""
-        entity = self._make_button(
-            mock_coordinator, mock_capability, pnc_id="1:TEST_PNC"
-        )
-        entity.appliance_status = {
-            "properties": {"reported": {"connectivityState": "connected"}}
-        }
+        entity = self._make_button(mock_coordinator, mock_capability, pnc_id="1:TEST_PNC")
+        entity.appliance_status = {"properties": {"reported": {"connectivityState": "connected"}}}
         entity._reported_state_cache = {"connectivityState": "connected"}
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
@@ -1209,9 +1307,7 @@ class TestButtonSendCommandPaths:
         )
 
     @pytest.mark.asyncio
-    async def test_send_command_dam_user_selections_with_program_uid(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_send_command_dam_user_selections_with_program_uid(self, mock_coordinator, mock_capability):
         """Test DAM appliance with userSelections entity_source includes programUID."""
         entity = self._make_button(
             mock_coordinator,
@@ -1251,18 +1347,14 @@ class TestButtonSendCommandPaths:
         )
 
     @pytest.mark.asyncio
-    async def test_send_command_auth_error_triggers_reauth(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_send_command_auth_error_triggers_reauth(self, mock_coordinator, mock_capability):
         """Test AuthenticationError triggers coordinator.handle_authentication_error."""
         from unittest.mock import patch
 
         from custom_components.electrolux.util import AuthenticationError
 
         entity = self._make_button(mock_coordinator, mock_capability)
-        entity.appliance_status = {
-            "properties": {"reported": {"connectivityState": "connected"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"connectivityState": "connected"}}}
         entity._reported_state_cache = {"connectivityState": "connected"}
         mock_coordinator.handle_authentication_error = AsyncMock()
 
@@ -1317,23 +1409,17 @@ class TestButtonManualSync:
         return entity
 
     @pytest.mark.asyncio
-    async def test_async_press_manual_sync_calls_perform_manual_sync(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_async_press_manual_sync_calls_perform_manual_sync(self, mock_coordinator, mock_capability):
         """Test async_press with entity_attr='manualSync' calls _perform_manual_sync."""
         entity = self._make_manual_sync_button(mock_coordinator, mock_capability)
         mock_coordinator.data = {"appliances": None}
 
         await entity.async_press()
 
-        mock_coordinator.perform_manual_sync.assert_called_once_with(
-            "TEST_PNC", "Unknown Appliance"
-        )
+        mock_coordinator.perform_manual_sync.assert_called_once_with("TEST_PNC", "Unknown Appliance")
 
     @pytest.mark.asyncio
-    async def test_perform_manual_sync_success_fires_events(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_perform_manual_sync_success_fires_events(self, mock_coordinator, mock_capability):
         """Test _perform_manual_sync fires progress events and calls coordinator."""
         entity = self._make_manual_sync_button(mock_coordinator, mock_capability)
         # Set up appliance in coordinator data
@@ -1347,14 +1433,10 @@ class TestButtonManualSync:
 
         # Should fire 5 progress events (steps 0-4)
         assert mock_coordinator.hass.bus.async_fire.call_count == 5
-        mock_coordinator.perform_manual_sync.assert_called_once_with(
-            "TEST_PNC", "My Dryer"
-        )
+        mock_coordinator.perform_manual_sync.assert_called_once_with("TEST_PNC", "My Dryer")
 
     @pytest.mark.asyncio
-    async def test_perform_manual_sync_no_appliance_uses_default_name(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_perform_manual_sync_no_appliance_uses_default_name(self, mock_coordinator, mock_capability):
         """Test _perform_manual_sync uses 'Unknown Appliance' when appliance not found."""
         entity = self._make_manual_sync_button(mock_coordinator, mock_capability)
         appliances_mock = MagicMock()
@@ -1363,22 +1445,16 @@ class TestButtonManualSync:
 
         await entity._perform_manual_sync()
 
-        mock_coordinator.perform_manual_sync.assert_called_once_with(
-            "TEST_PNC", "Unknown Appliance"
-        )
+        mock_coordinator.perform_manual_sync.assert_called_once_with("TEST_PNC", "Unknown Appliance")
 
     @pytest.mark.asyncio
-    async def test_perform_manual_sync_failure_fires_error_and_raises(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_perform_manual_sync_failure_fires_error_and_raises(self, mock_coordinator, mock_capability):
         """Test _perform_manual_sync on coordinator failure fires error event and raises HomeAssistantError."""
         from homeassistant.exceptions import HomeAssistantError
 
         entity = self._make_manual_sync_button(mock_coordinator, mock_capability)
         mock_coordinator.data = {"appliances": None}
-        mock_coordinator.perform_manual_sync = AsyncMock(
-            side_effect=Exception("Connection failed")
-        )
+        mock_coordinator.perform_manual_sync = AsyncMock(side_effect=Exception("Connection failed"))
 
         with pytest.raises(HomeAssistantError, match="Manual sync failed"):
             await entity._perform_manual_sync()
@@ -1445,9 +1521,7 @@ class TestButtonMissingCoverage:
         }
         return entity
 
-    def test_device_class_returns_button_device_class_from_catalog(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_device_class_returns_button_device_class_from_catalog(self, mock_coordinator, mock_capability):
         """Line 100: device_class returns ButtonDeviceClass when catalog has ButtonDeviceClass."""
         from homeassistant.components.button import ButtonDeviceClass
 
@@ -1458,9 +1532,7 @@ class TestButtonMissingCoverage:
         result = entity.device_class
         assert result == ButtonDeviceClass.UPDATE
 
-    def test_device_class_returns_button_device_class_identify(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_device_class_returns_button_device_class_identify(self, mock_coordinator, mock_capability):
         """Line 100: device_class returns ButtonDeviceClass.IDENTIFY from catalog."""
         from homeassistant.components.button import ButtonDeviceClass
 
@@ -1473,52 +1545,38 @@ class TestButtonMissingCoverage:
 
     def test_icon_returns_icon_when_set(self, mock_coordinator, mock_capability):
         """Line 159: icon property returns _icon when it is set."""
-        entity = self._make_button(
-            mock_coordinator, mock_capability, icon="mdi:custom-icon"
-        )
+        entity = self._make_button(mock_coordinator, mock_capability, icon="mdi:custom-icon")
         result = entity.icon
         assert result == "mdi:custom-icon"
 
-    def test_icon_returns_icon_mapping_when_no_icon_set(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_icon_returns_icon_mapping_when_no_icon_set(self, mock_coordinator, mock_capability):
         """Line 159: icon property returns icon_mapping lookup when _icon is None."""
         from custom_components.electrolux.const import icon_mapping
 
         # val_to_send must match a key in icon_mapping to return a mapped value
         # Find a valid key from icon_mapping, or use one that returns default
-        entity = self._make_button(
-            mock_coordinator, mock_capability, icon="", val_to_send="PRESS"
-        )
+        entity = self._make_button(mock_coordinator, mock_capability, icon="", val_to_send="PRESS")
         result = entity.icon
         # When val_to_send not in icon_mapping, returns "mdi:gesture-tap-button"
         assert result == icon_mapping.get("PRESS", "mdi:gesture-tap-button")
 
-    def test_icon_returns_mapped_icon_for_known_val(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_icon_returns_mapped_icon_for_known_val(self, mock_coordinator, mock_capability):
         """Line 159: icon property returns mapped icon from icon_mapping for known val_to_send."""
         from custom_components.electrolux.const import icon_mapping
 
         # Use any val_to_send that is actually in icon_mapping
         if icon_mapping:
             val = next(iter(icon_mapping))
-            entity = self._make_button(
-                mock_coordinator, mock_capability, icon="", val_to_send=val
-            )
+            entity = self._make_button(mock_coordinator, mock_capability, icon="", val_to_send=val)
             result = entity.icon
             assert result == icon_mapping[val]
         else:
             # No icon_mapping entries; fallback default
-            entity = self._make_button(
-                mock_coordinator, mock_capability, icon="", val_to_send="UNKNOWN"
-            )
+            entity = self._make_button(mock_coordinator, mock_capability, icon="", val_to_send="UNKNOWN")
             result = entity.icon
             assert result == "mdi:gesture-tap-button"
 
-    def test_device_class_fallback_when_no_catalog_entry(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_device_class_fallback_when_no_catalog_entry(self, mock_coordinator, mock_capability):
         """Line 101: device_class returns _device_class when no catalog entry."""
         entity = self._make_button(mock_coordinator, mock_capability)
         entity._catalog_entry = None
@@ -1526,9 +1584,7 @@ class TestButtonMissingCoverage:
         result = entity.device_class
         assert result == "custom_class"
 
-    def test_device_class_fallback_when_catalog_has_non_button_device_class(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_device_class_fallback_when_catalog_has_non_button_device_class(self, mock_coordinator, mock_capability):
         """Line 101: device_class returns _device_class when catalog device_class is not ButtonDeviceClass."""
         entity = self._make_button(mock_coordinator, mock_capability)
         mock_catalog = MagicMock()
@@ -1563,16 +1619,12 @@ class TestButtonMissingCoverage:
 
         async_add_entities_mock = MagicMock()
 
-        await async_setup_entry(
-            mock_coordinator.hass, mock_entry, async_add_entities_mock
-        )
+        await async_setup_entry(mock_coordinator.hass, mock_entry, async_add_entities_mock)
 
         async_add_entities_mock.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_async_setup_entry_no_appliances(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_async_setup_entry_no_appliances(self, mock_coordinator, mock_capability):
         """Lines 34-46: async_setup_entry handles no appliances gracefully."""
         from custom_components.electrolux.button import async_setup_entry
 
@@ -1583,8 +1635,6 @@ class TestButtonMissingCoverage:
 
         async_add_entities_mock = MagicMock()
 
-        await async_setup_entry(
-            mock_coordinator.hass, mock_entry, async_add_entities_mock
-        )
+        await async_setup_entry(mock_coordinator.hass, mock_entry, async_add_entities_mock)
 
         async_add_entities_mock.assert_not_called()
