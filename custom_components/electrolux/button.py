@@ -159,6 +159,11 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         self._execute_states_cache = states
         self._execute_states_cache_caps_id = caps_id
+        # Keep a reference to the capabilities object so CPython cannot recycle
+        # its id() onto a different dict while the cache entry is alive; id()
+        # is only unique among live objects, so a recycled id would otherwise
+        # serve stale rules from a previous appliance payload.
+        self._execute_states_cache_caps = caps
         return states
 
     def _appliance_capabilities(self) -> dict[str, Any] | None:
@@ -177,15 +182,44 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             return None
         return getattr(getattr(appliance, "data", None), "capabilities", None)
 
+    def _current_appliance_state(self) -> str | None:
+        """Return the applianceState this button's rules are evaluated against.
+
+        The rules may be derived from a source-scoped ``applianceState`` (e.g.
+        ``upperOven/applianceState`` on a structured oven, which is an
+        independent state machine from the root one), so the compared state must
+        be read with the same scoping. Mirrors the "/"-aware path resolution in
+        ``ElectroluxEntity``: try the flat ``source/applianceState`` key first,
+        then the nested ``source`` -> ``applianceState`` layout, then the root.
+        """
+        if not self.entity_source:
+            return self.reported_state.get("applianceState")
+
+        scoped_path = f"{self.entity_source}/applianceState"
+        scoped_state = self.reported_state.get(scoped_path)
+        if scoped_state is not None:
+            return scoped_state
+
+        source_state = self.reported_state.get(self.entity_source)
+        if isinstance(source_state, dict):
+            nested_state = source_state.get("applianceState")
+            if nested_state is not None:
+                return nested_state
+
+        return self.reported_state.get("applianceState")
+
     @property
     def available(self) -> bool:
         # Check state restrictions first, appliance-derived or catalog-defined.
         # A command absent from the rules is left unrestricted, as before.
+        # A missing current state is also left unrestricted: gating on an
+        # unknown state would silently hide every rule-covered button on
+        # partial payloads, indistinguishable from a real disallowed state.
         if execute_states := self._execute_states:
             allowed_states = execute_states.get(self.val_to_send)
             if allowed_states is not None:
-                current_state = self.reported_state.get("applianceState")
-                if current_state not in allowed_states:
+                current_state = self._current_appliance_state()
+                if current_state is not None and current_state not in allowed_states:
                     return False
 
         return super().available

@@ -814,6 +814,228 @@ class TestExecuteStatesFromCapabilities:
         assert execute_states_from_capabilities(caps) is None
 
 
+# Mirrors the real SO-944035035_01 structure (samples/SO-944035035_01.json):
+# the structured oven publishes TWO independent applianceState machines and the
+# reported values diverge (root OFF while the cavity is READY_TO_START).
+SO_ROOT_APPLIANCE_STATE = {
+    "values": {"ALARM": {}, "OFF": {}, "RUNNING": {}},
+    "triggers": [],
+}
+SO_UPPER_OVEN_APPLIANCE_STATE = {
+    "values": {
+        "ALARM": {},
+        "DELAYED_START": {},
+        "END_OF_CYCLE": {},
+        "IDLE": {},
+        "OFF": {},
+        "PAUSED": {},
+        "READY_TO_START": {},
+        "RUNNING": {},
+    },
+    "triggers": [
+        {
+            "condition": {"operand_1": "value", "operand_2": "RUNNING", "operator": "eq"},
+            "action": {"executeCommand": {"values": {"STOPRESET": {}}}},
+        },
+        {
+            "condition": {"operand_1": "value", "operand_2": "PAUSED", "operator": "eq"},
+            "action": {"executeCommand": {"values": {"RESUME": {}, "STOPRESET": {}}}},
+        },
+        {
+            "condition": {"operand_1": "value", "operand_2": "READY_TO_START", "operator": "eq"},
+            "action": {"executeCommand": {"values": {"START": {}}}},
+        },
+    ],
+}
+SO_CAPABILITIES = {
+    "applianceState": SO_ROOT_APPLIANCE_STATE,
+    "upperOven/applianceState": SO_UPPER_OVEN_APPLIANCE_STATE,
+}
+
+
+class TestSourceScopedStateGating:
+    """Source-scoped buttons must be gated by their own state machine only."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator._last_update_times = {}
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "key"}
+        return coordinator
+
+    def _make_button(self, coordinator, entity_source, val_to_send, capabilities, reported):
+        """Build an executeCommand button with a given source and reported payload."""
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        appliance = MagicMock()
+        appliance.data.capabilities = capabilities
+        appliances = MagicMock()
+        appliances.get_appliance.return_value = appliance
+        coordinator.data = {"appliances": appliances}
+
+        entity = ElectroluxButton(
+            coordinator=coordinator,
+            capability={"access": "write", "type": "boolean"},
+            name="Oven",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name="execute_command",
+            entity_attr="executeCommand",
+            entity_source=entity_source,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=ElectroluxDevice(
+                capability_info={"access": "write"},
+                available_when_states={"START": ["OFF"], "STOPRESET": ["RUNNING"]},
+            ),
+            val_to_send=val_to_send,
+        )
+        reported = {"connectivityState": "connected", **reported}
+        entity.appliance_status = {"properties": {"reported": reported}}
+        entity._reported_state_cache = reported
+        return entity
+
+    def test_scoped_rules_use_scoped_state_flat_layout(self, mock_coordinator):
+        """STOPRESET follows upperOven/applianceState, not the root machine."""
+        # Root says OFF (START-able), cavity says RUNNING (STOPRESET-able).
+        entity = self._make_button(
+            mock_coordinator,
+            "upperOven",
+            "STOPRESET",
+            SO_CAPABILITIES,
+            {"applianceState": "OFF", "upperOven/applianceState": "RUNNING"},
+        )
+        assert entity.available is True
+
+    def test_scoped_rules_use_scoped_state_nested_layout(self, mock_coordinator):
+        """The nested upperOven -> applianceState layout is also resolved."""
+        entity = self._make_button(
+            mock_coordinator,
+            "upperOven",
+            "STOPRESET",
+            SO_CAPABILITIES,
+            {"applianceState": "OFF", "upperOven": {"applianceState": "RUNNING"}},
+        )
+        assert entity.available is True
+
+    def test_scoped_button_blocked_by_its_own_machine(self, mock_coordinator):
+        """Cavity is OFF: STOPRESET is invalid there, even though root allows it."""
+        entity = self._make_button(
+            mock_coordinator,
+            "upperOven",
+            "STOPRESET",
+            SO_CAPABILITIES,
+            {"applianceState": "OFF", "upperOven/applianceState": "OFF"},
+        )
+        assert entity.available is False
+
+    def test_root_state_change_does_not_flip_scoped_button(self, mock_coordinator):
+        """Only the cavity's own state may gate the cavity's buttons."""
+        for root_state in ("OFF", "RUNNING", "ALARM"):
+            entity = self._make_button(
+                mock_coordinator,
+                "upperOven",
+                "START",
+                SO_CAPABILITIES,
+                {"applianceState": root_state, "upperOven/applianceState": "READY_TO_START"},
+            )
+            assert entity.available is True, root_state
+
+    def test_scoped_button_without_scoped_capability_falls_back_to_table(
+        self, mock_coordinator
+    ):
+        """No upperOven/applianceState capability: the catalog table applies.
+
+        The table is evaluated against the scoped state, never the root machine.
+        """
+        caps = {"applianceState": SO_ROOT_APPLIANCE_STATE}
+        entity = self._make_button(
+            mock_coordinator,
+            "upperOven",
+            "START",
+            caps,
+            {"applianceState": "RUNNING", "upperOven/applianceState": "OFF"},
+        )
+        # Root RUNNING would have blocked START via the root machine; the
+        # scoped state OFF matches the table's START rule instead.
+        assert entity.available is True
+
+    def test_scoped_derivation_ignores_root_appliance_state_capability(self):
+        """With entity_source set, the root machine must not be derived."""
+        assert (
+            execute_states_from_capabilities(SO_CAPABILITIES, entity_source="upperOven")
+            == {
+                "STOPRESET": ["RUNNING", "PAUSED"],
+                "RESUME": ["PAUSED"],
+                "START": ["READY_TO_START"],
+            }
+        )
+
+    def test_scoped_derivation_returns_none_without_scoped_capability(self):
+        """Missing scoped capability: caller falls back to the catalog table."""
+        caps = {
+            "applianceState": {
+                "triggers": DRYER_TRIGGERS["applianceState"]["triggers"]
+            }
+        }
+        assert execute_states_from_capabilities(caps, entity_source="upperOven") is None
+
+    def test_missing_current_state_fails_open(self, mock_coordinator):
+        """A partial payload must not hide every rule-covered button."""
+        entity = self._make_button(
+            mock_coordinator,
+            None,
+            "START",
+            DRYER_TRIGGERS,
+            {},  # no applianceState reported at all
+        )
+        assert entity.available is True
+
+    def test_cache_invalidates_when_capabilities_object_changes(
+        self, mock_coordinator
+    ):
+        """A new capabilities payload must refresh the rules, even if the old
+        object is garbage-collected and its id() gets recycled."""
+        entity = self._make_button(
+            mock_coordinator,
+            None,
+            "START",
+            DRYER_TRIGGERS,
+            {"applianceState": "READY_TO_START"},
+        )
+        assert entity.available is True
+
+        # Replace capabilities with a payload publishing no triggers: the rules
+        # must refresh to the catalog table, where START is only valid in OFF.
+        appliance = MagicMock()
+        appliance.data.capabilities = {
+            "applianceState": {
+                "values": {"READY_TO_START": {}, "OFF": {}},
+                "triggers": [],
+            }
+        }
+        appliances = MagicMock()
+        appliances.get_appliance.return_value = appliance
+        mock_coordinator.data = {"appliances": appliances}
+
+        # The appliance moved to OFF: fresh rules (catalog table) allow START
+        # there, while the stale dryer-derived rules (START only in
+        # READY_TO_START) would keep the button disabled.
+        reported = {"applianceState": "OFF", "connectivityState": "connected"}
+        entity.appliance_status = {"properties": {"reported": reported}}
+        entity._reported_state_cache = reported
+
+        assert entity._execute_states == {"START": ["OFF"], "STOPRESET": ["RUNNING"]}
+        assert entity.available is True
+
+
 class TestButtonAvailabilityPrefersAppliance:
     """Test that button availability follows the appliance over the catalog."""
 

@@ -167,6 +167,14 @@ def execute_states_from_capabilities(
     read, matching the trigger handling in ``entity.py``. Compound conditions
     (a dict operand) and ``disabled`` actions carry no command list and are
     skipped.
+
+    Scoping: with ``entity_source`` set, only that source's own
+    ``{source}/applianceState`` capability is read — it is an independent state
+    machine (a structured oven's cavity does not follow the main appliance's
+    ALARM/OFF/RUNNING machine). Falling back to the root ``applianceState``
+    would apply the wrong machine to the source's buttons, so the caller falls
+    back to the catalog table instead. Without ``entity_source`` only the root
+    ``applianceState`` is read.
     """
     if not isinstance(capabilities, dict):
         return None
@@ -174,9 +182,12 @@ def execute_states_from_capabilities(
     appliance_state: Any | None = None
 
     if entity_source:
+        # Scoped buttons are gated by their own state machine only. Falling
+        # back to the root applianceState would silently apply the main
+        # appliance's machine to a sub-appliance (see docstring), so return
+        # None and let the caller use the catalog table.
         appliance_state = capabilities.get(f"{entity_source}/applianceState")
-
-    if appliance_state is None:
+    else:
         appliance_state = capabilities.get("applianceState")
 
     if not isinstance(appliance_state, dict):
