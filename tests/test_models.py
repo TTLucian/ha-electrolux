@@ -702,6 +702,102 @@ class TestGetEntity:
 
 
 # ---------------------------------------------------------------------------
+# Catalog-only string+readwrite fallback (issue #192)
+# ---------------------------------------------------------------------------
+
+
+class TestCatalogOnlyStringSelect:
+    """Catalog-only string + readwrite capabilities must map to SELECT.
+
+    Regression for issue #192 (WM-914501308_03): waterHardness and
+    waterSoftenerMode are present in reported state and defined in
+    catalog_wm.py, but absent from the API capabilities list. The
+    catalog-only fallback in get_entity() had no branch for
+    string + readwrite, so these entities were silently skipped.
+    """
+
+    def _wm_app_with_data(self, reported_extra: dict, capabilities: dict | None = None):
+        from custom_components.electrolux.api import ElectroluxLibraryEntity
+
+        state = {
+            "properties": {
+                "reported": {
+                    "applianceInfo": {"applianceType": "WM"},
+                    "applianceState": "IDLE",
+                    "connectivityState": "connected",
+                    **reported_extra,
+                }
+            }
+        }
+        app = _make_app_full(state=state, model="914501308")
+        app.data = ElectroluxLibraryEntity(
+            name="Wasmachine",
+            status="connected",
+            state=state,
+            appliance_info={},
+            capabilities=capabilities if capabilities is not None else {},
+        )
+        return app
+
+    def test_water_hardness_catalog_only_creates_select(self):
+        """waterHardness in reported state but not in capabilities → SELECT entity."""
+        from custom_components.electrolux.select import ElectroluxSelect
+
+        app = self._wm_app_with_data({"waterHardness": "STEP_4"})
+        entities = app.get_entity("waterHardness")
+        assert isinstance(entities, list)
+        assert len(entities) == 1
+        assert isinstance(entities[0], ElectroluxSelect)
+
+    def test_water_softener_mode_catalog_only_creates_select(self):
+        """waterSoftenerMode in reported state but not in capabilities → SELECT entity."""
+        from custom_components.electrolux.select import ElectroluxSelect
+
+        app = self._wm_app_with_data({"waterSoftenerMode": "WASH_ONLY"})
+        entities = app.get_entity("waterSoftenerMode")
+        assert isinstance(entities, list)
+        assert len(entities) == 1
+        assert isinstance(entities[0], ElectroluxSelect)
+
+    def test_on_off_pair_catalog_only_creates_single_switch(self):
+        """Catalog-only string + readwrite with an ON/OFF-only value set → one SWITCH."""
+        from custom_components.electrolux.switch import ElectroluxSwitch
+
+        app = self._wm_app_with_data({"networkInterfaceAlwaysOn": "ON"})
+        entities = app.get_entity("networkInterfaceAlwaysOn")
+        assert isinstance(entities, list)
+        assert len(entities) == 1
+        assert isinstance(entities[0], ElectroluxSwitch)
+
+    def test_string_readwrite_without_values_still_skipped(self):
+        """Catalog-only string + readwrite without a discrete value set → no entity."""
+        app = self._wm_app_with_data({})
+        # waterHardness catalog info always carries values, so use a synthetic
+        # catalog miss: an unknown key must stay unmapped.
+        assert app.get_entity("totallyUnknownStringKey") == []
+
+    def test_setup_creates_water_hardness_entity_for_issue_192_appliance(self):
+        """End-to-end: setup() on the issue #192 capability profile exposes waterHardness."""
+        from custom_components.electrolux.select import ElectroluxSelect
+
+        app = self._wm_app_with_data(
+            {
+                "waterHardness": "STEP_4",
+                "waterSoftenerMode": "WASH_ONLY",
+                "doorState": "CLOSED",
+                "doorLock": "OFF",
+            }
+        )
+        app.setup(app.data)
+        select_attrs = [
+            getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities
+        ]
+        assert "waterHardness" in select_attrs
+        assert "waterSoftenerMode" in select_attrs
+        assert any(isinstance(e, ElectroluxSelect) for e in app.entities)
+
+
+# ---------------------------------------------------------------------------
 # setup()  (lines 540-718)
 # ---------------------------------------------------------------------------
 

@@ -369,6 +369,17 @@ class Appliance:
                         entity_type = NUMBER
                     elif cap_type == "boolean" and access == "readwrite":
                         entity_type = SWITCH
+                    elif (
+                        cap_type == "string"
+                        and access == "readwrite"
+                        and isinstance(capability_info.get("values"), dict)
+                        and capability_info["values"]
+                    ):
+                        # Mirror api.get_entity_type(): string + readwrite with a
+                        # discrete value set is a selectable option list → SELECT
+                        # (or a single optimistic SWITCH for ON/OFF-only pairs).
+                        upper_values = {str(k).upper() for k in capability_info["values"]}
+                        entity_type = SWITCH if upper_values == {"ON", "OFF"} else SELECT
                     elif access == "write":
                         entity_type = BUTTON
                     elif access == "read":
