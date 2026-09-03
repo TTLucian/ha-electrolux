@@ -14,7 +14,10 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import BUTTON, CONF_API_KEY, icon_mapping
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
-from .execute_command_states import execute_states_from_capabilities
+from .execute_command_states import (
+    execute_phase_states_from_capabilities,
+    execute_states_from_capabilities,
+)
 from .model import ElectroluxDevice
 from .util import (
     AuthenticationError,
@@ -49,6 +52,8 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
     _execute_states_cache: dict[str, list[str]] | None = None
     _execute_states_cache_caps_id: int | None = None
+    _execute_phase_states_cache: dict[str, list[str]] | None = None
+    _execute_phase_states_cache_caps_id: int | None = None
 
     def __init__(
         self,
@@ -166,6 +171,33 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         self._execute_states_cache_caps = caps
         return states
 
+    @property
+    def _execute_phase_states(self) -> dict[str, list[str]] | None:
+        """Return the ``cyclePhase``-dimension executeCommand rules, or None.
+
+        Derived purely from the appliance's own ``cyclePhase`` triggers (issue
+        #178 — no catalog table exists for this dimension). Shares the same
+        caps-id cache lifecycle as :meth:`_execute_states`.
+        """
+        caps = self._appliance_capabilities()
+        caps_id = id(caps)
+
+        if (
+            hasattr(self, "_execute_phase_states_cache")
+            and getattr(self, "_execute_phase_states_cache_caps_id", None) == caps_id
+        ):
+            return cast(dict[str, list[str]] | None, self._execute_phase_states_cache)
+
+        derived = execute_phase_states_from_capabilities(
+            caps, entity_source=self.entity_source
+        )
+
+        self._execute_phase_states_cache = derived
+        self._execute_phase_states_cache_caps_id = caps_id
+        self._execute_phase_states_cache_caps = caps
+        return derived
+
+
     def _appliance_capabilities(self) -> dict[str, Any] | None:
         """Return this appliance's capabilities, or None if not loaded yet.
 
@@ -208,6 +240,30 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         return self.reported_state.get("applianceState")
 
+    def _current_cycle_phase(self) -> str | None:
+        """Return the cyclePhase this button's phase rules are evaluated against.
+
+        Some models gate commands on ``cyclePhase`` instead of ``applianceState``
+        (issue #178: the AEG TR969PB4C allows STOPRESET while ``cyclePhase`` is
+        ``ANTICREASE``). Uses the same "/\"-aware scoped resolution as
+        :meth:`_current_appliance_state`.
+        """
+        if not self.entity_source:
+            return self.reported_state.get("cyclePhase")
+
+        scoped_path = f"{self.entity_source}/cyclePhase"
+        scoped_phase = self.reported_state.get(scoped_path)
+        if scoped_phase is not None:
+            return scoped_phase
+
+        source_state = self.reported_state.get(self.entity_source)
+        if isinstance(source_state, dict):
+            nested_phase = source_state.get("cyclePhase")
+            if nested_phase is not None:
+                return nested_phase
+
+        return self.reported_state.get("cyclePhase")
+
     @property
     def available(self) -> bool:
         # Check state restrictions first, appliance-derived or catalog-defined.
@@ -215,14 +271,38 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         # A missing current state is also left unrestricted: gating on an
         # unknown state would silently hide every rule-covered button on
         # partial payloads, indistinguishable from a real disallowed state.
-        if execute_states := self._execute_states:
-            allowed_states = execute_states.get(self.val_to_send)
-            if allowed_states is not None:
-                current_state = self._current_appliance_state()
-                if current_state is not None and current_state not in allowed_states:
-                    return False
+        #
+        # Two gating dimensions may publish rules for a command:
+        # ``applianceState`` (derived from triggers, catalog table as fallback)
+        # and ``cyclePhase`` (model-published only, e.g. STOPRESET during
+        # ANTICREASE on the AEG TR969PB4C, issue #178). A command is available
+        # when ANY dimension that publishes a rule for it passes — the
+        # TR969PB4C allows STOPRESET in PAUSED/END_OF_CYCLE (applianceState)
+        # OR in ANTICREASE (cyclePhase). When no dimension publishes a rule,
+        # the button stays unrestricted.
+        state_rules = self._execute_states
+        phase_rules = self._execute_phase_states
+
+        dimension_checks: list[tuple[list[str], str | None]] = []
+        if state_rules and self.val_to_send in state_rules:
+            dimension_checks.append(
+                (state_rules[self.val_to_send], self._current_appliance_state())
+            )
+        if phase_rules and self.val_to_send in phase_rules:
+            dimension_checks.append(
+                (phase_rules[self.val_to_send], self._current_cycle_phase())
+            )
+
+        if dimension_checks:
+            for _allowed_states, current_value in dimension_checks:
+                if current_value is None or current_value in _allowed_states:
+                    break  # this dimension passes → available (OR semantics)
+            else:
+                # Every rule-publishing dimension failed with a known value.
+                return False
 
         return super().available
+
 
     @property
     def icon(self) -> str | None:

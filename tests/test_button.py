@@ -11,6 +11,7 @@ from custom_components.electrolux.const import BUTTON
 from custom_components.electrolux.execute_command_states import (
     DRYER_EXECUTE_STATES,
     WASHER_EXECUTE_STATES,
+    execute_phase_states_from_capabilities,
     execute_states_from_capabilities,
 )
 
@@ -1638,3 +1639,296 @@ class TestButtonMissingCoverage:
         await async_setup_entry(mock_coordinator.hass, mock_entry, async_add_entities_mock)
 
         async_add_entities_mock.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# cyclePhase gating dimension (issue #178)
+# ---------------------------------------------------------------------------
+
+# Trimmed verbatim from samples/new/TD-916900511_01.json (AEG TR969PB4C
+# heat-pump dryer): the model publishes STOPRESET via a cyclePhase trigger,
+# and applianceState never reports ANTICREASE.
+TD_CYCLE_PHASE: ClassVar[dict] = {
+    "access": "read",
+    "type": "string",
+    "values": {
+        "ANTICREASE": {},
+        "COOL": {},
+        "CYCLE_PHASE_HIDDEN": {"disabled": True},
+        "DRY": {},
+        "UNAVAILABLE": {},
+    },
+    "triggers": [
+        {
+            "action": {"executeCommand": {"access": "write", "values": {"STOPRESET": {}}}},
+            "condition": {"operand_1": "value", "operand_2": "ANTICREASE", "operator": "eq"},
+        }
+    ],
+}
+
+# remoteControl on the same dryer publishes executeCommand triggers whose
+# actions carry no command values — they must contribute no gating rules.
+TD_REMOTE_CONTROL: ClassVar[dict] = {
+    "access": "read",
+    "type": "string",
+    "values": {"DISABLED": {}, "ENABLED": {}, "NOT_SAFETY_RELEVANT_ENABLED": {}, "TEMPORARY_LOCKED": {}},
+    "triggers": [
+        {
+            "action": {"executeCommand": {"access": "write", "values": {}}},
+            "condition": {"operand_1": "value", "operand_2": "ENABLED", "operator": "eq"},
+        }
+    ],
+}
+
+TD916900511_CAPABILITIES: ClassVar[dict] = {
+    **DRYER_TRIGGERS,
+    "cyclePhase": TD_CYCLE_PHASE,
+    "remoteControl": TD_REMOTE_CONTROL,
+}
+
+
+class TestCyclePhaseDimensionGating:
+    """executeCommand gating must consider cyclePhase triggers (issue #178).
+
+    The AEG TR969PB4C heat-pump dryer (TD-916900511) publishes STOPRESET via a
+    ``cyclePhase`` trigger for ANTICREASE — a value ``applianceState`` never
+    reports — so the Stop/Reset button stayed disabled during anti-crease.
+    A command is available when ANY dimension that publishes a rule for it
+    matches (OR across dimensions).
+    """
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator._last_update_times = {}
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "key"}
+        return coordinator
+
+    def _make_button(self, coordinator, val_to_send, capabilities, reported):
+        """Build a root-level executeCommand button with the given payloads."""
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        appliance = MagicMock()
+        appliance.data.capabilities = capabilities
+        appliances = MagicMock()
+        appliances.get_appliance.return_value = appliance
+        coordinator.data = {"appliances": appliances}
+
+        entity = ElectroluxButton(
+            coordinator=coordinator,
+            capability={"access": "write", "type": "boolean"},
+            name="Dryer",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name="execute_command",
+            entity_attr="executeCommand",
+            entity_source=None,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=ElectroluxDevice(
+                capability_info={"access": "write"},
+                available_when_states=DRYER_EXECUTE_STATES,
+            ),
+            val_to_send=val_to_send,
+        )
+        reported = {"connectivityState": "connected", **reported}
+        entity.appliance_status = {"properties": {"reported": reported}}
+        entity._reported_state_cache = reported
+        return entity
+
+    def test_phase_rules_derived_from_td916900511(self):
+        """The dryer's cyclePhase trigger yields STOPRESET: [ANTICREASE]."""
+        assert execute_phase_states_from_capabilities({"cyclePhase": TD_CYCLE_PHASE}) == {
+            "STOPRESET": ["ANTICREASE"]
+        }
+
+    def test_remote_control_triggers_with_no_values_contribute_nothing(self):
+        """The third trigger-publishing capability (remoteControl) has empty
+        value sets — it must not create rules (tanarchytan's observation)."""
+        assert (
+            execute_phase_states_from_capabilities({"remoteControl": TD_REMOTE_CONTROL})
+            is None
+        )
+        assert execute_states_from_capabilities({"remoteControl": TD_REMOTE_CONTROL}) is None
+
+    def test_stopreset_available_during_anticrease(self, mock_coordinator):
+        """THE issue #178 scenario: applianceState=RUNNING has no STOPRESET
+        rule, but cyclePhase=ANTICREASE does — the button must be available."""
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "RUNNING", "cyclePhase": "ANTICREASE"},
+        )
+        assert entity.available is True
+
+    def test_stopreset_unavailable_when_both_dimensions_fail(self, mock_coordinator):
+        """applianceState=IDLE (no STOPRESET) and cyclePhase=DRY (no STOPRESET)."""
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "IDLE", "cyclePhase": "DRY"},
+        )
+        assert entity.available is False
+
+    def test_stopreset_available_via_state_dimension(self, mock_coordinator):
+        """applianceState=PAUSED allows STOPRESET on its own; the phase
+        dimension must not be able to take that away."""
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "PAUSED", "cyclePhase": "DRY"},
+        )
+        assert entity.available is True
+
+    def test_missing_cycle_phase_fails_open(self, mock_coordinator):
+        """A partial payload without cyclePhase must not hide rule-covered
+        buttons: the unknown dimension counts as unrestricted."""
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "IDLE"},
+        )
+        assert entity.available is True
+
+    def test_model_without_phase_triggers_is_unchanged(self, mock_coordinator):
+        """No cyclePhase capability → no phase rules → old behavior only.
+
+        ANTICREASE in reported cyclePhase must NOT enable STOPRESET on a model
+        that publishes no cyclePhase triggers.
+        """
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            DRYER_TRIGGERS,
+            {"applianceState": "IDLE", "cyclePhase": "ANTICREASE"},
+        )
+        assert entity.available is False
+
+    def test_command_without_phase_rule_gated_by_state_only(self, mock_coordinator):
+        """PAUSE has no cyclePhase rule; only the applianceState dimension
+        gates it (RUNNING allows PAUSE, IDLE does not)."""
+        running = self._make_button(
+            mock_coordinator,
+            "PAUSE",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "RUNNING", "cyclePhase": "ANTICREASE"},
+        )
+        idle = self._make_button(
+            mock_coordinator,
+            "PAUSE",
+            TD916900511_CAPABILITIES,
+            {"applianceState": "IDLE", "cyclePhase": "ANTICREASE"},
+        )
+        assert running.available is True
+        assert idle.available is False
+
+    def test_scoped_phase_rules_use_scoped_cycle_phase(self, mock_coordinator):
+        """A source-scoped button reads {source}/cyclePhase, mirroring the
+        applianceState scoping."""
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        appliance = MagicMock()
+        appliance.data.capabilities = {
+            "upperOven/cyclePhase": {
+                "triggers": [
+                    {
+                        "action": {"executeCommand": {"values": {"STOPRESET": {}}}},
+                        "condition": {
+                            "operand_1": "value",
+                            "operand_2": "ANTICREASE",
+                            "operator": "eq",
+                        },
+                    }
+                ]
+            }
+        }
+        appliances = MagicMock()
+        appliances.get_appliance.return_value = appliance
+        mock_coordinator.data = {"appliances": appliances}
+
+        entity = ElectroluxButton(
+            coordinator=mock_coordinator,
+            capability={"access": "write", "type": "boolean"},
+            name="Oven",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name="execute_command",
+            entity_attr="executeCommand",
+            entity_source="upperOven",
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=ElectroluxDevice(
+                capability_info={"access": "write"},
+                available_when_states={"STOPRESET": ["RUNNING"]},
+            ),
+            val_to_send="STOPRESET",
+        )
+        reported = {
+            "connectivityState": "connected",
+            "applianceState": "OFF",
+            "upperOven/applianceState": "OFF",
+            "upperOven/cyclePhase": "ANTICREASE",
+        }
+        entity.appliance_status = {"properties": {"reported": reported}}
+        entity._reported_state_cache = reported
+        # Root and cavity applianceState machines both forbid STOPRESET; only
+        # the cavity's cyclePhase dimension allows it.
+        assert entity.available is True
+
+    @staticmethod
+    def _local_sample():
+        """Return the local TD-916900511 sample, if present."""
+        import json
+        from pathlib import Path
+
+        path = Path(__file__).parent.parent / "samples" / "new" / "TD-916900511_01.json"
+        if not path.exists():
+            return None
+        # Scrubbed capabilities-only dump (as offered in issue #178).
+        return json.loads(path.read_text())["capabilities"]
+
+    def test_local_sample_ships_the_embedded_cycle_phase_triggers(self):
+        """Keep the embedded node in sync with the local sample."""
+        caps = self._local_sample()
+        if caps is None:
+            pytest.skip("samples/new/TD-916900511_01.json not present")
+        assert caps["cyclePhase"]["triggers"] == TD_CYCLE_PHASE["triggers"]
+        assert caps["cyclePhase"]["values"] == TD_CYCLE_PHASE["values"]
+
+    def test_local_sample_end_to_end_anticrease(self, mock_coordinator):
+        """Full end-to-end against the real diagnostics sample."""
+        caps = self._local_sample()
+        if caps is None:
+            pytest.skip("samples/new/TD-916900511_01.json not present")
+
+        # Derived rules from the full real capability set.
+        assert execute_states_from_capabilities(caps) == {
+            "PAUSE": ["DELAYED_START", "RUNNING"],
+            "ON": ["IDLE"],
+            "RESUME": ["PAUSED"],
+            "STOPRESET": ["PAUSED", "END_OF_CYCLE"],
+            "START": ["READY_TO_START"],
+        }
+        assert execute_phase_states_from_capabilities(caps) == {"STOPRESET": ["ANTICREASE"]}
+
+        entity = self._make_button(
+            mock_coordinator,
+            "STOPRESET",
+            caps,
+            {"applianceState": "RUNNING", "cyclePhase": "ANTICREASE"},
+        )
+        assert entity.available is True

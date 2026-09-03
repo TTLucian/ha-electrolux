@@ -151,53 +151,21 @@ DISHWASHER_EXECUTE_STATES: dict[str, list[str]] = {
 # using the field's default value.
 
 
-def execute_states_from_capabilities(
-    capabilities: dict[str, Any] | None,
-    *,
-    entity_source: str | None = None,
-) -> dict[str, list[str]] | None:
-    """Derive the executeCommand rules from an appliance's own capabilities.
+def _states_from_capability_def(capability_def: Any) -> dict[str, list[str]] | None:
+    """Derive ``{command: [state, ...]}`` rules from one capability's triggers.
 
-    The tables above were transcribed from ``applianceState`` → ``triggers`` in
-    sample files, so the appliance already ships the same information. Reading
-    it at runtime keeps a model that deviates from its type's table working.
-
-    Returns a ``{command: [applianceState, ...]}`` mapping in the same shape as
-    the constants, or ``None`` when the appliance publishes no usable triggers,
-    in which case the caller should fall back to the catalog entry.
-
-    Only ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions are
+    Shared by the ``applianceState`` and ``cyclePhase`` dimensions. Only
+    ``{operand_1: "value", operand_2: X, operator: "eq"}`` conditions are
     read, matching the trigger handling in ``entity.py``. Compound conditions
-    (a dict operand) and ``disabled`` actions carry no command list and are
-    skipped.
-
-    Scoping: with ``entity_source`` set, only that source's own
-    ``{source}/applianceState`` capability is read — it is an independent state
-    machine (a structured oven's cavity does not follow the main appliance's
-    ALARM/OFF/RUNNING machine). Falling back to the root ``applianceState``
-    would apply the wrong machine to the source's buttons, so the caller falls
-    back to the catalog table instead. Without ``entity_source`` only the root
-    ``applianceState`` is read.
+    (a dict operand), ``ne`` operators and ``disabled`` actions carry no
+    command list and are skipped. A capability without triggers, or whose
+    triggers yield no rules, returns ``None``.
     """
-    if not isinstance(capabilities, dict):
-        return None
-
-    appliance_state: Any | None = None
-
-    if entity_source:
-        # Scoped buttons are gated by their own state machine only. Falling
-        # back to the root applianceState would silently apply the main
-        # appliance's machine to a sub-appliance (see docstring), so return
-        # None and let the caller use the catalog table.
-        appliance_state = capabilities.get(f"{entity_source}/applianceState")
-    else:
-        appliance_state = capabilities.get("applianceState")
-
-    if not isinstance(appliance_state, dict):
+    if not isinstance(capability_def, dict):
         return None
 
     states: dict[str, list[str]] = {}
-    for trigger in appliance_state.get("triggers", []):
+    for trigger in capability_def.get("triggers", []):
         if not isinstance(trigger, dict):
             continue
 
@@ -225,3 +193,68 @@ def execute_states_from_capabilities(
                 states[command].append(state)
 
     return states or None
+
+
+def _scoped_capability(
+    capabilities: dict[str, Any], dimension: str, entity_source: str | None
+) -> Any | None:
+    """Return the ``[source/]dimension`` capability for the given scoping."""
+    if entity_source:
+        return capabilities.get(f"{entity_source}/{dimension}")
+    return capabilities.get(dimension)
+
+
+def execute_states_from_capabilities(
+    capabilities: dict[str, Any] | None,
+    *,
+    entity_source: str | None = None,
+) -> dict[str, list[str]] | None:
+    """Derive the executeCommand rules from an appliance's ``applianceState`` triggers.
+
+    The tables above were transcribed from ``applianceState`` → ``triggers`` in
+    sample files, so the appliance already ships the same information. Reading
+    it at runtime keeps a model that deviates from its type's table working.
+
+    Returns a ``{command: [applianceState, ...]}`` mapping in the same shape as
+    the constants, or ``None`` when the appliance publishes no usable triggers,
+    in which case the caller should fall back to the catalog entry.
+
+    Scoping: with ``entity_source`` set, only that source's own
+    ``{source}/applianceState`` capability is read — it is an independent state
+    machine (a structured oven's cavity does not follow the main appliance's
+    ALARM/OFF/RUNNING machine). Falling back to the root ``applianceState``
+    would apply the wrong machine to the source's buttons, so the caller falls
+    back to the catalog table instead. Without ``entity_source`` only the root
+    ``applianceState`` is read.
+    """
+    if not isinstance(capabilities, dict):
+        return None
+    return _states_from_capability_def(
+        _scoped_capability(capabilities, "applianceState", entity_source)
+    )
+
+
+def execute_phase_states_from_capabilities(
+    capabilities: dict[str, Any] | None,
+    *,
+    entity_source: str | None = None,
+) -> dict[str, list[str]] | None:
+    """Derive executeCommand rules from an appliance's ``cyclePhase`` triggers.
+
+    Some models publish command gating on the cycle phase instead of (or in
+    addition to) the appliance state — e.g. the AEG TR969PB4C heat-pump dryer
+    (TD-916900511) allows ``STOPRESET`` when ``cyclePhase`` is ``ANTICREASE``,
+    a value ``applianceState`` never reports (issue #178). The caller ORs this
+    dimension with the ``applianceState`` one: a command is available when any
+    dimension that publishes a rule for it matches.
+
+    Returns a ``{command: [cyclePhase, ...]}`` mapping, or ``None`` when the
+    appliance publishes no usable ``cyclePhase`` triggers. There is no catalog
+    fallback for this dimension: phase gating is purely model-published.
+    """
+    if not isinstance(capabilities, dict):
+        return None
+    return _states_from_capability_def(
+        _scoped_capability(capabilities, "cyclePhase", entity_source)
+    )
+
