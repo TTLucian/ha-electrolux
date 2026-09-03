@@ -188,15 +188,12 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         ):
             return cast(dict[str, list[str]] | None, self._execute_phase_states_cache)
 
-        derived = execute_phase_states_from_capabilities(
-            caps, entity_source=self.entity_source
-        )
+        derived = execute_phase_states_from_capabilities(caps, entity_source=self.entity_source)
 
         self._execute_phase_states_cache = derived
         self._execute_phase_states_cache_caps_id = caps_id
         self._execute_phase_states_cache_caps = caps
         return derived
-
 
     def _appliance_capabilities(self) -> dict[str, Any] | None:
         """Return this appliance's capabilities, or None if not loaded yet.
@@ -285,13 +282,9 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
         dimension_checks: list[tuple[list[str], str | None]] = []
         if state_rules and self.val_to_send in state_rules:
-            dimension_checks.append(
-                (state_rules[self.val_to_send], self._current_appliance_state())
-            )
+            dimension_checks.append((state_rules[self.val_to_send], self._current_appliance_state()))
         if phase_rules and self.val_to_send in phase_rules:
-            dimension_checks.append(
-                (phase_rules[self.val_to_send], self._current_cycle_phase())
-            )
+            dimension_checks.append((phase_rules[self.val_to_send], self._current_cycle_phase()))
 
         if dimension_checks:
             for _allowed_states, current_value in dimension_checks:
@@ -302,7 +295,6 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
                 return False
 
         return super().available
-
 
     @property
     def icon(self) -> str | None:

@@ -195,9 +195,7 @@ def _states_from_capability_def(capability_def: Any) -> dict[str, list[str]] | N
     return states or None
 
 
-def _scoped_capability(
-    capabilities: dict[str, Any], dimension: str, entity_source: str | None
-) -> Any | None:
+def _scoped_capability(capabilities: dict[str, Any], dimension: str, entity_source: str | None) -> Any | None:
     """Return the ``[source/]dimension`` capability for the given scoping."""
     if entity_source:
         return capabilities.get(f"{entity_source}/{dimension}")
@@ -229,9 +227,7 @@ def execute_states_from_capabilities(
     """
     if not isinstance(capabilities, dict):
         return None
-    return _states_from_capability_def(
-        _scoped_capability(capabilities, "applianceState", entity_source)
-    )
+    return _states_from_capability_def(_scoped_capability(capabilities, "applianceState", entity_source))
 
 
 def execute_phase_states_from_capabilities(
@@ -254,7 +250,4 @@ def execute_phase_states_from_capabilities(
     """
     if not isinstance(capabilities, dict):
         return None
-    return _states_from_capability_def(
-        _scoped_capability(capabilities, "cyclePhase", entity_source)
-    )
-
+    return _states_from_capability_def(_scoped_capability(capabilities, "cyclePhase", entity_source))
