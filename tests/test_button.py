@@ -1648,7 +1648,7 @@ class TestButtonMissingCoverage:
 # Trimmed verbatim from samples/new/TD-916900511_01.json (AEG TR969PB4C
 # heat-pump dryer): the model publishes STOPRESET via a cyclePhase trigger,
 # and applianceState never reports ANTICREASE.
-TD_CYCLE_PHASE: ClassVar[dict] = {
+TD_CYCLE_PHASE: dict = {
     "access": "read",
     "type": "string",
     "values": {
@@ -1668,7 +1668,7 @@ TD_CYCLE_PHASE: ClassVar[dict] = {
 
 # remoteControl on the same dryer publishes executeCommand triggers whose
 # actions carry no command values — they must contribute no gating rules.
-TD_REMOTE_CONTROL: ClassVar[dict] = {
+TD_REMOTE_CONTROL: dict = {
     "access": "read",
     "type": "string",
     "values": {"DISABLED": {}, "ENABLED": {}, "NOT_SAFETY_RELEVANT_ENABLED": {}, "TEMPORARY_LOCKED": {}},
@@ -1680,7 +1680,7 @@ TD_REMOTE_CONTROL: ClassVar[dict] = {
     ],
 }
 
-TD916900511_CAPABILITIES: ClassVar[dict] = {
+TD916900511_CAPABILITIES: dict = {
     **DRYER_TRIGGERS,
     "cyclePhase": TD_CYCLE_PHASE,
     "remoteControl": TD_REMOTE_CONTROL,
