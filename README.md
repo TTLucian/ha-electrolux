@@ -60,9 +60,9 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | `SO` | Structured Oven | Full | `SO-944035035` |
 | `RF` | Refrigerator | Partial | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `CR` | Combi Refrigerator | Full | `CR-925060324`, `CR-925060677` |
-| `WM` | Washing Machine | Full | `WM-914501009`, `WM-914501128`, `WM-914505614`, `WM-914550478`, `WM-914550687`, `WM-914550951`, `WM-914580416`, `WM-914915144`, `WM-914922134`, `WM-914922290`, `WM-914922311` |
+| `WM` | Washing Machine | Full | `WM-914501009`, `WM-914501128`, `WM-914501308`, `WM-914505603`, `WM-914505614`, `WM-914550478`, `WM-914550687`, `WM-914550951`, `WM-914580416`, `WM-914915144`, `WM-914922134`, `WM-914922290`, `WM-914922311` |
 | `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500`, `WD-914611703` |
-| `TD` | Tumble Dryer | Full | `TD-916002187`, `TD-916098401`, `TD-916098618`, `TD-916098759`, `TD-916099548`, `TD-916099949`, `TD-916099971` |
+| `TD` | Tumble Dryer | Full | `TD-916002187`, `TD-916098401`, `TD-916098618`, `TD-916098759`, `TD-916099548`, `TD-916099949`, `TD-916099971`, `TD-916900511` |
 | `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834`, `DW-911438465`, `DW-911473025` |
@@ -351,6 +351,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Temperature settings (HIGH, MEDIUM, LOW, REFRESH)
 - Program selection with per-program configurations (COTTON, SYNTHETICS, DELICATES, WOOL, etc.)
 - Anti-crease protection
+- Cycle-phase-aware command gating (Stop/Reset honoured during anti-crease on models that publish `cyclePhase` triggers)
 - Load weight monitoring
 - Network interface monitoring (WiFi quality, OTA updates, software version)
 - Remote control enablement
@@ -452,6 +453,13 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 
 **This is not a bug.** If a button appears greyed out, it means the appliance is simply not in the right state for that action yet.
 
+Since v3.7.6, availability is evaluated against **two dimensions** whenever the appliance publishes rules for them:
+
+- **`applianceState`** — the appliance's own state machine (derived from its triggers, with the per-type catalog table as fallback);
+- **`cyclePhase`** — the current cycle phase, for models that publish command gating on it (e.g. the AEG TR969PB4C heat-pump dryer, `TD-916900511`, which allows **Stop/Reset** while `cyclePhase` is `ANTICREASE` — a value `applianceState` never reports).
+
+A command is enabled when **any** dimension that publishes a rule for it matches. Models that publish no `cyclePhase` triggers behave exactly as before. This is also why the table below can show `ANTICREASE` for the dryer's Stop/Reset row: on some models it arrives via `applianceState`, on others via `cyclePhase` — both are honoured.
+
 | Appliance | Button | Enabled when appliance state is… |
 |-----------|--------|----------------------------------|
 | Oven | START | `READY_TO_START`, `END_OF_CYCLE` |
@@ -534,9 +542,11 @@ The integration disables each button when the appliance is in a state where the 
 - **PAUSE** is only enabled while `RUNNING` (or `DELAYED_START` on applicable types)
 - **RESUME** is only enabled while `PAUSED`
 
+Some models also gate commands on the **cycle phase** (`cyclePhase`) instead of the appliance state — e.g. the AEG TR969PB4C dryer allows **Stop/Reset** while the phase is `ANTICREASE`. The integration honours both dimensions; see the availability table below.
+
 See the [Execute Command Button Availability](#️-execute-command-button-availability) table in the Controls section for the full per-appliance-type breakdown.
 
-If you believe the button should be active but isn't, check the **Appliance State** sensor for your device — it shows the current `applianceState` value the API is reporting.
+If you believe the button should be active but isn't, check the **Appliance State** sensor (and the **Cycle Phase** sensor, where present) for your device — they show the current values the API is reporting.
 
 ### � Stale or Stuck Data
 If sensor values appear outdated or frozen:
