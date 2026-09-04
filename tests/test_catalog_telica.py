@@ -6,6 +6,7 @@ Covers:
 """
 
 from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory
 
 from custom_components.electrolux.api import ElectroluxLibraryEntity
@@ -63,6 +64,22 @@ class TestTelicaEntityTypes:
         """soundVolume (readwrite, boolean) -> SWITCH."""
         entity = self._entity({"soundVolume": {"access": "readwrite", "type": "boolean"}})
         assert entity.get_entity_type("soundVolume") == SWITCH
+
+    def test_sound_volume_number_detected_as_number(self):
+        """soundVolume as number (min 0, max 1) -> NUMBER at API level (catalog promotes to SWITCH)."""
+        from custom_components.electrolux.const import NUMBER
+
+        entity = self._entity({"soundVolume": {"access": "readwrite", "type": "number", "min": 0, "max": 1, "step": 1}})
+        # API-level detection sees a constrained number -> NUMBER
+        assert entity.get_entity_type("soundVolume") == NUMBER
+
+    def test_sound_volume_catalog_entry_promotes_to_switch(self):
+        """Catalog soundVolume entry uses SWITCH device_class to override API type (#199)."""
+        entry = CATALOG_AC["soundVolume"]
+        assert entry.device_class == SwitchDeviceClass.SWITCH
+        assert entry.entity_category == EntityCategory.CONFIG
+        # Type-agnostic: no 'type' in capability_info, so API value flows through
+        assert "type" not in entry.capability_info
 
     def test_pm25_is_sensor(self):
         entity = self._entity({"pm25": {"access": "read", "type": "int"}})
