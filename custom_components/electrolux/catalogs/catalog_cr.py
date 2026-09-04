@@ -567,6 +567,18 @@ CATALOG_CR: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
         friendly_name="Main Board Software Version",
     ),
+    "applianceUiSwVersion": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:information",
+        entity_registry_enabled_default=False,
+        friendly_name="UI Software Version",
+    ),
     "ecoMode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

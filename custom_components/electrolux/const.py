@@ -125,6 +125,8 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "^fCPN_TD(Alert|EndOfCycle|Maintenances)$",  # Internal tumble-dryer push-notification flags, no live user value
     "^fCApplianceFeature_EUDryWhatWashed$",  # Internal appliance feature flag, no user-facing state/control
     "^hMEPN_DHAlerts$",  # Internal dehumidifier notification flag, no live user-facing value
+    "^fPRPN_",  # Internal refrigerator push-notification flags (AirFilter/WaterFilter Change/Order), no user value (#194)
+    "^fSPN_",  # Internal refrigerator status-notification flags (e.g. CRConnectionLost), no user value (#194)
     "^dummy_for_empty_cycle(_DW)?$",  # Placeholder/internal sentinel capability used for empty-cycle programs
     "^hideExecuteCommand$",  # Internal API trigger-control flag (governs executeCommand visibility via triggers)
     "^keyModel$",  # Hardware identity constant, no user-facing value
