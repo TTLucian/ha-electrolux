@@ -903,5 +903,7 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
     @property
     def entity_registry_enabled_default(self) -> bool:
         """Return if the entity should be enabled when first added to the entity registry."""
-        # Always enable entities by default - availability is controlled by the available property
-        return True
+        # Delegate to the base class so catalog overrides and dynamic
+        # suppression rules apply (e.g. targetMicrowavePower on combi-microwave
+        # ovens where every MICROWAVE_* program is remotely disabled, #193).
+        return super().entity_registry_enabled_default

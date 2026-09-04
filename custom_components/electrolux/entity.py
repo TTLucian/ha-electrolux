@@ -765,9 +765,51 @@ class ElectroluxEntity(CoordinatorEntity):
         # Default icon fallback
         return self._icon
 
+    def _microwave_programs_all_disabled(self) -> bool:
+        """Return True when every MICROWAVE_* program value is remotely disabled.
+
+        Combi-microwave ovens (keyModel GT3_CMW) advertise a ``program``
+        capability that includes MICROWAVE_* values, but Electrolux marks each
+        of them ``"disabled": true`` in the live capability schema — remote
+        starting of microwave functions is not permitted. On such models the
+        ``targetMicrowavePower`` control can never be exercised, so it is
+        hidden by default (#193). Returns False for models that DO allow
+        microwave programs (entity stays enabled) and for appliances without
+        MICROWAVE_* values at all.
+        """
+        try:
+            appliance = self.get_appliance
+            appliance_data = getattr(appliance, "data", None)
+        except KeyError, AttributeError, TypeError:
+            return False
+        capabilities = getattr(appliance_data, "capabilities", None)
+        if not isinstance(capabilities, dict):
+            return False
+        values = capabilities.get("program", {})
+        if not isinstance(values, dict):
+            return False
+        values = values.get("values", {})
+        if not isinstance(values, dict):
+            return False
+        microwave_values = [
+            value
+            for key, value in values.items()
+            if str(key).upper().startswith("MICROWAVE_") and isinstance(value, dict)
+        ]
+        if not microwave_values:
+            return False
+        return all(bool(value.get("disabled")) for value in microwave_values)
+
     @property
     def entity_registry_enabled_default(self) -> bool:
         """Return if the entity should be enabled when first added to the entity registry."""
+        # Dynamic suppression: on combi-microwave ovens where the API disables
+        # remote selection of every MICROWAVE_* program, the microwave power
+        # control can never do anything — register it but keep it disabled by
+        # default so users can still enable it explicitly (#193).
+        if self.entity_attr == "targetMicrowavePower" and self._microwave_programs_all_disabled():
+            return False
+
         # Use catalog entry value if available, otherwise default to True
         if self._catalog_entry:
             return self._catalog_entry.entity_registry_enabled_default

@@ -256,6 +256,19 @@ CATALOG_OV: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:thermometer-probe",
     ),
+    "targetMicrowavePower": ElectroluxDevice(
+        # Combi-microwave ovens (keyModel GT3_CMW) and some steam ovens advertise
+        # this control. The API provides no unit, min, max or step for it, so the
+        # number platform's generic defaults apply. On models where every
+        # MICROWAVE_* program value carries "disabled": true in the live capability
+        # schema (remote microwave start is disallowed), the entity is disabled by
+        # default via ElectroluxEntity.entity_registry_enabled_default (#193).
+        capability_info={"access": "readwrite", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:microwave",
+    ),
     "targetTemperatureC": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "temperature"},
         device_class=NumberDeviceClass.TEMPERATURE,
