@@ -432,9 +432,9 @@ class TestEntityDeviceInfo:
         }
         info = entity.device_info
         # Model should show the real PNC, not the long applianceId
-        assert info["model"] == "Model: Telica-950011709"
+        assert info.get("model") == "Model: Telica-950011709"
         # Serial number should come from applianceData.sn
-        assert info["serial_number"] == "55106589"
+        assert info.get("serial_number") == "55106589"
 
     def test_telica_long_id_falls_back_when_no_appliance_data(self):
         """Telica without applianceData falls back to long ID display."""
@@ -444,9 +444,9 @@ class TestEntityDeviceInfo:
         mock_appliance.reported_state = {}
         info = entity.device_info
         # Falls back to showing the long ID
-        assert info["model"] == "Model: Telica-950011709551065891110697"
+        assert info.get("model") == "Model: Telica-950011709551065891110697"
         # Serial falls back to appliance.serial_number
-        assert info["serial_number"] == "SN12345"
+        assert info.get("serial_number") == "SN12345"
 
     def test_telica_serial_fallback_to_appliance_serial(self):
         """When applianceData has no 'sn', use appliance.serial_number."""
@@ -461,7 +461,7 @@ class TestEntityDeviceInfo:
         }
         mock_appliance.serial_number = "FALLBACK_SN"
         info = entity.device_info
-        assert info["serial_number"] == "FALLBACK_SN"
+        assert info.get("serial_number") == "FALLBACK_SN"
 
 
 # ===========================================================================
