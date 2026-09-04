@@ -115,9 +115,7 @@ class TestEntityAsyncSetupEntry:
         hass = MagicMock()
         add_entities = MagicMock()
 
-        with patch(
-            "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
-        ):
+        with patch("custom_components.electrolux.entity.er.async_get", return_value=MagicMock()):
             await async_setup_entry(hass, entry, add_entities)
 
         add_entities.assert_called_once()
@@ -161,9 +159,7 @@ class TestEntityAsyncSetupEntry:
 
         add_entities = MagicMock()
 
-        with patch(
-            "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
-        ):
+        with patch("custom_components.electrolux.entity.er.async_get", return_value=MagicMock()):
             await async_setup_entry(MagicMock(), entry, add_entities)
 
         added = add_entities.call_args[0][0]
@@ -200,9 +196,7 @@ class TestEntityAsyncSetupEntry:
 
         add_entities = MagicMock()
 
-        with patch(
-            "custom_components.electrolux.entity.er.async_get", return_value=MagicMock()
-        ):
+        with patch("custom_components.electrolux.entity.er.async_get", return_value=MagicMock()):
             await async_setup_entry(MagicMock(), entry, add_entities)
 
         added = add_entities.call_args[0][0]
@@ -364,14 +358,10 @@ class TestEntityRegistryEnabledDefault:
 class TestEntityDeviceInfo:
     """Test device_info property – MAC extraction, model formatting, DAM prefix."""
 
-    def _setup_entity_with_appliance(
-        self, pnc_id: str, appliance_type: str = "WM"
-    ) -> ElectroluxNumber:
+    def _setup_entity_with_appliance(self, pnc_id: str, appliance_type: str = "WM") -> ElectroluxNumber:
         """Create an entity with a properly configured appliance mock."""
         entity = make_entity(pnc_id=pnc_id)
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.model = None
         mock_appliance.brand = "Electrolux"
         mock_appliance.name = "Test Machine"
@@ -402,9 +392,7 @@ class TestEntityDeviceInfo:
         """When model is 'Unknown', appliance type is used as fallback."""
         pnc_id = "916099949_00:31862190-443E07363DAB"
         entity = self._setup_entity_with_appliance(pnc_id, "OV")
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.model = "Unknown"
         info = entity.device_info
         # Should still produce a valid model string
@@ -427,6 +415,53 @@ class TestEntityDeviceInfo:
         # No connections key expected (or empty) for Muju style
         connections = info.get("connections", set())
         assert len(connections) == 0
+
+    def test_telica_long_id_uses_real_pnc_from_appliance_data(self):
+        """Telica long applianceId should show real PNC from applianceData (#199)."""
+        pnc_id = "950011709551065891110697"
+        entity = self._setup_entity_with_appliance(pnc_id, "Telica")
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
+        # Simulate the reported state containing applianceData with real PNC/serial
+        mock_appliance.reported_state = {
+            "applianceData": {
+                "pnc": "950011709",
+                "sn": "55106589",
+                "elc": "00",
+                "mac": "443E077C82F5",
+            }
+        }
+        info = entity.device_info
+        # Model should show the real PNC, not the long applianceId
+        assert info["model"] == "Model: Telica-950011709"
+        # Serial number should come from applianceData.sn
+        assert info["serial_number"] == "55106589"
+
+    def test_telica_long_id_falls_back_when_no_appliance_data(self):
+        """Telica without applianceData falls back to long ID display."""
+        pnc_id = "950011709551065891110697"
+        entity = self._setup_entity_with_appliance(pnc_id, "Telica")
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
+        mock_appliance.reported_state = {}
+        info = entity.device_info
+        # Falls back to showing the long ID
+        assert info["model"] == "Model: Telica-950011709551065891110697"
+        # Serial falls back to appliance.serial_number
+        assert info["serial_number"] == "SN12345"
+
+    def test_telica_serial_fallback_to_appliance_serial(self):
+        """When applianceData has no 'sn', use appliance.serial_number."""
+        pnc_id = "950011709551065891110697"
+        entity = self._setup_entity_with_appliance(pnc_id, "Telica")
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
+        mock_appliance.reported_state = {
+            "applianceData": {
+                "pnc": "950011709",
+                "elc": "00",
+            }
+        }
+        mock_appliance.serial_number = "FALLBACK_SN"
+        info = entity.device_info
+        assert info["serial_number"] == "FALLBACK_SN"
 
 
 # ===========================================================================
@@ -566,9 +601,7 @@ class TestIsRemoteControlEnabled:
         )
 
         entity = make_entity()
-        entity.appliance_status = {
-            "remoteControl": REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED
-        }
+        entity.appliance_status = {"remoteControl": REMOTE_CONTROL_NOT_SAFETY_RELEVANT_ENABLED}
         assert entity.is_remote_control_enabled() is True
 
     def test_remote_control_none_returns_true(self):
@@ -580,9 +613,7 @@ class TestIsRemoteControlEnabled:
     def test_remote_control_in_reported_nested(self):
         """Reads remoteControl from nested properties.reported path."""
         entity = make_entity()
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
         assert entity.is_remote_control_enabled() is True
 
     def test_remote_control_not_present_returns_true(self):
@@ -741,9 +772,7 @@ class TestGetCurrentProgramName:
     def test_reads_from_cycle_personalization(self):
         """Reads from cyclePersonalization/programUID (alternative location)."""
         entity = make_entity(reported={})
-        entity._reported_state_cache = {
-            "cyclePersonalization": {"programUID": "DELICATE"}
-        }
+        entity._reported_state_cache = {"cyclePersonalization": {"programUID": "DELICATE"}}
         assert entity._get_current_program_name() == "DELICATE"
 
     def test_returns_none_when_no_program(self):
@@ -763,9 +792,7 @@ class TestGetProgramConstraintCrossLookup:
 
     def _make_oven_entity(self, attr: str) -> ElectroluxNumber:
         entity = make_entity(entity_attr=attr)
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.data.capabilities = {
             "program": {
                 "values": {

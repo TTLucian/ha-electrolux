@@ -881,11 +881,29 @@ class ElectroluxEntity(CoordinatorEntity):
         # Standard format has an underscore-separated suffix and a numeric PNC
         is_standard = "_" in short_id and short_id.split("_")[0].isdigit()
 
+        # For long numeric IDs (Telica, Muju, etc.), the pnc_id is the applianceId,
+        # not the real PNC. Extract the human-readable PNC and serial from
+        # applianceData in the reported state when available.
+        real_pnc = None
+        real_serial = appliance.serial_number or None
+        reported = self.get_appliance.reported_state
+        if isinstance(reported, dict):
+            appliance_data = reported.get("applianceData")
+            if isinstance(appliance_data, dict):
+                real_pnc = appliance_data.get("pnc") or None
+                real_serial = appliance_data.get("sn") or real_serial
+
         if is_standard:
             # e.g. "Model: TD-916099949_00" or "Model: AC-950022200_00" (DAM prefix stripped)
             type_display = appliance_type.replace("DAM_", "") if appliance_type else None
             type_part = f"{type_display}-" if type_display else ""
             display_model = f"Model: {type_part}{short_id}"
+        elif real_pnc and real_pnc != short_id:
+            # Long IDs with a real PNC available (e.g. Telica: pnc_id=950011709551065891110697,
+            # real PNC=950011709). Show the real PNC so device info is human-readable.
+            type_display = appliance_type.replace("DAM_", "") if appliance_type else None
+            type_part = f"{type_display}-" if type_display else ""
+            display_model = f"Model: {type_part}{real_pnc}"
         else:
             # Long/Muju IDs – show as-is with type prefix when known
             type_display = appliance_type.replace("DAM_", "") if appliance_type else None
@@ -897,7 +915,7 @@ class ElectroluxEntity(CoordinatorEntity):
             "name": name or model,
             "model": display_model,
             "manufacturer": brand,
-            "serial_number": appliance.serial_number or None,
+            "serial_number": real_serial,
         }
         if mac_address:
             device_info["connections"] = {(CONNECTION_NETWORK_MAC, mac_address)}
