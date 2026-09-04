@@ -358,7 +358,7 @@ class TestEntityRegistryEnabledDefault:
 class TestEntityDeviceInfo:
     """Test device_info property – MAC extraction, model formatting, DAM prefix."""
 
-    def _setup_entity_with_appliance(self, pnc_id: str, appliance_type: str = "WM") -> ElectroluxNumber:
+    def _setup_entity_with_appliance(self, pnc_id: str, appliance_type: str = "WM") -> ElectroluxNumber | ElectroluxSensor:
         """Create an entity with a properly configured appliance mock."""
         entity = make_entity(pnc_id=pnc_id)
         mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
@@ -790,7 +790,7 @@ class TestGetCurrentProgramName:
 class TestGetProgramConstraintCrossLookup:
     """Test temperature unit cross-lookup in _get_program_constraint."""
 
-    def _make_oven_entity(self, attr: str) -> ElectroluxNumber:
+    def _make_oven_entity(self, attr: str) -> ElectroluxNumber | ElectroluxSensor:
         entity = make_entity(entity_attr=attr)
         mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.data.capabilities = {
