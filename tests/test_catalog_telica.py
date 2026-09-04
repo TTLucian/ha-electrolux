@@ -1,54 +1,43 @@
-"""Tests for Telica (portable AC) attribute filtering and device info (#199).
+"""Tests for Telica (portable AC) catalog entries and entity resolution (#199).
 
 Covers:
-- ATTRIBUTES_BLACKLIST patterns hiding internal *Threshold constants
+- Threshold constants cataloged as diagnostic sensors (disabled by default)
 - entity-type resolution for the Telica (950011709551065891110697) capability schema
-- device_info PNC/serial extraction from applianceData
 """
 
-import re
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import EntityCategory
 
 from custom_components.electrolux.api import ElectroluxLibraryEntity
-from custom_components.electrolux.const import ATTRIBUTES_BLACKLIST, SENSOR, SWITCH
+from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+from custom_components.electrolux.const import SENSOR, SWITCH
 
 # Threshold capability names observed on the Telica portable AC (issue #199)
-INTERNAL_THRESHOLDS = [
+THRESHOLD_CAPS = [
     "filterCleanThreshold",
     "hEPAFilterBuyThreshold",
     "hEPAFilterChangeThreshold",
 ]
 
-# Legitimate Telica capabilities that must NOT be blocked
-LEGITIMATE_TELICA_CAPS = [
-    "flapPositionAvoidUser",
-    "soundVolume",
-    "pm25",
-    "pm10",
-    "hepaFilterState",
-    "hepaFilterInsertedState",
-    "filterRuntime",
-    "filterReset",
-    "executeCommand",
-    "targetTemperatureC",
-    "ambientTemperatureC",
-]
 
+class TestThresholdCatalogEntries:
+    """Threshold constants are diagnostic sensors disabled by default (#199)."""
 
-def _is_blacklisted(name: str) -> bool:
-    return any(re.match(pattern, name) for pattern in ATTRIBUTES_BLACKLIST)
+    def test_all_thresholds_in_catalog(self):
+        for name in THRESHOLD_CAPS:
+            assert name in CATALOG_AC, f"{name} should be in catalog"
 
+    def test_thresholds_are_duration_sensors(self):
+        for name in THRESHOLD_CAPS:
+            entry = CATALOG_AC[name]
+            assert entry.device_class == SensorDeviceClass.DURATION
+            assert entry.unit == "s"
 
-class TestThresholdBlacklist:
-    """Internal *Threshold constants must not become entities (#199)."""
-
-    def test_all_observed_thresholds_blacklisted(self):
-        for name in INTERNAL_THRESHOLDS:
-            assert _is_blacklisted(name), f"{name} should be blacklisted"
-
-    def test_real_capabilities_not_collateral_blocked(self):
-        """Legitimate Telica capabilities must stay discoverable."""
-        for name in LEGITIMATE_TELICA_CAPS:
-            assert not _is_blacklisted(name), f"{name} must not be blacklisted"
+    def test_thresholds_diagnostic_and_disabled(self):
+        for name in THRESHOLD_CAPS:
+            entry = CATALOG_AC[name]
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
 
 
 class TestTelicaEntityTypes:

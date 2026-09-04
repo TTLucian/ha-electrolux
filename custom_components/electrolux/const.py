@@ -130,8 +130,6 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "^dummy_for_empty_cycle(_DW)?$",  # Placeholder/internal sentinel capability used for empty-cycle programs
     "^hideExecuteCommand$",  # Internal API trigger-control flag (governs executeCommand visibility via triggers)
     "^keyModel$",  # Hardware identity constant, no user-facing value
-    "^filterCleanThreshold$",  # Internal filter-clean threshold constant (seconds), no user value (#199)
-    "^hEPAFilter(Buy|Change)Threshold$",  # Internal HEPA filter buy/change threshold constants (seconds), no user value (#199)
 ]
 
 ATTRIBUTES_WHITELIST: list[str] = [".*waterUsage", ".*tankAReserve", ".*tankBReserve"]
