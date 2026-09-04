@@ -632,12 +632,12 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:fan",
         entity_registry_enabled_default=False,
     ),
-    # Sound volume: 0 = silent, 1 = on — binary on/off, modeled as a switch.
-    # Type-agnostic: some models report boolean, others number (min 0, max 1).
-    # The SWITCH device_class forces the entity type regardless.
+    # Sound volume: 0 = silent, 1 = on. API reports type: number (min 0, max 1).
+    # No device_class — respect the API type (NUMBER) without imposing a
+    # misleading semantic category. The min/max/step come from the API at runtime.
     "soundVolume": ElectroluxDevice(
-        capability_info={"access": "readwrite"},
-        device_class=SwitchDeviceClass.SWITCH,
+        capability_info={"access": "readwrite", "type": "number"},
+        device_class=None,
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:volume-high",
