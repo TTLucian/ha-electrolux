@@ -59,26 +59,18 @@ class TestTelicaEntityTypes:
         )
         assert entity.get_entity_type("flapPositionAvoidUser") == SWITCH
 
-    def test_sound_volume_detected_as_number(self):
-        """soundVolume as number -> NUMBER. API type is the source of truth (#199)."""
-        from custom_components.electrolux.const import NUMBER
-
-        entity = self._entity({"soundVolume": {"access": "readwrite", "type": "number", "min": 0, "max": 1, "step": 1}})
-        assert entity.get_entity_type("soundVolume") == NUMBER
-
-    def test_sound_volume_boolean_detected_as_switch(self):
-        """soundVolume as boolean (alternate model) -> SWITCH via api logic."""
+    def test_sound_volume_is_switch(self):
+        """soundVolume (readwrite, boolean) -> SWITCH."""
         entity = self._entity({"soundVolume": {"access": "readwrite", "type": "boolean"}})
         assert entity.get_entity_type("soundVolume") == SWITCH
 
-    def test_sound_volume_catalog_respects_api_type(self):
-        """Catalog soundVolume entry does not override the API type (#199)."""
+    def test_sound_volume_catalog_entry_is_switch(self):
+        """Catalog soundVolume entry uses SWITCH device_class (#199)."""
+        from homeassistant.components.switch import SwitchDeviceClass
+
         entry = CATALOG_AC["soundVolume"]
-        # No device_class forcing a different type — API type wins
-        assert entry.device_class is None
+        assert entry.device_class == SwitchDeviceClass.SWITCH
         assert entry.entity_category == EntityCategory.CONFIG
-        # Declares type: number to match the API; min/max/step come from API at runtime
-        assert entry.capability_info.get("type") == "number"
 
     def test_pm25_is_sensor(self):
         entity = self._entity({"pm25": {"access": "read", "type": "int"}})
