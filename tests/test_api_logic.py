@@ -687,3 +687,83 @@ class TestApiPreciseCoverage:
         entity = self._entity({"executeCommand": {"type": "string", "access": "read"}})
         result = entity.get_entity_type("executeCommand")
         assert result == BUTTON
+
+    # Issue #200: write-only multi-command set containing ON/OFF is NOT a switch
+    def test_get_entity_type_write_multi_command_returns_button(self):
+        """6-value write set {ON, OFF, PAUSE, RESUME, START, STOPRESET} → BUTTON (issue #200)."""
+        from custom_components.electrolux.const import BUTTON
+
+        entity = self._entity(
+            {
+                "executeCommand": {
+                    "type": "string",
+                    "access": "write",
+                    "values": {
+                        "OFF": {},
+                        "ON": {},
+                        "PAUSE": {},
+                        "RESUME": {},
+                        "START": {},
+                        "STOPRESET": {},
+                    },
+                }
+            }
+        )
+        result = entity.get_entity_type("executeCommand")
+        assert result == BUTTON
+
+    def test_get_entity_type_write_five_command_set_returns_button(self):
+        """5-value write set {OFF, ON, RESUME, START, STOPRESET} → BUTTON (issue #200)."""
+        from custom_components.electrolux.const import BUTTON
+
+        entity = self._entity(
+            {
+                "executeCommand": {
+                    "type": "string",
+                    "access": "write",
+                    "values": {"OFF": {}, "ON": {}, "RESUME": {}, "START": {}, "STOPRESET": {}},
+                }
+            }
+        )
+        result = entity.get_entity_type("executeCommand")
+        assert result == BUTTON
+
+    # Issue #200: genuine write-only exact ON/OFF pair stays a SWITCH
+    def test_get_entity_type_write_exact_on_off_returns_switch(self):
+        """Exact write-only {ON, OFF} set (e.g. ice maker) → SWITCH (issue #200)."""
+        from custom_components.electrolux.const import SWITCH
+
+        entity = self._entity(
+            {"iceMaker/executeCommand": {"type": "string", "access": "write", "values": {"OFF": {}, "ON": {}}}}
+        )
+        result = entity.get_entity_type("iceMaker/executeCommand")
+        assert result == SWITCH
+
+    def test_get_entity_type_write_lowercase_on_off_returns_switch(self):
+        """Write-only {on, off} (lowercase, DAM AC) → SWITCH (issue #200)."""
+        from custom_components.electrolux.const import SWITCH
+
+        entity = self._entity(
+            {"airConditioner/executeCommand": {"type": "string", "access": "write", "values": {"off": {}, "on": {}}}}
+        )
+        result = entity.get_entity_type("airConditioner/executeCommand")
+        assert result == SWITCH
+
+    def test_get_entity_type_write_command_set_without_on_returns_button(self):
+        """Write-only {OFF, START} (no ON) → BUTTON, unaffected by the fix (issue #200)."""
+        from custom_components.electrolux.const import BUTTON
+
+        entity = self._entity(
+            {"executeCommand": {"type": "string", "access": "write", "values": {"OFF": {}, "START": {}}}}
+        )
+        result = entity.get_entity_type("executeCommand")
+        assert result == BUTTON
+
+    # Issue #200: catalog entry forces BUTTON for DW executeCommand
+    def test_dw_catalog_execute_command_entity_platform_is_button(self):
+        """catalog_dw.py executeCommand entry has entity_platform=Platform.BUTTON (issue #200)."""
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert CATALOG_DW["executeCommand"].entity_platform == Platform.BUTTON

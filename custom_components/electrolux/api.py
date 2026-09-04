@@ -247,9 +247,14 @@ class ElectroluxLibraryEntity:
         if values and isinstance(values, dict) and len(values) > 0:
             upper_values = {str(k).upper() for k in values}
 
-            # Write-only ON/OFF pair (e.g. ice maker control) → single optimistic SWITCH
-            # instead of two separate BUTTON entities.
-            if upper_values >= {"ON", "OFF"} and access == "write":
+            # Write-only exact ON/OFF pair (e.g. ice maker control) → single optimistic
+            # SWITCH instead of two separate BUTTON entities. The value set must match
+            # exactly: multi-command sets that merely include ON/OFF among other
+            # commands (e.g. {ON, OFF, PAUSE, RESUME, START, STOPRESET}) are command
+            # buttons, not a toggle — sending "ON" there yields 406
+            # COMMAND_VALIDATION_ERROR in states where the appliance only accepts
+            # START/STOPRESET etc. (https://github.com/TTLucian/ha-electrolux/issues/200)
+            if upper_values == {"ON", "OFF"} and access == "write":
                 return SWITCH
 
             if access == "readwrite":
