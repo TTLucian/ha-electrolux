@@ -1,5 +1,6 @@
 """Tests for models.py — Appliance, Appliances, deep_merge_dicts."""
 
+from typing import Any, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -264,7 +265,7 @@ class TestRetainAdvertisedTemperatures:
         app.data = ElectroluxLibraryEntity(
             name="Test Fridge",
             status="connected",
-            state=app.state,
+            state=cast(dict[str, Any], app.state),
             appliance_info={},
             capabilities=CR_FREEZER_CAPABILITIES,
         )
@@ -889,9 +890,7 @@ class TestCatalogOnlyStringSelect:
             }
         )
         app.setup(app.data)
-        select_attrs = [
-            getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities
-        ]
+        select_attrs = [getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities]
         assert "waterHardness" in select_attrs
         assert "waterSoftenerMode" in select_attrs
         assert any(isinstance(e, ElectroluxSelect) for e in app.entities)
