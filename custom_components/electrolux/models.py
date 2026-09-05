@@ -82,6 +82,46 @@ class ApplianceData:
         return self._data.get("category", {}).get(key)
 
 
+def _get_nested_value(state: dict[str, Any], path: str) -> Any:
+    """Return the value at a slash-separated path, or None if any part is missing."""
+    node: Any = state
+    for part in path.split("/"):
+        if not isinstance(node, dict):
+            return None
+        node = node.get(part)
+        if node is None:
+            return None
+    return node
+
+
+def _set_nested_value(state: dict[str, Any], path: str, value: Any) -> None:
+    """Set the value at a slash-separated path, creating intermediate dicts."""
+    parts = path.split("/")
+    for part in parts[:-1]:
+        if not isinstance(state.get(part), dict):
+            state[part] = {}
+        state = state[part]
+    state[parts[-1]] = value
+
+
+def _iter_capability_paths(capabilities: dict[str, Any]) -> list[str]:
+    """Enumerate every capability path, slash-separated for nested capability groups.
+
+    Mirrors the enumeration in ``ElectroluxLibraryEntity.sources_list()``: a top-level
+    entry that itself carries ``access``/``type`` is a flat capability; a group dict
+    contributes one path per child that carries ``access``/``type``.
+    """
+    paths: list[str] = []
+    for key, value in capabilities.items():
+        if isinstance(value, dict) and "access" in value and "type" in value:
+            paths.append(key)
+        elif isinstance(value, dict):
+            for sub_key, sub_value in value.items():
+                if isinstance(sub_value, dict) and "access" in sub_value and "type" in sub_value:
+                    paths.append(f"{key}/{sub_key}")
+    return paths
+
+
 class Appliance:
     """Define the Appliance Class.
 
@@ -143,10 +183,55 @@ class Appliance:
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""
-        self.state = cast(ApplianceState, appliance_status)
+        new_state = cast(ApplianceState, appliance_status)
+        # Retain last-known advertised temperature readings before the full-state
+        # replace: the Electrolux cloud omits live compartment temperatures
+        # (e.g. freezer/sensorTemperatureC) from state responses and only pushes
+        # them as discrete SSE events (#205). Without this, every poll would evict
+        # the last pushed reading until the next event.
+        if isinstance(new_state, dict):
+            self._retain_advertised_temperature_values(new_state)
+        self.state = new_state
         self.initialize_constant_values()
         for entity in self.entities:
             entity.update(self.state)
+
+    def _retain_advertised_temperature_values(self, new_state: ApplianceState | dict[str, Any]) -> None:
+        """Carry last-known readings over a full state poll for advertised temperature sensors.
+
+        A capability qualifies when the appliance itself advertises it (``access: read``,
+        ``type: temperature``) and the incoming poll omits it or holds ``None`` while a
+        previous non-``None`` value exists. Advertise-driven so it covers every cavity
+        (fridge/freezer/extraCavity/iceMaker, C and F variants) without hardcoding
+        names, and never retains values for capabilities the appliance can legitimately
+        clear (programs, timers, states).
+        """
+        if self.data is None:
+            return
+        capabilities = getattr(self.data, "capabilities", None)
+        if not isinstance(capabilities, dict) or not capabilities:
+            return
+
+        new_reported = new_state.get("properties", {}).get("reported")
+        if not isinstance(new_reported, dict):
+            return
+
+        for path in _iter_capability_paths(capabilities):
+            capability = self.data.get_capability(path)
+            if not isinstance(capability, dict):
+                continue
+            if capability.get("access") != "read" or capability.get("type") != "temperature":
+                continue
+
+            if _get_nested_value(new_reported, path) is not None:
+                continue  # fresh value in this poll — nothing to retain
+
+            old_value = self.get_state(path)
+            if old_value is None:
+                continue  # nothing retained yet — first push hasn't happened
+
+            _set_nested_value(new_reported, path, old_value)
+            _LOGGER.debug("Retained last-known temperature reading for %s across state poll", path)
 
     def initialize_constant_values(self) -> None:
         """Initialize constant values from catalog in reported_state."""
