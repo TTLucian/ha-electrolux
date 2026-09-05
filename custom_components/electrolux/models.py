@@ -82,6 +82,58 @@ class ApplianceData:
         return self._data.get("category", {}).get(key)
 
 
+def _has_nested_key(state: dict[str, Any], path: str) -> bool:
+    """Return True if the slash-separated path exists in ``state``, even when its value is None.
+
+    This is what retention keys on: a temperature sensor should be carried over a
+    full poll only when the poll *omits* it entirely. Explicitly-nulled keys must
+    count as "present" so the incoming value is honored — e.g. the oven's
+    ``displayFoodProbeTemperatureC`` is sent as ``null`` when the probe is
+    disconnected (v3.4.0 blanks it), and must not be resurrected from a stale
+    reading. The Electrolux cloud omits compartment temperatures (CR) rather than
+    nulling them (#205).
+    """
+    node: Any = state
+    parts = path.split("/")
+    for index, part in enumerate(parts):
+        if not isinstance(node, dict):
+            return False
+        if index == len(parts) - 1:
+            return part in node
+        node = node.get(part)
+        if node is None:
+            return False
+    return False
+
+
+def _set_nested_value(state: dict[str, Any], path: str, value: Any) -> None:
+    """Set the value at a slash-separated path, creating intermediate dicts."""
+    parts = path.split("/")
+    for part in parts[:-1]:
+        if not isinstance(state.get(part), dict):
+            state[part] = {}
+        state = state[part]
+    state[parts[-1]] = value
+
+
+def _iter_capability_paths(capabilities: dict[str, Any]) -> list[str]:
+    """Enumerate every capability path, slash-separated for nested capability groups.
+
+    Mirrors the enumeration in ``ElectroluxLibraryEntity.sources_list()``: a top-level
+    entry that itself carries ``access``/``type`` is a flat capability; a group dict
+    contributes one path per child that carries ``access``/``type``.
+    """
+    paths: list[str] = []
+    for key, value in capabilities.items():
+        if isinstance(value, dict) and "access" in value and "type" in value:
+            paths.append(key)
+        elif isinstance(value, dict):
+            for sub_key, sub_value in value.items():
+                if isinstance(sub_value, dict) and "access" in sub_value and "type" in sub_value:
+                    paths.append(f"{key}/{sub_key}")
+    return paths
+
+
 class Appliance:
     """Define the Appliance Class.
 
@@ -143,10 +195,56 @@ class Appliance:
 
     def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
         """Update appliance status."""
-        self.state = cast(ApplianceState, appliance_status)
+        new_state = cast(ApplianceState, appliance_status)
+        # Retain last-known advertised temperature readings before the full-state
+        # replace: the Electrolux cloud omits live compartment temperatures
+        # (e.g. freezer/sensorTemperatureC) from state responses and only pushes
+        # them as discrete SSE events (#205). Without this, every poll would evict
+        # the last pushed reading until the next event.
+        if isinstance(new_state, dict):
+            self._retain_advertised_temperature_values(new_state)
+        self.state = new_state
         self.initialize_constant_values()
         for entity in self.entities:
             entity.update(self.state)
+
+    def _retain_advertised_temperature_values(self, new_state: ApplianceState | dict[str, Any]) -> None:
+        """Carry last-known readings over a full state poll for advertised temperature sensors.
+
+        A capability qualifies when the appliance itself advertises it (``access: read``,
+        ``type: temperature``) AND the incoming poll *omits* the key entirely (not merely
+        carries ``None``) while a previous non-``None`` value exists. Advertise-driven so it
+        covers every cavity (fridge/freezer/extraCavity/iceMaker, C and F variants) without
+        hardcoding names. Key-presence, rather than value, is deliberate: explicit ``null``
+        keys (e.g. the oven's ``displayFoodProbeTemperatureC`` when the probe is unplugged)
+        must be honored, and only genuinely-omitted sensors retained (#205).
+        """
+        if self.data is None:
+            return
+        capabilities = getattr(self.data, "capabilities", None)
+        if not isinstance(capabilities, dict) or not capabilities:
+            return
+
+        new_reported = new_state.get("properties", {}).get("reported")
+        if not isinstance(new_reported, dict):
+            return
+
+        for path in _iter_capability_paths(capabilities):
+            capability = self.data.get_capability(path)
+            if not isinstance(capability, dict):
+                continue
+            if capability.get("access") != "read" or capability.get("type") != "temperature":
+                continue
+
+            if _has_nested_key(new_reported, path):
+                continue  # poll carries this key (even as null) — honor it
+
+            old_value = self.get_state(path)
+            if old_value is None:
+                continue  # nothing retained yet — first push hasn't happened
+
+            _set_nested_value(new_reported, path, old_value)
+            _LOGGER.debug("Retained last-known temperature reading for %s across state poll", path)
 
     def initialize_constant_values(self) -> None:
         """Initialize constant values from catalog in reported_state."""

@@ -1,9 +1,11 @@
 """Tests for models.py — Appliance, Appliances, deep_merge_dicts."""
 
+from typing import Any, cast
 from unittest.mock import MagicMock
 
 import pytest
 
+from custom_components.electrolux.api import ElectroluxLibraryEntity
 from custom_components.electrolux.models import (
     Appliance,
     ApplianceData,
@@ -229,6 +231,120 @@ class TestApplianceUpdate:
         assert app.state == new_state
         app.initialize_constant_values.assert_called_once()
         mock_entity.update.assert_called_once_with(new_state)
+
+
+# ---------------------------------------------------------------------------
+# Advertised-temperature retention across full state polls (#205)
+# ---------------------------------------------------------------------------
+
+CR_FREEZER_CAPABILITIES = {
+    "freezer": {
+        "sensorTemperatureC": {"access": "read", "type": "temperature"},
+        "targetTemperatureC": {
+            "access": "readwrite",
+            "type": "temperature",
+            "min": -23,
+            "max": -13,
+            "step": 1,
+        },
+        "doorState": {"access": "read", "type": "string", "values": {"OPEN": {}, "CLOSED": {}}},
+    },
+}
+
+
+class TestRetainAdvertisedTemperatures:
+    """Full state polls must not evict last-known advertised temperature readings (#205).
+
+    The cloud omits live compartment temperatures from state responses and only
+    pushes them as discrete SSE events. A full poll replaces the reported state,
+    which would wipe the last pushed value until the next event.
+    """
+
+    def _make_cr(self, reported: dict) -> Appliance:
+        app = _make_appliance(state={"properties": {"reported": reported}})
+        app.data = ElectroluxLibraryEntity(
+            name="Test Fridge",
+            status="connected",
+            state=cast(dict[str, Any], app.state),
+            appliance_info={},
+            capabilities=CR_FREEZER_CAPABILITIES,
+        )
+        return app
+
+    def test_poll_retains_last_pushed_temperature(self):
+        """SSE push set -6; a poll that omits the key must keep it (#205)."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6, "targetTemperatureC": -18.0}})
+        poll = {"properties": {"reported": {"freezer": {"targetTemperatureC": -18.0, "doorState": "CLOSED"}}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") == -6
+        # Everything else comes fresh from the poll
+        assert app.get_state("freezer/doorState") == "CLOSED"
+
+    def test_poll_with_fresh_value_wins_over_retained(self):
+        """A poll that DOES carry the temperature updates it — retention never blocks fresh data."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        poll = {"properties": {"reported": {"freezer": {"sensorTemperatureC": -7.5}}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") == -7.5
+
+    def test_poll_with_explicit_none_is_honored(self):
+        """An explicit null in the poll is 'present' — it blanks the reading, never retained.
+
+        Mirrors the oven's ``displayFoodProbeTemperatureC`` (sent as null once the probe
+        is unplugged, v3.4.0): a present-but-null key must clear the stale value rather
+        than be resurrected by retention.
+        """
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        poll = {"properties": {"reported": {"freezer": {"sensorTemperatureC": None}}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") is None
+
+    def test_omitted_key_is_retained_but_present_null_is_not(self):
+        """Retention distinguishes absent keys from present-null keys."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        # Omitted key → retained
+        app.update({"properties": {"reported": {"freezer": {"doorState": "CLOSED"}}}})
+        assert app.get_state("freezer/sensorTemperatureC") == -6
+        # Present null → honored, not retained
+        app.update({"properties": {"reported": {"freezer": {"sensorTemperatureC": None}}}})
+        assert app.get_state("freezer/sensorTemperatureC") is None
+
+    def test_retention_creates_missing_group(self):
+        """If the poll omits the whole freezer group, the retained value recreates it."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        poll = {"properties": {"reported": {"sensorHumidity": 55}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") == -6
+
+    def test_no_retention_for_non_temperature_capabilities(self):
+        """Only advertised read-temperature capabilities are retained."""
+        app = self._make_cr({"freezer": {"doorState": "OPEN", "sensorTemperatureC": -6}})
+        poll = {"properties": {"reported": {"freezer": {"sensorTemperatureC": -6}}}}
+        app.update(poll)
+        # doorState is a string capability — the poll's omission must clear it
+        assert app.get_state("freezer/doorState") is None
+
+    def test_first_poll_without_push_leaves_unknown(self):
+        """No previous value → nothing to retain; entity stays unknown until first push."""
+        app = self._make_cr({"freezer": {"targetTemperatureC": -18.0}})
+        poll = {"properties": {"reported": {"freezer": {"targetTemperatureC": -18.0}}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") is None
+
+    def test_update_before_setup_does_not_crash(self):
+        """update() may run before setup() (data is None) — retention is skipped."""
+        app = _make_appliance(state={"properties": {"reported": {}}})
+        poll = {"properties": {"reported": {"freezer": {"targetTemperatureC": -18.0}}}}
+        app.update(poll)
+        assert app.get_state("freezer/targetTemperatureC") == -18.0
+
+    def test_empty_capabilities_skip_retention(self):
+        """No advertised capabilities → retention is a no-op."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        app.data.capabilities = {}
+        poll = {"properties": {"reported": {"freezer": {}}}}
+        app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") is None
 
 
 class TestApplianceUpdateReportedData:
@@ -789,9 +905,7 @@ class TestCatalogOnlyStringSelect:
             }
         )
         app.setup(app.data)
-        select_attrs = [
-            getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities
-        ]
+        select_attrs = [getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities]
         assert "waterHardness" in select_attrs
         assert "waterSoftenerMode" in select_attrs
         assert any(isinstance(e, ElectroluxSelect) for e in app.entities)
