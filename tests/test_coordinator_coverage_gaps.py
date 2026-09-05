@@ -156,6 +156,7 @@ class TestListenWebsocketGaps:
         mock_api.watch_for_appliance_state_updates.assert_awaited_once()
         kwargs = mock_api.watch_for_appliance_state_updates.await_args.kwargs
         assert kwargs["on_connected"] == coordinator._on_sse_connected
+        assert kwargs["on_disconnected"] == coordinator._on_sse_disconnected
 
     async def test_listen_websocket_starts_watchdog_monitor_task(self, coordinator, mock_api):
         """listen_websocket should start SSE watchdog monitor after successful setup."""

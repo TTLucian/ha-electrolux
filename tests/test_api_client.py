@@ -948,6 +948,39 @@ class TestWatchForApplianceStateUpdates:
         client.disconnect_websocket.assert_called_once()
 
     @pytest.mark.asyncio
+    async def test_watch_for_appliance_state_updates_passes_lifecycle_callbacks(self):
+        hass = MagicMock()
+        _task = MagicMock()
+        _task.add_done_callback = MagicMock()
+
+        def _create_task_side_effect(coro):
+            if asyncio.iscoroutine(coro):
+                coro.close()
+            return _task
+
+        hass.async_create_task = MagicMock(side_effect=_create_task_side_effect)
+
+        client = _make_client(hass=hass)
+        client._client = MagicMock()
+        client._client.start_event_stream = MagicMock(return_value=MagicMock())
+
+        callback = MagicMock()
+        on_connected = MagicMock()
+        on_disconnected = MagicMock()
+
+        await client.watch_for_appliance_state_updates(
+            ["app1"],
+            callback,
+            on_connected=on_connected,
+            on_disconnected=on_disconnected,
+        )
+
+        client._client.start_event_stream.assert_called_once_with(
+            do_on_livestream_opening_list=[on_connected],
+            do_on_livestream_closing_list=[on_disconnected],
+        )
+
+    @pytest.mark.asyncio
     async def test_sse_failure_callback_cancelled(self):
         """SSE done callback logs when task is cancelled."""
         hass = MagicMock()

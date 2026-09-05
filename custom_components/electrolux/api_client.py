@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from electrolux_group_developer_sdk.client.appliance_client import (
@@ -208,7 +209,7 @@ class ElectroluxApiClient:
         self._client = ApplianceClient(self._token_manager)
         self._token_handler = None  # Track handler
         self._token_logger = None  # Track logger
-        self._sse_task = None  # Track SSE background task
+        self._sse_task: asyncio.Task[Any] | None = None  # Track SSE background task
         # Serialize SSE start/disconnect so concurrent listen_websocket calls cannot
         # leave two live SSE streams: the first (and only) stream wins; a later caller
         # waits and then replaces it. Prevents duplicate events / double full-state
@@ -440,7 +441,13 @@ class ElectroluxApiClient:
 
         return result.capabilities
 
-    async def watch_for_appliance_state_updates(self, appliance_ids, callback, on_connected=None):
+    async def watch_for_appliance_state_updates(
+        self,
+        appliance_ids: list[str],
+        callback: Callable[[dict[str, Any]], None],
+        on_connected: Callable[[], Awaitable[None]] | None = None,
+        on_disconnected: Callable[[BaseException | None], Any] | None = None,
+    ) -> None:
         """Safely start SSE event stream.
 
         Args:
@@ -449,6 +456,9 @@ class ElectroluxApiClient:
             on_connected: Optional async callable fired each time the SSE stream
                 successfully opens a connection.  Used by the coordinator's stale-
                 session health monitor to track liveness.
+            on_disconnected: Optional callable fired each time the SSE stream
+                disconnects or closes. Used by the coordinator to record drops
+                and start grace period debouncing.
         """
         # Serialize start so a second concurrent caller does not spawn a parallel
         # stream. The first caller that acquires the lock is the one that "owns" the
@@ -467,47 +477,57 @@ class ElectroluxApiClient:
                     self._client.add_listener(appliance_id, callback)
                     _LOGGER.debug("Added SSE listener for appliance %s", appliance_id)
 
-                # Build the optional on-connect callback list for the SDK.
+                # Build the optional on-connect and on-disconnect callback lists for the SDK.
                 on_connect_list = [on_connected] if on_connected is not None else None
+                on_disconnect_list = [on_disconnected] if on_disconnected is not None else None
 
                 # Start the event stream as a background task (it runs indefinitely)
                 if self.hass:
                     self._sse_task = self.hass.async_create_task(
-                        self._client.start_event_stream(do_on_livestream_opening_list=on_connect_list)
+                        self._client.start_event_stream(
+                            do_on_livestream_opening_list=on_connect_list,
+                            do_on_livestream_closing_list=on_disconnect_list,
+                        )
                     )
                 else:
                     self._sse_task = asyncio.create_task(
-                        self._client.start_event_stream(do_on_livestream_opening_list=on_connect_list)
+                        self._client.start_event_stream(
+                            do_on_livestream_opening_list=on_connect_list,
+                            do_on_livestream_closing_list=on_disconnect_list,
+                        )
                     )
 
                 # Add callback to handle task failures
-                def _handle_sse_failure(task):
+                def _handle_sse_failure(task: asyncio.Task[Any]) -> None:
                     if self.coordinator:
                         reason = None
                         if task.cancelled():
                             reason = "Stream cancelled"
-                        elif task.exception() is not None:
-                            reason = str(task.exception())
-                        else:
-                            reason = "Stream closed by server"
-                        self.coordinator.record_sse_disconnect(reason=reason, is_cancellation=task.cancelled())
+                            self.coordinator.record_sse_disconnect(reason=reason, is_cancellation=True)
+                        elif getattr(self.coordinator, "sse_connection_state", None) != "disconnected":
+                            task_exc = task.exception()
+                            if task_exc is not None:
+                                reason = str(task_exc)
+                            else:
+                                reason = "Stream closed by server"
+                            self.coordinator.record_sse_disconnect(reason=reason, is_cancellation=False)
 
                     if task.cancelled():
                         _LOGGER.debug(
                             "SSE event stream was cancelled for appliances %s",
                             ", ".join(appliance_ids),
                         )
-                    elif task.exception() is not None:
+                    elif (exc := task.exception()) is not None:
                         _LOGGER.error(
                             "SSE event stream failed for appliances %s: %s",
                             ", ".join(appliance_ids),
-                            task.exception(),
+                            exc,
                         )
                         # Check if it's an auth error and trigger reauth
                         if self.hass and self.config_entry:
-                            if is_auth_error(task.exception()):
-                                _LOGGER.debug(f"SSE auth error detected: {task.exception()}")
-                                asyncio.create_task(self._trigger_reauth(f"SSE auth error: {task.exception()}"))
+                            if is_auth_error(exc):
+                                _LOGGER.debug(f"SSE auth error detected: {exc}")
+                                asyncio.create_task(self._trigger_reauth(f"SSE auth error: {exc}"))
                         # Note: We don't mark appliances as offline here because SSE failure
                         # doesn't necessarily mean appliances are disconnected. Individual
                         # appliance connectivity is tracked through data updates and timeouts.
@@ -516,9 +536,9 @@ class ElectroluxApiClient:
                             "Appliance connectivity will be determined by individual data updates.",
                             ", ".join(appliance_ids),
                         )
-                        if not is_auth_error(task.exception()):
+                        if not is_auth_error(exc):
                             if self.coordinator and hasattr(self.coordinator, "handle_sse_stream_failure"):
-                                self.coordinator.handle_sse_stream_failure(task.exception())
+                                self.coordinator.handle_sse_stream_failure(exc)
                     else:
                         _LOGGER.debug(
                             "SSE event stream ended unexpectedly for appliances %s (no exception)",
@@ -527,7 +547,8 @@ class ElectroluxApiClient:
                         if self.coordinator and hasattr(self.coordinator, "handle_sse_stream_failure"):
                             self.coordinator.handle_sse_stream_failure(None)
 
-                self._sse_task.add_done_callback(_handle_sse_failure)
+                if self._sse_task is not None:
+                    self._sse_task.add_done_callback(_handle_sse_failure)
 
                 _LOGGER.debug("Started SSE event stream for %d appliances", len(appliance_ids))
 

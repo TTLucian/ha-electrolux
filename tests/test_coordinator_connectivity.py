@@ -16,9 +16,7 @@ def mock_hass():
     hass.loop = MagicMock()
     hass.loop.time.return_value = 1000000000
     hass.async_create_task = MagicMock(
-        side_effect=lambda coro, **kwargs: (
-            coro.close() if asyncio.iscoroutine(coro) else None
-        )
+        side_effect=lambda coro, **kwargs: coro.close() if asyncio.iscoroutine(coro) else None
     )
     return hass
 
@@ -37,9 +35,7 @@ def mock_api_client():
     """Mock API client."""
     client = MagicMock()
     client.get_appliances_list = AsyncMock()
-    client.get_appliance_state = AsyncMock(
-        return_value={"connectivityState": "connected"}
-    )
+    client.get_appliance_state = AsyncMock(return_value={"connectivityState": "connected"})
     client.watch_for_appliance_state_updates = AsyncMock()
     client.disconnect_websocket = AsyncMock()
     client._auth_failed = False
@@ -67,6 +63,10 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
         coord._last_update_times = {}
         coord._last_sse_restart_time = 0
         coord._consecutive_sse_restarts = 0
+        coord._consecutive_sse_drops = 0
+        coord._last_sse_disconnect_reason = None
+        coord._sse_connected = True
+        coord._sse_connection_state = "streaming"
         coord.renew_task = None
         coord.listen_task = None
         coord._deferred_tasks = set()
@@ -82,6 +82,9 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
         coord._last_token_update = 0.0
         coord._appliances_cache = None
         coord._can_restart_sse = MagicMock(return_value=True)
+        coord._unsub_refresh = None
+        coord._listeners = {}
+        coord._last_remote_control = {}
         return coord
 
 
@@ -89,9 +92,7 @@ class TestCoordinatorConnectivity:
     """Test coordinator connectivity and error handling."""
 
     @pytest.mark.asyncio
-    async def test_appliance_offline_marks_unavailable_without_reauth(
-        self, coordinator, mock_api_client
-    ):
+    async def test_appliance_offline_marks_unavailable_without_reauth(self, coordinator, mock_api_client):
         """Test that appliance offline errors mark entities unavailable without triggering reauth."""
         # Setup mock appliance data
         from custom_components.electrolux.models import Appliance
@@ -109,9 +110,7 @@ class TestCoordinatorConnectivity:
         coordinator.data = {"appliances": appliances}
 
         # Mock network error during appliance state fetch
-        mock_api_client.get_appliance_state.side_effect = NetworkError(
-            "Network connection failed"
-        )
+        mock_api_client.get_appliance_state.side_effect = NetworkError("Network connection failed")
 
         # Call update data - expect UpdateFailed when all appliances fail
         from homeassistant.helpers.update_coordinator import UpdateFailed
@@ -129,9 +128,7 @@ class TestCoordinatorConnectivity:
         # (In real HA, this would mark the entity as unavailable)
 
     @pytest.mark.asyncio
-    async def test_sse_stream_recovery_attempts_reconnection(
-        self, coordinator, mock_api_client, mock_hass
-    ):
+    async def test_sse_stream_recovery_attempts_reconnection(self, coordinator, mock_api_client, mock_hass):
         """Test that SSE stream disconnection triggers reconnection attempts."""
         # Setup mock appliance data
         from custom_components.electrolux.models import Appliance
@@ -166,9 +163,7 @@ class TestCoordinatorConnectivity:
             # Simulate task failure
             coordinator.api._sse_task = MagicMock()
             coordinator.api._sse_task.cancelled.return_value = False
-            coordinator.api._sse_task.exception.return_value = Exception(
-                "Connection lost"
-            )
+            coordinator.api._sse_task.exception.return_value = Exception("Connection lost")
 
             # Trigger the failure callback (this would happen automatically in real scenario)
             # For testing, we manually call the callback logic
@@ -178,9 +173,7 @@ class TestCoordinatorConnectivity:
         # that SSE can be started successfully.
 
     @pytest.mark.asyncio
-    async def test_successful_appliance_poll_updates_state(
-        self, coordinator, mock_api_client
-    ):
+    async def test_successful_appliance_poll_updates_state(self, coordinator, mock_api_client):
         """Test that successful appliance polling updates the appliance state."""
         # Setup mock appliance data
         from custom_components.electrolux.models import Appliance
@@ -198,12 +191,8 @@ class TestCoordinatorConnectivity:
         coordinator.data = {"appliances": appliances}
 
         # Debug: check before update
-        print(
-            f"Before update - Appliances object id: {id(coordinator.data['appliances'])}"
-        )
-        print(
-            f"Before update - Appliances dict: {coordinator.data['appliances'].get_appliances()}"
-        )
+        print(f"Before update - Appliances object id: {id(coordinator.data['appliances'])}")
+        print(f"Before update - Appliances dict: {coordinator.data['appliances'].get_appliances()}")
 
         # Mock successful appliance state response
         mock_state = {
@@ -212,9 +201,7 @@ class TestCoordinatorConnectivity:
             "power": "on",
         }
         mock_api_client.get_appliance_state.return_value = mock_state
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]  # Mock the list
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]  # Mock the list
 
         # Call update data
         result = await coordinator._async_update_data()
@@ -225,9 +212,7 @@ class TestCoordinatorConnectivity:
         print(f"Appliances in result: {result['appliances'].get_appliances()}")
         print(f"Appliance ID: {appliance_id}")
         print(f"Coordinator data appliances id: {id(coordinator.data['appliances'])}")
-        print(
-            f"Coordinator data appliances dict: {coordinator.data['appliances'].get_appliances()}"
-        )
+        print(f"Coordinator data appliances dict: {coordinator.data['appliances'].get_appliances()}")
 
         # Verify the appliance state was updated
         updated_appliance = result["appliances"].get_appliances()[appliance_id]
@@ -289,14 +274,10 @@ class TestSSERecovery:
             pass
 
         # Verify that disconnect_websocket was called at least once
-        assert (
-            mock_api_client.disconnect_websocket.called
-        ), "disconnect_websocket should have been called"
+        assert mock_api_client.disconnect_websocket.called, "disconnect_websocket should have been called"
 
         # Verify that listen_websocket was called at least once
-        assert (
-            coordinator.listen_websocket.called
-        ), "listen_websocket should have been called"
+        assert coordinator.listen_websocket.called, "listen_websocket should have been called"
 
 
 # Mock appliance states for different device types
@@ -355,9 +336,7 @@ class TestMultiApplianceMatrix:
         coordinator.data = {"appliances": appliances}
 
         mock_api_client.get_appliance_state.return_value = MOCK_OVEN_STATE
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         result = await coordinator._async_update_data()
 
@@ -384,9 +363,7 @@ class TestMultiApplianceMatrix:
         coordinator.data = {"appliances": appliances}
 
         mock_api_client.get_appliance_state.return_value = MOCK_WASHER_STATE
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         result = await coordinator._async_update_data()
 
@@ -413,9 +390,7 @@ class TestMultiApplianceMatrix:
         coordinator.data = {"appliances": appliances}
 
         mock_api_client.get_appliance_state.return_value = MOCK_AC_STATE
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         result = await coordinator._async_update_data()
 
@@ -425,9 +400,7 @@ class TestMultiApplianceMatrix:
         assert updated_appliance.state["targetTemperatureC"] == 22
 
     @pytest.mark.asyncio
-    async def test_malformed_data_temperature_as_string(
-        self, coordinator, mock_api_client
-    ):
+    async def test_malformed_data_temperature_as_string(self, coordinator, mock_api_client):
         """Test handling of malformed data where temperature is sent as string instead of number."""
         from custom_components.electrolux.models import Appliance
 
@@ -453,9 +426,7 @@ class TestMultiApplianceMatrix:
             "powerState": "standby",
         }
         mock_api_client.get_appliance_state.return_value = malformed_state
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         # This should not crash the coordinator
         result = await coordinator._async_update_data()
@@ -468,9 +439,7 @@ class TestMultiApplianceMatrix:
         assert updated_appliance.state["targetTemperatureC"] == "180"
 
     @pytest.mark.asyncio
-    async def test_malformed_data_connectivity_state_invalid(
-        self, coordinator, mock_api_client
-    ):
+    async def test_malformed_data_connectivity_state_invalid(self, coordinator, mock_api_client):
         """Test handling of malformed data where connectivityState has invalid value."""
         from custom_components.electrolux.models import Appliance
 
@@ -493,9 +462,7 @@ class TestMultiApplianceMatrix:
             "temperature": "40",
         }
         mock_api_client.get_appliance_state.return_value = malformed_state
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         # This should not crash the coordinator
         result = await coordinator._async_update_data()
@@ -508,9 +475,7 @@ class TestMultiApplianceMatrix:
         assert updated_appliance.state["connectivityState"] == "invalid_status"
 
     @pytest.mark.asyncio
-    async def test_malformed_data_missing_required_fields(
-        self, coordinator, mock_api_client
-    ):
+    async def test_malformed_data_missing_required_fields(self, coordinator, mock_api_client):
         """Test handling of malformed data with missing required fields."""
         from custom_components.electrolux.models import Appliance
 
@@ -533,9 +498,7 @@ class TestMultiApplianceMatrix:
             # Missing connectivityState
         }
         mock_api_client.get_appliance_state.return_value = malformed_state
-        mock_api_client.get_appliances_list.return_value = [
-            {"applianceId": appliance_id}
-        ]
+        mock_api_client.get_appliances_list.return_value = [{"applianceId": appliance_id}]
 
         # This should not crash the coordinator
         result = await coordinator._async_update_data()
@@ -548,3 +511,205 @@ class TestMultiApplianceMatrix:
         # (The coordinator's update logic handles missing connectivityState gracefully)
         assert updated_appliance.state["mode"] == "cool"
         assert updated_appliance.state["targetTemperatureC"] == 22
+
+    @pytest.mark.asyncio
+    async def test_on_sse_disconnected_records_error(self, coordinator):
+        """_on_sse_disconnected callback records the error reason and initiates grace period."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+
+        coordinator._on_sse_disconnected(Exception("Connection reset by peer"))
+
+        assert coordinator.sse_connection_state == "disconnected"
+        assert coordinator.sse_connected is True
+        assert coordinator.last_sse_disconnect_reason == "Connection reset by peer"
+        assert coordinator.consecutive_sse_drops == 1
+
+    @pytest.mark.asyncio
+    async def test_on_sse_disconnected_default_reason_when_none(self, coordinator):
+        """_on_sse_disconnected uses default reason when error is None."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+
+        coordinator._on_sse_disconnected(None)
+
+        assert coordinator.sse_connection_state == "disconnected"
+        assert coordinator.last_sse_disconnect_reason == "Stream closed by server"
+        assert coordinator.consecutive_sse_drops == 1
+
+    @pytest.mark.asyncio
+    async def test_on_sse_disconnected_ignores_cancelled_error(self, coordinator):
+        """_on_sse_disconnected ignores asyncio.CancelledError to prevent double-counting drops."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+        coordinator._consecutive_sse_drops = 0
+
+        coordinator._on_sse_disconnected(asyncio.CancelledError())
+
+        assert coordinator.sse_connection_state == "streaming"
+        assert coordinator.sse_connected is True
+        assert coordinator.consecutive_sse_drops == 0
+        assert coordinator.last_sse_disconnect_reason is None
+
+    @pytest.mark.asyncio
+    async def test_on_sse_disconnected_empty_exception_message_fallback(self, coordinator):
+        """_on_sse_disconnected uses default reason when Exception has an empty message."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+
+        coordinator._on_sse_disconnected(Exception(""))
+
+        assert coordinator.sse_connection_state == "disconnected"
+        assert coordinator.sse_connected is True
+        assert coordinator.last_sse_disconnect_reason == "Stream closed by server"
+        assert coordinator.consecutive_sse_drops == 1
+
+    @pytest.mark.asyncio
+    async def test_record_sse_disconnect_preserves_debounce_timer_and_drops_on_retries(self, coordinator):
+        """record_sse_disconnect does not reset debounce timer or inflate drops on rapid retries."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+
+        created_tasks = []
+
+        def _fake_create_task(coro, name=None, eager_start=True):
+            task = asyncio.create_task(coro)
+            created_tasks.append(task)
+            return task
+
+        coordinator.hass.async_create_task = _fake_create_task
+
+        # Initial drop at t=0
+        coordinator.record_sse_disconnect(reason="Connection reset", is_cancellation=False)
+        assert coordinator.consecutive_sse_drops == 1
+        assert len(created_tasks) == 1
+        first_debounce_task = created_tasks[0]
+
+        # Retry 1 failure while grace period is active
+        coordinator.record_sse_disconnect(reason="Connection refused", is_cancellation=False)
+        assert coordinator.consecutive_sse_drops == 1
+        assert len(created_tasks) == 1  # Did not spawn a second task
+        assert not first_debounce_task.cancelled()  # Did not cancel existing task
+
+        # Retry 2 failure while grace period is still active
+        coordinator.record_sse_disconnect(reason="Timeout", is_cancellation=False)
+        assert coordinator.consecutive_sse_drops == 1
+        assert len(created_tasks) == 1
+
+        first_debounce_task.cancel()
+        await asyncio.gather(first_debounce_task, return_exceptions=True)
+
+    @pytest.mark.asyncio
+    async def test_record_sse_disconnect_when_already_disconnected_does_not_spawn_debounce(self, coordinator):
+        """record_sse_disconnect does not create a debounce task if already disconnected."""
+        coordinator._sse_connected = False
+        coordinator._sse_connection_state = "disconnected"
+        coordinator._sse_disconnect_debounce_task = None
+
+        created_tasks = []
+
+        def _fake_create_task(coro, name=None, eager_start=True):
+            task = asyncio.create_task(coro)
+            created_tasks.append(task)
+            return task
+
+        coordinator.hass.async_create_task = _fake_create_task
+
+        coordinator.record_sse_disconnect(reason="Connection refused", is_cancellation=False)
+
+        assert coordinator.sse_connected is False
+        assert coordinator.sse_connection_state == "disconnected"
+        assert len(created_tasks) == 0
+        assert coordinator._sse_disconnect_debounce_task is None
+
+    @pytest.mark.asyncio
+    async def test_incoming_data_cancels_active_debounce_task(self, coordinator):
+        """incoming_data cancels active debounce task and resets consecutive drops."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "disconnected"
+        coordinator._appliances_cache = MagicMock()
+        coordinator.data = {"appliances": coordinator._appliances_cache}
+        coordinator.async_set_updated_data = MagicMock()
+        coordinator._process_incremental_update = MagicMock()
+
+        created_tasks = []
+
+        def _fake_create_task(coro, name=None, eager_start=True):
+            task = asyncio.create_task(coro)
+            created_tasks.append(task)
+            return task
+
+        coordinator.hass.async_create_task = _fake_create_task
+
+        # Start a debounce task via record_sse_disconnect
+        coordinator.record_sse_disconnect(reason="Connection dropped", is_cancellation=False)
+        debounce_task = coordinator._sse_disconnect_debounce_task
+        assert debounce_task is not None
+        assert not debounce_task.done()
+
+        # Incoming data arrives before debounce finishes
+        coordinator.incoming_data({"applianceId": "app1", "property": "state", "value": "on"})
+
+        assert coordinator.sse_connected is True
+        assert coordinator.sse_connection_state == "streaming"
+        assert coordinator.consecutive_sse_drops == 0
+        await asyncio.sleep(0)
+        assert debounce_task.cancelled() or debounce_task.done()
+        assert coordinator._sse_disconnect_debounce_task is None
+
+    @pytest.mark.asyncio
+    async def test_debounce_disconnect_aborts_if_state_returned_to_streaming(self, coordinator):
+        """_debounce_disconnect does not disconnect if state transitioned back to streaming."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "disconnected"
+
+        def _fake_create_task(coro, name=None, eager_start=True):
+            return asyncio.create_task(coro)
+
+        coordinator.hass.async_create_task = _fake_create_task
+
+        with patch("custom_components.electrolux.coordinator.SSE_DISCONNECT_GRACE_PERIOD", 0.01):
+            coordinator.record_sse_disconnect(reason="Connection refused", is_cancellation=False)
+            assert coordinator._sse_disconnect_debounce_task is not None
+
+            # State transitions back to streaming right before sleep finishes
+            coordinator._sse_connection_state = "streaming"
+            coordinator._sse_connected = True
+
+            await asyncio.sleep(0.05)
+
+            # Debounce completed, but streaming guard kept connection alive
+            assert coordinator.sse_connected is True
+            assert coordinator.sse_connection_state == "streaming"
+            assert coordinator._sse_disconnect_debounce_task is None
+
+    @pytest.mark.asyncio
+    async def test_record_sse_disconnect_increments_drops_after_grace_period_expired(self, coordinator):
+        """record_sse_disconnect increments drops on retry failures after grace period expired."""
+        coordinator._sse_connected = True
+        coordinator._sse_connection_state = "streaming"
+
+        def _fake_create_task(coro, name=None, eager_start=True):
+            return asyncio.create_task(coro)
+
+        coordinator.hass.async_create_task = _fake_create_task
+
+        with patch("custom_components.electrolux.coordinator.SSE_DISCONNECT_GRACE_PERIOD", 0.01):
+            coordinator.record_sse_disconnect(reason="Drop 1", is_cancellation=False)
+            assert coordinator.consecutive_sse_drops == 1
+
+            # Wait for grace period to expire
+            await asyncio.sleep(0.05)
+            assert coordinator.sse_connected is False
+            assert coordinator._sse_disconnect_debounce_task is None
+
+            # Next retry failure after grace period expiration increments drops
+            coordinator.record_sse_disconnect(reason="Drop 2", is_cancellation=False)
+            assert coordinator.consecutive_sse_drops == 2
+            assert coordinator.sse_connected is False
+
+            # Further retry failure increments drops again
+            coordinator.record_sse_disconnect(reason="Drop 3", is_cancellation=False)
+            assert coordinator.consecutive_sse_drops == 3
+            assert coordinator.sse_connected is False
+
