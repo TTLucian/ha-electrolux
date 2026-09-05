@@ -287,12 +287,27 @@ class TestRetainAdvertisedTemperatures:
         app.update(poll)
         assert app.get_state("freezer/sensorTemperatureC") == -7.5
 
-    def test_poll_with_explicit_none_retains_previous(self):
-        """An explicit null in the poll is treated as absent → previous value retained."""
+    def test_poll_with_explicit_none_is_honored(self):
+        """An explicit null in the poll is 'present' — it blanks the reading, never retained.
+
+        Mirrors the oven's ``displayFoodProbeTemperatureC`` (sent as null once the probe
+        is unplugged, v3.4.0): a present-but-null key must clear the stale value rather
+        than be resurrected by retention.
+        """
         app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
         poll = {"properties": {"reported": {"freezer": {"sensorTemperatureC": None}}}}
         app.update(poll)
+        assert app.get_state("freezer/sensorTemperatureC") is None
+
+    def test_omitted_key_is_retained_but_present_null_is_not(self):
+        """Retention distinguishes absent keys from present-null keys."""
+        app = self._make_cr({"freezer": {"sensorTemperatureC": -6}})
+        # Omitted key → retained
+        app.update({"properties": {"reported": {"freezer": {"doorState": "CLOSED"}}}})
         assert app.get_state("freezer/sensorTemperatureC") == -6
+        # Present null → honored, not retained
+        app.update({"properties": {"reported": {"freezer": {"sensorTemperatureC": None}}}})
+        assert app.get_state("freezer/sensorTemperatureC") is None
 
     def test_retention_creates_missing_group(self):
         """If the poll omits the whole freezer group, the retained value recreates it."""

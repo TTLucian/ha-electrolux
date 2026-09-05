@@ -82,16 +82,28 @@ class ApplianceData:
         return self._data.get("category", {}).get(key)
 
 
-def _get_nested_value(state: dict[str, Any], path: str) -> Any:
-    """Return the value at a slash-separated path, or None if any part is missing."""
+def _has_nested_key(state: dict[str, Any], path: str) -> bool:
+    """Return True if the slash-separated path exists in ``state``, even when its value is None.
+
+    This is what retention keys on: a temperature sensor should be carried over a
+    full poll only when the poll *omits* it entirely. Explicitly-nulled keys must
+    count as "present" so the incoming value is honored — e.g. the oven's
+    ``displayFoodProbeTemperatureC`` is sent as ``null`` when the probe is
+    disconnected (v3.4.0 blanks it), and must not be resurrected from a stale
+    reading. The Electrolux cloud omits compartment temperatures (CR) rather than
+    nulling them (#205).
+    """
     node: Any = state
-    for part in path.split("/"):
+    parts = path.split("/")
+    for index, part in enumerate(parts):
         if not isinstance(node, dict):
-            return None
+            return False
+        if index == len(parts) - 1:
+            return part in node
         node = node.get(part)
         if node is None:
-            return None
-    return node
+            return False
+    return False
 
 
 def _set_nested_value(state: dict[str, Any], path: str, value: Any) -> None:
@@ -200,11 +212,12 @@ class Appliance:
         """Carry last-known readings over a full state poll for advertised temperature sensors.
 
         A capability qualifies when the appliance itself advertises it (``access: read``,
-        ``type: temperature``) and the incoming poll omits it or holds ``None`` while a
-        previous non-``None`` value exists. Advertise-driven so it covers every cavity
-        (fridge/freezer/extraCavity/iceMaker, C and F variants) without hardcoding
-        names, and never retains values for capabilities the appliance can legitimately
-        clear (programs, timers, states).
+        ``type: temperature``) AND the incoming poll *omits* the key entirely (not merely
+        carries ``None``) while a previous non-``None`` value exists. Advertise-driven so it
+        covers every cavity (fridge/freezer/extraCavity/iceMaker, C and F variants) without
+        hardcoding names. Key-presence, rather than value, is deliberate: explicit ``null``
+        keys (e.g. the oven's ``displayFoodProbeTemperatureC`` when the probe is unplugged)
+        must be honored, and only genuinely-omitted sensors retained (#205).
         """
         if self.data is None:
             return
@@ -223,8 +236,8 @@ class Appliance:
             if capability.get("access") != "read" or capability.get("type") != "temperature":
                 continue
 
-            if _get_nested_value(new_reported, path) is not None:
-                continue  # fresh value in this poll — nothing to retain
+            if _has_nested_key(new_reported, path):
+                continue  # poll carries this key (even as null) — honor it
 
             old_value = self.get_state(path)
             if old_value is None:
