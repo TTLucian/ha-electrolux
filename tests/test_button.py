@@ -10,6 +10,7 @@ from custom_components.electrolux.button import ElectroluxButton
 from custom_components.electrolux.const import BUTTON
 from custom_components.electrolux.execute_command_states import (
     DRYER_EXECUTE_STATES,
+    STRUCTURED_OVEN_EXECUTE_STATES,
     WASHER_EXECUTE_STATES,
     execute_phase_states_from_capabilities,
     execute_states_from_capabilities,
@@ -856,7 +857,7 @@ class TestSourceScopedStateGating:
             icon="mdi:test",
             catalog_entry=ElectroluxDevice(
                 capability_info={"access": "write"},
-                available_when_states={"START": ["OFF"], "STOPRESET": ["RUNNING"]},
+                available_when_states=STRUCTURED_OVEN_EXECUTE_STATES,
             ),
             val_to_send=val_to_send,
         )
@@ -917,6 +918,9 @@ class TestSourceScopedStateGating:
         The table is evaluated against the scoped state, never the root machine.
         """
         caps = {"applianceState": SO_ROOT_APPLIANCE_STATE}
+        # Regression for #206: with the structured-oven table now gating START on
+        # READY_TO_START/END_OF_CYCLE (like a plain OV), a cavity at OFF must NOT
+        # expose START, while a cavity at READY_TO_START must.
         entity = self._make_button(
             mock_coordinator,
             "upperOven",
@@ -924,8 +928,24 @@ class TestSourceScopedStateGating:
             caps,
             {"applianceState": "RUNNING", "upperOven/applianceState": "OFF"},
         )
-        # Root RUNNING would have blocked START via the root machine; the
-        # scoped state OFF matches the table's START rule instead.
+        # Root RUNNING would have blocked START via the root machine; the scoped
+        # state OFF no longer matches the table's START rule (issue #206).
+        assert entity.available is False
+
+    def test_scoped_button_fallback_ready_to_start_enables_start(self, mock_coordinator):
+        """Structured oven with no triggers: START is available at READY_TO_START (#206).
+
+        The reported cavity state is READY_TO_START with a program selected — exactly
+        when the official app lets you start. The catalog fallback must now allow it.
+        """
+        caps = {"applianceState": SO_ROOT_APPLIANCE_STATE}
+        entity = self._make_button(
+            mock_coordinator,
+            "upperOven",
+            "START",
+            caps,
+            {"applianceState": "OFF", "upperOven/applianceState": "READY_TO_START"},
+        )
         assert entity.available is True
 
     def test_scoped_derivation_ignores_root_appliance_state_capability(self):
@@ -965,11 +985,12 @@ class TestSourceScopedStateGating:
         assert entity.available is True
 
         # Replace capabilities with a payload publishing no triggers: the rules
-        # must refresh to the catalog table, where START is only valid in OFF.
+        # must refresh to the catalog table (START valid in READY_TO_START and
+        # END_OF_CYCLE).
         appliance = MagicMock()
         appliance.data.capabilities = {
             "applianceState": {
-                "values": {"READY_TO_START": {}, "OFF": {}},
+                "values": {"READY_TO_START": {}, "END_OF_CYCLE": {}},
                 "triggers": [],
             }
         }
@@ -977,14 +998,14 @@ class TestSourceScopedStateGating:
         appliances.get_appliance.return_value = appliance
         mock_coordinator.data = {"appliances": appliances}
 
-        # The appliance moved to OFF: fresh rules (catalog table) allow START
-        # there, while the stale dryer-derived rules (START only in
+        # The appliance moved to END_OF_CYCLE: fresh rules (catalog table) allow
+        # START there, while the stale dryer-derived rules (START only in
         # READY_TO_START) would keep the button disabled.
-        reported = {"applianceState": "OFF", "connectivityState": "connected"}
+        reported = {"applianceState": "END_OF_CYCLE", "connectivityState": "connected"}
         entity.appliance_status = {"properties": {"reported": reported}}
         entity._reported_state_cache = reported
 
-        assert entity._execute_states == {"START": ["OFF"], "STOPRESET": ["RUNNING"]}
+        assert entity._execute_states == STRUCTURED_OVEN_EXECUTE_STATES
         assert entity.available is True
 
 

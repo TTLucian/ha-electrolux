@@ -53,20 +53,24 @@ OVEN_EXECUTE_STATES: dict[str, list[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Structured Oven (SO / upperOven) — SO-944035035_01.json
+# Structured Oven (SO / upperOven)
 # ---------------------------------------------------------------------------
-# The structured oven has only three applianceState values: ALARM, OFF, RUNNING.
-# There are NO conditional triggers in the sample — no PAUSED, DELAYED_START,
-# READY_TO_START, or END_OF_CYCLE states exist for this appliance type.
-# Using OVEN_EXECUTE_STATES here would make START permanently invisible because
-# it requires READY_TO_START / END_OF_CYCLE which never occur on a structured oven.
-# applianceState  → accepted executeCommand values
-# OFF             → START   (oven is idle/ready)
-# RUNNING         → STOPRESET
-STRUCTURED_OVEN_EXECUTE_STATES: dict[str, list[str]] = {
-    "START": ["OFF"],
-    "STOPRESET": ["RUNNING"],
-}
+# The structured oven's ``upperOven/applianceState`` is an independent state machine
+# from the root one. While the root-level capability on some samples only exposes
+# ALARM/OFF/RUNNING, the cavity's OWN machine is the full plain-oven one
+# (ALARM, DELAYED_START, END_OF_CYCLE, IDLE, OFF, PAUSED,
+# READY_TO_START, RUNNING) — verified on SO-944005079_00 (issue #206),
+# whose upperOven/applianceState reports the same vocabulary as an OV.
+# The executeCommand rule is evaluated against that scoped cavity machine, so it
+# must use the same gating as OVEN_EXECUTE_STATES. (Structurally, the two tables are
+# identical here — reuse it keep them in lockstep.)
+# applianceState   → accepted executeCommand values
+# READY_TO_START  → START
+# END_OF_CYCLE    → START   (re-start after cycle ends)
+# RUNNING          → STOPRESET
+# PAUSED           → STOPRESET
+# DELAYED_START    → STOPRESET
+STRUCTURED_OVEN_EXECUTE_STATES: dict[str, list[str]] = OVEN_EXECUTE_STATES
 
 # ---------------------------------------------------------------------------
 # Washer (WM) — WM-914915144_00.json
