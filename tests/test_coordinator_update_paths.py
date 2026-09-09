@@ -173,6 +173,29 @@ class TestAsyncUpdateDataAuthFailureBelowThreshold:
             await coordinator._async_update_data()
 
     @pytest.mark.asyncio
+    async def test_forbidden_resource_403_does_not_increment_auth_failures(self, coordinator):
+        """403 FORBIDDEN_RESOURCE marks appliance disconnected without incrementing auth failures."""
+        ap = _make_appliance("app1")
+        appliances = _make_appliances({"app1": ap})
+        coordinator.data = {"appliances": appliances}
+        coordinator._auth_failure_threshold = 1
+        coordinator._consecutive_auth_failures = 0
+
+        forbidden_error = Exception(
+            "Error during get appliance state: 403, "
+            "message=\"{'error': 'FORBIDDEN_RESOURCE', 'message': 'Resource is not owned by client or appliance is not registered'}\""
+        )
+        coordinator.api.get_appliance_state = AsyncMock(side_effect=forbidden_error)
+
+        with pytest.raises(UpdateFailed):
+            await coordinator._async_update_data()
+
+        # Auth failures must NOT be incremented
+        assert coordinator._consecutive_auth_failures == 0
+        assert ap.state["connectivityState"] == "disconnected"
+        assert coordinator._last_known_connectivity.get("app1") == "disconnected"
+
+    @pytest.mark.asyncio
     async def test_non_auth_error_all_failed_raises_update_failed(self, coordinator):
         """Non-auth error with all appliances failing raises UpdateFailed."""
         ap = _make_appliance("app1")

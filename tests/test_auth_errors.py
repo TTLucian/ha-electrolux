@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import pytest
 
-from custom_components.electrolux.auth_errors import get_error_status, is_auth_error
+from custom_components.electrolux.auth_errors import (
+    get_error_status,
+    is_auth_error,
+    is_forbidden_resource_error,
+)
 
 # An appliance id containing "401", which is what made string matching unsafe.
 APPLIANCE_URL = (
-    "url='https://api.developer.electrolux.one/api/v1/appliances/"
-    "916900511_01:54926920-443E07773401/command'"
+    "url='https://api.developer.electrolux.one/api/v1/appliances/916900511_01:54926920-443E07773401/command'"
 )
 
 
@@ -120,3 +123,34 @@ class TestGetErrorStatus:
     def test_missing_status_returns_none(self):
         """Nothing to parse means no status."""
         assert get_error_status(Exception("no status here")) is None
+
+
+class TestForbiddenResourceErrors:
+    """403 FORBIDDEN_RESOURCE rejections are resource-level, not account auth failures."""
+
+    def test_forbidden_resource_with_403_is_not_auth_error(self):
+        """A 403 with FORBIDDEN_RESOURCE body must not trigger re-authentication."""
+        ex = Exception(
+            "Failed to get appliance state: 403, "
+            "message=\"{'error': 'FORBIDDEN_RESOURCE', 'message': 'Resource is not owned by client or appliance is not registered'}\", "
+            f"{APPLIANCE_URL}"
+        )
+        assert is_forbidden_resource_error(ex) is True
+        assert is_auth_error(ex) is False
+
+    def test_forbidden_resource_with_error_code_attribute(self):
+        """ApplianceForbiddenException with error_code='FORBIDDEN_RESOURCE' is not an auth error."""
+
+        class MockApplianceForbiddenException(Exception):
+            status = 403
+            error_code = "FORBIDDEN_RESOURCE"
+
+        ex = MockApplianceForbiddenException("Appliance forbidden")
+        assert is_forbidden_resource_error(ex) is True
+        assert is_auth_error(ex) is False
+
+    def test_resource_not_owned_phrase_is_not_auth_error(self):
+        """Phrase indicating unowned/unregistered resource is not an auth error."""
+        ex = StatusError("Resource is not owned by client or appliance is not registered", 403)
+        assert is_forbidden_resource_error(ex) is True
+        assert is_auth_error(ex) is False

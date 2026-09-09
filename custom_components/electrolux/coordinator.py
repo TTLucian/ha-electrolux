@@ -19,7 +19,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ElectroluxLibraryEntity
-from .auth_errors import is_auth_error
+from .auth_errors import is_auth_error, is_forbidden_resource_error
 from .const import DOMAIN, TIME_ENTITIES_TO_UPDATE, ApplianceDesyncAttribute
 from .models import Appliance, Appliances, ApplianceState
 from .util import (
@@ -1931,6 +1931,16 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             except asyncio.CancelledError:
                 raise
             except Exception as ex:
+                if is_forbidden_resource_error(ex):
+                    _LOGGER.warning(
+                        "Appliance %s is not registered or temporarily unowned (FORBIDDEN_RESOURCE); marking disconnected: %s",
+                        app_id,
+                        ex,
+                    )
+                    app_obj.state["connectivityState"] = "disconnected"
+                    self._last_known_connectivity[app_id] = "disconnected"
+                    return False, False
+
                 # Check if this is an authentication error - these should still fail the update
                 if is_auth_error(ex):
                     _LOGGER.warning(f"[AUTH-DEBUG] Authentication error during data update: {ex}")

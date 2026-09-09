@@ -68,6 +68,26 @@ def get_error_status(ex: BaseException) -> int | None:
     return None
 
 
+FORBIDDEN_RESOURCE_INDICATORS = (
+    "forbidden_resource",
+    "resource is not owned by client",
+    "appliance is not registered",
+)
+
+
+def is_forbidden_resource_error(ex: BaseException) -> bool:
+    """Return True if the error is a resource-level permission rejection (not an account auth failure).
+
+    When an appliance ID is temporarily un-registered or in transition during cloud session refresh,
+    the API returns HTTP 403 with FORBIDDEN_RESOURCE ("Resource is not owned by client or appliance is not registered").
+    Re-authenticating does not fix an un-registered or transitioning appliance, so this must not trigger re-auth.
+    """
+    if getattr(ex, "error_code", None) == "FORBIDDEN_RESOURCE":
+        return True
+    message = str(ex).lower()
+    return any(indicator in message for indicator in FORBIDDEN_RESOURCE_INDICATORS)
+
+
 def is_auth_error(ex: BaseException, *, auth_statuses: tuple[int, ...] = AUTH_STATUS_CODES) -> bool:
     """Return True only for failures that re-authenticating can fix.
 
@@ -77,6 +97,9 @@ def is_auth_error(ex: BaseException, *, auth_statuses: tuple[int, ...] = AUTH_ST
 
     Callers that give 403 its own meaning can narrow ``auth_statuses``.
     """
+    if is_forbidden_resource_error(ex):
+        return False
+
     status = get_error_status(ex)
     if status is not None:
         return status in auth_statuses
