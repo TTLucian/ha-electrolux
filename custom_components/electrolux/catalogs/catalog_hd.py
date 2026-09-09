@@ -1,32 +1,41 @@
-"""Defined catalog of entities for hood type devices (HD)."""
+"""Defined catalog of entities for hood type devices (HD).
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+Values verified against a real AEG hood diagnostic (HD-942051563_00,
+https://github.com/TTLucian/ha-electrolux/issues/211).
+
+Platform resolution notes (api.py:get_entity_type):
+- string readwrite with values and no min/max -> SELECT
+- string readwrite with ON/OFF values -> SWITCH
+- boolean readwrite -> SWITCH, boolean read -> BINARY_SENSOR
+- number readwrite with min/max -> NUMBER, number read -> SENSOR
+Reported-state-only keys (no advertised capability) still need
+``capability_info`` defined here to be picked up by the catalog loop.
+"""
+
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import (
-    PERCENTAGE,
-    EntityCategory,
-    UnitOfTime,
-)
+from homeassistant.const import PERCENTAGE, EntityCategory, Platform, UnitOfTime
 
 from ..model import ElectroluxDevice
 
 CATALOG_HD: dict[str, ElectroluxDevice] = {
     # ── Fan control ────────────────────────────────────────────────────────────
     # Fan level (select)
-    # NOTE: Values are read dynamically from device capabilities at runtime.
-    # Placeholder values below will be replaced by whatever the device reports.
-    # Unverified until a real diagnostic is provided.
+    # Values verified against HD-942051563_00 (issue #211).
+    # NOTE: targetDuration is only writable while the level is between
+    # BREEZE and STEP_3 (per the capability's triggers) — see targetDuration.
     "hoodFanLevel": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "string",
             "values": {
-                "off": {"icon": "mdi:fan-off"},
-                "low": {"icon": "mdi:fan-speed-1"},
-                "medium": {"icon": "mdi:fan-speed-2"},
-                "high": {"icon": "mdi:fan-speed-3"},
-                "intensive": {"icon": "mdi:fan-plus"},
+                "OFF": {"icon": "mdi:fan-off"},
+                "BREEZE": {"icon": "mdi:weather-windy"},
+                "STEP_1": {"icon": "mdi:fan-speed-1"},
+                "STEP_2": {"icon": "mdi:fan-speed-2"},
+                "STEP_3": {"icon": "mdi:fan-speed-3"},
+                "BOOST": {"icon": "mdi:fan-chevron-up"},
+                "BOOST_2": {"icon": "mdi:fan-chevron-double-up"},
             },
         },
         device_class=None,
@@ -36,8 +45,7 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
         friendly_name="Fan Level",
     ),
     # ── Lighting controls ──────────────────────────────────────────────────────
-    # Light brightness — range read from device capabilities at runtime
-    # NOTE: min/max/step values below are unverified placeholders.
+    # Light brightness — verified range 0-100 step 1 (HD-942051563_00)
     "lightIntensity": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -46,130 +54,147 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
             "max": 100,
             "step": 1,
         },
-        device_class=NumberDeviceClass.POWER_FACTOR,
+        device_class=None,
         unit=PERCENTAGE,
         entity_category=None,
         entity_icon="mdi:brightness-6",
         friendly_name="Light Intensity",
     ),
-    # Light colour temperature — range read from device capabilities at runtime
-    # NOTE: min/max/step values below are unverified placeholders.
+    # Light colour temperature — a 0-100 percentage scale on this hood
+    # (reported value: 17), NOT Kelvin. Verified HD-942051563_00 (issue #211).
     "lightColorTemperature": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "number",
-            "min": 2700,
-            "max": 6500,
-            "step": 100,
+            "min": 0,
+            "max": 100,
+            "step": 1,
         },
-        device_class=NumberDeviceClass.TEMPERATURE,
-        unit="K",
+        device_class=None,
+        unit=PERCENTAGE,
         entity_category=None,
         entity_icon="mdi:temperature-kelvin",
         friendly_name="Light Colour Temperature",
     ),
     # ── Filter maintenance ─────────────────────────────────────────────────────
-    # Charcoal filter service timer (hours)
+    # Charcoal filter service timer. Reported value 180000 — believed to be
+    # minutes (3000 h). Unit is an educated guess; verify on live data.
     "hoodCharcFilterTimer": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,
-        unit=UnitOfTime.HOURS,
+        unit=UnitOfTime.MINUTES,
+        suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
         friendly_name="Charcoal Filter Timer",
     ),
-    # Grease filter service timer (hours)
+    # Grease filter service timer — same scale caveat as the charcoal timer.
     "hoodGreaseFilterTimer": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,
-        unit=UnitOfTime.HOURS,
+        unit=UnitOfTime.MINUTES,
+        suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
         friendly_name="Grease Filter Timer",
     ),
-    # TVOC filter service remaining time (hours)
+    # TVOC filter service time — reported-state only (no advertised
+    # capability); reported 918000, same scale caveat as the filter timers.
     "tvocFilterTime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,
-        unit=UnitOfTime.HOURS,
+        unit=UnitOfTime.MINUTES,
+        suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
         friendly_name="TVOC Filter Time",
     ),
-    # Charcoal filter enable / disable
+    # Charcoal filter enable / disable (string ON/OFF -> switch)
     "hoodFilterCharcEnable": ElectroluxDevice(
-        capability_info={"access": "readwrite"},
+        capability_info={
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OFF": {}, "ON": {}},
+        },
         device_class=SwitchDeviceClass.SWITCH,
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:air-filter",
         friendly_name="Charcoal Filter Enable",
     ),
-    # ── Status sensors ─────────────────────────────────────────────────────────
-    # Drawer open/closed sensor
-    "drawerStatus": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "string",
-            "values": {"CLOSED": {}, "OPEN": {}},
-        },
-        device_class=BinarySensorDeviceClass.OPENING,
-        unit=None,
-        entity_category=None,
-        entity_icon="mdi:tray-arrow-down",
-        friendly_name="Drawer",
-    ),
-    # Human-centric lighting event (active/inactive)
-    "humanCentricLightEventState": ElectroluxDevice(
-        capability_info={"access": "read", "type": "string"},
-        device_class=BinarySensorDeviceClass.RUNNING,
+    # Charcoal filter replace indication — boolean, readwrite (resettable).
+    # boolean readwrite resolves to a SWITCH platform.
+    "hoodFilterCharcIndication": ElectroluxDevice(
+        capability_info={"access": "readwrite", "type": "boolean"},
+        device_class=SwitchDeviceClass.SWITCH,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
-        entity_icon="mdi:lightbulb-auto",
-        friendly_name="Human-Centric Light",
+        entity_icon="mdi:air-filter-alert",
+        friendly_name="Charcoal Filter Indication",
     ),
-    # Auto switch-off event
-    "hoodAutoSwitchOffEvent": ElectroluxDevice(
+    # Grease filter replace indication — string FALSE/TRUE, readwrite
+    # (resettable). Resolves to a SELECT (not ON/OFF, so not a switch).
+    "hoodFilterGreaseIndication": ElectroluxDevice(
         capability_info={
-            "access": "read",
+            "access": "readwrite",
             "type": "string",
-            "values": {"active": {}, "inactive": {}},
+            "values": {"FALSE": {}, "TRUE": {}},
         },
-        device_class=BinarySensorDeviceClass.RUNNING,
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter-alert",
+        friendly_name="Grease Filter Indication",
+    ),
+    # ── Status sensors ─────────────────────────────────────────────────────────
+    # Auto switch-off event — boolean on HD-942051563_00 (was wrongly modelled
+    # as an active/inactive string). boolean read -> BINARY_SENSOR.
+    "hoodAutoSwitchOffEvent": ElectroluxDevice(
+        capability_info={"access": "read", "type": "boolean"},
+        device_class=None,
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:timer-off-outline",
         friendly_name="Auto Switch-Off",
     ),
-    # ── Appliance settings ─────────────────────────────────────────────────────
-    # Operating mode (e.g. normal, delayed start, boost)
-    "applianceMode": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "string"},
+    # Human-centric lighting event state — reported-state only, string value
+    # (e.g. "OFF"). Expose as a plain diagnostic sensor.
+    "humanCentricLightEventState": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
         device_class=None,
         unit=None,
-        entity_category=None,
-        entity_icon="mdi:tune",
-        friendly_name="Appliance Mode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:lightbulb-auto",
+        friendly_name="Human-Centric Light",
+        entity_platform=Platform.SENSOR,
     ),
-    # Sound volume
+    # ── Appliance settings ─────────────────────────────────────────────────────
+    # Sound volume — NOT advertised as a capability on HD-942051563_00; it only
+    # appears in reported state (value 0). Expose read-only via the
+    # reported-only fallback instead of a (failing) writable number.
+    # NOTE: hoods that do advertise it use discrete values 1-4 (see SO).
     "soundVolume": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=PERCENTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:volume-high",
+        friendly_name="Sound Volume",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=None,
+    ),
+    # Timer / countdown duration. Verified range 0-36000 step 60 (seconds).
+    # Only writable while hoodFanLevel is between BREEZE and STEP_3
+    # (capability triggers on HD-942051563_00).
+    "targetDuration": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
             "type": "number",
             "min": 0,
-            "max": 100,
-            "step": 10,
+            "max": 36000,
+            "step": 60,
         },
-        device_class=None,
-        unit=PERCENTAGE,
-        entity_category=EntityCategory.CONFIG,
-        entity_icon="mdi:volume-high",
-        friendly_name="Sound Volume",
-    ),
-    # Timer / countdown duration (SDK: TARGET_DURATION → "targetDuration")
-    "targetDuration": ElectroluxDevice(
-        capability_info={"access": "readwrite", "type": "number"},
-        device_class=None,
+        device_class=NumberDeviceClass.DURATION,
         unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:timer-outline",
