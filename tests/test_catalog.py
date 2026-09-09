@@ -666,6 +666,114 @@ class TestCatalogStructuredOven:
         assert isinstance(CATALOG_SO, dict)
         assert len(CATALOG_SO) > 0
 
+class TestCatalogHood:
+    """Tests for catalog_hd.py — values verified against HD-942051563_00 (issue #211)."""
+
+    def test_catalog_hood_loads(self):
+        """Hood catalog loads without error and is non-empty."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        assert isinstance(CATALOG_HD, dict)
+        assert len(CATALOG_HD) > 0
+
+    def test_hood_fan_level_values_verified(self):
+        """hoodFanLevel offers the real value set of HD-942051563_00."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        values = CATALOG_HD["hoodFanLevel"].capability_info["values"]
+        assert set(values) == {"OFF", "BREEZE", "STEP_1", "STEP_2", "STEP_3", "BOOST", "BOOST_2"}
+
+    def test_light_color_temperature_is_percentage_scale(self):
+        """lightColorTemperature is 0-100 %, not Kelvin."""
+        from homeassistant.const import PERCENTAGE
+
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        entry = CATALOG_HD["lightColorTemperature"]
+        cap = entry.capability_info
+        assert cap["min"] == 0
+        assert cap["max"] == 100
+        assert cap["step"] == 1
+        assert entry.unit == PERCENTAGE
+
+    def test_light_intensity_is_percentage(self):
+        """lightIntensity has no bogus device class and a 0-100 range."""
+        from homeassistant.const import PERCENTAGE
+
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        entry = CATALOG_HD["lightIntensity"]
+        assert entry.device_class is None
+        assert entry.capability_info["max"] == 100
+        assert entry.unit == PERCENTAGE
+
+    def test_auto_switch_off_event_is_boolean_binary_sensor(self):
+        """hoodAutoSwitchOffEvent is boolean (was wrongly an active/inactive string)."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        entry = CATALOG_HD["hoodAutoSwitchOffEvent"]
+        assert entry.capability_info["type"] == "boolean"
+        assert entry.capability_info["access"] == "read"
+        assert "values" not in entry.capability_info
+
+    def test_sound_volume_is_reported_only(self):
+        """soundVolume has no capability on this hood: reported-only sensor."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        entry = CATALOG_HD["soundVolume"]
+        assert entry.capability_info["access"] == "read"
+        assert entry.reported_only_entity_platform is not None
+
+    def test_filter_timers_use_minutes_with_hour_suggestion(self):
+        """Filter timers are believed to be minutes, displayed as hours."""
+        from homeassistant.const import EntityCategory, UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        for key in ("hoodCharcFilterTimer", "hoodGreaseFilterTimer", "tvocFilterTime"):
+            entry = CATALOG_HD[key]
+            assert entry.unit == UnitOfTime.MINUTES
+            assert entry.suggested_unit == UnitOfTime.HOURS
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+
+    def test_filter_indications_present(self):
+        """Filter indication entities exist and are resettable (readwrite)."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        charc = CATALOG_HD["hoodFilterCharcIndication"]
+        assert charc.capability_info["access"] == "readwrite"
+        assert charc.capability_info["type"] == "boolean"
+
+        grease = CATALOG_HD["hoodFilterGreaseIndication"]
+        assert grease.capability_info["access"] == "readwrite"
+        assert set(grease.capability_info["values"]) == {"FALSE", "TRUE"}
+
+    def test_target_duration_range_verified(self):
+        """targetDuration matches the advertised 0-36000 s / step 60 range."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        cap = CATALOG_HD["targetDuration"].capability_info
+        assert cap["min"] == 0
+        assert cap["max"] == 36000
+        assert cap["step"] == 60
+        assert cap["access"] == "readwrite"
+
+    def test_unverified_entries_removed(self):
+        """Entries with no evidence on any known HD diagnostic are gone."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+
+        assert "applianceMode" not in CATALOG_HD
+        assert "drawerStatus" not in CATALOG_HD
+
+    def test_all_entries_are_electrolux_devices(self):
+        """Every hood catalog value is an ElectroluxDevice."""
+        from custom_components.electrolux.catalogs.catalog_hd import CATALOG_HD
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        for key, value in CATALOG_HD.items():
+            assert isinstance(value, ElectroluxDevice), f"{key} is {type(value)}"
+
+
 
 class TestCatalogUtils:
     """Tests for catalog_utils.py helper functions."""
