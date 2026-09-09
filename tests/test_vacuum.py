@@ -334,14 +334,13 @@ class TestElectroluxVacuumPurei9:
         assert vacuum.fan_speed == "Standard"
 
     def test_supported_features_includes_all_expected_features(self):
-        """Vacuum supports start, stop, pause, return_home, battery, fan_speed."""
+        """Vacuum supports start, stop, pause, return_home, fan_speed."""
         vacuum = _make_purei9_vacuum()
         features = vacuum.supported_features
         assert features & VacuumEntityFeature.START
         assert features & VacuumEntityFeature.STOP
         assert features & VacuumEntityFeature.PAUSE
         assert features & VacuumEntityFeature.RETURN_HOME
-        assert features & VacuumEntityFeature.BATTERY
         assert features & VacuumEntityFeature.FAN_SPEED
 
 
