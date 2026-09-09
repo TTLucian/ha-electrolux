@@ -265,7 +265,6 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             | VacuumEntityFeature.STOP
             | VacuumEntityFeature.PAUSE
             | VacuumEntityFeature.RETURN_HOME
-            | VacuumEntityFeature.BATTERY
             | VacuumEntityFeature.FAN_SPEED
         )
 
