@@ -442,6 +442,7 @@ class TestAlertsSensor:
             "ERROR_CODE_1": "OFF",
             "ERROR_CODE_2": "OFF",
             "WARNING_CODE_1": "OFF",
+            "active_alerts": [],
         }
 
     def test_alerts_extra_state_attributes_with_alerts(
@@ -460,6 +461,14 @@ class TestAlertsSensor:
             "ERROR_CODE_1": "CRITICAL-UNACKNOWLEDGED",
             "ERROR_CODE_2": "OFF",
             "WARNING_CODE_1": "OFF",
+            "active_alerts": [
+                {
+                    "code": "ERROR_CODE_1",
+                    "severity": "CRITICAL",
+                    "acknowledge_status": "UNACKNOWLEDGED",
+                    "appliance_code": None,
+                }
+            ],
         }
 
     def test_alerts_extra_state_attributes_multiple_alerts(
@@ -483,6 +492,20 @@ class TestAlertsSensor:
             "ERROR_CODE_1": "ERROR-UNACKNOWLEDGED",
             "ERROR_CODE_2": "OFF",
             "WARNING_CODE_1": "WARNING-ACKNOWLEDGED",
+            "active_alerts": [
+                {
+                    "code": "ERROR_CODE_1",
+                    "severity": "ERROR",
+                    "acknowledge_status": "UNACKNOWLEDGED",
+                    "appliance_code": None,
+                },
+                {
+                    "code": "WARNING_CODE_1",
+                    "severity": "WARNING",
+                    "acknowledge_status": "ACKNOWLEDGED",
+                    "appliance_code": None,
+                },
+            ],
         }
 
 

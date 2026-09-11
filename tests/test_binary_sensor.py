@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.const import EntityCategory
 
 from custom_components.electrolux.binary_sensor import (
@@ -198,6 +199,37 @@ class TestElectroluxBinarySensor:
         }
         binary_sensor_entity.reported_state = {"testAttr": "ON"}
         assert binary_sensor_entity.is_on is True
+
+    def test_dishwasher_alert_code_sensor(self, mock_coordinator, mock_capability):
+        """Test a binary sensor derived from a dishwasher alert list."""
+        entity = ElectroluxBinarySensor(
+            coordinator=mock_coordinator,
+            name="Salt missing",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BINARY_SENSOR,
+            entity_name="DISH_ALARM_SALT_MISSING",
+            entity_attr="DISH_ALARM_SALT_MISSING",
+            entity_source="alerts",
+            capability=mock_capability,
+            unit=None,
+            device_class=BinarySensorDeviceClass.PROBLEM,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:alert-circle",
+        )
+        entity.reported_state = {
+            "alerts": [
+                {
+                    "code": "DISH_ALARM_SALT_MISSING",
+                    "severity": "WARNING",
+                }
+            ]
+        }
+
+        assert entity.is_on is True
+
+        entity.reported_state = {"alerts": []}
+        assert entity.is_on is False
 
     def test_is_on_with_invert(self, mock_coordinator, mock_capability):
         """Test is_on with invert enabled."""

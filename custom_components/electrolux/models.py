@@ -778,6 +778,15 @@ class Appliance:
                     attr_in_reported = self.get_state(catalog_key) is not None
                     attr_at_top_level = self.state.get(catalog_key) is not None if self.state else False
 
+                    # Dishwasher alert-code entries are derived from the
+                    # reported ``alerts`` array rather than being literal
+                    # state paths. Create them when the appliance advertises
+                    # the aggregate alert capability.
+                    if catalog_key.startswith("alerts/") and (
+                        "alerts" in (capabilities_names or []) or self.get_state("alerts") is not None
+                    ):
+                        attr_in_reported = True
+
                 if not (attr_in_reported or attr_at_top_level or is_always_created_entity):
                     _LOGGER.debug(
                         "Skipping catalog entity %s - not in appliance state or API capabilities",

@@ -170,6 +170,12 @@
             "doorstate": {
                 "name": "Dørtilstand"
             },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Lite skyllemiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salt mangler"
+            },
             "foodprobeinsertionstate": {
                 "name": "Matsonde"
             },

@@ -170,6 +170,12 @@
       "doorstate": {
         "name": "Door state"
       },
+      "dish_alarm_rinse_aid_low": {
+        "name": "Rinse aid low"
+      },
+      "dish_alarm_salt_missing": {
+        "name": "Salt missing"
+      },
       "foodprobeinsertionstate": {
         "name": "Food Probe"
       },
