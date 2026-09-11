@@ -775,8 +775,9 @@ class Appliance:
                     ):
                         attr_in_reported = True
                 else:
-                    attr_in_reported = self.get_state(catalog_key) is not None
-                    attr_at_top_level = self.state.get(catalog_key) is not None if self.state else False
+                    state_path = catalog_item.state_path or catalog_key
+                    attr_in_reported = self.get_state(state_path) is not None
+                    attr_at_top_level = self.state.get(state_path) is not None if self.state else False
 
                 if not (attr_in_reported or attr_at_top_level or is_always_created_entity):
                     _LOGGER.debug(

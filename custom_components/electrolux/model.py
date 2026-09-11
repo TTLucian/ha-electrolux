@@ -34,6 +34,10 @@ class ElectroluxDevice:
     # native unit of measurement (matches what the API reports)
     unit: str | None = None
 
+    # Optional reported-state path when the API capability name and reported
+    # state shape differ (for example dishwasher maintenance item 1).
+    state_path: str | None = None
+
     # suggested display unit override (e.g., suggest minutes while native is seconds)
     # when None, the sensor platform applies a smart default for duration sensors
     suggested_unit: str | None = None

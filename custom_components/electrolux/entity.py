@@ -315,12 +315,17 @@ class ElectroluxEntity(CoordinatorEntity):
 
         Used for the evaluation of state_mapping one property to another.
         """
-        if "/" in path:
-            if self.reported_state.get(path, None):
-                return self.reported_state.get(path)
-            source, attr = path.split("/")
-            return self.reported_state.get(source, {}).get(attr, None)
-        return self.reported_state.get(path, None)
+        if path in self.reported_state:
+            return self.reported_state[path]
+
+        value: Any = self.reported_state
+        for part in path.split("/"):
+            if not isinstance(value, dict):
+                return None
+            value = value.get(part)
+            if value is None:
+                return None
+        return value
 
     @property
     def reported_state(self) -> dict[str, Any]:
@@ -979,7 +984,12 @@ class ElectroluxEntity(CoordinatorEntity):
                     value = appliance_info.get(self.entity_attr)
         else:
             # Look in reported_state (where most live oven data is)
-            value = self.reported_state.get(self.entity_attr)
+            state_path = self.catalog_entry.state_path if self.catalog_entry else None
+            if state_path:
+                value = self.get_state_attr(state_path)
+
+            if value is None:
+                value = self.reported_state.get(self.entity_attr)
 
             # Handle nested paths (e.g., userSelections/values)
             if value is None and self.entity_source:
