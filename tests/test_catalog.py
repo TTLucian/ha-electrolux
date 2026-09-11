@@ -437,6 +437,24 @@ class TestCatalogDishwasher:
         assert entry.entity_platform == Platform.BINARY_SENSOR
         assert entry.device_class is None
 
+    def test_dishwasher_scores_expose_the_documented_bounded_scale(self):
+        """Scores use a visible 0–7 suffix without a physical measurement class."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        for key in (
+            "userSelections/energyScore",
+            "userSelections/waterScore",
+            "userSelections/ecoScore",
+        ):
+            entry = CATALOG_DW[key]
+            assert entry.capability_info["access"] == "read"
+            assert entry.capability_info["type"] == "number"
+            assert entry.capability_info["min"] == 0
+            assert entry.capability_info["max"] == 7
+            assert entry.capability_info["step"] == 1
+            assert entry.unit == "/ 7"
+            assert entry.device_class is None
+
     def test_reported_only_fallbacks_are_configured_for_dw(self):
         """DW reported-only UI state fields should fall back to read-only entities."""
         from homeassistant.const import Platform
