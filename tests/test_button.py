@@ -496,6 +496,101 @@ class TestButtonNameProperty:
         assert entity.name == "Start Button"
 
 
+class TestExecuteCommandNames:
+    """Test translation-aware names for executeCommand buttons."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator._last_update_times = {}
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "key"}
+        coordinator.data = {}
+        return coordinator
+
+    @pytest.fixture
+    def mock_capability(self):
+        return {"access": "write", "type": "string", "values": {}}
+
+    def _make_button(self, coordinator, command, entity_attr="executeCommand"):
+        return ElectroluxButton(
+            coordinator=coordinator,
+            capability={"access": "write", "type": "string", "values": {command: {}}},
+            name=f"Execute command {command}" if entity_attr == "executeCommand" else "Manual sync",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name=entity_attr,
+            entity_attr=entity_attr,
+            entity_source=None,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=None,
+            val_to_send=command,
+        )
+
+    @staticmethod
+    def _set_translation(entity, translated_name):
+        from homeassistant.helpers.entity_platform import PlatformData
+
+        platform_data = PlatformData(entity.coordinator.hass, domain="button", platform_name="electrolux")
+        platform_data.platform_translations = {
+            f"component.electrolux.entity.button.{entity.translation_key}.name": translated_name
+        }
+        entity.platform_data = platform_data
+
+    @pytest.mark.parametrize(
+        ("command", "translated_name"),
+        [
+            ("ON", "Turn on"),
+            ("OFF", "Turn off"),
+            ("START", "Start"),
+            ("PAUSE", "Pause"),
+            ("RESUME", "Resume"),
+            ("STOPRESET", "Stop / reset"),
+        ],
+    )
+    def test_known_execute_command_uses_command_translation(
+        self, mock_coordinator, command, translated_name
+    ):
+        """Known executeCommand values resolve to their translated action names."""
+        entity = self._make_button(mock_coordinator, command)
+
+        assert entity._attr_translation_key == f"executecommand_{command.lower()}"
+        assert not hasattr(entity, "_attr_name")
+
+        self._set_translation(entity, translated_name)
+        assert entity.name == translated_name
+        assert entity.name != f"Execute command {command}"
+
+    def test_unknown_execute_command_keeps_generic_fallback(self, mock_coordinator):
+        """Unknown executeCommand values still produce a safe generic name."""
+        entity = self._make_button(mock_coordinator, "UNKNOWN")
+
+        assert entity._attr_translation_key == "executecommand"
+        assert entity.name == "Execute command UNKNOWN"
+
+    def test_non_execute_command_name_behavior_is_unchanged(self, mock_coordinator):
+        """Explicitly named non-executeCommand buttons retain their suffix behavior."""
+        entity = self._make_button(mock_coordinator, "PRESS", entity_attr="manualSync")
+
+        assert entity.name == "Manual sync PRESS"
+
+    def test_execute_command_unique_id_is_unchanged(self, mock_coordinator):
+        """Translation-aware naming does not change executeCommand unique IDs."""
+        import hashlib
+
+        entity = self._make_button(mock_coordinator, "START")
+        api_key_hash = hashlib.sha256(b"key").hexdigest()[:16]
+
+        assert entity.unique_id == f"{api_key_hash}-executecommand-START-root-TEST_PNC"
+
+
 class TestButtonAvailableWhenStates:
     """Test available property with catalog_entry available_when_states."""
 

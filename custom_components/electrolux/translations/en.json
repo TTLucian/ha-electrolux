@@ -332,7 +332,25 @@
         "name": "Manual sync"
       },
       "executecommand": {
-        "name": "Power"
+        "name": "Execute command"
+      },
+      "executecommand_on": {
+        "name": "Turn on"
+      },
+      "executecommand_off": {
+        "name": "Turn off"
+      },
+      "executecommand_start": {
+        "name": "Start"
+      },
+      "executecommand_pause": {
+        "name": "Pause"
+      },
+      "executecommand_resume": {
+        "name": "Resume"
+      },
+      "executecommand_stopreset": {
+        "name": "Stop / reset"
       },
       "waterfilterstatereset": {
         "name": "Reset water filter"

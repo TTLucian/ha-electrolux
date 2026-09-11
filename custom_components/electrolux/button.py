@@ -10,6 +10,7 @@ from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 
 from .const import BUTTON, CONF_API_KEY, icon_mapping
 from .coordinator import ElectroluxCoordinator
@@ -91,6 +92,13 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             catalog_entry=catalog_entry,
         )
         self.val_to_send = val_to_send
+        self._execute_command_translation_key: str | None = None
+        command = str(val_to_send).upper()
+        if self.entity_attr.lower() == "executecommand" and command in icon_mapping:
+            self._execute_command_translation_key = f"executecommand_{command.lower()}"
+            self._attr_translation_key = self._execute_command_translation_key
+            # Let Home Assistant resolve the command-specific translated name.
+            del self._attr_name
 
     @property
     def entity_domain(self):
@@ -123,8 +131,20 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         return f"{api_key_hash}-{normalized_attr}-{self.val_to_send}-{self.entity_source or 'root'}-{self.pnc_id}"
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | UndefinedType | None:
         """Return the name of the sensor."""
+        if self._execute_command_translation_key:
+            translated_name = super().name
+            if translated_name is not UNDEFINED:
+                return translated_name
+
+            # Keep entity creation safe before platform translations are loaded.
+            name = self._name
+            suffix = f" {self.val_to_send}"
+            if name.lower().endswith(suffix.lower()):
+                return name[: -len(suffix)]
+            return name
+
         name = self._name
         if self.catalog_entry and self.catalog_entry.friendly_name:
             # Get appliance name from coordinator data
