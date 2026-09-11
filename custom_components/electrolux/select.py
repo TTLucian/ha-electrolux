@@ -101,7 +101,13 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         )
         self.options_list: dict[str, str] = {}
         if values_dict:
-            for value in values_dict:
+            values_order = list(values_dict)
+            program_order = self._get_program_order()
+            if program_order:
+                values_order = [value for value in program_order if value in values_dict]
+                values_order.extend(value for value in values_dict if value not in program_order)
+
+            for value in values_order:
                 entry: dict[str, Any] | None = values_dict.get(value)
                 if entry and "disabled" in entry:
                     continue
@@ -122,6 +128,27 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         # the store may contain values later provided by catalog updates, which
         # should NOT bypass program-constraint filtering.
         self._discovered_values: set[str] = set()
+
+    def _get_program_order(self) -> list[str]:
+        """Return the appliance-provided order for program selections."""
+        if self.entity_attr != "programUID":
+            return []
+
+        try:
+            appliance_data = getattr(self.get_appliance, "data", None)
+            capabilities = getattr(appliance_data, "capabilities", None)
+        except (AttributeError, KeyError, TypeError):
+            return []
+
+        if not isinstance(capabilities, dict):
+            return []
+        order_capability = capabilities.get("userSelections/programsOrder")
+        if not isinstance(order_capability, dict):
+            return []
+        items = order_capability.get("items")
+        if not isinstance(items, list):
+            return []
+        return [item for item in items if isinstance(item, str)]
 
     def _get_discovered_store(self) -> Store | None:
         """Return the per-entity Store for discovered programs, or None.

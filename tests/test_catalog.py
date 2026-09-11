@@ -7,6 +7,9 @@ coverage on catalog files (which are pure data modules).
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from homeassistant.components.sensor import SensorDeviceClass
 
 from custom_components.electrolux.model import ElectroluxDevice
@@ -412,6 +415,18 @@ class TestCatalogDishwasher:
 
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
+
+    def test_gi7210b2sn_fixture_captures_verified_pnc_data(self):
+        """The sanitized GI7210B2SN diagnostic fixture preserves live keys."""
+        fixture_path = Path(__file__).parent / "fixtures" / "dw_911472038.json"
+        fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+
+        assert fixture["pnc"] == "911472038_00"
+        assert fixture["appliance_type"] == "DW"
+        assert fixture["capabilities"]["userSelections/programsOrder"]["items"][-1] == "RINSE"
+        assert fixture["capabilities"]["userSelections/programUID"]["values"]["MACHINE_SETTINGS_HIDDEN_TEST"][
+            "disabled"
+        ] is True
 
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
         """Rinse aid level should use appliance capability limits, not stale catalog values."""
