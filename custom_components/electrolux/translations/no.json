@@ -168,7 +168,7 @@
                 "name": "Tilkoblingstilstand"
             },
             "doorstate": {
-                "name": "Dørtilstand"
+                "name": "Dør"
             },
             "foodprobeinsertionstate": {
                 "name": "Matsonde"
@@ -363,7 +363,7 @@
         },
         "number": {
             "starttime": {
-                "name": "Starttid"
+                "name": "Utsatt start"
             },
             "targetduration": {
                 "name": "Målvarighet"
@@ -523,7 +523,7 @@
                 "name": "Varsler"
             },
             "appliancestate": {
-                "name": "Apparatets tilstand"
+                "name": "Driftstilstand"
             },
             "temperaturerepresentation": {
                 "name": "Temperaturrepresentasjon"
@@ -559,7 +559,7 @@
                 "name": "Cpv"
             },
             "remotecontrol": {
-                "name": "Fjernkontroll"
+                "name": "Fjernstyringsstatus"
             },
             "totalcyclecounter": {
                 "name": "Total syklusteller"
@@ -568,7 +568,7 @@
                 "name": "Apparatets totale arbeidstid"
             },
             "timetoend": {
-                "name": "Tid til slutt"
+                "name": "Gjenstående tid"
             },
             "displayfoodprobetemperature": {
                 "name": "Vis matsondetemperaturen"
