@@ -437,6 +437,25 @@ class TestCatalogDishwasher:
         assert entry.entity_platform == Platform.BINARY_SENSOR
         assert entry.device_class is None
 
+    def test_dishwasher_network_always_on_is_configuration(self):
+        """Persistent network behavior is presented as a configuration switch."""
+        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalog_core import CATALOG_BASE
+
+        entry = CATALOG_BASE()["networkInterfaceAlwaysOn"]
+        assert entry.device_class == SwitchDeviceClass.SWITCH
+        assert entry.entity_category == EntityCategory.CONFIG
+
+    def test_manual_sync_is_diagnostic(self):
+        """Manual synchronization is an integration maintenance action."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalog_core import CATALOG_BASE
+
+        assert CATALOG_BASE()["manualSync"].entity_category == EntityCategory.DIAGNOSTIC
+
     def test_reported_only_fallbacks_are_configured_for_dw(self):
         """DW reported-only UI state fields should fall back to read-only entities."""
         from homeassistant.const import Platform

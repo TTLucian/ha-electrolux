@@ -123,6 +123,7 @@ ATTRIBUTES_BLACKLIST: list[str] = [
     "coolingValveState",  # Catalog-only exposure for refrigerators
     "^applianceCareAndMaintenance",  # Internal maintenance counters/thresholds - cryptic names, no user value
     "^fCPN_TD(Alert|EndOfCycle|Maintenances)$",  # Internal tumble-dryer push-notification flags, no live user value
+    "^dCPN_DW(Alert|EndOfCycle|Maintenances)$",  # Internal dishwasher push-notification flags, no live user value
     "^fCApplianceFeature_EUDryWhatWashed$",  # Internal appliance feature flag, no user-facing state/control
     "^hMEPN_DHAlerts$",  # Internal dehumidifier notification flag, no live user-facing value
     "^fPRPN_",  # Internal refrigerator push-notification flags (AirFilter/WaterFilter Change/Order), no user value (#194)
