@@ -985,7 +985,7 @@ class ElectroluxEntity(CoordinatorEntity):
         else:
             # Look in reported_state (where most live oven data is)
             state_path = self.catalog_entry.state_path if self.catalog_entry else None
-            if state_path:
+            if isinstance(state_path, str) and state_path:
                 value = self.get_state_attr(state_path)
 
             if value is None:
