@@ -332,7 +332,25 @@
                 "name": "Manuell synkronisering"
             },
             "executecommand": {
-                "name": "Makt"
+                "name": "Utfør kommando"
+            },
+            "executecommand_on": {
+                "name": "Slå på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Fortsett"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / tilbakestill"
             },
             "waterfilterstatereset": {
                 "name": "Tilbakestill vannfilteret"
