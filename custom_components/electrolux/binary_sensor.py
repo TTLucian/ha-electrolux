@@ -136,10 +136,7 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
             alerts = self.reported_state.get("alerts", [])
             if not isinstance(alerts, list):
                 return False
-            return any(
-                isinstance(alert, dict) and alert.get("code") == self.entity_attr
-                for alert in alerts
-            )
+            return any(isinstance(alert, dict) and alert.get("code") == self.entity_attr for alert in alerts)
 
         value = self.extract_value()
 
