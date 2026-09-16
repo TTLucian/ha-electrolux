@@ -13,12 +13,34 @@ NO_TRANSLATION_FOUND = "No translation was found using the current translator"
 # MyMemory uses the "{lang}-{region}" code format (e.g. bg-BG, pt-BR), unlike
 # Google's plain two-letter codes. Map the script's book codes to MyMemory's.
 _MYMEMORY_TARGETS = {
-    "bg": "bg-BG", "cs": "cs-CZ", "da": "da-DK", "de": "de-DE", "el": "el-GR",
-    "et": "et-EE", "fi": "fi-FI", "fr": "fr-FR", "hr": "hr-HR", "hu": "hu-HU",
-    "it": "it-IT", "lv": "lv-LV", "lt": "lt-LT", "lb": "lb-LU", "nl": "nl-NL",
-    "no": "nb-NO", "pl": "pl-PL", "pt": "pt-PT", "pt_br": "pt-BR", "ro": "ro-RO",
-    "ru": "ru-RU", "sk": "sk-SK", "sl": "sl-SI", "es": "es-ES", "sv": "sv-SE",
-    "tr": "tr-TR", "uk": "uk-UA",
+    "bg": "bg-BG",
+    "cs": "cs-CZ",
+    "da": "da-DK",
+    "de": "de-DE",
+    "el": "el-GR",
+    "et": "et-EE",
+    "fi": "fi-FI",
+    "fr": "fr-FR",
+    "hr": "hr-HR",
+    "hu": "hu-HU",
+    "it": "it-IT",
+    "lv": "lv-LV",
+    "lt": "lt-LT",
+    "lb": "lb-LU",
+    "nb": "nb-NO",
+    "nl": "nl-NL",
+    "no": "nb-NO",
+    "pl": "pl-PL",
+    "pt": "pt-PT",
+    "pt_br": "pt-BR",
+    "ro": "ro-RO",
+    "ru": "ru-RU",
+    "sk": "sk-SK",
+    "sl": "sl-SI",
+    "es": "es-ES",
+    "sv": "sv-SE",
+    "tr": "tr-TR",
+    "uk": "uk-UA",
 }
 
 
@@ -31,11 +53,12 @@ def _make_translator(backend: str, target: str):
         return MyMemoryTranslator(source="en-GB", target=mm_target)
     return GoogleTranslator(source="en", target=target)
 
+
 # Google's free, unauthenticated endpoint allows roughly 5 requests/second per
 # IP. Stay comfortably below that to avoid HTTP 429 rate limiting. Increase if a
 # run is interrupted by "too many requests" errors over an extended period.
-RATE_LIMIT_DELAY = 0.4          # seconds to wait after each translation request
-RATE_LIMIT_MAX_RETRIES = 4      # retries for transient rate-limit/server errors
+RATE_LIMIT_DELAY = 0.4  # seconds to wait after each translation request
+RATE_LIMIT_MAX_RETRIES = 4  # retries for transient rate-limit/server errors
 RATE_LIMIT_RETRY_BACKOFF = 2.0  # base seconds for exponential backoff
 # Abort a language once this many *consecutive* keys fail as rate-limited, instead
 # of grinding through every remaining key and sleeping the full backoff each time.
@@ -136,7 +159,7 @@ def _translate_with_retry(working_text, translator):
                 return working_text
             last_transient = _is_transient_error(error)
             if attempt < RATE_LIMIT_MAX_RETRIES and last_transient:
-                wait = RATE_LIMIT_RETRY_BACKOFF * (2 ** attempt)
+                wait = RATE_LIMIT_RETRY_BACKOFF * (2**attempt)
                 _debug(f"transient failure detected; backoff {wait:.1f}s")
                 time.sleep(wait)
                 continue
@@ -279,9 +302,7 @@ def _translate_leaf(en_nested, existing_value, translator, cache, stats):
                 stats["rate_limited_run"] += 1
                 _debug(f"skip (rate-limited) {en_nested[:40]!r} — {stats['rate_limited_run']} consecutive")
                 if stats["rate_limited_run"] >= RATE_LIMIT_ABORT_AFTER:
-                    raise RateLimitError(
-                        f"{stats['rate_limited_run']} consecutive rate-limited keys"
-                    ) from err
+                    raise RateLimitError(f"{stats['rate_limited_run']} consecutive rate-limited keys") from err
             else:
                 stats["rate_limited_run"] = 0
                 _debug(f"skip (non-transient) {en_nested[:40]!r}: {err}")
@@ -302,7 +323,9 @@ def missing_leaf_count(en_value, existing_value, prefix=""):
     """
     if isinstance(en_value, dict):
         existing = existing_value if isinstance(existing_value, dict) else {}
-        return sum(missing_leaf_count(en_nested, existing.get(key), f"{prefix}{key}.") for key, en_nested in en_value.items())
+        return sum(
+            missing_leaf_count(en_nested, existing.get(key), f"{prefix}{key}.") for key, en_nested in en_value.items()
+        )
     return 0 if isinstance(existing_value, str) and existing_value != "" else 1
 
 
@@ -320,7 +343,7 @@ def main():
     if "--lang" in sys.argv:
         idx = sys.argv.index("--lang")
         only_langs = set()
-        for tok in sys.argv[idx + 1:]:
+        for tok in sys.argv[idx + 1 :]:
             if tok.startswith("-"):
                 break
             only_langs.add(tok.lower())
@@ -332,7 +355,7 @@ def main():
     if "--delay" in sys.argv:
         try:
             RATE_LIMIT_DELAY = max(0.0, float(sys.argv[sys.argv.index("--delay") + 1]))
-        except (ValueError, IndexError):
+        except ValueError, IndexError:
             pass
 
     # Optional --backend {google|mymemory}: which free provider to use.
@@ -350,7 +373,9 @@ def main():
 
     if "--help" in sys.argv or "-h" in sys.argv:
         print(__doc__)
-        print("Usage: python translate.py [--force] [--lang it es de ...] [--delay 0.1] [--backend google|mymemory] [--debug]")
+        print(
+            "Usage: python translate.py [--force] [--lang it es de ...] [--delay 0.1] [--backend google|mymemory] [--debug]"
+        )
         print("  --force         re-translate every key from scratch")
         print("  --lang CODE...  only translate the given language codes (e.g. it es de)")
         print("  --delay SECONDS override the per-request throttle (default 0.4s)")
@@ -436,7 +461,7 @@ def main():
             try:
                 with open(output_path, encoding="utf-8") as file:
                     existing_data = json.load(file)
-            except (OSError, json.JSONDecodeError):
+            except OSError, json.JSONDecodeError:
                 existing_data = {}
 
         # Skip languages that are already fully translated — no network / translator
@@ -475,10 +500,7 @@ def main():
         except RateLimitError as e:
             # The IP is almost certainly globally rate-limited; stop the whole run
             # rather than grinding through the remaining languages/keys.
-            print(
-                f"⏸ {language_name} paused — {e}. Wait a while, then rerun. "
-                "(file left unchanged)"
-            )
+            print(f"⏸ {language_name} paused — {e}. Wait a while, then rerun. (file left unchanged)")
             break
         except Exception as e:
             print(f"✗ Failed to translate {language_name}: {e} (file left unchanged)")
