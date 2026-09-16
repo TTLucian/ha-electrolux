@@ -137,7 +137,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
         try:
             appliance_data = getattr(self.get_appliance, "data", None)
             capabilities = getattr(appliance_data, "capabilities", None)
-        except (AttributeError, KeyError, TypeError):
+        except AttributeError, KeyError, TypeError:
             return []
 
         if not isinstance(capabilities, dict):
