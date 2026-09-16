@@ -437,6 +437,19 @@ class TestCatalogDishwasher:
         assert entry.entity_platform == Platform.BINARY_SENSOR
         assert entry.device_class is None
 
+    def test_dishwasher_delayed_start_uses_duration_seconds(self):
+        """Delayed start exposes duration metadata while API limits remain authoritative."""
+        from homeassistant.components.number import NumberDeviceClass
+        from homeassistant.const import UnitOfTime
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        entry = CATALOG_DW["startTime"]
+        assert entry.device_class == NumberDeviceClass.DURATION
+        assert entry.unit == UnitOfTime.SECONDS
+        assert entry.capability_info["min"] == -1
+        assert entry.capability_info["max"] == 86400
+
     def test_reported_only_fallbacks_are_configured_for_dw(self):
         """DW reported-only UI state fields should fall back to read-only entities."""
         from homeassistant.const import Platform

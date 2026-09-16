@@ -1,9 +1,10 @@
 """Defined catalog of entities for dishwasher type devices."""
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import EntityCategory, Platform
+from homeassistant.const import EntityCategory, Platform, UnitOfTime
 
 from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DISHWASHER_EXECUTE_STATES
@@ -180,8 +181,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
             "max": 86400,
             "step": 60,
         },
-        device_class=None,
-        unit=None,
+        device_class=NumberDeviceClass.DURATION,
+        unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:clock-start",
     ),
