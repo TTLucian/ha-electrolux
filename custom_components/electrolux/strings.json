@@ -164,6 +164,12 @@
   },
   "entity": {
     "binary_sensor": {
+      "cloud_api": {
+        "name": "API"
+      },
+      "sse_stream": {
+        "name": "Live Stream"
+      },
       "connectivitystate": {
         "name": "Connectivity state"
       },
@@ -502,6 +508,9 @@
       },
       "powermode": {
         "name": "Power mode"
+      },
+      "targetmicrowavepower": {
+        "name": "Target Microwave Power"
       }
     },
     "select": {
@@ -516,6 +525,9 @@
       },
       "fanspeedsetting": {
         "name": "Fan speed"
+      },
+      "hoodfiltergreaseindication": {
+        "name": "Grease Filter Indication"
       }
     },
     "sensor": {
@@ -1334,6 +1346,24 @@
       },
       "executionstate": {
         "name": "Execution State"
+      },
+      "docktype": {
+        "name": "Dock Type"
+      },
+      "filtercleanthreshold": {
+        "name": "Filter Clean Threshold"
+      },
+      "hepafilterbuythreshold": {
+        "name": "HEPA Filter Buy Threshold"
+      },
+      "hepafilterchangethreshold": {
+        "name": "HEPA Filter Change Threshold"
+      },
+      "niustatus": {
+        "name": "NIU Status"
+      },
+      "soundpackfile": {
+        "name": "Sound Pack File"
       }
     },
     "switch": {
@@ -1552,6 +1582,9 @@
       },
       "mute": {
         "name": "Mute"
+      },
+      "hoodfiltercharcindication": {
+        "name": "Charcoal Filter Indication"
       }
     }
   }
