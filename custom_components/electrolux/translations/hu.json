@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Élő közvetítés"
+            },
             "connectivitystate": {
                 "name": "Kapcsolati állapot"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Energia üzemmód"
+            },
+            "targetmicrowavepower": {
+                "name": "Cél mikrohullámú teljesítmény"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Ventilátor sebessége"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Zsírszűrő kijelzése"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Végrehajtási állapot"
+            },
+            "docktype": {
+                "name": "Dokkoló típusa"
+            },
+            "filtercleanthreshold": {
+                "name": "Szűrő tisztítási küszöbértéke"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-szűrő vásárlási küszöbértéke"
+            },
+            "hepafilterchangethreshold": {
+                "name": "HEPA-szűrő módosítási küszöbértéke"
+            },
+            "niustatus": {
+                "name": "NIU ÁLLAPOTA"
+            },
+            "soundpackfile": {
+                "name": "Hangcsomag fájl"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Néma"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Faszénszűrő jelzése"
             }
         }
     }
