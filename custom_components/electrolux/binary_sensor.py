@@ -129,6 +129,15 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
         if self.entity_attr != "connectivityState" and not self.is_connected():
             return None
 
+        # Dishwasher alert-code entities are derived from the aggregate alert
+        # list. The API reports alert objects in an array, not one boolean
+        # property per alert code.
+        if self.entity_source == "alerts":
+            alerts = self.reported_state.get("alerts", [])
+            if not isinstance(alerts, list):
+                return False
+            return any(isinstance(alert, dict) and alert.get("code") == self.entity_attr for alert in alerts)
+
         value = self.extract_value()
 
         # foodProbeSupported: infer from whether foodProbeInsertionState is reported.
