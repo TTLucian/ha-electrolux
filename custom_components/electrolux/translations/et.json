@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Otseedastus striim"
+            },
             "connectivitystate": {
                 "name": "Ühenduse olek"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Toiterežiim"
+            },
+            "targetmicrowavepower": {
+                "name": "Mikrolaine sihtvõimsus"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Ventilaatori kiirus"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Rasvafiltri puhastamise märgutuli"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Täitmise riik"
+            },
+            "docktype": {
+                "name": "Doki tüüp"
+            },
+            "filtercleanthreshold": {
+                "name": "Filtri puhastamise lävi"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-filtri ostulävi"
+            },
+            "hepafilterchangethreshold": {
+                "name": "HEPA-filtri vahetamise lävi"
+            },
+            "niustatus": {
+                "name": "NIU OLEK"
+            },
+            "soundpackfile": {
+                "name": "Helipaketi fail"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Vaigista"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Söefiltri näidik"
             }
         }
     }

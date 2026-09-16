@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Ζωντανή ροή"
+            },
             "connectivitystate": {
                 "name": "Κατάσταση συνδεσιμότητας"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Λειτουργία τροφοδοσίας"
+            },
+            "targetmicrowavepower": {
+                "name": "Ενέργεια-στόχος μικροκυμάτων"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Ταχύτητα ανεμιστήρα"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Ένδειξη φίλτρου λίπους"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Κράτος εκτέλεσης"
+            },
+            "docktype": {
+                "name": "Τύπος αποβάθρας"
+            },
+            "filtercleanthreshold": {
+                "name": "Κατώφλι καθαρισμού φίλτρου"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Όριο αγοράς φίλτρου HEPA"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Όριο αλλαγής φίλτρου HEPA"
+            },
+            "niustatus": {
+                "name": "Κατάσταση NIU"
+            },
+            "soundpackfile": {
+                "name": "Αρχείο πακέτου ήχου"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Βουβός"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Ένδειξη φίλτρου άνθρακα"
             }
         }
     }

@@ -124,8 +124,15 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
 
     @property
     def name(self) -> str:
-        """Return the name of the sensor."""
+        """Return the name of the sensor, localized when available."""
+        # Prefer Home Assistant's localized name for this button's translation key,
+        # falling back to the integration's English display name.
         name = self._name
+        if self.platform_data is not None and self.translation_key is not None:
+            if (name_translation_key := self._name_translation_key) and (
+                translated := self.platform_data.platform_translations.get(name_translation_key)
+            ):
+                name = translated
         if self.catalog_entry and self.catalog_entry.friendly_name:
             # Get appliance name from coordinator data
             appliances = self.coordinator.data.get("appliances", None)
