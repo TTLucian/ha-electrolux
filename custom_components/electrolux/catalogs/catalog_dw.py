@@ -48,7 +48,6 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         device_class=None,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:gesture-tap-button",
         available_when_states=DISHWASHER_EXECUTE_STATES,
         # Multi-command capability (PAUSE/RESUME/START/STOPRESET, sometimes ON/OFF):
         # one button per command value, never a toggle switch. Belt-and-braces with
