@@ -38,6 +38,20 @@ _STATUS_CODE_MAPPING = {
 }
 
 
+def sanitize_nul_string(value: Any) -> str | None:
+    """Strip NUL (\\x00) padding from appliance-reported strings.
+
+    Some appliances (e.g. SO steam ovens) pad string fields such as the
+    OTA3 firmware version with NUL bytes. Returns the cleaned string, or
+    None when nothing but padding remains (e.g. an all-NUL target
+    version that has never been set).
+    """
+    if not isinstance(value, str):
+        return value
+    cleaned = value.replace("\x00", "").strip()
+    return cleaned or None
+
+
 def time_seconds_to_minutes(seconds: float | None) -> int | None:
     """Convert seconds to minutes."""
     if seconds is None:

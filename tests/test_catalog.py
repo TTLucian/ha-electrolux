@@ -666,6 +666,52 @@ class TestCatalogStructuredOven:
         assert isinstance(CATALOG_SO, dict)
         assert len(CATALOG_SO) > 0
 
+    def test_microwave_power_entry(self):
+        """upperOven/targetMicrowavePower is a wattage number control."""
+        from homeassistant.components.number import NumberDeviceClass
+        from homeassistant.const import UnitOfPower
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        entry = CATALOG_SO["upperOven/targetMicrowavePower"]
+        assert entry.capability_info["access"] == "readwrite"
+        assert entry.capability_info["min"] == 0
+        assert entry.capability_info["max"] == 1000
+        assert entry.device_class == NumberDeviceClass.POWER
+        assert entry.unit == UnitOfPower.WATT
+
+    def test_ota3_diagnostic_entries(self):
+        """OTA3 reported-only fields exist as disabled diagnostic sensors."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        for key in ("oTA3CurrentVersion", "oTA3TargetVersion", "oTA3State", "oTA3LastResult"):
+            entry = CATALOG_SO[key]
+            assert entry.capability_info == {"access": "read", "type": "string"}
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+    def test_message_queue_sync_entries(self):
+        """messageQueueSync diagnostics beyond activeMessageIndex exist."""
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        behaviour = CATALOG_SO["messageQueueSync/messageBehaviour"]
+        assert set(behaviour.capability_info["values"]) == {
+            "BLOCKING_OVEN_PROCESS",
+            "BLOCKING_PHASE_TRANSITION",
+            "INVALID",
+            "NOT_BLOCKING",
+        }
+        assert CATALOG_SO["messageQueueSync/messageQueueId"].capability_info["type"] == "number"
+        assert CATALOG_SO["messageQueueSync/messageQueueType"].capability_info["type"] == "string"
+        for key in (
+            "messageQueueSync/messageBehaviour",
+            "messageQueueSync/messageQueueId",
+            "messageQueueSync/messageQueueType",
+        ):
+            assert CATALOG_SO[key].entity_registry_enabled_default is False
+
 class TestCatalogHood:
     """Tests for catalog_hd.py — values verified against HD-942051563_00 (issue #211)."""
 
