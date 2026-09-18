@@ -989,3 +989,50 @@ class TestWMApplianceStateSensor:
         entity = self._make_entity(mock_coordinator)
         entity.reported_state = {}
         assert entity.native_value is None
+
+
+class TestNulPaddingSanitization:
+    """NUL-padded string values are cleaned before display (SO oTA3 fields)."""
+
+    def _make_entity(self, mock_coordinator, attr="oTA3CurrentVersion") -> ElectroluxSensor:
+        capability = {"access": "read", "type": "string"}
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Test OTA",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=Platform.SENSOR,
+            entity_name=attr,
+            entity_attr=attr,
+            entity_source=None,
+            capability=capability,
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:cloud-download",
+        )
+        entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {
+                "reported": {attr: "S0005120103\x00"},
+                "desired": {},
+                "metadata": {},
+            },
+        }
+        entity.reported_state = {attr: "S0005120103\x00"}
+        return entity
+
+    def test_trailing_nul_stripped(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator)
+        assert entity.native_value == "S0005120103"
+
+    def test_all_nul_returns_none(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator, attr="oTA3TargetVersion")
+        entity.reported_state = {"oTA3TargetVersion": "\x00" * 12}
+        assert entity.native_value is None
+
+    def test_clean_string_untouched(self, mock_coordinator):
+        entity = self._make_entity(mock_coordinator, attr="oTA3State")
+        entity.reported_state = {"oTA3State": "IDLE"}
+        assert entity.native_value == "Idle"
