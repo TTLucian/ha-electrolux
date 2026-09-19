@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Suoratoisto"
+            },
             "connectivitystate": {
                 "name": "Yhteyden tila"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Virtatila"
+            },
+            "targetmicrowavepower": {
+                "name": "Kohteen mikroaaltoteho"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Tuulettimen nopeus"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Rasvasuodattimen merkkivalo"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Toteutustila"
+            },
+            "docktype": {
+                "name": "Telakkatyyppi"
+            },
+            "filtercleanthreshold": {
+                "name": "Suodattimen puhdistuskynnys"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-suodattimen ostoraja"
+            },
+            "hepafilterchangethreshold": {
+                "name": "HEPA-suodattimen muutoksen kynnysarvo"
+            },
+            "niustatus": {
+                "name": "Niu-status"
+            },
+            "soundpackfile": {
+                "name": "Äänipakettitiedosto"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Mykistä"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Hiilisuodattimen indikaatio"
             }
         }
     }

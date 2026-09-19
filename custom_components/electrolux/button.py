@@ -10,7 +10,6 @@ from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 
 from .const import BUTTON, CONF_API_KEY, icon_mapping
 from .coordinator import ElectroluxCoordinator
@@ -70,7 +69,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         unit: str,
         device_class: str,
         entity_category: EntityCategory,
-        icon: str,
+        icon: str | None,
         catalog_entry: ElectroluxDevice | None,
         val_to_send: str,
     ) -> None:
@@ -97,8 +96,9 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         if self.entity_attr.lower() == "executecommand" and command in icon_mapping:
             self._execute_command_translation_key = f"executecommand_{command.lower()}"
             self._attr_translation_key = self._execute_command_translation_key
-            # Let Home Assistant resolve the command-specific translated name.
-            del self._attr_name
+            # No _attr_name is set (ElectroluxEntity resolves names via the name
+            # property), so Home Assistant resolves the command-specific
+            # translated name through the per-command translation key.
 
     @property
     def entity_domain(self):
@@ -131,21 +131,30 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         return f"{api_key_hash}-{normalized_attr}-{self.val_to_send}-{self.entity_source or 'root'}-{self.pnc_id}"
 
     @property
-    def name(self) -> str | UndefinedType | None:
-        """Return the name of the sensor."""
-        if self._execute_command_translation_key:
-            translated_name = super().name
-            if translated_name is not UNDEFINED:
-                return translated_name
-
-            # Keep entity creation safe before platform translations are loaded.
-            name = self._name
+    def name(self) -> str:
+        """Return the name of the sensor, localized when available."""
+        # Prefer Home Assistant's localized name for this button's translation key,
+        # falling back to the integration's English display name.
+        name = self._name
+        translated: str | None = None
+        if self.platform_data is not None and self.translation_key is not None:
+            if (name_translation_key := self._name_translation_key) and (
+                translated := self.platform_data.platform_translations.get(name_translation_key)
+            ):
+                name = translated
+        # executeCommand buttons carry a per-command translation key
+        # (executecommand_<command>). When the platform translations resolve it,
+        # the translated action name is the full name — no val_to_send suffix.
+        # Before translations are loaded (entity setup, unit tests), fall back to
+        # the generic display name with the command suffix stripped, so the
+        # entity still gets a sane label.
+        if self._execute_command_translation_key is not None:
+            if translated:
+                return name
             suffix = f" {self.val_to_send}"
             if name.lower().endswith(suffix.lower()):
                 return name[: -len(suffix)]
             return name
-
-        name = self._name
         if self.catalog_entry and self.catalog_entry.friendly_name:
             # Get appliance name from coordinator data
             appliances = self.coordinator.data.get("appliances", None)

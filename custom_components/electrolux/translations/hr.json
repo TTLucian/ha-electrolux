@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Prijenos uživo"
+            },
             "connectivitystate": {
                 "name": "Stanje povezanosti"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Način rada snage"
+            },
+            "targetmicrowavepower": {
+                "name": "Ciljana mikrovalna snaga"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Brzina ventilatora"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Indikator filtra za masnoću"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Država izvršenja"
+            },
+            "docktype": {
+                "name": "Vrsta pristaništa"
+            },
+            "filtercleanthreshold": {
+                "name": "Prag čišćenja filtra"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Prag kupnje HEPA filtra"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Prag promjene HEPA filtra"
+            },
+            "niustatus": {
+                "name": "NIU STATUS"
+            },
+            "soundpackfile": {
+                "name": "Datoteka paketa zvukova"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Isključi zvuk"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Indikator filtra s aktivnim ugljenom"
             }
         }
     }

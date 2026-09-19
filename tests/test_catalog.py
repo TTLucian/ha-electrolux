@@ -413,6 +413,19 @@ class TestCatalogDishwasher:
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
 
+    def test_maintenance_entries_map_to_reported_item_one(self):
+        """Maintenance entries use the numeric reported-state structure."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_occured"].state_path
+            == "applianceCareAndMaintenance0/1/occured"
+        )
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_threshold"].state_path
+            == "applianceCareAndMaintenance0/1/threshold"
+        )
+
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
         """Rinse aid level should use appliance capability limits, not stale catalog values."""
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
@@ -436,6 +449,24 @@ class TestCatalogDishwasher:
         assert entry.capability_info["type"] == "boolean"
         assert entry.entity_platform == Platform.BINARY_SENSOR
         assert entry.device_class is None
+
+    def test_dishwasher_scores_expose_the_documented_bounded_scale(self):
+        """Scores use a visible 0–7 suffix without a physical measurement class."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        for key in (
+            "userSelections/energyScore",
+            "userSelections/waterScore",
+            "userSelections/ecoScore",
+        ):
+            entry = CATALOG_DW[key]
+            assert entry.capability_info["access"] == "read"
+            assert entry.capability_info["type"] == "number"
+            assert entry.capability_info["min"] == 0
+            assert entry.capability_info["max"] == 7
+            assert entry.capability_info["step"] == 1
+            assert entry.unit == "/ 7"
+            assert entry.device_class is None
 
     def test_reported_only_fallbacks_are_configured_for_dw(self):
         """DW reported-only UI state fields should fall back to read-only entities."""
@@ -665,6 +696,52 @@ class TestCatalogStructuredOven:
 
         assert isinstance(CATALOG_SO, dict)
         assert len(CATALOG_SO) > 0
+
+    def test_microwave_power_entry(self):
+        """upperOven/targetMicrowavePower is a wattage number control."""
+        from homeassistant.components.number import NumberDeviceClass
+        from homeassistant.const import UnitOfPower
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        entry = CATALOG_SO["upperOven/targetMicrowavePower"]
+        assert entry.capability_info["access"] == "readwrite"
+        assert entry.capability_info["min"] == 0
+        assert entry.capability_info["max"] == 1000
+        assert entry.device_class == NumberDeviceClass.POWER
+        assert entry.unit == UnitOfPower.WATT
+
+    def test_ota3_diagnostic_entries(self):
+        """OTA3 reported-only fields exist as disabled diagnostic sensors."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        for key in ("oTA3CurrentVersion", "oTA3TargetVersion", "oTA3State", "oTA3LastResult"):
+            entry = CATALOG_SO[key]
+            assert entry.capability_info == {"access": "read", "type": "string"}
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+    def test_message_queue_sync_entries(self):
+        """messageQueueSync diagnostics beyond activeMessageIndex exist."""
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        behaviour = CATALOG_SO["messageQueueSync/messageBehaviour"]
+        assert set(behaviour.capability_info["values"]) == {
+            "BLOCKING_OVEN_PROCESS",
+            "BLOCKING_PHASE_TRANSITION",
+            "INVALID",
+            "NOT_BLOCKING",
+        }
+        assert CATALOG_SO["messageQueueSync/messageQueueId"].capability_info["type"] == "number"
+        assert CATALOG_SO["messageQueueSync/messageQueueType"].capability_info["type"] == "string"
+        for key in (
+            "messageQueueSync/messageBehaviour",
+            "messageQueueSync/messageQueueId",
+            "messageQueueSync/messageQueueType",
+        ):
+            assert CATALOG_SO[key].entity_registry_enabled_default is False
 
 class TestCatalogHood:
     """Tests for catalog_hd.py — values verified against HD-942051563_00 (issue #211)."""

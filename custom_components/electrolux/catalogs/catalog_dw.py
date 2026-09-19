@@ -48,7 +48,6 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         device_class=None,
         unit=None,
         entity_category=None,
-        entity_icon="mdi:gesture-tap-button",
         available_when_states=DISHWASHER_EXECUTE_STATES,
         # Multi-command capability (PAUSE/RESUME/START/STOPRESET, sometimes ON/OFF):
         # one button per command value, never a toggle switch. Belt-and-braces with
@@ -336,9 +335,12 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
             "type": "number",
             "min": 0,
             "max": 7,
+            "step": 1,
         },
         device_class=None,
-        unit=None,
+        # This is a bounded score, not an energy measurement.  Keep the
+        # numeric state and make the documented 0–7 scale visible in HA.
+        unit="/ 7",
         entity_category=None,
         entity_icon="mdi:leaf",
         friendly_name="Energy Score",
@@ -349,9 +351,10 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
             "type": "number",
             "min": 0,
             "max": 7,
+            "step": 1,
         },
         device_class=None,
-        unit=None,
+        unit="/ 7",
         entity_category=None,
         entity_icon="mdi:water-percent",
         friendly_name="Water Score",
@@ -362,9 +365,10 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
             "type": "number",
             "min": 0,
             "max": 7,
+            "step": 1,
         },
         device_class=None,
-        unit=None,
+        unit="/ 7",
         entity_category=None,
         entity_icon="mdi:recycle",
         friendly_name="Eco Score",
@@ -393,6 +397,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         friendly_name="Maintenance Required",
+        state_path="applianceCareAndMaintenance0/1/occured",
+        entity_registry_enabled_default=False,
     ),
     "applianceCareAndMaintenance0/maint1_threshold": ElectroluxDevice(
         capability_info={
@@ -406,6 +412,7 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:counter",
         friendly_name="Maintenance Threshold",
         entity_registry_enabled_default=False,
+        state_path="applianceCareAndMaintenance0/1/threshold",
     ),
     "applianceMode": ElectroluxDevice(
         capability_info={

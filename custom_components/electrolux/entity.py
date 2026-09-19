@@ -134,7 +134,7 @@ class ElectroluxEntity(CoordinatorEntity):
         unit: str | None,
         device_class: Any,
         entity_category: EntityCategory | None,
-        icon: str,
+        icon: str | None,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
         """Initialize the entity."""
@@ -154,7 +154,6 @@ class ElectroluxEntity(CoordinatorEntity):
                     self.appliance_status = appliance.state
 
         self._name = name
-        self._attr_name = name
         self._icon = icon
         self._device_class = device_class
         self._entity_category = entity_category
@@ -200,10 +199,12 @@ class ElectroluxEntity(CoordinatorEntity):
         else:
             self.entity_key = entity_attr_lower.strip("_")
 
-        # Set translation_key for icons.json lookup.
+        # Set translation_key for icons.json lookup and HA entity-name translation.
         # Sanitize entity_attr to a valid HA translation key: lowercase, non-alphanumeric → '_',
         # collapse duplicate underscores, strip leading/trailing underscores.
-        _tk = entity_attr.lower().replace("/", "_")
+        # Use entity_key (which strips any fPPN prefix) so the key matches the
+        # catalog/strings.json translations, which never carry the fPPN prefix.
+        _tk = self.entity_key.replace("/", "_")
         while "__" in _tk:
             _tk = _tk.replace("__", "_")
         self._attr_translation_key = _tk.strip("_")
@@ -224,6 +225,23 @@ class ElectroluxEntity(CoordinatorEntity):
     def entity_domain(self) -> str:
         """Entity domain for the entry. Must be overridden by subclasses."""
         raise NotImplementedError  # pragma: no cover
+
+    @property
+    def name(self) -> str:
+        """Return the entity name, localized when Home Assistant can resolve it.
+
+        Home Assistant resolves the name from ``translation_key`` against the user's
+        language catalog (``translations/<lang>.json``), falling back to the English
+        ``strings.json``. When no translation key exists, or the entity has not been
+        attached to a platform yet (e.g. during unit tests), fall back to the
+        integration's English display name so every entity always has a valid label.
+        """
+        if self.platform_data is not None and self.translation_key is not None:
+            if (name_translation_key := self._name_translation_key) and (
+                name := self.platform_data.platform_translations.get(name_translation_key)
+            ):
+                return self._substitute_name_placeholders(name)
+        return self._name
 
     @property
     def unique_id(self) -> str:
@@ -315,12 +333,17 @@ class ElectroluxEntity(CoordinatorEntity):
 
         Used for the evaluation of state_mapping one property to another.
         """
-        if "/" in path:
-            if self.reported_state.get(path, None):
-                return self.reported_state.get(path)
-            source, attr = path.split("/")
-            return self.reported_state.get(source, {}).get(attr, None)
-        return self.reported_state.get(path, None)
+        if path in self.reported_state:
+            return self.reported_state[path]
+
+        value: Any = self.reported_state
+        for part in path.split("/"):
+            if not isinstance(value, dict):
+                return None
+            value = value.get(part)
+            if value is None:
+                return None
+        return value
 
     @property
     def reported_state(self) -> dict[str, Any]:
@@ -979,7 +1002,12 @@ class ElectroluxEntity(CoordinatorEntity):
                     value = appliance_info.get(self.entity_attr)
         else:
             # Look in reported_state (where most live oven data is)
-            value = self.reported_state.get(self.entity_attr)
+            state_path = self.catalog_entry.state_path if self.catalog_entry else None
+            if isinstance(state_path, str) and state_path:
+                value = self.get_state_attr(state_path)
+
+            if value is None:
+                value = self.reported_state.get(self.entity_attr)
 
             # Handle nested paths (e.g., userSelections/values)
             if value is None and self.entity_source:

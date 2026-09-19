@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Direktestrømming"
+            },
             "connectivitystate": {
                 "name": "Tilkoblingstilstand"
             },
@@ -520,6 +526,9 @@
             },
             "powermode": {
                 "name": "Strømmodus"
+            },
+            "targetmicrowavepower": {
+                "name": "Mål mikrobølgeeffekt"
             }
         },
         "select": {
@@ -534,6 +543,9 @@
             },
             "fanspeedsetting": {
                 "name": "Viftehastighet"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Fettfilterindikasjon"
             }
         },
         "sensor": {
@@ -1352,6 +1364,24 @@
             },
             "executionstate": {
                 "name": "Utførelsesstat"
+            },
+            "docktype": {
+                "name": "Dokktype"
+            },
+            "filtercleanthreshold": {
+                "name": "Terskel for filterrengjøring"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-filter kjøpsterskel"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Terskel for HEPA-filterendring"
+            },
+            "niustatus": {
+                "name": "Niu-status"
+            },
+            "soundpackfile": {
+                "name": "Lydpakkefil"
             }
         },
         "switch": {
@@ -1570,6 +1600,9 @@
             },
             "mute": {
                 "name": "Stum"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Kullfilterindikasjon"
             }
         }
     }

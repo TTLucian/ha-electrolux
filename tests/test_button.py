@@ -1605,7 +1605,7 @@ class TestButtonMissingCoverage:
         capability,
         catalog_entry=None,
         val_to_send="PRESS",
-        icon="",
+        icon: str | None = "",
     ):
         entity = ElectroluxButton(
             coordinator=coordinator,
@@ -1692,6 +1692,48 @@ class TestButtonMissingCoverage:
             entity = self._make_button(mock_coordinator, mock_capability, icon="", val_to_send="UNKNOWN")
             result = entity.icon
             assert result == "mdi:gesture-tap-button"
+
+    @pytest.mark.parametrize(
+        ("command", "expected_icon"),
+        [
+            ("START", "mdi:play"),
+            ("PAUSE", "mdi:pause"),
+            ("RESUME", "mdi:play-pause"),
+            ("STOPRESET", "mdi:stop"),
+            ("ON", "mdi:power-on"),
+            ("OFF", "mdi:power-off"),
+        ],
+    )
+    def test_dw_execute_command_uses_command_icon(self, mock_coordinator, mock_capability, command, expected_icon):
+        """Dishwasher executeCommand buttons use the command-specific icon mapping."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        catalog_entry = CATALOG_DW["executeCommand"]
+        entity = self._make_button(
+            mock_coordinator,
+            mock_capability,
+            catalog_entry=catalog_entry,
+            val_to_send=command,
+            icon=catalog_entry.entity_icon,
+        )
+
+        assert catalog_entry.entity_icon is None
+        assert entity.icon == expected_icon
+
+    def test_dw_execute_command_unknown_value_uses_generic_icon(self, mock_coordinator, mock_capability):
+        """Unknown dishwasher executeCommand values use the generic fallback icon."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        catalog_entry = CATALOG_DW["executeCommand"]
+        entity = self._make_button(
+            mock_coordinator,
+            mock_capability,
+            catalog_entry=catalog_entry,
+            val_to_send="UNKNOWN",
+            icon=catalog_entry.entity_icon,
+        )
+
+        assert entity.icon == "mdi:gesture-tap-button"
 
     def test_device_class_fallback_when_no_catalog_entry(self, mock_coordinator, mock_capability):
         """Line 101: device_class returns _device_class when no catalog entry."""

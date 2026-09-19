@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Url адрес на поточно предаване на живо"
+            },
             "connectivitystate": {
                 "name": "Състояние на свързаност"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Режим на захранване"
+            },
+            "targetmicrowavepower": {
+                "name": "Целева мощност на микровълновата печка"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Скорост на вентилатора"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Индикация за филтър за грес"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Състояние на изпълнение"
+            },
+            "docktype": {
+                "name": "Тип товарна платформа"
+            },
+            "filtercleanthreshold": {
+                "name": "Праг за почистване на филтъра"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Праг за покупка на HEPA филтър"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Праг за промяна на HEPA филтъра"
+            },
+            "niustatus": {
+                "name": "Статус на NIU"
+            },
+            "soundpackfile": {
+                "name": "Файл със звуков пакет"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Без звук"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Индикация за филтър за дървени въглища"
             }
         }
     }
