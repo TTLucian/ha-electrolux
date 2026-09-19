@@ -91,6 +91,14 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
             catalog_entry=catalog_entry,
         )
         self.val_to_send = val_to_send
+        self._execute_command_translation_key: str | None = None
+        command = str(val_to_send).upper()
+        if self.entity_attr.lower() == "executecommand" and command in icon_mapping:
+            self._execute_command_translation_key = f"executecommand_{command.lower()}"
+            self._attr_translation_key = self._execute_command_translation_key
+            # No _attr_name is set (ElectroluxEntity resolves names via the name
+            # property), so Home Assistant resolves the command-specific
+            # translated name through the per-command translation key.
 
     @property
     def entity_domain(self):
@@ -128,11 +136,25 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         # Prefer Home Assistant's localized name for this button's translation key,
         # falling back to the integration's English display name.
         name = self._name
+        translated: str | None = None
         if self.platform_data is not None and self.translation_key is not None:
             if (name_translation_key := self._name_translation_key) and (
                 translated := self.platform_data.platform_translations.get(name_translation_key)
             ):
                 name = translated
+        # executeCommand buttons carry a per-command translation key
+        # (executecommand_<command>). When the platform translations resolve it,
+        # the translated action name is the full name — no val_to_send suffix.
+        # Before translations are loaded (entity setup, unit tests), fall back to
+        # the generic display name with the command suffix stripped, so the
+        # entity still gets a sane label.
+        if self._execute_command_translation_key is not None:
+            if translated:
+                return name
+            suffix = f" {self.val_to_send}"
+            if name.lower().endswith(suffix.lower()):
+                return name[: -len(suffix)]
+            return name
         if self.catalog_entry and self.catalog_entry.friendly_name:
             # Get appliance name from coordinator data
             appliances = self.coordinator.data.get("appliances", None)
