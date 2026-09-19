@@ -53,6 +53,18 @@ class TestInternalFlagBlacklist:
         ]:
             assert not _is_blacklisted(name), f"{name} must not be blacklisted"
 
+    def test_dishwasher_flag_pattern_is_narrow(self):
+        """Only the three documented dishwasher notification flag names match."""
+        for name in [
+            "dCPN_DWAlert",
+            "dCPN_DWEndOfCycle",
+            "dCPN_DWMaintenances",
+        ]:
+            assert _is_blacklisted(name), f"{name} should be blacklisted"
+
+        for name in ["dCPN_DWAlertDetails", "dCPN_WMAlert", "dCPN_DW"]:
+            assert not _is_blacklisted(name), f"{name} must not be blacklisted"
+
 
 class TestCatalogUiSwVersion:
     """catalog_cr.py applianceUiSwVersion diagnostic entry."""

@@ -458,7 +458,9 @@ def _get_catalog_base():
             },
             device_class=None,  # Will be handled as button in entity creation
             unit=None,
-            entity_category=None,
+            # This is an integration maintenance action, not an appliance
+            # cycle control or user setting.
+            entity_category=EntityCategory.DIAGNOSTIC,
             entity_icon="mdi:sync",
             friendly_name="Manual Sync",
         ),
@@ -510,6 +512,18 @@ def _get_catalog_base():
             unit=None,
             entity_category=None,
             entity_icon="mdi:remote",
+        ),
+        "networkInterfaceAlwaysOn": ElectroluxDevice(
+            capability_info={
+                "access": "readwrite",
+                "type": "string",
+                "values": {"OFF": {}, "ON": {}},
+            },
+            device_class=SwitchDeviceClass.SWITCH,
+            unit=None,
+            entity_category=EntityCategory.CONFIG,
+            entity_icon="mdi:wifi-check",
+            friendly_name="Network Always On",
         ),
         "uiLockMode": ElectroluxDevice(
             capability_info={
