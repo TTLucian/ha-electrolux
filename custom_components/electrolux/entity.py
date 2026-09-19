@@ -134,7 +134,7 @@ class ElectroluxEntity(CoordinatorEntity):
         unit: str | None,
         device_class: Any,
         entity_category: EntityCategory | None,
-        icon: str,
+        icon: str | None,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
         """Initialize the entity."""

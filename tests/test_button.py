@@ -1510,7 +1510,7 @@ class TestButtonMissingCoverage:
         capability,
         catalog_entry=None,
         val_to_send="PRESS",
-        icon="",
+        icon: str | None = "",
     ):
         entity = ElectroluxButton(
             coordinator=coordinator,
