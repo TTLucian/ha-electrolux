@@ -69,7 +69,7 @@ class ElectroluxButton(ElectroluxEntity, ButtonEntity):
         unit: str,
         device_class: str,
         entity_category: EntityCategory,
-        icon: str,
+        icon: str | None,
         catalog_entry: ElectroluxDevice | None,
         val_to_send: str,
     ) -> None:
