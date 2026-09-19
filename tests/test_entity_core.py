@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.const import EntityCategory, Platform
 
+from custom_components.electrolux.model import ElectroluxDevice
 from custom_components.electrolux.number import ElectroluxNumber
 from custom_components.electrolux.sensor import ElectroluxSensor
 
@@ -75,6 +76,39 @@ def make_entity(
     )
     entity.hass = coordinator.hass
     return entity
+
+
+class TestCatalogStatePaths:
+    """Test catalog mappings for reported-state paths."""
+
+    def test_nested_state_path_is_used_for_catalog_entity(self):
+        """A catalog state path can differ from the API capability path."""
+        coordinator, _ = make_coordinator(
+            reported={"applianceCareAndMaintenance0": {"1": {"occured": True}}}
+        )
+        entity = ElectroluxSensor(
+            coordinator=coordinator,
+            name="Maintenance Required",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=Platform.SENSOR,
+            entity_name="maint1_occured",
+            entity_attr="maint1_occured",
+            entity_source="applianceCareAndMaintenance0",
+            capability={"access": "read", "type": "boolean"},
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            icon="mdi:alert",
+            catalog_entry=ElectroluxDevice(
+                state_path="applianceCareAndMaintenance0/1/occured"
+            ),
+        )
+        entity.reported_state = {
+            "applianceCareAndMaintenance0": {"1": {"occured": True}}
+        }
+
+        assert entity.extract_value() is True
 
 
 # ===========================================================================

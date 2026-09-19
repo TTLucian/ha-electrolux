@@ -29,7 +29,7 @@ _MYMEMORY_TARGETS = {
     "lb": "lb-LU",
     "nb": "nb-NO",
     "nl": "nl-NL",
-    "no": "nb-NO",
+    "nn": "nn-NO",
     "pl": "pl-PL",
     "pt": "pt-PT",
     "pt_br": "pt-BR",
@@ -393,7 +393,7 @@ def main():
     if not ok:
         print("⛔ Translation backend is not responding:")
         print(f"   {probe_msg}")
-        print("   This is a server-side rate limit on your IP (not a script bug).")
+        print("   This is a server-side rate limit on your IP.")
         print("   Wait for it to reset, or try a different backend: python translate.py --backend mymemory")
         print("   No translation files were changed.")
         return
@@ -415,8 +415,9 @@ def main():
         "lb": ("Lëtzebuergesch", "lb"),
         "lt": ("lietuvių", "lt"),
         "lv": ("latviešu", "lv"),
+        "nb": ("bokmål", "nb"),
         "nl": ("nederlands", "nl"),
-        "no": ("norsk", "no"),
+        "nn": ("nynorsk", "nn"),
         "pl": ("polski", "pl"),
         "pt_br": ("Português Brasil", "pt"),
         "pt": ("Português", "pt"),

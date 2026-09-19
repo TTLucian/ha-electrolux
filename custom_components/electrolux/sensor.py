@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import SENSOR, TIME_INVALID_SENTINEL
 from .entity import ElectroluxEntity
-from .util import get_capability, time_seconds_to_minutes
+from .util import get_capability, sanitize_nul_string, time_seconds_to_minutes
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 PARALLEL_UPDATES = 0
@@ -90,6 +90,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             return None
 
         value = self.extract_value()
+
+        # Strip NUL (\x00) padding some appliances report in string fields
+        # (e.g. SO oTA3 firmware versions) before any further processing.
+        if isinstance(value, str):
+            value = sanitize_nul_string(value)
 
         # RVC (#130): reduce the persistent-map zone list to a count
         if self.json_path == "mapData/mapMatch/zones":
