@@ -397,6 +397,8 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.DIAGNOSTIC,
         friendly_name="Maintenance Required",
+        state_path="applianceCareAndMaintenance0/1/occured",
+        entity_registry_enabled_default=False,
     ),
     "applianceCareAndMaintenance0/maint1_threshold": ElectroluxDevice(
         capability_info={
@@ -410,6 +412,7 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:counter",
         friendly_name="Maintenance Threshold",
         entity_registry_enabled_default=False,
+        state_path="applianceCareAndMaintenance0/1/threshold",
     ),
     "applianceMode": ElectroluxDevice(
         capability_info={

@@ -413,6 +413,19 @@ class TestCatalogDishwasher:
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
 
+    def test_maintenance_entries_map_to_reported_item_one(self):
+        """Maintenance entries use the numeric reported-state structure."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_occured"].state_path
+            == "applianceCareAndMaintenance0/1/occured"
+        )
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_threshold"].state_path
+            == "applianceCareAndMaintenance0/1/threshold"
+        )
+
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
         """Rinse aid level should use appliance capability limits, not stale catalog values."""
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
