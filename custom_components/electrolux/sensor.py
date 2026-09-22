@@ -290,9 +290,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 return {zone["id"]: zone.get("status") for zone in value if isinstance(zone, dict) and "id" in zone}
             return {}
         if self.entity_attr == "alerts":
-            alert_types = self.capability.get("values", {})
-            # default is nullable - set a value for display to user
-            alert_types = {key: "OFF" for key in alert_types}
+            # Attribute values are mixed: OFF/severity-status strings per
+            # capability alert type, plus the structured active_alerts list.
+            alert_types: dict[str, Any] = {key: "OFF" for key in self.capability.get("values", {})}
             active_alerts: list[dict[str, Any]] = []
             if current_alerts := self.extract_value():
                 if isinstance(current_alerts, list):
