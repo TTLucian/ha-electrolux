@@ -65,7 +65,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 | `TD` | Tumble Dryer | Full | `TD-916002187`, `TD-916098401`, `TD-916098618`, `TD-916098759`, `TD-916099548`, `TD-916099949`, `TD-916099971`, `TD-916900511` |
 | `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834`, `DW-911438465`, `DW-911473025` |
+| `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834`, `DW-911438465`, `DW-911472038`, `DW-911473025` |
 | `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (`Muju` / `Verbier` / `PUREA9` verified) | `Muju-956006959323006505087076`; `Verbier-950011588246002195087076`; `PUREA9-950011384027000695087076` — `Fuji`/`WELLA5`/`WELLA7` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DH` / `Husky` | Dehumidifier | Full (`DH` verified) | `DH-950133061` (Frigidaire FGAC5044W1, SRAC); `Husky` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Full (`PUREi9` + `Cybele` verified) | `RVC - Pure i9`; `RVC - Purei9 2`; `Cybele-900402424543002761139298` — `Gordias`/`700series` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
@@ -78,7 +78,7 @@ The table below lists all appliance types and the known-tested diagnostic sample
 
 The following appliance types have catalog entries built from the Electrolux SDK's internal API mappings, but have **never been tested against real hardware**. Capability key names are correct per the SDK, but modes, value ranges, and model-specific differences need verification with real diagnostic JSON files.
 
-> **⚠️ SDK stability note:** The integration uses `electrolux-group-developer-sdk` v0.3.0, which is in early development. Its API, key names, and appliance constants may change between releases without notice. If something stops working after a package update, the catalog or command logic may need adjusting to match the new SDK version.
+> **⚠️ SDK stability note:** The integration uses `electrolux-group-developer-sdk` v0.7.0 or newer. Its API, key names, and appliance constants may change between releases without notice. If something stops working after a package update, the catalog or command logic may need adjusting to match the new SDK version.
 
 If you own one of these appliances, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. This is the single most impactful contribution you can make — a diagnostic file takes 30 seconds to generate and enables full verified support for your appliance type.
 
@@ -297,7 +297,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - AEG ÖKOKombi and AbsoluteCare series
 - Comprehensive cycle monitoring and control
 - Appliance state tracking (IDLE, RUNNING, PAUSED, END_OF_CYCLE, etc.)
-- Cycle phase and sub-phase monitoring
+- Cycle phase monitoring when reported by the appliance
 - Door status and lock control
 - Start time scheduling and delayed start
 - Time-to-end countdown
@@ -372,11 +372,9 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Start time scheduling and delayed start
 - Time-to-end countdown
 - Program selection with per-program configurations (ECO, INTENSIVE, QUICK, GLASS, etc.)
-- Temperature settings for optimal cleaning performance
 - Extra options (hygiene rinse, extra dry, intensive zones)
-- Salt level monitoring and alerts
-- Rinse aid level monitoring and alerts
-- Filter cleaning maintenance alerts
+- Rinse aid configuration and appliance-reported maintenance alerts
+- Alarm conditions such as missing salt or low rinse aid, when reported by the appliance
 - Remote control enablement
 - Network interface monitoring (WiFi quality, OTA updates, software version)
 - Appliance working time and cycle counters
@@ -447,8 +445,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
   - Delay start scheduling
 - Dishwasher controls:
   - Program selection (ECO, INTENSIVE, QUICK, GLASS, etc.)
-  - Temperature settings for optimal cleaning
-  - Delay start scheduling
+  - Delay start scheduling when supported by the appliance
   - Extra options (hygiene rinse, extra dry, intensive zones)
 
 ### ⏯️ Execute Command Button Availability
@@ -490,7 +487,7 @@ AC power and refrigerator ice maker ON/OFF buttons have no state restriction and
 - Connection state
 - Alert conditions
 - Dryer alerts (fluff filter maintenance)
-- Dishwasher alerts (salt level, rinse aid level, filter cleaning)
+- Dishwasher alarm conditions (for example missing salt and low rinse aid)
 
 ### 🔍 Diagnostics
 - Network interface information

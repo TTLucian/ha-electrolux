@@ -129,6 +129,15 @@ class ElectroluxBinarySensor(ElectroluxEntity, BinarySensorEntity):
         if self.entity_attr != "connectivityState" and not self.is_connected():
             return None
 
+        # Dishwasher alert-code entities are derived from the aggregate alert
+        # list. The API reports alert objects in an array, not one boolean
+        # property per alert code.
+        if self.entity_source == "alerts":
+            alerts = self.reported_state.get("alerts", [])
+            if not isinstance(alerts, list):
+                return False
+            return any(isinstance(alert, dict) and alert.get("code") == self.entity_attr for alert in alerts)
+
         value = self.extract_value()
 
         # foodProbeSupported: infer from whether foodProbeInsertionState is reported.
@@ -192,7 +201,7 @@ class _ElectroluxCloudDiagnosticBinarySensor(CoordinatorEntity[ElectroluxCoordin
         """Initialize the diagnostic binary sensor."""
         super().__init__(coordinator)
         self.config_entry = config_entry
-        self._attr_name = name
+        self._name = name
         self._attr_unique_id = f"{config_entry.entry_id}_{unique_suffix}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
@@ -202,6 +211,16 @@ class _ElectroluxCloudDiagnosticBinarySensor(CoordinatorEntity[ElectroluxCoordin
             entry_type=DeviceEntryType.SERVICE,
             configuration_url="https://developer.electrolux.one",
         )
+
+    @property
+    def name(self) -> str:
+        """Return the localized entity name, falling back to English."""
+        if self.platform_data is not None and self.translation_key is not None:
+            if (name_translation_key := self._name_translation_key) and (
+                name := self.platform_data.platform_translations.get(name_translation_key)
+            ):
+                return name
+        return self._name
 
 
 class ElectroluxCloudApiBinarySensor(_ElectroluxCloudDiagnosticBinarySensor):
@@ -214,6 +233,7 @@ class ElectroluxCloudApiBinarySensor(_ElectroluxCloudDiagnosticBinarySensor):
     ) -> None:
         """Initialize the API connectivity binary sensor."""
         super().__init__(coordinator, config_entry, name="API", unique_suffix="cloud_api")
+        self._attr_translation_key = "cloud_api"
 
     @property
     def is_on(self) -> bool:
@@ -251,6 +271,7 @@ class ElectroluxSseStreamBinarySensor(_ElectroluxCloudDiagnosticBinarySensor):
     ) -> None:
         """Initialize the SSE stream connectivity binary sensor."""
         super().__init__(coordinator, config_entry, name="Live Stream", unique_suffix="sse_stream")
+        self._attr_translation_key = "sse_stream"
 
     @property
     def is_on(self) -> bool:

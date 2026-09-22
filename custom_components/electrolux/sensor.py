@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import SENSOR, TIME_INVALID_SENTINEL
 from .entity import ElectroluxEntity
-from .util import get_capability, time_seconds_to_minutes
+from .util import get_capability, sanitize_nul_string, time_seconds_to_minutes
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 PARALLEL_UPDATES = 0
@@ -90,6 +90,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             return None
 
         value = self.extract_value()
+
+        # Strip NUL (\x00) padding some appliances report in string fields
+        # (e.g. SO oTA3 firmware versions) before any further processing.
+        if isinstance(value, str):
+            value = sanitize_nul_string(value)
 
         # RVC (#130): reduce the persistent-map zone list to a count
         if self.json_path == "mapData/mapMatch/zones":
@@ -288,6 +293,7 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             alert_types = self.capability.get("values", {})
             # default is nullable - set a value for display to user
             alert_types = {key: "OFF" for key in alert_types}
+            active_alerts: list[dict[str, Any]] = []
             if current_alerts := self.extract_value():
                 if isinstance(current_alerts, list):
                     for alert in current_alerts:
@@ -296,5 +302,14 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                             severity = alert.get("severity", "Alert")
                             status = alert.get("acknowledgeStatus", "")
                             alert_types[name] = f"{severity}-{status}"
+                            active_alerts.append(
+                                {
+                                    "code": name,
+                                    "severity": severity,
+                                    "acknowledge_status": status,
+                                    "appliance_code": alert.get("applianceCode"),
+                                }
+                            )
+            alert_types["active_alerts"] = active_alerts
             return alert_types
         return {}

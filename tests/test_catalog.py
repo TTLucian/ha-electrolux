@@ -7,6 +7,9 @@ coverage on catalog files (which are pure data modules).
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from homeassistant.components.sensor import SensorDeviceClass
 
 from custom_components.electrolux.model import ElectroluxDevice
@@ -78,6 +81,7 @@ class TestCatalogOven:
 
         assert isinstance(CATALOG_OV, dict)
         assert len(CATALOG_OV) > 0
+
 
     def test_oven_entities_are_electrolux_devices(self):
         """All oven catalog values are ElectroluxDevice instances."""
@@ -413,6 +417,47 @@ class TestCatalogDishwasher:
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
 
+    def test_verified_dishwasher_alert_entities(self):
+        """The live dishwasher alert codes are represented as binary sensors."""
+        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        for code in ("DISH_ALARM_RINSE_AID_LOW", "DISH_ALARM_SALT_MISSING"):
+            entry = CATALOG_DW[f"alerts/{code}"]
+            assert entry.capability_info == {"access": "read", "type": "boolean"}
+            assert entry.device_class == BinarySensorDeviceClass.PROBLEM
+
+    def test_gi7210b2sn_fixture_captures_verified_pnc_data(self):
+        """The sanitized GI7210B2SN diagnostic fixture preserves live keys."""
+        fixture_path = Path(__file__).parent / "fixtures" / "dw_911472038.json"
+        fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+
+        assert fixture["pnc"] == "911472038_00"
+        assert fixture["appliance_type"] == "DW"
+        assert fixture["capabilities"]["userSelections/programsOrder"]["items"][-1] == "RINSE"
+        assert fixture["capabilities"]["userSelections/programUID"]["values"]["MACHINE_SETTINGS_HIDDEN_TEST"][
+            "disabled"
+        ] is True
+        """Dishwasher catalog loads without error."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert isinstance(CATALOG_DW, dict)
+        assert len(CATALOG_DW) > 0
+
+    def test_maintenance_entries_map_to_reported_item_one(self):
+        """Maintenance entries use the numeric reported-state structure."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_occured"].state_path
+            == "applianceCareAndMaintenance0/1/occured"
+        )
+        assert (
+            CATALOG_DW["applianceCareAndMaintenance0/maint1_threshold"].state_path
+            == "applianceCareAndMaintenance0/1/threshold"
+        )
+
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
         """Rinse aid level should use appliance capability limits, not stale catalog values."""
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
@@ -449,6 +494,42 @@ class TestCatalogDishwasher:
         assert entry.unit == UnitOfTime.SECONDS
         assert entry.capability_info["min"] == -1
         assert entry.capability_info["max"] == 86400
+    def test_dishwasher_network_always_on_is_configuration(self):
+        """Persistent network behavior is presented as a configuration switch."""
+        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalog_core import CATALOG_BASE
+
+        entry = CATALOG_BASE()["networkInterfaceAlwaysOn"]
+        assert entry.device_class == SwitchDeviceClass.SWITCH
+        assert entry.entity_category == EntityCategory.CONFIG
+
+    def test_manual_sync_is_diagnostic(self):
+        """Manual synchronization is an integration maintenance action."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalog_core import CATALOG_BASE
+
+        assert CATALOG_BASE()["manualSync"].entity_category == EntityCategory.DIAGNOSTIC
+
+    def test_dishwasher_scores_expose_the_documented_bounded_scale(self):
+        """Scores use a visible 0–7 suffix without a physical measurement class."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        for key in (
+            "userSelections/energyScore",
+            "userSelections/waterScore",
+            "userSelections/ecoScore",
+        ):
+            entry = CATALOG_DW[key]
+            assert entry.capability_info["access"] == "read"
+            assert entry.capability_info["type"] == "number"
+            assert entry.capability_info["min"] == 0
+            assert entry.capability_info["max"] == 7
+            assert entry.capability_info["step"] == 1
+            assert entry.unit == "/ 7"
+            assert entry.device_class is None
 
     def test_reported_only_fallbacks_are_configured_for_dw(self):
         """DW reported-only UI state fields should fall back to read-only entities."""
@@ -678,6 +759,52 @@ class TestCatalogStructuredOven:
 
         assert isinstance(CATALOG_SO, dict)
         assert len(CATALOG_SO) > 0
+
+    def test_microwave_power_entry(self):
+        """upperOven/targetMicrowavePower is a wattage number control."""
+        from homeassistant.components.number import NumberDeviceClass
+        from homeassistant.const import UnitOfPower
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        entry = CATALOG_SO["upperOven/targetMicrowavePower"]
+        assert entry.capability_info["access"] == "readwrite"
+        assert entry.capability_info["min"] == 0
+        assert entry.capability_info["max"] == 1000
+        assert entry.device_class == NumberDeviceClass.POWER
+        assert entry.unit == UnitOfPower.WATT
+
+    def test_ota3_diagnostic_entries(self):
+        """OTA3 reported-only fields exist as disabled diagnostic sensors."""
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        for key in ("oTA3CurrentVersion", "oTA3TargetVersion", "oTA3State", "oTA3LastResult"):
+            entry = CATALOG_SO[key]
+            assert entry.capability_info == {"access": "read", "type": "string"}
+            assert entry.entity_category == EntityCategory.DIAGNOSTIC
+            assert entry.entity_registry_enabled_default is False
+
+    def test_message_queue_sync_entries(self):
+        """messageQueueSync diagnostics beyond activeMessageIndex exist."""
+        from custom_components.electrolux.catalogs.catalog_so import CATALOG_SO
+
+        behaviour = CATALOG_SO["messageQueueSync/messageBehaviour"]
+        assert set(behaviour.capability_info["values"]) == {
+            "BLOCKING_OVEN_PROCESS",
+            "BLOCKING_PHASE_TRANSITION",
+            "INVALID",
+            "NOT_BLOCKING",
+        }
+        assert CATALOG_SO["messageQueueSync/messageQueueId"].capability_info["type"] == "number"
+        assert CATALOG_SO["messageQueueSync/messageQueueType"].capability_info["type"] == "string"
+        for key in (
+            "messageQueueSync/messageBehaviour",
+            "messageQueueSync/messageQueueId",
+            "messageQueueSync/messageQueueType",
+        ):
+            assert CATALOG_SO[key].entity_registry_enabled_default is False
 
 class TestCatalogHood:
     """Tests for catalog_hd.py — values verified against HD-942051563_00 (issue #211)."""

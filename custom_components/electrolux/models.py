@@ -433,6 +433,23 @@ class Appliance:
 
         # get the item definition from the catalog
         catalog_item = self.catalog.get(capability, None)
+        # The API exposes dCApplianceFeature_* as constant capability values.
+        # Their semantics are not documented well enough to remove, but they
+        # are technical appliance metadata rather than primary user controls.
+        # Keep them available for diagnosis while disabling them by default.
+        if (
+            catalog_item is None
+            and capability.startswith("dCApplianceFeature_")
+            and capability_info
+            and capability_info.get("access") == "constant"
+        ):
+            catalog_item = ElectroluxDevice(
+                capability_info=capability_info,
+                entity_category=EntityCategory.DIAGNOSTIC,
+                entity_icon="mdi:information-outline",
+                friendly_name="Appliance feature",
+                entity_registry_enabled_default=False,
+            )
         using_reported_only_fallback = False
         if catalog_item:
             # Check if catalog specifies a custom entity_source
@@ -775,8 +792,18 @@ class Appliance:
                     ):
                         attr_in_reported = True
                 else:
-                    attr_in_reported = self.get_state(catalog_key) is not None
-                    attr_at_top_level = self.state.get(catalog_key) is not None if self.state else False
+                    state_path = catalog_item.state_path or catalog_key
+                    attr_in_reported = self.get_state(state_path) is not None
+                    attr_at_top_level = self.state.get(state_path) is not None if self.state else False
+
+                    # Dishwasher alert-code entries are derived from the
+                    # reported ``alerts`` array rather than being literal
+                    # state paths. Create them when the appliance advertises
+                    # the aggregate alert capability.
+                    if catalog_key.startswith("alerts/") and (
+                        "alerts" in (capabilities_names or []) or self.get_state("alerts") is not None
+                    ):
+                        attr_in_reported = True
 
                 if not (attr_in_reported or attr_at_top_level or is_always_created_entity):
                     _LOGGER.debug(

@@ -496,6 +496,101 @@ class TestButtonNameProperty:
         assert entity.name == "Start Button"
 
 
+class TestExecuteCommandNames:
+    """Test translation-aware names for executeCommand buttons."""
+
+    @pytest.fixture
+    def mock_coordinator(self):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator._last_update_times = {}
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "key"}
+        coordinator.data = {}
+        return coordinator
+
+    @pytest.fixture
+    def mock_capability(self):
+        return {"access": "write", "type": "string", "values": {}}
+
+    def _make_button(self, coordinator, command, entity_attr="executeCommand"):
+        return ElectroluxButton(
+            coordinator=coordinator,
+            capability={"access": "write", "type": "string", "values": {command: {}}},
+            name=f"Execute command {command}" if entity_attr == "executeCommand" else "Manual sync",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=BUTTON,
+            entity_name=entity_attr,
+            entity_attr=entity_attr,
+            entity_source=None,
+            unit="",
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=None,
+            val_to_send=command,
+        )
+
+    @staticmethod
+    def _set_translation(entity, translated_name):
+        from homeassistant.helpers.entity_platform import PlatformData
+
+        platform_data = PlatformData(entity.coordinator.hass, domain="button", platform_name="electrolux")
+        platform_data.platform_translations = {
+            f"component.electrolux.entity.button.{entity.translation_key}.name": translated_name
+        }
+        entity.platform_data = platform_data
+
+    @pytest.mark.parametrize(
+        ("command", "translated_name"),
+        [
+            ("ON", "Turn on"),
+            ("OFF", "Turn off"),
+            ("START", "Start"),
+            ("PAUSE", "Pause"),
+            ("RESUME", "Resume"),
+            ("STOPRESET", "Stop / reset"),
+        ],
+    )
+    def test_known_execute_command_uses_command_translation(
+        self, mock_coordinator, command, translated_name
+    ):
+        """Known executeCommand values resolve to their translated action names."""
+        entity = self._make_button(mock_coordinator, command)
+
+        assert entity._attr_translation_key == f"executecommand_{command.lower()}"
+        assert not hasattr(entity, "_attr_name")
+
+        self._set_translation(entity, translated_name)
+        assert entity.name == translated_name
+        assert entity.name != f"Execute command {command}"
+
+    def test_unknown_execute_command_keeps_generic_fallback(self, mock_coordinator):
+        """Unknown executeCommand values still produce a safe generic name."""
+        entity = self._make_button(mock_coordinator, "UNKNOWN")
+
+        assert entity._attr_translation_key == "executecommand"
+        assert entity.name == "Execute command UNKNOWN"
+
+    def test_non_execute_command_name_behavior_is_unchanged(self, mock_coordinator):
+        """Explicitly named non-executeCommand buttons retain their suffix behavior."""
+        entity = self._make_button(mock_coordinator, "PRESS", entity_attr="manualSync")
+
+        assert entity.name == "Manual sync PRESS"
+
+    def test_execute_command_unique_id_is_unchanged(self, mock_coordinator):
+        """Translation-aware naming does not change executeCommand unique IDs."""
+        import hashlib
+
+        entity = self._make_button(mock_coordinator, "START")
+        api_key_hash = hashlib.sha256(b"key").hexdigest()[:16]
+
+        assert entity.unique_id == f"{api_key_hash}-executecommand-START-root-TEST_PNC"
+
+
 class TestButtonAvailableWhenStates:
     """Test available property with catalog_entry available_when_states."""
 
@@ -1510,7 +1605,7 @@ class TestButtonMissingCoverage:
         capability,
         catalog_entry=None,
         val_to_send="PRESS",
-        icon="",
+        icon: str | None = "",
     ):
         entity = ElectroluxButton(
             coordinator=coordinator,
@@ -1597,6 +1692,48 @@ class TestButtonMissingCoverage:
             entity = self._make_button(mock_coordinator, mock_capability, icon="", val_to_send="UNKNOWN")
             result = entity.icon
             assert result == "mdi:gesture-tap-button"
+
+    @pytest.mark.parametrize(
+        ("command", "expected_icon"),
+        [
+            ("START", "mdi:play"),
+            ("PAUSE", "mdi:pause"),
+            ("RESUME", "mdi:play-pause"),
+            ("STOPRESET", "mdi:stop"),
+            ("ON", "mdi:power-on"),
+            ("OFF", "mdi:power-off"),
+        ],
+    )
+    def test_dw_execute_command_uses_command_icon(self, mock_coordinator, mock_capability, command, expected_icon):
+        """Dishwasher executeCommand buttons use the command-specific icon mapping."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        catalog_entry = CATALOG_DW["executeCommand"]
+        entity = self._make_button(
+            mock_coordinator,
+            mock_capability,
+            catalog_entry=catalog_entry,
+            val_to_send=command,
+            icon=catalog_entry.entity_icon,
+        )
+
+        assert catalog_entry.entity_icon is None
+        assert entity.icon == expected_icon
+
+    def test_dw_execute_command_unknown_value_uses_generic_icon(self, mock_coordinator, mock_capability):
+        """Unknown dishwasher executeCommand values use the generic fallback icon."""
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        catalog_entry = CATALOG_DW["executeCommand"]
+        entity = self._make_button(
+            mock_coordinator,
+            mock_capability,
+            catalog_entry=catalog_entry,
+            val_to_send="UNKNOWN",
+            icon=catalog_entry.entity_icon,
+        )
+
+        assert entity.icon == "mdi:gesture-tap-button"
 
     def test_device_class_fallback_when_no_catalog_entry(self, mock_coordinator, mock_capability):
         """Line 101: device_class returns _device_class when no catalog entry."""

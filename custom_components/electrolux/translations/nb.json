@@ -164,11 +164,23 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Direktestrømming"
+            },
             "connectivitystate": {
                 "name": "Tilkoblingstilstand"
             },
             "doorstate": {
                 "name": "Dør"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Lite skyllemiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salt mangler"
             },
             "foodprobeinsertionstate": {
                 "name": "Matsonde"
@@ -332,7 +344,25 @@
                 "name": "Manuell synkronisering"
             },
             "executecommand": {
-                "name": "Makt"
+                "name": "Utfør kommando"
+            },
+            "executecommand_on": {
+                "name": "Slå på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Fortsett"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / tilbakestill"
             },
             "waterfilterstatereset": {
                 "name": "Tilbakestill vannfilteret"
@@ -502,6 +532,9 @@
             },
             "powermode": {
                 "name": "Strømmodus"
+            },
+            "targetmicrowavepower": {
+                "name": "Mål mikrobølgeeffekt"
             }
         },
         "select": {
@@ -516,6 +549,9 @@
             },
             "fanspeedsetting": {
                 "name": "Viftehastighet"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Fettfilterindikasjon"
             }
         },
         "sensor": {
@@ -1334,6 +1370,24 @@
             },
             "executionstate": {
                 "name": "Utførelsesstat"
+            },
+            "docktype": {
+                "name": "Dokktype"
+            },
+            "filtercleanthreshold": {
+                "name": "Terskel for filterrengjøring"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-filter kjøpsterskel"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Terskel for HEPA-filterendring"
+            },
+            "niustatus": {
+                "name": "Niu-status"
+            },
+            "soundpackfile": {
+                "name": "Lydpakkefil"
             }
         },
         "switch": {
@@ -1552,6 +1606,9 @@
             },
             "mute": {
                 "name": "Stum"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Kullfilterindikasjon"
             }
         }
     }

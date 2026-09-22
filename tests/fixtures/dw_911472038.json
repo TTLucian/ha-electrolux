@@ -1,0 +1,86 @@
+{
+  "pnc": "911472038_00",
+  "model": "911472038",
+  "appliance_type": "DW",
+  "capabilities": {
+    "alerts": {
+      "access": "read",
+      "type": "alert",
+      "values": {
+        "DISH_ALARM_RINSE_AID_LOW": {},
+        "DISH_ALARM_SALT_MISSING": {}
+      }
+    },
+    "applianceCareAndMaintenance0": {
+      "access": "readwrite",
+      "type": "careMaintenance"
+    },
+    "applianceCareAndMaintenance0/maint1_occured": {
+      "access": "read",
+      "type": "boolean",
+      "values": {}
+    },
+    "applianceCareAndMaintenance0/maint1_threshold": {
+      "access": "read",
+      "type": "int",
+      "values": {}
+    },
+    "userSelections/programUID": {
+      "access": "readwrite",
+      "type": "string",
+      "values": {
+        "MACHINE_SETTINGS_HIDDEN_TEST": {
+          "disabled": true
+        },
+        "QUICK30": {},
+        "QUICK60": {},
+        "NORMAL90": {},
+        "120_MIN": {},
+        "ECO": {},
+        "AUTO": {},
+        "MACHINE_CARE": {},
+        "RINSE": {}
+      }
+    },
+    "userSelections/programsOrder": {
+      "items": [
+        "MACHINE_SETTINGS_HIDDEN_TEST",
+        "QUICK30",
+        "QUICK60",
+        "NORMAL90",
+        "120_MIN",
+        "ECO",
+        "AUTO",
+        "MACHINE_CARE",
+        "RINSE"
+      ]
+    }
+  },
+  "reported": {
+    "applianceState": "RUNNING",
+    "cyclePhase": "MAINWASH",
+    "alerts": [
+      {
+        "severity": "WARNING",
+        "acknowledgeStatus": "NOT_NEEDED",
+        "code": "DISH_ALARM_SALT_MISSING",
+        "applianceCode": "101"
+      },
+      {
+        "severity": "WARNING",
+        "acknowledgeStatus": "NOT_NEEDED",
+        "code": "DISH_ALARM_RINSE_AID_LOW",
+        "applianceCode": "100"
+      }
+    ],
+    "userSelections": {
+      "programUID": "120_MIN"
+    },
+    "applianceCareAndMaintenance0": {
+      "1": {
+        "occured": false,
+        "threshold": 60
+      }
+    }
+  }
+}

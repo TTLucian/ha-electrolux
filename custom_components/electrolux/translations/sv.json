@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Live Stream"
+            },
             "connectivitystate": {
                 "name": "Anslutningstillstånd"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Strömläge"
+            },
+            "targetmicrowavepower": {
+                "name": "Mål för mikrovågseffekt"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Fläkthastighet"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Fettfilterindikering"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Avrättningsstat"
+            },
+            "docktype": {
+                "name": "Dockningstyp"
+            },
+            "filtercleanthreshold": {
+                "name": "Tröskelvärde för filterreng"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-filter köp tröskel"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Tröskelvärde för HEPA-filterbyte"
+            },
+            "niustatus": {
+                "name": "Niu-status"
+            },
+            "soundpackfile": {
+                "name": "Ljudpaketfil"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Stum"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Indikation för kolfilter"
             }
         }
     }

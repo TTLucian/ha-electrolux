@@ -545,6 +545,36 @@ class TestTimeConversions:
         assert time_minutes_to_seconds(60) == 3600
 
 
+class TestSanitizeNulString:
+    """Tests for sanitize_nul_string (SO oTA3 fields, issue #211 diagnostics)."""
+
+    def test_strips_trailing_nul(self):
+        from custom_components.electrolux.util import sanitize_nul_string
+
+        assert sanitize_nul_string("S0005120103\x00") == "S0005120103"
+
+    def test_all_nul_returns_none(self):
+        from custom_components.electrolux.util import sanitize_nul_string
+
+        assert sanitize_nul_string("\x00\x00\x00\x00") is None
+
+    def test_clean_string_untouched(self):
+        from custom_components.electrolux.util import sanitize_nul_string
+
+        assert sanitize_nul_string("SUCCESS") == "SUCCESS"
+
+    def test_non_string_passthrough(self):
+        from custom_components.electrolux.util import sanitize_nul_string
+
+        assert sanitize_nul_string(None) is None
+        assert sanitize_nul_string(42) == 42
+
+    def test_whitespace_only_returns_none(self):
+        from custom_components.electrolux.util import sanitize_nul_string
+
+        assert sanitize_nul_string("  ") is None
+
+
 class TestTemperatureConversions:
     """Tests for celsius/fahrenheit conversion utilities."""
 

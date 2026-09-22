@@ -164,11 +164,23 @@
   },
   "entity": {
     "binary_sensor": {
+      "cloud_api": {
+        "name": "API"
+      },
+      "sse_stream": {
+        "name": "Live Stream"
+      },
       "connectivitystate": {
         "name": "Connectivity state"
       },
       "doorstate": {
         "name": "Door"
+      },
+      "dish_alarm_rinse_aid_low": {
+        "name": "Rinse aid low"
+      },
+      "dish_alarm_salt_missing": {
+        "name": "Salt missing"
       },
       "foodprobeinsertionstate": {
         "name": "Food Probe"
@@ -332,7 +344,25 @@
         "name": "Manual sync"
       },
       "executecommand": {
-        "name": "Power"
+        "name": "Execute command"
+      },
+      "executecommand_on": {
+        "name": "Turn on"
+      },
+      "executecommand_off": {
+        "name": "Turn off"
+      },
+      "executecommand_start": {
+        "name": "Start"
+      },
+      "executecommand_pause": {
+        "name": "Pause"
+      },
+      "executecommand_resume": {
+        "name": "Resume"
+      },
+      "executecommand_stopreset": {
+        "name": "Stop / reset"
       },
       "waterfilterstatereset": {
         "name": "Reset water filter"
@@ -502,6 +532,9 @@
       },
       "powermode": {
         "name": "Power mode"
+      },
+      "targetmicrowavepower": {
+        "name": "Target Microwave Power"
       }
     },
     "select": {
@@ -516,6 +549,9 @@
       },
       "fanspeedsetting": {
         "name": "Fan speed"
+      },
+      "hoodfiltergreaseindication": {
+        "name": "Grease Filter Indication"
       }
     },
     "sensor": {
@@ -1334,6 +1370,24 @@
       },
       "executionstate": {
         "name": "Execution State"
+      },
+      "docktype": {
+        "name": "Dock Type"
+      },
+      "filtercleanthreshold": {
+        "name": "Filter Clean Threshold"
+      },
+      "hepafilterbuythreshold": {
+        "name": "HEPA Filter Buy Threshold"
+      },
+      "hepafilterchangethreshold": {
+        "name": "HEPA Filter Change Threshold"
+      },
+      "niustatus": {
+        "name": "NIU Status"
+      },
+      "soundpackfile": {
+        "name": "Sound Pack File"
       }
     },
     "switch": {
@@ -1552,6 +1606,9 @@
       },
       "mute": {
         "name": "Mute"
+      },
+      "hoodfiltercharcindication": {
+        "name": "Charcoal Filter Indication"
       }
     }
   }
