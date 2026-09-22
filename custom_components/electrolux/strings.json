@@ -174,7 +174,7 @@
         "name": "Connectivity state"
       },
       "doorstate": {
-        "name": "Door state"
+        "name": "Door"
       },
       "dish_alarm_rinse_aid_low": {
         "name": "Rinse aid low"
@@ -393,7 +393,7 @@
     },
     "number": {
       "starttime": {
-        "name": "Start time"
+        "name": "Delayed start"
       },
       "targetduration": {
         "name": "Target duration"
@@ -559,7 +559,7 @@
         "name": "Alerts"
       },
       "appliancestate": {
-        "name": "Appliance State"
+        "name": "Operating state"
       },
       "temperaturerepresentation": {
         "name": "Temperature representation"
@@ -595,7 +595,7 @@
         "name": "Cpv"
       },
       "remotecontrol": {
-        "name": "Remote control"
+        "name": "Remote control status"
       },
       "totalcyclecounter": {
         "name": "Total cycle counter"
@@ -604,7 +604,7 @@
         "name": "Appliance total working time"
       },
       "timetoend": {
-        "name": "Time to end"
+        "name": "Time remaining"
       },
       "displayfoodprobetemperature": {
         "name": "Display food probe temperature"

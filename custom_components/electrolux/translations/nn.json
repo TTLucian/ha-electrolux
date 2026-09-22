@@ -174,7 +174,7 @@
                 "name": "Tilkoblingstilstand"
             },
             "doorstate": {
-                "name": "Dørtilstand"
+                "name": "Dør"
             },
             "dish_alarm_rinse_aid_low": {
                 "name": "Lite skyllemiddel"
@@ -375,7 +375,7 @@
         },
         "number": {
             "starttime": {
-                "name": "Start-tid"
+                "name": "Utsatt start"
             },
             "targetduration": {
                 "name": "Målvarighet"
@@ -541,7 +541,7 @@
                 "name": "Varsel"
             },
             "appliancestate": {
-                "name": "Apparatstatus"
+                "name": "Driftstilstand"
             },
             "temperaturerepresentation": {
                 "name": "Temperaturrepresentasjon"
@@ -577,7 +577,7 @@
                 "name": "Kapp Verde"
             },
             "remotecontrol": {
-                "name": "Fjernkontroll "
+                "name": "Fjernstyringsstatus"
             },
             "totalcyclecounter": {
                 "name": "Total syklusteller"
@@ -586,7 +586,7 @@
                 "name": "Apparatets totale arbeidstid"
             },
             "timetoend": {
-                "name": "Tid til slutt"
+                "name": "Gjenståande tid"
             },
             "displayfoodprobetemperature": {
                 "name": "Vis matprobetemperatur"
