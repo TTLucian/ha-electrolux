@@ -2,161 +2,161 @@
     "config": {
         "step": {
             "user": {
-                "title": "Electrolux opsætning",
-                "description": "Tilslut dine Electrolux-apparater ved hjælp af API-legitimationsoplysninger fra Electrolux Developer Portal.\n\n**Sådan får du API-legitimationsoplysninger:**\n1. Besøg {url}\n2. Registrer og opret en ansøgning\n3. Få din API-nøgle, adgangstoken og opdateringstoken\n\nHvis du har brug for hjælp, kan du besøge integrationsdokumentationen.",
+                "title": "Electrolux oppsett",
+                "description": "Koble til dine Electrolux-apparater ved hjelp av API-legitimasjon fra Electrolux Developer Portal.\n\n**Slik får du API-legitimasjon:**\n1. Besøk {url}\n2. Registrer deg og opprett en søknad\n3. Skaff deg API-nøkkel, tilgangstoken og oppdateringstoken\n\nHvis du trenger hjelp, kan du gå til integrasjonsdokumentasjonen.",
                 "data": {
-                    "api_key": "API nøgle",
-                    "access_token": "Adgangstoken",
-                    "refresh_token": "Opdater token"
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token"
                 }
             },
             "reauth_validate": {
-                "title": "Genautentificer Electrolux",
-                "description": "Dine Electrolux API-tokens er udløbet eller er ugyldige. Opdater dem venligst med nye tokens fra Electrolux Developer Portal.\n\nBesøg {url} for at generere nye tokens.",
+                "title": "Re-autentiser Electrolux",
+                "description": "Dine Electrolux API-tokener har utløpt eller er ugyldige. Vennligst oppdater dem med nye tokens fra Electrolux Developer Portal.\n\nBesøk {url} for å generere nye tokens.",
                 "data": {
-                    "api_key": "API nøgle",
-                    "access_token": "Adgangstoken",
-                    "refresh_token": "Opdater token"
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token"
                 }
             },
             "reconfigure": {
-                "title": "Rekonfigurer Electrolux",
-                "description": "Opdater dine Electrolux API-legitimationsoplysninger.\n\nBesøg {url} for at generere nye tokens.",
+                "title": "Konfigurer Electrolux på nytt",
+                "description": "Oppdater din Electrolux API-legitimasjon.\n\nBesøk {url} for å generere nye tokens.",
                 "data": {
-                    "api_key": "API nøgle",
-                    "access_token": "Adgangstoken",
-                    "refresh_token": "Opdater token"
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken fra Electrolux Developer Portal."
+            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken fra Electrolux utviklerportal."
         },
         "abort": {
-            "single_instance_allowed": "Kun en enkelt Electrolux-konfiguration er tilladt.",
-            "already_configured": "Denne enhed er allerede konfigureret.",
-            "already_configured_account": "Denne API-nøgle er allerede konfigureret.",
-            "entry_not_found": "Konfigurationsindgangen kunne ikke findes.",
-            "reconfigure_successful": "Genkonfigurationen lykkedes."
+            "single_instance_allowed": "Kun én enkelt Electrolux-konfigurasjon er tillatt.",
+            "already_configured": "Denne enheten er allerede konfigurert.",
+            "already_configured_account": "Denne API-nøkkelen er allerede konfigurert.",
+            "entry_not_found": "Konfigurasjonsoppføringen ble ikke funnet.",
+            "reconfigure_successful": "Omkonfigureringen var vellykket."
         }
     },
     "options": {
         "step": {
             "user": {
-                "title": "Electrolux optioner",
-                "description": "Opdater dine Electrolux API-legitimationsoplysninger, hvis de er udløbet.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Opdater felterne nedenfor\n\n**Sikkerhedsnote:** Felterne Adgangstoken og Opdater Token efterlades med vilje tomme. Generer altid friske tokens fra portalen - genbrug eller del aldrig eksisterende tokens.",
+                "title": "Electrolux-alternativer",
+                "description": "Oppdater Electrolux API-legitimasjonen din hvis den har utløpt.\n\n**Slik genererer du ny legitimasjon:**\n1. Besøk {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Oppdater feltene nedenfor\n\n**Sikkerhetsmerknad:** Feltene for tilgangstoken og oppdateringstoken er tomme med hensikt. Generer alltid nye tokens fra portalen - aldri gjenbruk eller del eksisterende tokens.",
                 "data": {
-                    "api_key": "API nøgle",
-                    "access_token": "Adgangstoken",
-                    "refresh_token": "Opdater token"
+                    "api_key": "API-nøkkel",
+                    "access_token": "Tilgangstoken",
+                    "refresh_token": "Oppdater token"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken."
+            "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken."
         }
     },
     "issues": {
         "invalid_refresh_token": {
-            "title": "Electrolux-godkendelsesproblem",
+            "title": "Electrolux autentiseringsproblem",
             "fix_flow": {
                 "step": {
                     "confirm_repair": {
-                        "title": "Opdater Electrolux API-legitimationsoplysninger",
-                        "description": "Dine Electrolux API-tokens er udløbet, og automatisk opdatering mislykkedes. Indtast venligst nye legitimationsoplysninger fra Electrolux Developer Portal for at gendanne funktionaliteten.\n\n**Sådan genererer du nye legitimationsoplysninger:**\n1. Besøg {url}\n2. Generer ny API-nøgle, adgangstoken og opdateringstoken\n3. Indtast dem nedenfor",
+                        "title": "Oppdater Electrolux API-legitimasjon",
+                        "description": "Dine Electrolux API-tokener har utløpt og automatisk oppdatering mislyktes. Vennligst skriv inn ny legitimasjon fra Electrolux Developer Portal for å gjenopprette funksjonaliteten.\n\n**Slik genererer du ny legitimasjon:**\n1. Besøk {url}\n2. Generer ny API-nøkkel, tilgangstoken og oppdateringstoken\n3. Skriv dem inn nedenfor",
                         "data": {
-                            "api_key": "API nøgle",
-                            "access_token": "Adgangstoken",
-                            "refresh_token": "Opdater token"
+                            "api_key": "API-nøkkel",
+                            "access_token": "Tilgangstoken",
+                            "refresh_token": "Oppdater token"
                         }
                     }
                 },
                 "error": {
-                    "invalid_auth": "Ugyldige API-legitimationsoplysninger. Tjek venligst din API-nøgle, adgangstoken og opdateringstoken.",
-                    "invalid_format": "Ugyldigt legitimationsformat. Sørg for, at alle felter er udfyldt korrekt.",
-                    "entry_not_found": "Konfigurationsindgang blev ikke fundet."
+                    "invalid_auth": "Ugyldig API-legitimasjon. Vennligst sjekk API-nøkkelen, tilgangstoken og oppdateringstoken.",
+                    "invalid_format": "Ugyldig legitimasjonsformat. Sørg for at alle felt er riktig fylt ut.",
+                    "entry_not_found": "Finner ikke konfigurasjonsoppføring."
                 },
                 "abort": {
-                    "entry_not_found": "Konfigurationsindgangen kunne ikke findes."
+                    "entry_not_found": "Konfigurasjonsoppføringen ble ikke funnet."
                 }
             }
         }
     },
     "exceptions": {
         "appliance_disconnected": {
-            "message": "Apparatet er afbrudt eller ikke tilgængeligt. Kontroller apparatets netværksforbindelse."
+            "message": "Apparatet er frakoblet eller ikke tilgjengelig. Sjekk apparatets nettverkstilkobling."
         },
         "appliance_offline": {
-            "message": "Apparatet er offline (nuværende tilstand: {state}). Tjek venligst, at apparatet er tilsluttet, har netværkstilslutning og er forbundet til skytjenester."
+            "message": "Enheten er frakoblet (nåværende tilstand: {state}). Kontroller at apparatet er koblet til, har nettverkstilkobling og er koblet til skytjenester."
         },
         "appliance_state_incomplete": {
-            "message": "Kan ikke ændre indstilling: Apparatets tilstand er ufuldstændig. Vent venligst på, at apparatet initialiseres."
+            "message": "Kan ikke endre innstilling: apparatets tilstand er ufullstendig. Vent til apparatet initialiseres."
         },
         "command_not_accepted": {
-            "message": "Kommandoen accepteres ikke af apparatet. Kontroller, at apparatet understøtter denne operation."
+            "message": "Kommandoen godtas ikke av apparatet. Kontroller at apparatet støtter denne operasjonen."
         },
         "command_rate_limited": {
-            "message": "Der er sendt for mange kommandoer. Vent et øjeblik, og prøv igen."
+            "message": "For mange kommandoer sendt. Vent et øyeblikk og prøv igjen."
         },
         "control_disabled_by_mode": {
-            "message": "{attr} kan ikke justeres i den aktuelle tilstand."
+            "message": "{attr} kan ikke justeres i gjeldende modus."
         },
         "control_locked": {
             "message": "{attr} er låst på {value} for program {program}."
         },
         "fanspeed_disabled": {
-            "message": "Blæserhastigheden kan ikke justeres i tilstanden {mode}. Skift til manuel tilstand først for at styre blæserhastigheden."
+            "message": "Viftehastigheten kan ikke justeres i {mode}-modus. Bytt til manuell modus først for å kontrollere viftehastigheten."
         },
         "food_probe_locked_by_program": {
-            "message": "Madsondetemperaturen er låst til {value}°C for program {program}."
+            "message": "Matsondetemperaturen er låst til {value}°C for program {program}."
         },
         "food_probe_not_inserted": {
-            "message": "Madsonde skal indsættes for at indstille måltemperaturen."
+            "message": "Matsonde må settes inn for å stille inn måltemperatur."
         },
         "food_probe_not_supported_by_program": {
-            "message": "Madsondetemperatur understøttes ikke af program {program}."
+            "message": "Matsondetemperatur støttes ikke av program {program}."
         },
         "invalid_option": {
-            "message": "Ugyldig indstilling valgt."
+            "message": "Ugyldig alternativ er valgt."
         },
         "invalid_preset_mode": {
-            "message": "Ugyldig forudindstillet tilstand {mode}. Tilgængelige tilstande: {modes}."
+            "message": "Ugyldig forhåndsinnstilt modus {mode}. Tilgjengelige moduser: {modes}."
         },
         "not_supported_by_program": {
-            "message": "Kan ikke ændre {attr}: understøttes ikke af det nuværende program {program}."
+            "message": "Kan ikke endre {attr}: støttes ikke av gjeldende program {program}."
         },
         "remote_control_disabled": {
-            "message": "Fjernbetjeningen er deaktiveret for dette apparat. Aktiver det på apparatets kontrolpanel."
+            "message": "Fjernkontrollen er deaktivert for dette apparatet. Aktiver den på apparatets kontrollpanel."
         },
         "service_temporarily_unavailable": {
-            "message": "Electrolux service er midlertidigt utilgængelig, prøv venligst igen."
+            "message": "Electrolux-tjenesten er midlertidig utilgjengelig, prøv igjen."
         },
         "set_temperature_while_off": {
-            "message": "Kan ikke indstille {attr}, mens apparatet er slukket. Tænd først for apparatet."
+            "message": "Kan ikke stille inn {attr} mens apparatet er av. Slå på apparatet først."
         },
         "type_mismatch": {
-            "message": "Integrationsfejl: datatype uoverensstemmelse for {attr}. Forventet boolesk."
+            "message": "Integrasjonsfeil: datatype stemmer ikke overens for {attr}. Forventet boolsk."
         },
         "value_above_maximum": {
-            "message": "Værdien {value} er over den maksimale {max_val} for {attr}."
+            "message": "Verdien {value} er over maksimum {max_val} for {attr}."
         },
         "value_below_minimum": {
-            "message": "Værdien {value} er under minimum {min_val} for {attr}."
+            "message": "Verdien {value} er under minimum {min_val} for {attr}."
         }
     },
     "services": {
         "start_zone_cleaning": {
-            "name": "Start zonerensning",
-            "description": "Start en zonebaseret rengøringssession på en PUREi9 robotstøvsuger. Zone-UUID'er og det vedvarende kort-UUID findes i integrationsdiagnostikken (mapData/mapMatch/zones og persistentMapsCreated/mapId).",
+            "name": "Start sonerengjøring",
+            "description": "Start en sonebasert rengjøringsøkt på en PUREi9 robotstøvsuger. Sone-UUID-er og den vedvarende kart-UUID-en finnes i integrasjonsdiagnostikken (mapData/mapMatch/zones and persistentMapsCreated/mapId).",
             "fields": {
                 "persistent_map_id": {
-                    "name": "Vedvarende kort-id",
-                    "description": "UUID for det vedvarende kort, der skal bruges (fra diagnostik: persistentMapsCreated/mapId).",
+                    "name": "Vedvarende kart-ID",
+                    "description": "UUID for det vedvarende kartet som skal brukes (fra diagnostikk: persistentMapsCreated/mapId).",
                     "example": "afb13c1b-b557-4a11-84a6-5bfaef90304e"
                 },
                 "zones": {
-                    "name": "Zoner",
-                    "description": "Liste over zoner, der skal renses. Hver post skal bruge zone_id (UUID fra mapData/mapMatch/zones[].uuid) og valgfri power_mode (1=stille, 2=smart, 3=power, standard 1).",
+                    "name": "Soner",
+                    "description": "Liste over soner som skal rengjøres. Hver oppføring trenger zone_id (UUID fra mapData/mapMatch/zones[].uuid) og valgfri power_mode (1=stille, 2=smart, 3=strøm, standard 1).",
                     "example": "9082f714-bdba-4f3a-892f-46b2ff2e07de"
                 }
             }
@@ -168,198 +168,222 @@
                 "name": "API"
             },
             "sse_stream": {
-                "name": "Vis Live Stream"
+                "name": "Direktestrømming"
             },
             "connectivitystate": {
-                "name": "Tilslutningstilstand"
+                "name": "Tilkoblingstilstand"
             },
             "doorstate": {
                 "name": "Dørtilstand"
             },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Lite skyllemiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salt mangler"
+            },
             "foodprobeinsertionstate": {
-                "name": "Fødevaresonde"
+                "name": "Matsonde"
             },
             "foodprobesupported": {
-                "name": "Madsondestøtte"
+                "name": "Støtte for matsonde"
             },
             "watertrayinsertionstate": {
-                "name": "Vandbakke"
+                "name": "Vannbrett"
             },
             "watertankempty": {
-                "name": "Vandbeholder tom"
+                "name": "Vanntank tom"
             },
             "cleaningreminder": {
-                "name": "Påmindelse om rengøring"
+                "name": "Påminnelse om rengjøring"
             },
             "drawerstatus": {
-                "name": "Skuffe"
+                "name": "Skuff"
             },
             "humancentriclighteventstate": {
-                "name": "Menneske-centreret lys"
+                "name": "Menneskesentrisk lys"
             },
             "hoodautoswitchoffevent": {
-                "name": "Automatisk sluk"
+                "name": "Automatisk utkobling"
             },
             "appliancestate": {
-                "name": "Fryser tilstand"
+                "name": "Frysertilstand"
             },
             "fanstate": {
-                "name": "Ekstra hulrumsventilatortilstand"
+                "name": "Ekstra hulromsviftetilstand"
             },
             "autosense": {
                 "name": "Autosense"
             },
             "maint1_occured": {
-                "name": "Vedligeholdelse påkrævet"
+                "name": "Vedlikehold kreves"
             },
             "maint2_occured": {
-                "name": "Vedligeholdelse punkt 2 fandt sted"
+                "name": "Vedlikeholdspunkt 2 skjedde"
             },
             "maint3_occured": {
-                "name": "Vedligeholdelsespunkt 3 fandt sted"
+                "name": "Vedlikeholdspunkt 3 skjedde"
             },
             "maint4_occured": {
-                "name": "Vedligeholdelsespunkt 4 fandt sted"
+                "name": "Vedlikeholdspunkt 4 skjedde"
             },
             "maint5_occured": {
-                "name": "Vedligeholdelsespunkt 5 fandt sted"
+                "name": "Vedlikeholdspunkt 5 skjedde"
             },
             "maint6_occured": {
-                "name": "Vedligeholdelsespunkt 6 fandt sted"
+                "name": "Vedlikeholdspunkt 6 skjedde"
             },
             "maint7_occured": {
-                "name": "Vedligeholdelsespunkt 7 fandt sted"
+                "name": "Vedlikeholdspunkt 7 skjedde"
             },
             "maint8_occured": {
-                "name": "Vedligeholdelsespunkt 8 fandt sted"
+                "name": "Vedlikeholdspunkt 8 skjedde"
             },
             "maint9_occured": {
-                "name": "Vedligeholdelsespunkt 9 fandt sted"
+                "name": "Vedlikeholdspunkt 9 skjedde"
             },
             "maint10_occured": {
-                "name": "Vedligeholdelsespunkt 10 fandt sted"
+                "name": "Vedlikeholdspunkt 10 skjedde"
             },
             "occured": {
-                "name": "Vedligeholdelse 1 fandt sted"
+                "name": "Vedlikehold 1 skjedde"
             },
             "ecomode": {
-                "name": "Øko-tilstand"
+                "name": "Øko-modus"
             },
             "hmepn_acairfilterclean": {
-                "name": "Rengøring af luftfilter påkrævet"
+                "name": "Rengjør luftfilter nødvendig"
             },
             "hmepn_acalerts": {
-                "name": "Ac-advarsler understøttes"
+                "name": "Ac-varsler støttes"
             },
             "hepafilterinsertedstate": {
-                "name": "Hepa filter indsat"
+                "name": "Hepa-filter satt inn"
             },
             "dooropen": {
-                "name": "Døren åben"
+                "name": "Dør åpen"
             },
             "watertraylevellow": {
-                "name": "Vandbakkeniveau lavt"
+                "name": "Vannbrettnivå lavt"
             },
             "autodustcollection": {
-                "name": "Auto støvopsamling"
+                "name": "Automatisk støvoppsamling"
             },
             "automoparmextension": {
-                "name": "Automatisk moppearm forlængelse"
+                "name": "Automatisk mopparmforlengelse"
             },
             "automopdry": {
-                "name": "Tør automatisk moppe"
+                "name": "Tørr automatisk mopp"
             },
             "automopwash": {
-                "name": "Automatisk moppevask"
+                "name": "Auto mop wash"
             },
             "autodetergentusage": {
-                "name": "Brug af automatisk rengøringsmiddel"
+                "name": "Bruk av automatisk vaskemiddel"
             },
             "mopinstalled": {
-                "name": "Moppe installeret"
+                "name": "Mopp installert"
             },
             "incharger": {
-                "name": "I oplader"
+                "name": "I lader"
             },
             "returntowash": {
-                "name": "Vend tilbage til vask"
+                "name": "Gå tilbake til vask"
             },
             "roomselected": {
-                "name": "Værelse valgt"
+                "name": "Rom valgt"
             },
             "carpetboost": {
-                "name": "Tæppe boost"
+                "name": "Teppeboost"
             },
             "carpetavoid": {
-                "name": "Undgå tæppe"
+                "name": "Unngå tepper"
             },
             "carpetdisplay": {
-                "name": "Tæppe display"
+                "name": "Teppedisplay"
             },
             "obstacleavoidance": {
-                "name": "Undgåelse af forhindringer"
+                "name": "Unngåelse av hindringer"
             },
             "dndenabled": {
-                "name": "Forstyr ikke aktiveret"
+                "name": "Ikke forstyrr aktivert"
             },
             "dnddisableairdry": {
-                "name": "Deaktiver ikke lufttørring"
+                "name": "Ikke deaktiver lufttørking"
             },
             "isdndpausingairdry": {
-                "name": "Dnd pause lufttør"
+                "name": "Dnd pause lufttørke"
             },
             "multifloormap": {
-                "name": "Kort over flere etager"
+                "name": "Kart i flere etasjer"
             },
             "multifloormapautoswitch": {
-                "name": "Automatisk kortskifte i flere etager"
+                "name": "Autobryter for kart i flere etasjer"
             },
             "robotposereliable": {
-                "name": "Robotposition pålidelig"
+                "name": "Robotposer pålitelig"
             },
             "ovwater_tank_empty": {
-                "name": "Vandbeholderstatus"
+                "name": "Vanntankstatus"
             },
             "ovcleaning_ended": {
-                "name": "Rengøringsstatus"
+                "name": "Rengjøringsstatus"
             },
             "ovfood_probe_end_of_cooking": {
-                "name": "Probe Slut på madlavning"
+                "name": "Probe slutt på matlaging"
             }
         },
         "button": {
             "command": {
-                "name": "Netværkskommando"
+                "name": "Nettverkskommando"
             },
             "startupcommand": {
-                "name": "Start kommando"
+                "name": "Start opp kommando"
             },
             "manualsync": {
-                "name": "Manuel synkronisering"
+                "name": "Manuell synkronisering"
             },
             "executecommand": {
-                "name": "Magt"
+                "name": "Utfør kommando"
+            },
+            "executecommand_on": {
+                "name": "Slå på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Fortsett"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / tilbakestill"
             },
             "waterfilterstatereset": {
-                "name": "Nulstil vandfilteret"
+                "name": "Tilbakestill vannfilteret"
             },
             "airfilterstatereset": {
-                "name": "Nulstil luftfilteret"
+                "name": "Tilbakestill luftfilteret"
             },
             "saveappfavorite": {
-                "name": "Gem favorit"
+                "name": "Lagre favoritt"
             },
             "shortcutproglistcmd": {
-                "name": "Genvej programliste kommando"
+                "name": "Snarvei programliste kommando"
             },
             "filterreset": {
-                "name": "Filter nulstillet"
+                "name": "Filter tilbakestilt"
             },
             "hepafilterreset": {
-                "name": "Hepa filter nulstillet"
+                "name": "Hepa-filter tilbakestilt"
             },
             "findme": {
-                "name": "Find mig"
+                "name": "Finn meg"
             }
         },
         "fan": {
@@ -369,16 +393,16 @@
         },
         "number": {
             "starttime": {
-                "name": "Starttidspunkt"
+                "name": "Starttid"
             },
             "targetduration": {
-                "name": "Målvarighed"
+                "name": "Målvarighet"
             },
             "targetfoodprobetemperaturec": {
-                "name": "Måltemperatur for madsonde c"
+                "name": "Måltemperatur for matsonde c"
             },
             "targetfoodprobetemperaturef": {
-                "name": "Måltemperatur for madsonde f"
+                "name": "Måltemperatur for matsonde f"
             },
             "targettemperaturec": {
                 "name": "Måltemperatur c"
@@ -387,176 +411,176 @@
                 "name": "Måltemperatur f"
             },
             "remindertime": {
-                "name": "Øverste ovnpåmindelsestid"
+                "name": "Øvre ovnspåminnelsestid"
             },
             "appliancelocaltimeoffset": {
-                "name": "Apparat lokal tidsforskydning"
+                "name": "Apparat lokal tidsforskyvning"
             },
             "lightintensity": {
                 "name": "Lysintensitet"
             },
             "lightcolortemperature": {
-                "name": "Lys farvetemperatur"
+                "name": "Lys fargetemperatur"
             },
             "stoptime": {
-                "name": "Stop tid"
+                "name": "Stopptid"
             },
             "adtankadetstandarddose": {
-                "name": "Tank en standarddosis vaskemiddel"
+                "name": "Tank en standard dose vaskemiddel"
             },
             "adtankbdetstandarddose": {
-                "name": "Tank b vaskemiddel standarddosis"
+                "name": "Tank b vaskemiddel standard dose"
             },
             "adtankbsoftstandarddose": {
-                "name": "Tank b skyllemiddel standarddosis"
+                "name": "Tank b mykner standard dose"
             },
             "adfinetunedetlevel": {
-                "name": "Finindstil vaskemiddelniveauet"
+                "name": "Finjuster vaskemiddelnivået"
             },
             "adfinetunesoftlevel": {
-                "name": "Finjuster blødgøringsniveauet"
+                "name": "Finjuster myknernivået"
             },
             "extrarinsenumber": {
-                "name": "Ekstra skylninger"
+                "name": "Ekstra skyllinger"
             },
             "maint1_id": {
-                "name": "Vedligeholdelse punkt 1 id"
+                "name": "Vedlikehold punkt 1 id"
             },
             "maint2_id": {
-                "name": "Vedligeholdelse punkt 2 id"
+                "name": "Vedlikeholdspunkt 2 id"
             },
             "maint2_threshold": {
-                "name": "Vedligeholdelse punkt 2 tærskel"
+                "name": "Vedlikeholdspunkt 2 terskel"
             },
             "maint3_id": {
-                "name": "Vedligeholdelse punkt 3 id"
+                "name": "Vedlikehold punkt 3 id"
             },
             "maint3_threshold": {
-                "name": "Vedligeholdelse punkt 3 tærskel"
+                "name": "Vedlikeholdspunkt 3 terskel"
             },
             "maint4_id": {
-                "name": "Vedligeholdelse punkt 4 id"
+                "name": "Vedlikehold punkt 4 id"
             },
             "maint4_threshold": {
-                "name": "Vedligeholdelse punkt 4 tærskel"
+                "name": "Vedlikeholdspunkt 4 terskel"
             },
             "maint5_id": {
-                "name": "Vedligeholdelse punkt 5 id"
+                "name": "Vedlikehold punkt 5 id"
             },
             "maint5_threshold": {
-                "name": "Vedligeholdelse punkt 5 tærskel"
+                "name": "Vedlikeholdspunkt 5 terskel"
             },
             "maint6_id": {
-                "name": "Vedligeholdelse punkt 6 id"
+                "name": "Vedlikeholdspunkt 6 id"
             },
             "maint6_threshold": {
-                "name": "Vedligeholdelse punkt 6 tærskel"
+                "name": "Vedlikeholdspunkt 6 terskel"
             },
             "maint7_id": {
-                "name": "Vedligeholdelse punkt 7 id"
+                "name": "Vedlikehold punkt 7 id"
             },
             "maint7_threshold": {
-                "name": "Vedligeholdelse punkt 7 tærskel"
+                "name": "Vedlikeholdspunkt 7 terskel"
             },
             "maint8_id": {
-                "name": "Vedligeholdelse punkt 8 id"
+                "name": "Vedlikeholdspunkt 8 id"
             },
             "maint8_threshold": {
-                "name": "Vedligeholdelse punkt 8 tærskel"
+                "name": "Vedlikeholdspunkt 8 terskel"
             },
             "maint9_id": {
-                "name": "Vedligeholdelse punkt 9 id"
+                "name": "Vedlikehold punkt 9 id"
             },
             "maint9_threshold": {
-                "name": "Vedligeholdelse punkt 9 tærskel"
+                "name": "Vedlikeholdspunkt 9 terskel"
             },
             "maint10_id": {
-                "name": "Vedligeholdelse punkt 10 id"
+                "name": "Vedlikeholdspost 10 id"
             },
             "maint10_threshold": {
-                "name": "Vedligeholdelse punkt 10 tærskel"
+                "name": "Vedlikeholdspunkt 10 terskel"
             },
             "clearcyclepersonalizationcmd": {
-                "name": "Klar cyklustilpasning"
+                "name": "Tydelig syklustilpasning"
             },
             "memoryid": {
-                "name": "Hukommelsesplads"
+                "name": "Minnespor"
             },
             "dryingtime": {
-                "name": "Tidsstyret tørring (aktiv)"
+                "name": "Tidsinnstilt tørking (aktiv)"
             },
             "timetonotify": {
-                "name": "Tid til at give besked"
+                "name": "På tide å varsle"
             },
             "anticreasevalue": {
-                "name": "Anti-krøl (aktiv)"
+                "name": "Anti-krøll (aktiv)"
             },
             "rinseaidlevel": {
-                "name": "Niveau af afspændingsmiddel"
+                "name": "Nivå av skyllemiddel"
             },
             "targethumidity": {
-                "name": "Mål luftfugtighed"
+                "name": "Mål fuktighet"
             },
             "targettemperature": {
                 "name": "Måltemperatur"
             },
             "fanspeed": {
-                "name": "Blæserhastighed"
+                "name": "Viftehastighet"
             },
             "humiditytarget": {
-                "name": "Mål luftfugtighed"
+                "name": "Mål fuktighet"
             },
             "powermode": {
-                "name": "Strømtilstand"
+                "name": "Strømmodus"
             },
             "targetmicrowavepower": {
-                "name": "Mål for mikrobølgeeffekt"
+                "name": "Mål mikrobølgeeffekt"
             }
         },
         "select": {
             "displaylight": {
-                "name": "Display lys"
+                "name": "Displaylys"
             },
             "targettemperaturec": {
-                "name": "Ekstra hulrumstemperatur"
+                "name": "Ekstra hulromstemperatur"
             },
             "mode": {
-                "name": "Mode"
+                "name": "Modus"
             },
             "fanspeedsetting": {
-                "name": "Blæserhastighed"
+                "name": "Viftehastighet"
             },
             "hoodfiltergreaseindication": {
-                "name": "Fedtfilterindikation"
+                "name": "Fettfilterindikasjon"
             }
         },
         "sensor": {
             "alerts": {
-                "name": "Advarsler"
+                "name": "Varsler"
             },
             "appliancestate": {
                 "name": "Apparatets tilstand"
             },
             "temperaturerepresentation": {
-                "name": "Temperatur repræsentation"
+                "name": "Temperaturrepresentasjon"
             },
             "linkqualityindicator": {
-                "name": "Indikator for netværksgrænsefladelinkkvalitet"
+                "name": "Kvalitetsindikator for nettverksgrensesnitt"
             },
             "niuswupdatecurrentdescription": {
-                "name": "Niu sw opdateringsbeskrivelse"
+                "name": "Niu sw oppdateringsbeskrivelse"
             },
             "otastate": {
-                "name": "Netværksgrænseflade ota tilstand"
+                "name": "Nettverksgrensesnitt ota tilstand"
             },
             "swancandrevision": {
-                "name": "Sw anc og revision"
+                "name": "Sw anc og revisjon"
             },
             "swversion": {
-                "name": "Netværksgrænseflade sw version"
+                "name": "Nettverksgrensesnitt sw versjon"
             },
             "endofcyclesound": {
-                "name": "Slut på cyklus lyd"
+                "name": "Slutt på syklus lyd"
             },
             "programuid": {
                 "name": "Program uid"
@@ -565,139 +589,139 @@
                 "name": "Apparattype"
             },
             "capabilityhash": {
-                "name": "Mulighedshash"
+                "name": "Evne-hash"
             },
             "cpv": {
                 "name": "Cpv"
             },
             "remotecontrol": {
-                "name": "Fjernbetjening"
+                "name": "Fjernkontroll"
             },
             "totalcyclecounter": {
-                "name": "Samlet cyklus tæller"
+                "name": "Total syklusteller"
             },
             "appliancetotalworkingtime": {
-                "name": "Apparatets samlede arbejdstid"
+                "name": "Apparatets totale arbeidstid"
             },
             "timetoend": {
-                "name": "Tid til at slutte"
+                "name": "Tid til slutt"
             },
             "displayfoodprobetemperature": {
-                "name": "Vis kogetermometerets temperatur"
+                "name": "Vis matsondetemperaturen"
             },
             "displayfoodprobetemperaturec": {
-                "name": "Vis kogetermometeret c"
+                "name": "Vis matsondetemperatur c"
             },
             "displayfoodprobetemperaturef": {
-                "name": "Vis kogetermometertemperatur f"
+                "name": "Vis matsondetemperatur f"
             },
             "displaytemperature": {
                 "name": "Vis temperatur"
             },
             "displaytemperaturec": {
-                "name": "Displaytemperatur c"
+                "name": "Visningstemperatur c"
             },
             "displaytemperaturef": {
                 "name": "Vis temperatur f"
             },
             "processphase": {
-                "name": "Proces fase"
+                "name": "Prosessfase"
             },
             "program": {
                 "name": "Program"
             },
             "runningtime": {
-                "name": "Køretid"
+                "name": "Kjøretid"
             },
             "fastheatupfeature": {
-                "name": "Øverste ovn hurtig opvarmningsfunktion"
+                "name": "Øvre ovn rask oppvarming funksjon"
             },
             "preheatcomplete": {
-                "name": "Øverste ovnforvarmning færdig"
+                "name": "Forvarming av øvre ovn er fullført"
             },
             "targetdurationendaction": {
-                "name": "Øvre ovnmål varighed sluthandling"
+                "name": "Øvre ovnsmåltid slutthandling"
             },
             "targetfoodprobetemperatureendaction": {
-                "name": "Øvre ovnmål for madsondetemperatur slutvirkning"
+                "name": "Øvre ovnsmål for matsondetemperatur sluttvirkning"
             },
             "watertanklevel": {
-                "name": "Øverste ovnvandsbeholderniveau"
+                "name": "Øvre vanntanknivå i ovnen"
             },
             "waterhardness": {
-                "name": "Vandets hårdhed"
+                "name": "Vannhardhet"
             },
             "descalingreminderstate": {
-                "name": "Påmindelse om afkalkning"
+                "name": "Påminnelse om avkalking"
             },
             "clockstyle": {
-                "name": "Ur stil"
+                "name": "Klokkestil"
             },
             "language": {
-                "name": "Sprog"
+                "name": "Språk"
             },
             "localtimeautomaticmode": {
-                "name": "Automatisk lokal tid"
+                "name": "Lokal tid automatisk modus"
             },
             "autolocaltimeoffset": {
-                "name": "Automatisk lokaltidsforskydning"
+                "name": "Automatisk lokal tidsforskyvning"
             },
             "favoriteorder": {
-                "name": "Yndlingsrækkefølge"
+                "name": "Favoritt rekkefølge"
             },
             "number": {
-                "name": "Favoritordreantal"
+                "name": "Favorittbestillingsantallet"
             },
             "favoriteselect": {
-                "name": "Favoritvalg"
+                "name": "Favorittvalg"
             },
             "favoritestatus": {
-                "name": "Favoritstatus"
+                "name": "Favorittstatus"
             },
             "activemessageindex": {
-                "name": "Aktivt beskedindeks"
+                "name": "Aktiv meldingsindeks"
             },
             "appliancemode": {
-                "name": "Apparattilstand"
+                "name": "Apparatmodus"
             },
             "hobtohoodfanspeed": {
-                "name": "Emhætte blæser hastighed"
+                "name": "Hetteviftehastighet"
             },
             "hobtohoodstate": {
-                "name": "Hætte tilstand"
+                "name": "Hette tilstand"
             },
             "hoodfanlevel": {
-                "name": "Ventilator niveau"
+                "name": "Viftenivå"
             },
             "hoodcharcfiltertimer": {
-                "name": "Timer til kulfilter"
+                "name": "Timer for kullfilter"
             },
             "hoodgreasefiltertimer": {
-                "name": "Fedtfilter timer"
+                "name": "Fettfilter timer"
             },
             "tvocfiltertime": {
-                "name": "Tvoc filter tid"
+                "name": "Tvoc-filtertid"
             },
             "fastmodetimetoend": {
-                "name": "Fryser hurtig tilstand tid til at slutte"
+                "name": "Fryser rask modus tid til slutt"
             },
             "sensortemperaturec": {
-                "name": "Fryser temperatur"
+                "name": "Temperatur i fryseren"
             },
             "vacationholidaymode": {
-                "name": "Ferietilstand"
+                "name": "Feriemodus"
             },
             "sensorhumidity": {
-                "name": "Fugtighed"
+                "name": "Fuktighet"
             },
             "waterfilterstate": {
-                "name": "Vandfilterstatus"
+                "name": "Vannfilterstatus"
             },
             "waterfilterlifetime": {
-                "name": "Vandfilterets levetid"
+                "name": "Vannfilterets levetid"
             },
             "waterfilterflow": {
-                "name": "Vandfilter flow"
+                "name": "Vannfilterstrøm"
             },
             "airfilterstate": {
                 "name": "Luftfilterstatus"
@@ -706,247 +730,247 @@
                 "name": "Luftfilterets levetid"
             },
             "coolingvalvestate": {
-                "name": "Køleventil tilstand"
+                "name": "Kjøleventiltilstand"
             },
             "defrostroutinestate": {
-                "name": "Afrimningsrutinetilstand"
+                "name": "Avrimingsrutinetilstand"
             },
             "compressorstate": {
-                "name": "Kompressor tilstand"
+                "name": "Kompressortilstand"
             },
             "compressorspeed": {
-                "name": "Kompressorhastighed"
+                "name": "Kompressorhastighet"
             },
             "coefficient": {
-                "name": "Kompressorhastighedskoefficient"
+                "name": "Kompressorhastighetskoeffisient"
             },
             "exponent": {
-                "name": "Eksponent for kompressorhastighed"
+                "name": "Kompressorhastighetseksponent"
             },
             "clonetargettemperaturemode": {
-                "name": "Ekstra hulrumsklontilstand"
+                "name": "Ekstra hulromsklonmodus"
             },
             "temperatureadjustingstate": {
-                "name": "Ekstra hulrumsjustering"
+                "name": "Ekstra hulromsjustering"
             },
             "defrosttemperaturec": {
-                "name": "Ismaskine afrimningstemperatur"
+                "name": "Ismaskinens avrimingstemperatur"
             },
             "evaporatorfanstate": {
-                "name": "Ismaskine blæsertilstand"
+                "name": "Ismaskinviftetilstand"
             },
             "icedispenserstate": {
                 "name": "Isdispensertilstand"
             },
             "icetraywaterfillsetting": {
-                "name": "Fyldningsindstilling for isbakke"
+                "name": "Innstilling for fylling av isbrett"
             },
             "airfilterlifetimebuythreshold": {
-                "name": "Luftfilter købstærskel"
+                "name": "Kjøpsterskel for luftfilter"
             },
             "airfilterlifetimechangethreshold": {
-                "name": "Udskiftningstærskel for luftfilter"
+                "name": "Bytteterskel for luftfilter"
             },
             "waterfilterflowbuythreshold": {
-                "name": "Vandfilter købstærskel (flow)"
+                "name": "Kjøpsterskel for vannfilter (flow)"
             },
             "waterfilterflowchangethreshold": {
-                "name": "Vandfilterskifttærskel (flow)"
+                "name": "Bytteterskel for vannfilter (flow)"
             },
             "waterfilterlifetimebuythreshold": {
-                "name": "Vandfilter købstærskel (tid)"
+                "name": "Kjøpsterskel for vannfilter (tid)"
             },
             "waterfilterlifetimechangethreshold": {
-                "name": "Tærskel for skift af vandfilter (tid)"
+                "name": "Bytteterskel for vannfilter (tid)"
             },
             "appliancemainboardswversion": {
-                "name": "Hovedkort softwareversion"
+                "name": "Hovedkort programvareversjon"
             },
             "defaultextrarinse": {
-                "name": "Standard ekstra skylning"
+                "name": "Standard ekstra skylling"
             },
             "cyclephase": {
-                "name": "Cyklus fase"
+                "name": "Syklusfase"
             },
             "cyclesubphase": {
-                "name": "Cyklus underfase"
+                "name": "Syklus underfase"
             },
             "measuredloadweight": {
-                "name": "Målt lastvægt"
+                "name": "Målt lastvekt"
             },
             "doorlock": {
                 "name": "Dørlås"
             },
             "totalwashcyclescount": {
-                "name": "Samlede vaskecyklusser"
+                "name": "Totale vaskesykluser"
             },
             "totalwashingtime": {
-                "name": "Samlet vasketid"
+                "name": "Total vasketid"
             },
             "fcoptisenseloadweight": {
-                "name": "Last vægt"
+                "name": "Lastevekt"
             },
             "washingnominalloadweight": {
-                "name": "Vaskevægt"
+                "name": "Vaskelastvekt"
             },
             "adtankaconfiguration": {
-                "name": "Tank en konfiguration"
+                "name": "Tank en konfigurasjon"
             },
             "adtankbconfiguration": {
-                "name": "Tank b konfiguration"
+                "name": "Tank b-konfigurasjon"
             },
             "steamvalue": {
-                "name": "Damp niveau"
+                "name": "Dampnivå"
             },
             "timemanagerlevel": {
                 "name": "Time manager"
             },
             "adtankasel": {
-                "name": "Autodoseringstank a"
+                "name": "Automatisk dosetank a"
             },
             "adtankbsel": {
-                "name": "Autodoseringstank b"
+                "name": "Automatisk dosetank b"
             },
             "analogspinspeed": {
-                "name": "Spin hastighed"
+                "name": "Spinnhastighet"
             },
             "analogtemperature": {
                 "name": "Temperatur"
             },
             "watersoftenermode": {
-                "name": "Vandblødgøringsfunktion"
+                "name": "Vannmyknermodus"
             },
             "maint1_threshold": {
-                "name": "Vedligeholdelsestærskel"
+                "name": "Vedlikeholdsterskel"
             },
             "detergentextradosage": {
-                "name": "Ekstra dosis vaskemiddel"
+                "name": "Vaskemiddel ekstra dosering"
             },
             "optisenseresult": {
-                "name": "Last vægt"
+                "name": "Lastevekt"
             },
             "softenerextradosage": {
-                "name": "Blødgøringsmiddel ekstra dosis"
+                "name": "Mykner ekstra dosering"
             },
             "tankadetloadfornominalweight": {
-                "name": "Tank en det belastning for nominel vægt"
+                "name": "Tank en det last for nominell vekt"
             },
             "tankareserve": {
                 "name": "Tank en reserve"
             },
             "tankbdetloadfornominalweight": {
-                "name": "Tank b det belastning for nominel vægt"
+                "name": "Tank b det last for nominell vekt"
             },
             "tankbreserve": {
                 "name": "Tank b reserve"
             },
             "waterusage": {
-                "name": "Vandforbrug"
+                "name": "Vannbruk"
             },
             "adtankadetloaded": {
-                "name": "Tank et vaskemiddel fyldt"
+                "name": "Fyll på et vaskemiddel"
             },
             "adtankbdetloaded": {
-                "name": "Tank b vaskemiddel fyldt"
+                "name": "Tank b vaskemiddel lastet"
             },
             "adtankbsoftloaded": {
-                "name": "Tank b skyllemiddel fyldt"
+                "name": "Tank b mykner lastet"
             },
             "ecolevel": {
-                "name": "Øko niveau"
+                "name": "Øko-nivå"
             },
             "applianceuiswversion": {
-                "name": "Appliance ui sw version"
+                "name": "Appliance ui sw versjon"
             },
             "remotenotificationpending": {
-                "name": "Fjernunderretning afventer"
+                "name": "Fjernvarsling venter"
             },
             "minfinishintime": {
-                "name": "Minimum finish i tide"
+                "name": "Minimum finish i tid"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Økonomitilstand"
+                "name": "Økonomimodus"
             },
             "adfinetunedetlevel": {
-                "name": "Automatisk finindstilling af vaskemiddel"
+                "name": "Automatisk finjustering av vaskemiddel"
             },
             "adfinetunesoftlevel": {
-                "name": "Automatisk dosering af blødgøringsmiddel finindstilling"
+                "name": "Autodose mykner finjustere"
             },
             "extrarinsenumber": {
-                "name": "Ekstra skylning"
+                "name": "Ekstra skylling"
             },
             "threshold": {
-                "name": "Vedligeholdelse 1 tærskel"
+                "name": "Vedlikehold 1 terskel"
             },
             "timezonedatabasename": {
-                "name": "Tidszonedatabase"
+                "name": "Tidssonedatabase"
             },
             "totalsteamcyclecounter": {
-                "name": "Samlet dampcyklustæller"
+                "name": "Total dampsyklusteller"
             },
             "prewashphase": {
-                "name": "Forvask fase"
+                "name": "Forvaskfase"
             },
             "dryingnominalloadweight": {
-                "name": "Nominel lastvægt"
+                "name": "Nominell lastevekt"
             },
             "humiditytarget": {
-                "name": "Fugtighedsmål (aktiv)"
+                "name": "Fuktighetsmål (aktiv)"
             },
             "tankalevel": {
-                "name": "Tank et niveau"
+                "name": "Tank et nivå"
             },
             "tankblevel": {
-                "name": "Tank b niveau"
+                "name": "Tank b nivå"
             },
             "totaldrycyclescount": {
-                "name": "Samlede tørre cyklusser"
+                "name": "Totale tørre sykluser"
             },
             "totaldryingtime": {
-                "name": "Samlet tørretid"
+                "name": "Total tørketid"
             },
             "totalwashdrycyclescount": {
-                "name": "Samlede vask+tørrecyklusser"
+                "name": "Totale vask+tørkesykluser"
             },
             "programsorder": {
-                "name": "Program rækkefølge"
+                "name": "Programrekkefølge"
             },
             "carelevel": {
-                "name": "Omsorgsniveau"
+                "name": "Omsorgsnivå"
             },
             "drynessvalue": {
-                "name": "Tørhedsniveau (aktivt)"
+                "name": "Tørrhetsnivå (aktiv)"
             },
             "wmloadweight": {
-                "name": "Dwyw: vaskevægt"
+                "name": "Dwyw: vask lastvekt"
             },
             "wmloadmoisture": {
-                "name": "Dwyw: vask belastning fugt"
+                "name": "Dwyw: vask belastning fuktighet"
             },
             "tdcloudtte": {
-                "name": "Dwyw: estimeret tørretid"
+                "name": "Dwyw: beregnet tørketid"
             },
             "tdecpoverload": {
-                "name": "Dwyw: indlæs overbelastningsflag"
+                "name": "Dwyw: last overbelastningsflagg"
             },
             "wmloaderror": {
-                "name": "Dwyw: vaskebelastningsfejl"
+                "name": "Dwyw: vaskebelastningsfeil"
             },
             "wmsn": {
-                "name": "Dwyw: parret skive seriel"
+                "name": "Dwyw: paret skiveserie"
             },
             "command": {
                 "name": "Dwyw: kommando"
             },
             "displayonfloor": {
-                "name": "Udstilling på gulvet"
+                "name": "Utstilling på gulvet"
             },
             "energyscore": {
                 "name": "Energiscore"
             },
             "waterscore": {
-                "name": "Vand score"
+                "name": "Vannpoengsum"
             },
             "ecoscore": {
                 "name": "Øko-score"
@@ -961,67 +985,67 @@
                 "name": "Omgivelsestemperatur f"
             },
             "fanmode": {
-                "name": "Ventilatortilstand"
+                "name": "Viftemodus"
             },
             "swingmode": {
-                "name": "Swing mode"
+                "name": "Svingmodus"
             },
             "ambienthumidity": {
-                "name": "Omgivende luftfugtighed"
+                "name": "Luftfuktighet i omgivelsene"
             },
             "filterstatus": {
                 "name": "Filterstatus"
             },
             "powerconsumption": {
-                "name": "Strømforbrug"
+                "name": "Strømforbruk"
             },
             "energyconsumption": {
-                "name": "Energiforbrug"
+                "name": "Energiforbruk"
             },
             "fanspeedstate": {
-                "name": "Ventilatorhastighedstilstand"
+                "name": "Viftehastighetstilstand"
             },
             "filterstate": {
                 "name": "Filtertilstand"
             },
             "hepafilterlifetime": {
-                "name": "Hepa filter levetid"
+                "name": "Hepa-filterets levetid"
             },
             "appliancecategory": {
                 "name": "Apparatkategori"
             },
             "vmno_niu": {
-                "name": "Niu version"
+                "name": "Niu versjon"
             },
             "vmno_mcu": {
-                "name": "Mcu version"
+                "name": "Mcu versjon"
             },
             "schedulersession": {
-                "name": "Planlægningssession"
+                "name": "Planleggerøkt"
             },
             "schedulermode": {
-                "name": "Planlægningstilstand"
+                "name": "Planleggermodus"
             },
             "totalruntime": {
-                "name": "Samlet køretid"
+                "name": "Total kjøretid"
             },
             "compressorcoolingruntime": {
-                "name": "Kompressorens kølingstid"
+                "name": "Kompressorkjølingstid"
             },
             "compressorheatingruntime": {
-                "name": "Kompressor opvarmning køretid"
+                "name": "Kompressorvarmedriftstid"
             },
             "mainunittemp": {
-                "name": "Hovedenhed temp"
+                "name": "Hovedenhet temp"
             },
             "loge": {
-                "name": "Log e"
+                "name": "Logg e"
             },
             "logw": {
-                "name": "Log w"
+                "name": "Logg m"
             },
             "demandresponseau": {
-                "name": "Krav svar au"
+                "name": "Krev svar au"
             },
             "pm25": {
                 "name": "Pm2,5"
@@ -1030,28 +1054,28 @@
                 "name": "pm10"
             },
             "modestate": {
-                "name": "Tilstandstilstand"
+                "name": "Modustilstand"
             },
             "filterruntime": {
-                "name": "Filter køretid"
+                "name": "Filter kjøretid"
             },
             "hepafilterstate": {
                 "name": "Hepa filter tilstand"
             },
             "airqualitylevel": {
-                "name": "Luftkvalitetsniveau"
+                "name": "Luftkvalitetsnivå"
             },
             "temperature": {
                 "name": "Omgivelsestemperatur"
             },
             "mode": {
-                "name": "Mode"
+                "name": "Modus"
             },
             "temp": {
                 "name": "Temperatur"
             },
             "humidity": {
-                "name": "Fugtighed"
+                "name": "Fuktighet"
             },
             "pm1": {
                 "name": "Pm1"
@@ -1072,19 +1096,19 @@
                 "name": "Filterliv"
             },
             "workmode": {
-                "name": "Arbejdstilstand"
+                "name": "Arbeidsmodus"
             },
             "aqilight": {
                 "name": "Aqi lys"
             },
             "louverswing": {
-                "name": "Lamellsving"
+                "name": "Rullesving"
             },
             "quietfan": {
-                "name": "Stille ventilator"
+                "name": "Stillegående vifte"
             },
             "humidificationfilter_resetdate": {
-                "name": "Dato for nulstilling af befugtningsfilter"
+                "name": "Dato for tilbakestilling av fuktighetsfilter"
             },
             "filterlife_1": {
                 "name": "Filterliv"
@@ -1099,31 +1123,31 @@
                 "name": "Filtertype 2"
             },
             "filteruid_1": {
-                "name": "Filter 1 nfc tag uid"
+                "name": "Filter 1 nfc-tag-uid"
             },
             "filteruid_2": {
                 "name": "Filter 2 nfc tag uid"
             },
             "pm2_5_approximate": {
-                "name": "Pm2,5 (cirka)"
+                "name": "Pm2,5 (omtrentlig)"
             },
             "uvruntime": {
-                "name": "Uv køretid"
+                "name": "Uv kjøretid"
             },
             "schedulingstate": {
-                "name": "Planlægningstilstand"
+                "name": "Planleggingstilstand"
             },
             "errimpellerstuck": {
-                "name": "Fejl: pumpehjul sidder fast"
+                "name": "Feil: impeller sitter fast"
             },
             "errpmnotresp": {
-                "name": "Fejl: pm-sensor reagerer ikke"
+                "name": "Feil: pm-sensoren reagerer ikke"
             },
             "errcommsensordisplaybrd": {
-                "name": "Fejl: displaykortkommunikation"
+                "name": "Feil: skjermkortkommunikasjon"
             },
             "errcommsensoruibrd": {
-                "name": "Fejl: ui-kortkommunikation"
+                "name": "Feil: ui-kortkommunikasjon"
             },
             "signalstrength": {
                 "name": "Signalstyrke"
@@ -1135,229 +1159,229 @@
                 "name": "Filter rfid"
             },
             "errgasnotresp": {
-                "name": "Fejl: gassensor reagerer ikke"
+                "name": "Feil: gasssensoren reagerer ikke"
             },
             "errnfctagnotpres_1": {
-                "name": "Fejl: filter 1 nfc tag ikke til stede"
+                "name": "Feil: filter 1 nfc tag ikke til stede"
             },
             "errnfctagnotpres_2": {
-                "name": "Fejl: filter 2 nfc tag ikke til stede"
+                "name": "Feil: filter 2 nfc tag ikke til stede"
             },
             "errnfctagpresnotvalid_1": {
-                "name": "Fejl: filter 1 nfc-tag ugyldigt"
+                "name": "Feil: filter 1 nfc-tag er ugyldig"
             },
             "errnfctagpresnotvalid_2": {
-                "name": "Fejl: filter 2 nfc-tag ugyldigt"
+                "name": "Feil: filter 2 nfc tag ugyldig"
             },
             "errnfctransceiver_1": {
-                "name": "Fejl: filter 1 nfc transceiver"
+                "name": "Feil: filter 1 nfc transceiver"
             },
             "errnfctransceiver_2": {
-                "name": "Fejl: filter 2 nfc transceiver"
+                "name": "Feil: filter 2 nfc transceiver"
             },
             "errtemprhnotresp": {
-                "name": "Fejl: Temperatur/fugtighedssensor reagerer ikke"
+                "name": "Feil: temperatur-/fuktighetssensoren reagerer ikke"
             },
             "errwatertrayremoved": {
-                "name": "Fejl: vandbakke fjernet"
+                "name": "Feil: vannbeholder fjernet"
             },
             "waterbucketlevel": {
-                "name": "Vandspand niveau"
+                "name": "Vann bøtte nivå"
             },
             "batterystatus": {
                 "name": "Batteri"
             },
             "robotstatus": {
-                "name": "Robot status"
+                "name": "Robotstatus"
             },
             "cleaningcommand": {
-                "name": "Rengøringskommando"
+                "name": "Rengjøringskommando"
             },
             "dustbinstatus": {
-                "name": "Skraldespand status"
+                "name": "Søppelkassestatus"
             },
             "mainbrushsqm": {
-                "name": "Anvendelse af hovedbørste"
+                "name": "Bruk av hovedbørste"
             },
             "sidebrushsqm": {
-                "name": "Brug af sidebørste"
+                "name": "Bruk av sidebørste"
             },
             "filtersqm": {
-                "name": "Filterbrug"
+                "name": "Filterbruk"
             },
             "state": {
-                "name": "Rengøringstilstand"
+                "name": "Rengjøringstilstand"
             },
             "chargingstatus": {
-                "name": "Opladningsstatus"
+                "name": "Ladestatus"
             },
             "vacuummode": {
-                "name": "Vakuum tilstand"
+                "name": "Vakuummodus"
             },
             "cleaningtype": {
-                "name": "Rengøringstype"
+                "name": "Rengjøringstype"
             },
             "cleaningmode": {
-                "name": "Rengøringstilstand"
+                "name": "Rengjøringsmodus"
             },
             "waterpumprate": {
-                "name": "Vandpumpehastighed"
+                "name": "Vannpumpehastighet"
             },
             "waterstationaction": {
-                "name": "Vandstationsaktion"
+                "name": "Vannstasjonsaksjon"
             },
             "moproute": {
-                "name": "Moppe rute"
+                "name": "Mopp rute"
             },
             "notificationevent": {
-                "name": "Notifikationsbegivenhed"
+                "name": "Varslingshendelse"
             },
             "dirtcleanmode": {
-                "name": "Snavsrensningstilstand"
+                "name": "Smussrengjøringsmodus"
             },
             "faultcode": {
-                "name": "Fejlkode"
+                "name": "Feilkode"
             },
             "filterusage": {
-                "name": "Filterbrug"
+                "name": "Filterbruk"
             },
             "cleansize": {
                 "name": "Ren størrelse"
             },
             "cleantime": {
-                "name": "Rens tid"
+                "name": "Ren tid"
             },
             "dustbagusage": {
-                "name": "Brug af støvpose"
+                "name": "Bruk av støvpose"
             },
             "dustboxusage": {
-                "name": "Brug af støvboks"
+                "name": "Bruk av støvboks"
             },
             "emptyingtime": {
-                "name": "Tømningstid"
+                "name": "Tømmetid"
             },
             "mainbrushusage": {
-                "name": "Anvendelse af hovedbørste"
+                "name": "Bruk av hovedbørste"
             },
             "sidebrushusage": {
-                "name": "Brug af sidebørste"
+                "name": "Bruk av sidebørste"
             },
             "mopusage": {
-                "name": "Moppebrug"
+                "name": "Mopp bruk"
             },
             "moparmextensionfreq": {
-                "name": "Moppearms forlængelsesfrekvens"
+                "name": "Mopp arm forlengelse frekvens"
             },
             "mopdrytime": {
-                "name": "Moppetørretid"
+                "name": "Mopp tørketid"
             },
             "mopwashfreqarea": {
-                "name": "Område for moppevask"
+                "name": "Moppvask frekvensområde"
             },
             "mopwashfreqtime": {
-                "name": "Moppevaskefrekvens tid"
+                "name": "Moppvask frekvens tid"
             },
             "mopwashfreqtype": {
-                "name": "Mopvaskefrekvenstype"
+                "name": "Moppvask frekvens type"
             },
             "numberofcleaningrepetitions": {
-                "name": "Rengøring gentagelser"
+                "name": "Rengjøring repetisjoner"
             },
             "voicevolume": {
-                "name": "Stemmelydstyrke"
+                "name": "Stemmevolum"
             },
             "upgradeprogress": {
-                "name": "Opgraderingsfremskridt"
+                "name": "Oppgraderingsfremdrift"
             },
             "stationupgradestatus": {
-                "name": "Status for stationsopgradering"
+                "name": "Stasjonsoppgraderingsstatus"
             },
             "upgradestate": {
-                "name": "Opgraderingstilstand"
+                "name": "Oppgraderingstilstand"
             },
             "selectedroomid": {
-                "name": "Valgt rum-id"
+                "name": "Valgt rom-ID"
             },
             "maxusagedustbox": {
-                "name": "Maksimal brug af støvboks"
+                "name": "Maks bruk av støvboks"
             },
             "maxusagestationbag": {
-                "name": "Max brug af stationstaske"
+                "name": "Maks stasjonsposebruk"
             },
             "dndstarttime": {
-                "name": "Dnd starttidspunkt"
+                "name": "Dnd starttid"
             },
             "dndendtime": {
-                "name": "Dnd sluttidspunkt"
+                "name": "Dnd sluttid"
             },
             "datamodelversion": {
-                "name": "Data model version"
+                "name": "Datamodellversjon"
             },
             "basestationversion": {
-                "name": "Basestation version"
+                "name": "Basestasjon versjon"
             },
             "deviceid": {
-                "name": "Enheds-id"
+                "name": "Enhets-ID"
             },
             "timezonedaylightrule": {
-                "name": "Tidszone dagslys regel"
+                "name": "Tidssone dagslys regel"
             },
             "timezonestandardname": {
-                "name": "Tidszone standardnavn"
+                "name": "Tidssone standardnavn"
             },
             "bintank": {
-                "name": "Beholder tank"
+                "name": "Søppeltank"
             },
             "setvoicevolume": {
-                "name": "Lydstyrkeniveau for stemme"
+                "name": "Stemmevolumnivå"
             },
             "mapid": {
-                "name": "Vedvarende kort-id"
+                "name": "Vedvarende kart-ID"
             },
             "sessionid": {
-                "name": "Rengøringssession-id"
+                "name": "Rengjøringsøkt-ID"
             },
             "completion": {
-                "name": "Afslutning af rengøring"
+                "name": "Rengjøring fullført"
             },
             "areacovered": {
-                "name": "Område dækket"
+                "name": "Område dekket"
             },
             "zones": {
-                "name": "Kortzoneantal"
+                "name": "Antall kartsoner"
             },
             "zonestatus": {
-                "name": "Rengøringszonestatus"
+                "name": "Rengjøringssonestatus"
             },
             "ovwater_tank_empty": {
-                "name": "Vandbeholderstatus"
+                "name": "Vanntankstatus"
             },
             "foodprobeinsertionstate": {
-                "name": "Fødevaresonde"
+                "name": "Matsonde"
             },
             "ovcleaning_ended": {
-                "name": "Rengøringsstatus"
+                "name": "Rengjøringsstatus"
             },
             "ovfood_probe_end_of_cooking": {
-                "name": "Probe Slut på madlavning"
+                "name": "Probe slutt på matlaging"
             },
             "connectivitystate": {
-                "name": "Tilslutningstilstand"
+                "name": "Tilkoblingstilstand"
             },
             "executionstate": {
-                "name": "Udførelsesstat"
+                "name": "Utførelsesstat"
             },
             "docktype": {
-                "name": "Docketype"
+                "name": "Dokktype"
             },
             "filtercleanthreshold": {
-                "name": "Tærskelværdi for filterrensning"
+                "name": "Terskel for filterrengjøring"
             },
             "hepafilterbuythreshold": {
-                "name": "HEPA-filter købstærskel"
+                "name": "HEPA-filter kjøpsterskel"
             },
             "hepafilterchangethreshold": {
-                "name": "HEPA-filter skiftetærskel"
+                "name": "Terskel for HEPA-filterendring"
             },
             "niustatus": {
                 "name": "Niu-status"
@@ -1368,52 +1392,52 @@
         },
         "switch": {
             "uilockmode": {
-                "name": "Børnelås indvendig"
+                "name": "Barnelås innvendig"
             },
             "cavitylight": {
                 "name": "Kavitetslys"
             },
             "childlock": {
-                "name": "Børnelås"
+                "name": "Barnelås"
             },
             "soundvolume": {
-                "name": "Lydstyrke"
+                "name": "Lydvolum"
             },
             "keysoundtone": {
-                "name": "Nøglelyd"
+                "name": "Nøkkellyd"
             },
             "windownotification": {
-                "name": "Vinduesmeddelelse"
+                "name": "Vinduvarsling"
             },
             "hoodfiltercharcenable": {
-                "name": "Aktiver kulfilter"
+                "name": "Aktiver kullfilter"
             },
             "fastmode": {
-                "name": "Fryser hurtig tilstand"
+                "name": "Fryser rask modus"
             },
             "sabbathmode": {
-                "name": "Sabbatstilstand"
+                "name": "Sabbatsmodus"
             },
             "ecomode": {
-                "name": "Øko-tilstand"
+                "name": "Øko-modus"
             },
             "ui2lockmode": {
-                "name": "Ui 2lock-tilstand"
+                "name": "Ui 2lock-modus"
             },
             "ewx1493a_prewashphase": {
                 "name": "Forvask"
             },
             "ewx1493a_anticreasenosteam": {
-                "name": "Anti-krøl (ingen damp)"
+                "name": "Anti-krøll (ingen damp)"
             },
             "ewx1493a_anticreasewsteam": {
-                "name": "Anti-krøl med damp"
+                "name": "Anti-krøll med damp"
             },
             "ewx1493a_nightcycle": {
-                "name": "Nat cyklus"
+                "name": "Nattsyklus"
             },
             "ewx1493a_wmeconomy": {
-                "name": "Økonomitilstand"
+                "name": "Økonomimodus"
             },
             "ewx1493a_rinsehold": {
                 "name": "Skyllehold"
@@ -1422,157 +1446,157 @@
                 "name": "Intensiv vask"
             },
             "ewx1493a_tcsensor": {
-                "name": "Temperaturføler"
+                "name": "Temperatursensor"
             },
             "ewx1493a_stain": {
-                "name": "Pletbehandling"
+                "name": "Flekkbehandling"
             },
             "ewx1493a_drymode": {
-                "name": "Tør tilstand"
+                "name": "Tørrmodus"
             },
             "ewx1493a_easyiron": {
-                "name": "Nem strygning"
+                "name": "Lett stryking"
             },
             "ewx1493a_pod": {
                 "name": "Pod"
             },
             "ewx1493a_steammode": {
-                "name": "Damptilstand"
+                "name": "Steam-modus"
             },
             "ewx1493a_ultramix": {
-                "name": "Ultra mix"
+                "name": "Ultrablanding"
             },
             "ewx1493a_wetmode": {
-                "name": "Våd tilstand"
+                "name": "Våt modus"
             },
             "networkinterfacealwayson": {
-                "name": "Netværk altid tændt"
+                "name": "Nettverk alltid på"
             },
             "adlocalfinetuning": {
-                "name": "Autodosis lokal finjustering"
+                "name": "Autodose lokal finjustering"
             },
             "anticreasenosteam": {
-                "name": "Anti-krøl ingen damp"
+                "name": "Anti-krøll ingen damp"
             },
             "anticreasewsteam": {
-                "name": "Anti-krøl med damp"
+                "name": "Anti-krøll med damp"
             },
             "ultramix": {
-                "name": "Ultra mix"
+                "name": "Ultrablanding"
             },
             "prewashphase": {
                 "name": "Forvask"
             },
             "stain": {
-                "name": "Pletvirkning"
+                "name": "Flekkaksjon"
             },
             "nightcycle": {
-                "name": "Nat cyklus"
+                "name": "Nattsyklus"
             },
             "wmeconomy": {
-                "name": "Økonomitilstand"
+                "name": "Økonomimodus"
             },
             "rinsehold": {
                 "name": "Skyllehold"
             },
             "tcsensor": {
-                "name": "Temperaturføler"
+                "name": "Temperatursensor"
             },
             "soak": {
-                "name": "Blødgør"
+                "name": "Bløtlegg"
             },
             "softener": {
-                "name": "Blødgøringsmiddel"
+                "name": "Mykner"
             },
             "defaultsoftplus": {
-                "name": "Standard blødt plus"
+                "name": "Standard myk pluss"
             },
             "intensive": {
                 "name": "Intensiv"
             },
             "reverseplus": {
-                "name": "Omvendt plus"
+                "name": "Omvendt pluss"
             },
             "tdeconomy_eco": {
-                "name": "Øko-tilstand"
+                "name": "Øko-modus"
             },
             "tdeconomy_night": {
-                "name": "Nattilstand"
+                "name": "Nattmodus"
             },
             "tdeconomy_quick": {
-                "name": "Hurtig tilstand"
+                "name": "Hurtigmodus"
             },
             "refresh": {
-                "name": "Opdater programmet"
+                "name": "Oppdater programmet"
             },
             "keytone": {
-                "name": "Nøgletone"
+                "name": "Nøkkeltone"
             },
             "preselectlast": {
-                "name": "Forudvælg sidst"
+                "name": "Forhåndsvelg sist"
             },
             "extrapoweroption": {
                 "name": "Ekstra kraft"
             },
             "extrasilentoption": {
-                "name": "Ekstra lydløs"
+                "name": "Ekstra stillegående"
             },
             "glasscareoption": {
-                "name": "Glaspleje"
+                "name": "Glasspleie"
             },
             "sprayzoneoption": {
-                "name": "Sprøjtezone"
+                "name": "Spraysone"
             },
             "autodooropener": {
-                "name": "Automatisk døråbner"
+                "name": "Automatisk døråpner"
             },
             "sanitizeoption": {
-                "name": "Desinficer"
+                "name": "Desinfiser"
             },
             "onerackoption": {
-                "name": "Et stativ"
+                "name": "Ett stativ"
             },
             "zonecleanoption": {
-                "name": "Zone ren"
+                "name": "Sone ren"
             },
             "xtradryoption": {
-                "name": "Ekstra tør"
+                "name": "Ekstra tørr"
             },
             "cleanairmode": {
-                "name": "Ren luft tilstand"
+                "name": "Ren luft-modus"
             },
             "sleepmode": {
-                "name": "Dvaletilstand"
+                "name": "Hvilemodus"
             },
             "batchschedulermode": {
-                "name": "Batchplanlægningstilstand"
+                "name": "Batchplanleggermodus"
             },
             "verticalswing": {
-                "name": "Lodret gynge"
+                "name": "Vertikal sving"
             },
             "turbofunction": {
-                "name": "Turbo funktion"
+                "name": "Turbo funksjon"
             },
             "energysavingmode": {
-                "name": "Energibesparende tilstand"
+                "name": "Energisparemodus"
             },
             "autocleantrigger": {
-                "name": "Auto clean trigger"
+                "name": "Autorens utløser"
             },
             "flappositionavoiduser": {
-                "name": "Klapposition undgå bruger"
+                "name": "Klaffposisjon unngå bruker"
             },
             "horizontalswing": {
-                "name": "Vandret sving"
+                "name": "Horisontal sving"
             },
             "humidification": {
-                "name": "Befugtning"
+                "name": "Fukting"
             },
             "uilight": {
                 "name": "Ui lys"
             },
             "safetylock": {
-                "name": "Sikkerhedslås"
+                "name": "Sikkerhetslås"
             },
             "ionizer": {
                 "name": "Ionisator"
@@ -1584,7 +1608,7 @@
                 "name": "Stum"
             },
             "hoodfiltercharcindication": {
-                "name": "Indikation af kulfilter"
+                "name": "Kullfilterindikasjon"
             }
         }
     }

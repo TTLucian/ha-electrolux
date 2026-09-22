@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Live"
+            },
             "connectivitystate": {
                 "name": "Estado de conectividade"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Modo de energia"
+            },
+            "targetmicrowavepower": {
+                "name": "Potência de micro-ondas alvo"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Velocidade do ventilador"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Indicação do filtro de graxa"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Estado de execução"
+            },
+            "docktype": {
+                "name": "Tipo de Doca"
+            },
+            "filtercleanthreshold": {
+                "name": "Limiar de Limpeza do Filtro"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Limite de Compra do Filtro HEPA"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Limite de Mudança de Filtro HEPA"
+            },
+            "niustatus": {
+                "name": "Estado NIU"
+            },
+            "soundpackfile": {
+                "name": "Ficheiro do Pacote de Som"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Mudo"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Indicação do filtro de carvão"
             }
         }
     }

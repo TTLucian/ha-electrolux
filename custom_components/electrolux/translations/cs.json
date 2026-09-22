@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Přímý přenos"
+            },
             "connectivitystate": {
                 "name": "Stav připojení"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Režim napájení"
+            },
+            "targetmicrowavepower": {
+                "name": "Cílový mikrovlnný výkon"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Rychlost ventilátoru"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Indikace mazacího filtru"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Prováděcí stát"
+            },
+            "docktype": {
+                "name": "Typ doku"
+            },
+            "filtercleanthreshold": {
+                "name": "Prahová hodnota čištění filtru"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Hranice pro nákup filtru HEPA"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Práh změny filtru HEPA"
+            },
+            "niustatus": {
+                "name": "Stav NIU"
+            },
+            "soundpackfile": {
+                "name": "Soubor zvukového balíčku"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Ztlumit"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Indikace filtru dřevěného uhlí"
             }
         }
     }

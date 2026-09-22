@@ -703,6 +703,26 @@ class TestGetEntity:
         assert len(entities) >= 1
         assert isinstance(entities[0], ElectroluxSensor)
 
+    def test_constant_appliance_features_are_diagnostic_and_disabled(self):
+        """Undocumented feature metadata remains available without cluttering the device page."""
+        from homeassistant.const import EntityCategory
+
+        app = self._app_with_data(
+            {
+                "dCApplianceFeature_EnergyClass": {
+                    "access": "constant",
+                    "type": "enum",
+                    "values": {"B": {"disabled": True}},
+                }
+            }
+        )
+
+        entities = app.get_entity("dCApplianceFeature_EnergyClass")
+
+        assert len(entities) == 1
+        assert entities[0].entity_category == EntityCategory.DIAGNOSTIC
+        assert entities[0].entity_registry_enabled_default is False
+
     def test_returns_binary_sensor_for_read_string_with_catalog_override(self):
         """connectivityState catalog overrides entity type to BinarySensor."""
         from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
@@ -1053,6 +1073,9 @@ class TestApplianceSetup:
             "fCPN_TDAlert",
             "fCPN_TDEndOfCycle",
             "fCPN_TDMaintenances",
+            "dCPN_DWAlert",
+            "dCPN_DWEndOfCycle",
+            "dCPN_DWMaintenances",
             "fCApplianceFeature_EUDryWhatWashed",
             "hMEPN_DHAlerts",
             "dummy_for_empty_cycle",

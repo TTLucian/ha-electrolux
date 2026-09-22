@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Canlı Yayın"
+            },
             "connectivitystate": {
                 "name": "Bağlantı durumu"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Güç modu"
+            },
+            "targetmicrowavepower": {
+                "name": "Hedef Mikrodalga Gücü"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Fan hızı"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Gres Filtresi Göstergesi"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Yürütme Durumu"
+            },
+            "docktype": {
+                "name": "Yuva Türü"
+            },
+            "filtercleanthreshold": {
+                "name": "Filtre Temizleme Eşiği"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA Filtre Satın Alma Eşiği"
+            },
+            "hepafilterchangethreshold": {
+                "name": "HEPA Filtre Değişim Eşiği"
+            },
+            "niustatus": {
+                "name": "NIU DURUMU"
+            },
+            "soundpackfile": {
+                "name": "Ses Paketi Dosyası"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Sesini kapatmak"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Kömür Filtresi Göstergesi"
             }
         }
     }

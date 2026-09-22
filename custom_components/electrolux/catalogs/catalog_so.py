@@ -9,7 +9,7 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
-from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
+from homeassistant.const import EntityCategory, UnitOfPower, UnitOfTemperature, UnitOfTime
 
 from ..execute_command_states import STRUCTURED_OVEN_EXECUTE_STATES
 from ..model import ElectroluxDevice
@@ -562,6 +562,114 @@ CATALOG_SO: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:message-badge",
         friendly_name="Active Message Index",
+        entity_registry_enabled_default=False,
+    ),
+    # Verified on all SO samples (944005197_01, 944035156_00, 944005079_00,
+    # 944035035_01): read-only diagnostics for the appliance message queue.
+    "messageQueueSync/messageBehaviour": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "BLOCKING_OVEN_PROCESS": {},
+                "BLOCKING_PHASE_TRANSITION": {},
+                "INVALID": {},
+                "NOT_BLOCKING": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:message-lock",
+        friendly_name="Message Behaviour",
+        entity_registry_enabled_default=False,
+    ),
+    "messageQueueSync/messageQueueId": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:message-processing",
+        friendly_name="Message Queue ID",
+        entity_registry_enabled_default=False,
+    ),
+    "messageQueueSync/messageQueueType": ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "string",
+            "values": {
+                "AUXILARY": {},
+                "INITIAL": {},
+                "INVALID": {},
+                "OVEN_PROCESS": {},
+                "OVEN_PROCESS_QUEUE_INIT": {},
+                "OVEN_PROCESS_QUEUE_MAIN": {},
+                "OVEN_PROCESS_QUEUE_STEP": {},
+                "PHASE_QUEUE": {},
+            },
+        },
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:message-text-clock",
+        friendly_name="Message Queue Type",
+        entity_registry_enabled_default=False,
+    ),
+    # ── Microwave combi (model-dependent: advertised on 944005197_01 and
+    # 944005079_00; reported on all sampled SOs, values 0 and 600 W) ──
+    # Range 0-1000 W step 10 is unverified (capability advertises no
+    # min/max); adjust if a live diagnostic shows different bounds.
+    "upperOven/targetMicrowavePower": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 0,
+            "max": 1000,
+            "step": 10,
+        },
+        device_class=NumberDeviceClass.POWER,
+        unit=UnitOfPower.WATT,
+        entity_category=None,
+        entity_icon="mdi:microwave",
+        friendly_name="Microwave Power",
+    ),
+    # ── OTA3 firmware update state — reported-state only (no advertised
+    # capability on any sampled SO). Values are NUL-padded strings; the
+    # sensor platform strips the padding (see sanitize_nul_string).
+    "oTA3CurrentVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:cloud-download",
+        friendly_name="OTA3 Current Version",
+        entity_registry_enabled_default=False,
+    ),
+    "oTA3TargetVersion": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:cloud-upload",
+        friendly_name="OTA3 Target Version",
+        entity_registry_enabled_default=False,
+    ),
+    "oTA3State": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:update",
+        friendly_name="OTA3 State",
+        entity_registry_enabled_default=False,
+    ),
+    "oTA3LastResult": ElectroluxDevice(
+        capability_info={"access": "read", "type": "string"},
+        device_class=None,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:check-circle",
+        friendly_name="OTA3 Last Result",
         entity_registry_enabled_default=False,
     ),
 }

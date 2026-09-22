@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Livestream"
+            },
             "connectivitystate": {
                 "name": "Konnektivitätsstatus"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Power-Modus"
+            },
+            "targetmicrowavepower": {
+                "name": "Ziel-Mikrowellenleistung"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Lüftergeschwindigkeit"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Fettfilteranzeige"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Ausführungsstaat"
+            },
+            "docktype": {
+                "name": "Dock-Typ"
+            },
+            "filtercleanthreshold": {
+                "name": "Filterreinigungsschwelle"
+            },
+            "hepafilterbuythreshold": {
+                "name": "HEPA-Filter Kaufschwelle"
+            },
+            "hepafilterchangethreshold": {
+                "name": "HEPA-Filteränderungsschwelle"
+            },
+            "niustatus": {
+                "name": "Niu-Status"
+            },
+            "soundpackfile": {
+                "name": "Sound-Pack-Datei"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Stumm"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Kohlefilteranzeige"
             }
         }
     }

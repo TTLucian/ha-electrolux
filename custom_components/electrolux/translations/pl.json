@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Transmisja na żywo"
+            },
             "connectivitystate": {
                 "name": "Stan łączności"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Tryb zasilania"
+            },
+            "targetmicrowavepower": {
+                "name": "Docelowa moc mikrofal"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Prędkość wentylatora"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Wskazanie filtra tłuszczu"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Stan wykonania"
+            },
+            "docktype": {
+                "name": "Typ doku"
+            },
+            "filtercleanthreshold": {
+                "name": "Próg czyszczenia filtra"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Próg zakupu filtra HEPA"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Próg wymiany filtra HEPA"
+            },
+            "niustatus": {
+                "name": "Status NIU"
+            },
+            "soundpackfile": {
+                "name": "Plik pakietu dźwiękowego"
             }
         },
         "switch": {
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Niemy"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Wskazanie filtra węglowego"
             }
         }
     }

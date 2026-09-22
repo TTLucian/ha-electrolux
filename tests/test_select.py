@@ -1049,6 +1049,37 @@ class TestSelectOptionsFiltering:
         filtered = entity.options
         assert set(filtered) == {"Option 1", "Option 2", "Option 3"}
 
+    def test_program_select_uses_appliance_program_order(self, mock_coordinator):
+        """Program selectors follow the order published by the appliance."""
+        mock_appliance = MagicMock()
+        mock_appliance.data.capabilities = {
+            "userSelections/programsOrder": {"items": ["QUICK60", "ECO", "AUTO"]}
+        }
+        mock_coordinator.data = {"appliances": MagicMock()}
+        mock_coordinator.data["appliances"].get_appliance.return_value = mock_appliance
+
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability={
+                "access": "readwrite",
+                "type": "string",
+                "values": {"AUTO": {}, "ECO": {}, "QUICK60": {}},
+            },
+            name="Program",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="programUID",
+            entity_attr="programUID",
+            entity_source="userSelections",
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:play-circle",
+        )
+
+        assert list(entity.options_list.values()) == ["QUICK60", "ECO", "AUTO"]
+
 
 class TestSelectMissingCoveragePaths:
     """Tests to cover previously uncovered select.py paths."""

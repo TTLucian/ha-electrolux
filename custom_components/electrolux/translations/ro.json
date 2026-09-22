@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "cloud_api": {
+                "name": "API"
+            },
+            "sse_stream": {
+                "name": "Transmisie live"
+            },
             "connectivitystate": {
                 "name": "Stare de conectivitate"
             },
@@ -502,6 +508,9 @@
             },
             "powermode": {
                 "name": "Modul de alimentare"
+            },
+            "targetmicrowavepower": {
+                "name": "Puterea țintă a microundelor"
             }
         },
         "select": {
@@ -516,6 +525,9 @@
             },
             "fanspeedsetting": {
                 "name": "Viteza ventilatorului"
+            },
+            "hoodfiltergreaseindication": {
+                "name": "Indicarea filtrului de grăsime"
             }
         },
         "sensor": {
@@ -1334,6 +1346,24 @@
             },
             "executionstate": {
                 "name": "Statul de executare"
+            },
+            "docktype": {
+                "name": "Tip dock"
+            },
+            "filtercleanthreshold": {
+                "name": "Pragul de curățare a filtrului"
+            },
+            "hepafilterbuythreshold": {
+                "name": "Pragul de cumpărare filtru HEPA"
+            },
+            "hepafilterchangethreshold": {
+                "name": "Pragul de schimbare a filtrului HEPA"
+            },
+            "niustatus": {
+                "name": "Stare NIU"
+            },
+            "soundpackfile": {
+                "name": "Fișier pachet de sunet"
             }
         },
         "switch": {
@@ -1341,7 +1371,7 @@
                 "name": "Blocare pentru copii intern"
             },
             "cavitylight": {
-                "name": "Lumină din cavitate"
+                "name": "Lumină cavitate"
             },
             "childlock": {
                 "name": "Blocare pentru copii"
@@ -1374,10 +1404,10 @@
                 "name": "Pre-spălare"
             },
             "ewx1493a_anticreasenosteam": {
-                "name": "Anti-sifon (fara abur)"
+                "name": "Anti-șifonare (fara abur)"
             },
             "ewx1493a_anticreasewsteam": {
-                "name": "Anti-sifonare cu abur"
+                "name": "Anti-șifonare cu abur"
             },
             "ewx1493a_nightcycle": {
                 "name": "Ciclu de noapte"
@@ -1392,7 +1422,7 @@
                 "name": "Spălare intensivă"
             },
             "ewx1493a_tcsensor": {
-                "name": "Senzor de temperatura"
+                "name": "Senzor de temperatură"
             },
             "ewx1493a_stain": {
                 "name": "Tratamentul petelor"
@@ -1422,10 +1452,10 @@
                 "name": "Reglare fină locală a dozării automate"
             },
             "anticreasenosteam": {
-                "name": "Anti sifonare fara abur"
+                "name": "Anti șifonare fara abur"
             },
             "anticreasewsteam": {
-                "name": "Anti-sifonare cu abur"
+                "name": "Anti-șifonare cu abur"
             },
             "ultramix": {
                 "name": "Ultra mix"
@@ -1446,7 +1476,7 @@
                 "name": "Se clătește"
             },
             "tcsensor": {
-                "name": "Senzor de temperatura"
+                "name": "Senzor de temperatură"
             },
             "soak": {
                 "name": "Înmuiați"
@@ -1552,6 +1582,9 @@
             },
             "mute": {
                 "name": "Mut"
+            },
+            "hoodfiltercharcindication": {
+                "name": "Indicarea filtrului de cărbune"
             }
         }
     }
