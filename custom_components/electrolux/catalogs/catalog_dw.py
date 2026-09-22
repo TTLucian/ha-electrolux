@@ -445,3 +445,19 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         entity_registry_enabled_default=False,
     ),
 }
+
+
+# Alert codes verified against the live capability schema of the AEG
+# GI7210B2SN (PNC 911472038). Keep these as separate binary sensors while
+# retaining the aggregate ``alerts`` sensor for backwards compatibility.
+for _alert_code in ("DISH_ALARM_RINSE_AID_LOW", "DISH_ALARM_SALT_MISSING"):
+    CATALOG_DW[f"alerts/{_alert_code}"] = ElectroluxDevice(
+        capability_info={
+            "access": "read",
+            "type": "boolean",
+        },
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:alert-circle",
+    )

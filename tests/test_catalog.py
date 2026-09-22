@@ -82,6 +82,7 @@ class TestCatalogOven:
         assert isinstance(CATALOG_OV, dict)
         assert len(CATALOG_OV) > 0
 
+
     def test_oven_entities_are_electrolux_devices(self):
         """All oven catalog values are ElectroluxDevice instances."""
         from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
@@ -415,6 +416,17 @@ class TestCatalogDishwasher:
 
         assert isinstance(CATALOG_DW, dict)
         assert len(CATALOG_DW) > 0
+
+    def test_verified_dishwasher_alert_entities(self):
+        """The live dishwasher alert codes are represented as binary sensors."""
+        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        for code in ("DISH_ALARM_RINSE_AID_LOW", "DISH_ALARM_SALT_MISSING"):
+            entry = CATALOG_DW[f"alerts/{code}"]
+            assert entry.capability_info == {"access": "read", "type": "boolean"}
+            assert entry.device_class == BinarySensorDeviceClass.PROBLEM
 
     def test_gi7210b2sn_fixture_captures_verified_pnc_data(self):
         """The sanitized GI7210B2SN diagnostic fixture preserves live keys."""
