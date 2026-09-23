@@ -1332,6 +1332,35 @@ class ElectroluxEntity(CoordinatorEntity):
         self._is_supported_cache = True
         return True
 
+    def _is_program_level_key(self) -> bool:
+        """Return True if this entity's key is listed by at least one program's constraint dict.
+
+        Appliance-level keys (not listed by any program, e.g. autoDoorOpener,
+        endOfCycleSound) should be sent without programUID to avoid silent
+        rejection when bundled into a program-targeted payload (fixes #232).
+        """
+        try:
+            appliance = self.get_appliance
+            if not (hasattr(appliance, "data") and appliance.data):
+                return False
+            caps = appliance.data.capabilities
+            if not isinstance(caps, dict):
+                return False
+            # Capabilities are structured as: cap_name -> {values: {prog_name: {entity_attr: constraints}}}
+            # We check whether self.entity_attr appears in ANY program within ANY capability.
+            for cap_def in caps.values():
+                if not isinstance(cap_def, dict):
+                    continue
+                values = cap_def.get("values", {})
+                if not isinstance(values, dict):
+                    continue
+                for prog_constraints in values.values():
+                    if isinstance(prog_constraints, dict) and self.entity_attr in prog_constraints:
+                        return True
+        except Exception:
+            pass
+        return False
+
     def _get_program_constraint(self, key: str) -> int | float | str | bool | None:
         """Get a specific constraint (min/max/step) for the current program.
 

@@ -25,6 +25,31 @@ class TestElectroluxSwitch:
         return coordinator
 
     @pytest.fixture
+    def mock_coordinator_with_program_caps(self):
+        """Create a mock coordinator with program-level capability data."""
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator._last_update_times = {}
+        # Simulate appliance capabilities with a program that lists testAttr
+        mock_appliance = MagicMock()
+        mock_appliance.data = MagicMock()
+        mock_appliance.data.capabilities = {
+            "program": {
+                "values": {
+                    "TEST_PROGRAM": {
+                        "testAttr": {"disabled": False},
+                    }
+                }
+            }
+        }
+        coordinator.data = {"appliances": MagicMock()}
+        coordinator.data["appliances"].get_appliance.return_value = mock_appliance
+        return coordinator
+
+    @pytest.fixture
     def mock_capability(self):
         """Create a mock capability."""
         return {
@@ -113,11 +138,11 @@ class TestElectroluxSwitch:
         assert switch_entity.is_on is False
 
     def test_is_on_none_value(self, switch_entity):
-        """Test is_on handles None values."""
+        """Test is_on returns None when value is unknown (e.g. appliance offline)."""
         switch_entity.appliance_status = {"properties": {"reported": {}}}
         switch_entity.reported_state = {}
         switch_entity.extract_value = MagicMock(return_value=None)
-        assert switch_entity.is_on is False
+        assert switch_entity.is_on is None
 
     def test_is_on_with_state_mapping(self, mock_coordinator, mock_capability):
         """Test is_on with state mapping."""
@@ -262,10 +287,16 @@ class TestElectroluxSwitch:
         switch_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_switch_with_user_selections_source(
-        self, mock_coordinator, mock_capability
+    async def test_switch_command_with_user_selections_source_program_level_key(
+        self, mock_coordinator_with_program_caps
     ):
-        """Test switch command with userSelections entity source."""
+        """Test switch command with userSelections source includes programUID for program-level keys."""
+        mock_coordinator = mock_coordinator_with_program_caps
+        mock_capability = {
+            "access": "readwrite",
+            "type": "boolean",
+            "values": {"OFF": {}, "ON": {}},
+        }
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
             capability=mock_capability,
@@ -303,9 +334,64 @@ class TestElectroluxSwitch:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Legacy appliances with userSelections source include programUID
+            # Program-level key with programUID should be bundled
             assert command == {
                 "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "ON"}
+            }
+
+    @pytest.mark.asyncio
+    async def test_switch_command_with_user_selections_source_appliance_level_key(
+        self, mock_coordinator
+    ):
+        """Test switch command with userSelections source omits programUID for appliance-level keys.
+
+        Appliance-level keys (not listed by any program's constraint dict) should
+        be sent without programUID to avoid silent rejection (fixes #232).
+        """
+        mock_capability = {
+            "access": "readwrite",
+            "type": "boolean",
+            "values": {"OFF": {}, "ON": {}},
+        }
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="autoDoorOpener",
+            entity_source="userSelections",
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock()
+        entity.is_remote_control_enabled = MagicMock(return_value=True)
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "TEST_PROGRAM"},
+                }
+            }
+        }
+
+        with patch(
+            "custom_components.electrolux.switch.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "ON"
+            await entity.async_turn_on()
+
+            call_args = entity.api.execute_appliance_command.call_args
+            pnc_id, command = call_args[0]
+            assert pnc_id == "TEST_PNC"
+            # Appliance-level key: no programUID bundled, sent as simple payload
+            assert command == {
+                "userSelections": {"autoDoorOpener": "ON"}
             }
 
     @pytest.mark.asyncio

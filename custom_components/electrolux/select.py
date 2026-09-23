@@ -421,7 +421,10 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                if program_uid:
+                # Only bundle programUID for program-level keys (fixes #232).
+                # Appliance-level keys (e.g. endOfCycleSound) not listed by any program
+                # are silently rejected when sent bundled with a programUID.
+                if program_uid and self._is_program_level_key():
                     command = {
                         "userSelections": {
                             "programUID": program_uid,

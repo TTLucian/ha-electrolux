@@ -49,6 +49,30 @@ class TestElectroluxSelect:
         return coordinator
 
     @pytest.fixture
+    def mock_coordinator_with_program_caps(self):
+        """Create a mock coordinator with program-level capability data."""
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator._last_update_times = {}
+        mock_appliance = MagicMock()
+        mock_appliance.data = MagicMock()
+        mock_appliance.data.capabilities = {
+            "program": {
+                "values": {
+                    "TEST_PROGRAM": {
+                        "testAttr": {"disabled": False},
+                    }
+                }
+            }
+        }
+        coordinator.data = {"appliances": MagicMock()}
+        coordinator.data["appliances"].get_appliance.return_value = mock_appliance
+        return coordinator
+
+    @pytest.fixture
     def mock_capability(self):
         """Create a mock capability with options."""
         return {
@@ -186,13 +210,15 @@ class TestElectroluxSelect:
         select_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_select_with_user_selections_source(self, mock_coordinator, mock_capability):
-        """Test select command with userSelections entity source."""
+    async def test_select_with_user_selections_source_program_level_key(
+        self, mock_coordinator_with_program_caps, mock_capability
+    ):
+        """Test select command with userSelections source bundles programUID for program-level keys."""
         entity = ElectroluxSelect(
-            coordinator=mock_coordinator,
+            coordinator=mock_coordinator_with_program_caps,
             capability=mock_capability,
             name="Test Select",
-            config_entry=mock_coordinator.config_entry,
+            config_entry=mock_coordinator_with_program_caps.config_entry,
             pnc_id="TEST_PNC",
             entity_type=SELECT,
             entity_name="test_select",
@@ -203,7 +229,7 @@ class TestElectroluxSelect:
             entity_category=EntityCategory.CONFIG,
             icon="mdi:test",
         )
-        entity.hass = mock_coordinator.hass  # Set hass for the entity
+        entity.hass = mock_coordinator_with_program_caps.hass  # Set hass for the entity
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock()
         entity.is_remote_control_enabled = MagicMock(return_value=True)
@@ -224,8 +250,10 @@ class TestElectroluxSelect:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Legacy appliances with userSelections source include programUID
-            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPTION1"}}
+            # Program-level key with programUID bundled
+            assert command == {
+                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPTION1"}
+            }
 
     @pytest.mark.asyncio
     async def test_select_with_appliance_source(self, mock_coordinator, mock_capability):
@@ -1843,3 +1871,110 @@ class TestDiscoveredPrograms:
         entity._get_program_constraint = MagicMock(return_value=None)
 
         assert set(entity.options) == {"Bake", "Broil"}
+
+    @pytest.mark.asyncio
+    async def test_select_option_program_level_key_bundles_program_uid(
+        self, mock_coordinator_with_program_caps
+    ):
+        """Select option for a program-level key bundles programUID (fixes #232)."""
+        mock_capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OPT1": {"label": "Opt 1"}, "OPT2": {"label": "Opt 2"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator_with_program_caps,
+            capability=mock_capability,
+            name="Test Select",
+            config_entry=mock_coordinator_with_program_caps.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="test_select",
+            entity_attr="testAttr",
+            entity_source="userSelections",
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock()
+        entity.is_remote_control_enabled = MagicMock(return_value=True)
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "TEST_PROGRAM"},
+                }
+            }
+        }
+        entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
+        entity._options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
+
+        with patch(
+            "custom_components.electrolux.select.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "OPT1"
+            await entity.async_select_option("Opt 1")
+
+            call_args = entity.api.execute_appliance_command.call_args
+            pnc_id, command = call_args[0]
+            assert pnc_id == "TEST_PNC"
+            # Program-level key: programUID bundled
+            assert command == {
+                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPT1"}
+            }
+
+    @pytest.mark.asyncio
+    async def test_select_option_appliance_level_key_omits_program_uid(
+        self, mock_coordinator
+    ):
+        """Select option for an appliance-level key omits programUID (fixes #232)."""
+        mock_capability = {
+            "access": "readwrite",
+            "type": "string",
+            "values": {"OPT1": {"label": "Opt 1"}, "OPT2": {"label": "Opt 2"}},
+        }
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Select",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="test_select",
+            entity_attr="autoDoorOpener",
+            entity_source="userSelections",
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+        )
+        entity.api = MagicMock()
+        entity.api.execute_appliance_command = AsyncMock()
+        entity.is_remote_control_enabled = MagicMock(return_value=True)
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "TEST_PROGRAM"},
+                }
+            }
+        }
+        entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
+        entity._options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
+
+        with patch(
+            "custom_components.electrolux.select.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "OPT1"
+            await entity.async_select_option("Opt 1")
+
+            call_args = entity.api.execute_appliance_command.call_args
+            pnc_id, command = call_args[0]
+            assert pnc_id == "TEST_PNC"
+            # Appliance-level key: no programUID bundled
+            assert command == {
+                "userSelections": {"autoDoorOpener": "OPT1"}
+            }
+
