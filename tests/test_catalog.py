@@ -446,16 +446,24 @@ class TestCatalogDishwasher:
         assert len(CATALOG_DW) > 0
 
     def test_maintenance_entries_map_to_reported_item_one(self):
-        """Maintenance entries use the numeric reported-state structure."""
+        """Maintenance entries use the numeric reported-state structure (item 1, not maint1)."""
+        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+        from homeassistant.const import EntityCategory
+
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
 
+        # Keys must match the reported-state paths the appliance actually sends
+        # (applianceCareAndMaintenance0/1/occured and /1/threshold), not the
+        # capabilities-document form (maint1_*) which never appears in reported state.
+        assert "applianceCareAndMaintenance0/1/occured" in CATALOG_DW
+        assert "applianceCareAndMaintenance0/1/threshold" in CATALOG_DW
         assert (
-            CATALOG_DW["applianceCareAndMaintenance0/maint1_occured"].state_path
-            == "applianceCareAndMaintenance0/1/occured"
+            CATALOG_DW["applianceCareAndMaintenance0/1/occured"].device_class
+            == BinarySensorDeviceClass.PROBLEM
         )
         assert (
-            CATALOG_DW["applianceCareAndMaintenance0/maint1_threshold"].state_path
-            == "applianceCareAndMaintenance0/1/threshold"
+            CATALOG_DW["applianceCareAndMaintenance0/1/threshold"].entity_category
+            == EntityCategory.DIAGNOSTIC
         )
 
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
