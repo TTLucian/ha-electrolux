@@ -422,7 +422,7 @@ def _get_catalog_base():
             },
             device_class=None,
             unit=None,
-            entity_category=None,
+            entity_category=EntityCategory.CONFIG,
             entity_icon="mdi:volume-high",
             friendly_name="End of Cycle Sound",
         ),
