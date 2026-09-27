@@ -22,30 +22,41 @@ A large release focused on coordinator state correctness, a rewritten dishwasher
 
 ## ✨ Features
 
-- __feat(dw): expose maintenance indicators (#223)__ Dishwasher care-and-maintenance entities are now surfaced, so wash-filter and descaler status are visible and resettable instead of being catalogued but unreachable.
+- __feat(dw): expose maintenance indicators (#223)__ by @monsivar Dishwasher care-and-maintenance entities are now surfaced, so wash-filter and descaler status are visible and resettable instead of being catalogued but unreachable.
 
-- __feat(dw): expose dishwasher alert codes (#222 / #240)__ Dishwasher alert codes are exposed as sensors, so a fault is readable without digging through diagnostics.
+- __feat(dw): expose dishwasher alert codes (#222 / #240)__ by @monsivar Dishwasher alert codes are exposed as sensors, so a fault is readable without digging through diagnostics. The same change adds the two alert names to the Nynorsk `nn.json` translation file.
 
-- __feat(dw): verify model fixture and program order (#224)__ Dishwasher model fixtures and program ordering are verified against collected data, including the Norwegian Bokmål strings that were previously stranded in a removed `no.json`.
+- __feat(dw): verify model fixture and program order (#224)__ by @monsivar Dishwasher model fixtures and program ordering are verified against collected data, including the Norwegian Bokmål strings that were previously stranded in a removed `no.json`.
 
 - __feat(so): expose microwave power, OTA3 and message-queue diagnostics (#236)__ Verified against all four SO steam-oven diagnostics in samples. `upperOven/targetMicrowavePower` is a readwrite wattage control (advertised on the microwave-combi models, present in reported state on all four). `oTA3CurrentVersion`/`oTA3TargetVersion`/`oTA3State`/`oTA3LastResult` are reported-state-only firmware-update diagnostics, disabled by default. Message-queue sync diagnostics were added. __TESTING NEEDED__
 
-- __Improve dishwasher score presentation (#225)__ Dishwasher score entities are presented more clearly on the UI.
+- __Improve dishwasher score presentation (#225)__ by @monsivar Dishwasher score entities are presented more clearly on the UI.
+
+- __Improve dishwasher status metadata (#241)__ by @monsivar Dishwasher status entities carry richer metadata for a clearer UI.
 
 - __fix(translations): localize entity names via HA catalogs and add missing keys__ Entity display names were hard-coded in English via `_attr_name`, so the integration ignored the user's Home Assistant language setting. Names now resolve through `translation_key` + `platform_translations` with an English fallback, and missing translation keys were added — including the cloud diagnostic sensors (API, Live Stream).
 
-- __Add Norwegian Bokmål (nb) translation file (#219)__ Norwegian Bokmål locale to match the Home Assistant language code.
+- __Add Norwegian Bokmål (nb) translation file (#219)__ by @monsivar Norwegian Bokmål locale to match the Home Assistant language code.
 
 ## 🔧 Internal / chores
 
-- Dishwasher entities and internals reorganized (#227), following the catalog path corrections in #245.
-- Improved execute-command button names (#238, #239) and dishwasher command button icons (#220).
-- Dishwasher status metadata improved (#241).
+- Dishwasher entities and internals reorganized (#227) by @monsivar, following the catalog path corrections in #245.
+
+- Dishwasher command button icons fixed (#220) by @monsivar.
+
+- Improved execute-command button names (#238, #239) by @monsivar — co-authored with the maintainer.
+
+- Dishwasher status metadata improved (#241) by @monsivar — co-authored with the maintainer.
+
 - `alerts.extra_state_attributes` annotated as `dict[str, Any]` for stricter typing (#242).
+
 - `ElectroluxEntity`/`Button` and the test helper accept an optional `icon` (#237).
+
 - Vacuum `capability_attributes` narrowed before use (#249).
+
 - Tracked `pyrightconfig.json` so Pylance parses the project's Python version (#250).
-- Python dependency group bumped with 2 updates (#213, #235, #244).
+
+- Python dependency group bumped with 2 updates (#213, #235, #244) by Dependabot.
 
 ## ⬆️ Upgrade notes
 
@@ -69,7 +80,11 @@ If you own an appliance type that hasn't been tested, your feedback is especiall
 ## 🌟 Credits
 BIG thank-yous to all contributors and to all supporters!
 
-Huge thanks to @McKay111 for the two coordinator state-rollback reports with recorder timelines, to @ChristmasSocks0824 for the Gordias diagnostics, to @IvanAlekseev for the auth fix, and to everyone who filed issues and shared appliance data that made these fixes verifiable.
+Huge and heartfelt thanks to @monsivar, who authored the bulk of the dishwasher work in this release — the maintenance indicators (#223), alert-code support via #240, the verified model fixture and program order (#224), the score presentation (#225), the command button icons (#220), the entity and internals reorganization (#227), the status metadata (#241), and the Norwegian Bokmål translation (#219). That is a sustained body of work across every dishwasher change here.
+
+Thank you to @McKay111 for the two coordinator state-rollback reports with recorder timelines, to @ChristmasSocks0824 for the Gordias diagnostics, and to @IvanAlekseev for the auth fix — each of you turned a vague symptom into a verifiable root cause, which is what made those fixes possible.
+
+And thanks to Dependabot for the three dependency bumps, and to everyone who filed issues and shared appliance diagnostics that made these fixes checkable in the first place.
 
 Without you, this project would not have been possible.
 
