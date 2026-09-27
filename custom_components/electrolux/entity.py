@@ -24,7 +24,7 @@ from .const import (
 )
 from .coordinator import ElectroluxCoordinator
 from .model import ElectroluxDevice
-from .models import Appliance, Appliances, ApplianceState
+from .models import Appliance, Appliances, ApplianceState, _has_nested_key
 from .util import ElectroluxApiClient
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -788,6 +788,33 @@ class ElectroluxEntity(CoordinatorEntity):
         # Default icon fallback
         return self._icon
 
+    def _is_microwave_power_attr(self) -> bool:
+        """True for the microwave power control, plain or namespaced.
+
+        Structured ovens carry it as ``upperOven/targetMicrowavePower``, so the
+        comparison is on the leaf name. The #193 guard previously matched the flat
+        string only, which meant the structured-oven entity was never covered.
+        """
+        return str(self.entity_attr).rsplit("/", 1)[-1] == "targetMicrowavePower"
+
+    def _microwave_control_advertised(self) -> bool:
+        """True when the appliance declares the microwave power capability.
+
+        Presence in ``capabilities`` is the only signal that is correct across
+        every known oven: ``GT3_CMW`` (combi-microwave) and ``GT3_PS1_Ca`` declare
+        it, while ``PUX_AEG_AP`` and ``SPX_AO4TK1`` do not. Counting MICROWAVE_*
+        programs is not a substitute — ``GT3_PS1_Ca`` advertises the capability
+        with zero microwave programs.
+        """
+        try:
+            appliance = self.get_appliance
+            capabilities = getattr(getattr(appliance, "data", None), "capabilities", None)
+        except KeyError, AttributeError, TypeError:
+            return False
+        if not isinstance(capabilities, dict):
+            return False
+        return _has_nested_key(capabilities, str(self.entity_attr))
+
     def _microwave_programs_all_disabled(self) -> bool:
         """Return True when every MICROWAVE_* program value is remotely disabled.
 
@@ -830,7 +857,16 @@ class ElectroluxEntity(CoordinatorEntity):
         # remote selection of every MICROWAVE_* program, the microwave power
         # control can never do anything — register it but keep it disabled by
         # default so users can still enable it explicitly (#193).
-        if self.entity_attr == "targetMicrowavePower" and self._microwave_programs_all_disabled():
+        if self._is_microwave_power_attr() and self._microwave_programs_all_disabled():
+            return False
+
+        # A microwave power control the appliance never advertised is a phantom.
+        # The catalog creates entities for keys absent from the capability list
+        # (so targetDuration and friends exist regardless), and the cloud reports
+        # targetMicrowavePower = 65535 as a not-applicable sentinel on plain ovens
+        # without ever declaring the capability. Left enabled that produces a
+        # number entity with min == max == 0 — a slider that cannot move.
+        if self._is_microwave_power_attr() and not self._microwave_control_advertised():
             return False
 
         # Use catalog entry value if available, otherwise default to True
