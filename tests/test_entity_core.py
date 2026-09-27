@@ -83,9 +83,7 @@ class TestCatalogStatePaths:
 
     def test_nested_state_path_is_used_for_catalog_entity(self):
         """A catalog state path can differ from the API capability path."""
-        coordinator, _ = make_coordinator(
-            reported={"applianceCareAndMaintenance0": {"1": {"occured": True}}}
-        )
+        coordinator, _ = make_coordinator(reported={"applianceCareAndMaintenance0": {"1": {"occured": True}}})
         entity = ElectroluxSensor(
             coordinator=coordinator,
             name="Maintenance Required",
@@ -100,13 +98,9 @@ class TestCatalogStatePaths:
             device_class=None,
             entity_category=EntityCategory.DIAGNOSTIC,
             icon="mdi:alert",
-            catalog_entry=ElectroluxDevice(
-                state_path="applianceCareAndMaintenance0/1/occured"
-            ),
+            catalog_entry=ElectroluxDevice(state_path="applianceCareAndMaintenance0/1/occured"),
         )
-        entity.reported_state = {
-            "applianceCareAndMaintenance0": {"1": {"occured": True}}
-        }
+        entity.reported_state = {"applianceCareAndMaintenance0": {"1": {"occured": True}}}
 
         assert entity.extract_value() is True
 
@@ -392,7 +386,9 @@ class TestEntityRegistryEnabledDefault:
 class TestEntityDeviceInfo:
     """Test device_info property – MAC extraction, model formatting, DAM prefix."""
 
-    def _setup_entity_with_appliance(self, pnc_id: str, appliance_type: str = "WM") -> ElectroluxNumber | ElectroluxSensor:
+    def _setup_entity_with_appliance(
+        self, pnc_id: str, appliance_type: str = "WM"
+    ) -> ElectroluxNumber | ElectroluxSensor:
         """Create an entity with a properly configured appliance mock."""
         entity = make_entity(pnc_id=pnc_id)
         mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value

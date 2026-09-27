@@ -315,17 +315,13 @@ class TestIsOn:
 class TestPercentage:
     def test_percentage_when_off(self):
         fan = _make_fan(workmode="PowerOff")
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "PowerOff" if k == "Workmode" else 5
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "PowerOff" if k == "Workmode" else 5)
         assert fan.percentage == 0
 
     def test_percentage_mid_range(self):
         # Speed 5 of 1-9 → 50%
         fan = _make_fan(fanspeed=5)
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else 5
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else 5)
         pct = fan.percentage
         assert pct is not None
         assert pct > 0
@@ -336,31 +332,23 @@ class TestPercentage:
             1,
             5,
         )  # set as __init__ would if appliance_status were ready
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else 5
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else 5)
         assert fan.percentage == 100
 
     def test_percentage_min_speed(self):
         fan = _make_fan(fanspeed_cap=_make_capability_fanspeed(1, 5), fanspeed=1)
         fan._speed_range = (1, 5)
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else 1
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else 1)
         assert fan.percentage == 20
 
     def test_percentage_none_when_fanspeed_none(self):
         fan = _make_fan()
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else None
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else None)
         assert fan.percentage is None
 
     def test_percentage_invalid_value_returns_none(self):
         fan = _make_fan()
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else "NOT_A_NUMBER"
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else "NOT_A_NUMBER")
         assert fan.percentage is None
 
 
@@ -372,9 +360,7 @@ class TestPercentage:
 class TestPresetMode:
     def test_preset_mode_when_on(self):
         fan = _make_fan(workmode="Auto")
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Auto" if k == "Workmode" else 5
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Auto" if k == "Workmode" else 5)
         assert fan.preset_mode == "Auto"
 
     def test_preset_mode_none_when_off(self):
@@ -764,7 +750,8 @@ class TestSendCommand:
                 "custom_components.electrolux.fan.execute_command_with_error_handling",
                 new_callable=AsyncMock,
                 side_effect=AuthenticationError("bad token"),
-            ),pytest.raises(AuthenticationError)
+            ),
+            pytest.raises(AuthenticationError),
         ):
             await fan._send_command("Workmode", "Auto", cap)
 
@@ -847,9 +834,7 @@ class TestFanMissingCoverage:
         mock_appliance.entities = [fan_entity]
 
         mock_coordinator = MagicMock()
-        mock_coordinator.data = {
-            "appliances": MagicMock(appliances={"app_1": mock_appliance})
-        }
+        mock_coordinator.data = {"appliances": MagicMock(appliances={"app_1": mock_appliance})}
 
         mock_config_entry = MagicMock()
         mock_config_entry.runtime_data = mock_coordinator
@@ -867,9 +852,7 @@ class TestFanMissingCoverage:
             "Fanspeed": {"min": 2, "max": 7},
         }
         coord = _make_coordinator()
-        with patch.object(
-            ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)
-        ):
+        with patch.object(ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)):
             fan = ElectroluxFan(
                 coordinator=coord,
                 name="Test Fan",
@@ -890,14 +873,10 @@ class TestFanMissingCoverage:
     def test_init_reads_preset_modes_from_workmode_capability(self):
         """Lines 134-136 — __init__ builds _preset_modes from Workmode capability."""
         mock_caps: dict[str, Any] = {
-            "Workmode": {
-                "values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}}
-            },
+            "Workmode": {"values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}}},
         }
         coord = _make_coordinator()
-        with patch.object(
-            ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)
-        ):
+        with patch.object(ElectroluxFan, "get_capability", lambda self, attr: mock_caps.get(attr)):
             fan = ElectroluxFan(
                 coordinator=coord,
                 name="Test Fan",
@@ -924,9 +903,7 @@ class TestFanMissingCoverage:
         """Line 183 — fanspeed < min_speed is clamped to min_speed."""
         fan = _make_fan(fanspeed=0)
         fan._speed_range = (1, 9)
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else 0
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else 0)
         pct = fan.percentage
         # speed 0 clamped to 1, percentage of 1 in [1..9] = ~11%
         assert pct is not None
@@ -936,9 +913,7 @@ class TestFanMissingCoverage:
         """Line 185 — fanspeed > max_speed is clamped to max_speed."""
         fan = _make_fan(fanspeed=15)
         fan._speed_range = (1, 9)
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: "Manual" if k == "Workmode" else 15
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: "Manual" if k == "Workmode" else 15)
         pct = fan.percentage
         # speed 15 clamped to 9 → 100%
         assert pct == 100
@@ -1028,7 +1003,8 @@ class TestFanMissingCoverage:
             patch(
                 "custom_components.electrolux.fan.execute_command_with_error_handling",
                 AsyncMock(side_effect=HomeAssistantError("command rejected")),
-            ),pytest.raises(HomeAssistantError, match="command rejected")
+            ),
+            pytest.raises(HomeAssistantError, match="command rejected"),
         ):
             await fan._send_command("Workmode", "Auto", cap)
 
@@ -1109,9 +1085,7 @@ def _make_capability_workmode_with_triggers() -> dict:
         "values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}},
         "triggers": [
             {
-                "action": {
-                    "Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 5}
-                },
+                "action": {"Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 5}},
                 "condition": {
                     "operand_1": "value",
                     "operand_2": "Auto",
@@ -1119,9 +1093,7 @@ def _make_capability_workmode_with_triggers() -> dict:
                 },
             },
             {
-                "action": {
-                    "Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 2}
-                },
+                "action": {"Fanspeed": {"disabled": True, "type": "int", "min": 1, "max": 2}},
                 "condition": {
                     "operand_1": "value",
                     "operand_2": "Quiet",
@@ -1162,9 +1134,7 @@ class TestIsFanspeedDisabled:
             return original_get_cap(attr)
 
         fan.get_capability = _get_cap_override  # type: ignore[assignment]
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: workmode if k == "Workmode" else None
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: workmode if k == "Workmode" else None)
         return fan
 
     def test_returns_true_for_auto_mode(self):
@@ -1191,9 +1161,7 @@ class TestIsFanspeedDisabled:
         """No triggers key in capability → Fanspeed assumed enabled."""
         fan = _make_fan(workmode="Auto")
         # Standard workmode cap without triggers
-        fan.get_capability = MagicMock(
-            return_value=_make_capability_workmode(["Auto", "Manual", "Quiet"])
-        )
+        fan.get_capability = MagicMock(return_value=_make_capability_workmode(["Auto", "Manual", "Quiet"]))
         fan.get_state_attr = MagicMock(return_value="Auto")
         assert fan._is_fanspeed_disabled() is False
 
@@ -1231,9 +1199,7 @@ class TestPercentageDisabledFanspeed:
             return original_get_cap(attr)
 
         fan.get_capability = _get_cap_override  # type: ignore[assignment]
-        fan.get_state_attr = MagicMock(
-            side_effect=lambda k: workmode if k == "Workmode" else 3
-        )
+        fan.get_state_attr = MagicMock(side_effect=lambda k: workmode if k == "Workmode" else 3)
         return fan
 
     def test_percentage_returns_none_in_auto_mode(self):

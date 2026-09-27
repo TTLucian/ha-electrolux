@@ -60,7 +60,6 @@ def basic_sensor_entity(mock_coordinator) -> ElectroluxSensor:
 
 
 class TestElectroluxSensor:
-
     def test_entity_domain(self, basic_sensor_entity: ElectroluxSensor):
         """Test sensor entity domain."""
         assert basic_sensor_entity.entity_domain == SENSOR
@@ -103,9 +102,7 @@ class TestElectroluxSensor:
         """Test basic native value extraction."""
         assert basic_sensor_entity.native_value == 25.0
 
-    def test_native_value_none_when_no_data(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_native_value_none_when_no_data(self, basic_sensor_entity: ElectroluxSensor):
         """Test native value returns None when no data available."""
         basic_sensor_entity.reported_state = {}
         assert basic_sensor_entity.native_value is None
@@ -120,23 +117,17 @@ class TestElectroluxSensor:
         }
         assert basic_sensor_entity.native_value == 100.0
 
-    def test_suggested_display_precision_temperature(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_suggested_display_precision_temperature(self, basic_sensor_entity: ElectroluxSensor):
         """Test display precision for temperature sensors."""
         basic_sensor_entity.unit = UnitOfTemperature.CELSIUS
         assert basic_sensor_entity.suggested_display_precision == 2
 
-    def test_suggested_display_precision_time(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_suggested_display_precision_time(self, basic_sensor_entity: ElectroluxSensor):
         """Test display precision for time sensors."""
         basic_sensor_entity.unit = UnitOfTime.SECONDS
         assert basic_sensor_entity.suggested_display_precision == 0
 
-    def test_suggested_display_precision_none(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_suggested_display_precision_none(self, basic_sensor_entity: ElectroluxSensor):
         """Test display precision returns None for unknown units."""
         basic_sensor_entity.unit = "unknown"
         assert basic_sensor_entity.suggested_display_precision is None
@@ -200,7 +191,6 @@ class TestDishwasherScoreSensor:
 
 
 class TestTimeToEndSensor:
-
     @pytest.fixture
     def time_to_end_entity(self, mock_coordinator) -> ElectroluxSensor:
         """Create a timeToEnd sensor entity."""
@@ -232,58 +222,44 @@ class TestTimeToEndSensor:
         entity.reported_state = {"timeToEnd": 3600, "applianceState": "RUNNING"}
         return entity
 
-    def test_time_to_end_shows_countdown_when_running(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_when_running(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds for countdown display when appliance is running."""
         result = time_to_end_entity.native_value
         assert isinstance(result, int)
         # Should return the raw seconds value for DURATION display
         assert result == 3600
 
-    def test_time_to_end_shows_countdown_when_paused(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_when_paused(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds when appliance is paused."""
         time_to_end_entity.reported_state["applianceState"] = "PAUSED"
         result = time_to_end_entity.native_value
         assert isinstance(result, int)
         assert result == 3600
 
-    def test_time_to_end_shows_countdown_when_delayed_start(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_when_delayed_start(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds when appliance has delayed start."""
         time_to_end_entity.reported_state["applianceState"] = "DELAYED_START"
         result = time_to_end_entity.native_value
         assert isinstance(result, int)
         assert result == 3600
 
-    def test_time_to_end_shows_countdown_when_ready_to_start(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_when_ready_to_start(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds when appliance is ready with delayed start."""
         time_to_end_entity.reported_state["applianceState"] = "READY_TO_START"
         result = time_to_end_entity.native_value
         assert isinstance(result, int)
         assert result == 3600
 
-    def test_time_to_end_shows_countdown_during_end_of_cycle_anticrease(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_during_end_of_cycle_anticrease(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds during END_OF_CYCLE with active ANTICREASE phase."""
         time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
         time_to_end_entity.reported_state["cyclePhase"] = "ANTICREASE"
-        time_to_end_entity.reported_state["timeToEnd"] = (
-            600  # 10 minutes of anti-crease
-        )
+        time_to_end_entity.reported_state["timeToEnd"] = 600  # 10 minutes of anti-crease
         result = time_to_end_entity.native_value
         assert isinstance(result, int)
         assert result == 600
 
-    def test_time_to_end_shows_countdown_during_end_of_cycle_cool(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_shows_countdown_during_end_of_cycle_cool(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns seconds during END_OF_CYCLE with active COOL phase."""
         time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
         time_to_end_entity.reported_state["cyclePhase"] = "COOL"
@@ -292,9 +268,7 @@ class TestTimeToEndSensor:
         assert isinstance(result, int)
         assert result == 300
 
-    def test_time_to_end_none_during_end_of_cycle_without_active_phase(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_none_during_end_of_cycle_without_active_phase(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None during END_OF_CYCLE when no active phase."""
         time_to_end_entity.reported_state["applianceState"] = "END_OF_CYCLE"
         time_to_end_entity.reported_state["cyclePhase"] = "UNAVAILABLE"
@@ -315,30 +289,23 @@ class TestTimeToEndSensor:
         time_to_end_entity.reported_state["applianceState"] = "POWEROFF"
         assert time_to_end_entity.native_value is None
 
-    def test_time_to_end_none_when_value_is_negative_one(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_none_when_value_is_negative_one(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None when value is -1 (not set)."""
         time_to_end_entity.reported_state["timeToEnd"] = -1
         assert time_to_end_entity.native_value is None
 
-    def test_time_to_end_none_when_value_is_zero(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_none_when_value_is_zero(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None when value is 0."""
         time_to_end_entity.reported_state["timeToEnd"] = 0
         assert time_to_end_entity.native_value is None
 
-    def test_time_to_end_none_when_value_is_none(
-        self, time_to_end_entity: ElectroluxSensor
-    ):
+    def test_time_to_end_none_when_value_is_none(self, time_to_end_entity: ElectroluxSensor):
         """Test timeToEnd returns None when value is None."""
         time_to_end_entity.reported_state["timeToEnd"] = None
         assert time_to_end_entity.native_value is None
 
 
 class TestRunningTimeSensor:
-
     @pytest.fixture
     def running_time_entity(self, mock_coordinator) -> ElectroluxSensor:
         """Create a runningTime sensor entity."""
@@ -370,24 +337,18 @@ class TestRunningTimeSensor:
         entity.reported_state = {"runningTime": 1800, "applianceState": "RUNNING"}
         return entity
 
-    def test_running_time_shows_elapsed_when_running(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_shows_elapsed_when_running(self, running_time_entity: ElectroluxSensor):
         """Test runningTime shows elapsed seconds when appliance is running."""
         result = running_time_entity.native_value
         assert result == 1800
 
-    def test_running_time_shows_elapsed_when_paused(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_shows_elapsed_when_paused(self, running_time_entity: ElectroluxSensor):
         """Test runningTime shows elapsed seconds when appliance is paused."""
         running_time_entity.reported_state["applianceState"] = "PAUSED"
         result = running_time_entity.native_value
         assert result == 1800
 
-    def test_running_time_none_when_stopped(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_none_when_stopped(self, running_time_entity: ElectroluxSensor):
         """Test runningTime returns None when appliance is stopped."""
         running_time_entity.reported_state["applianceState"] = "STOPPED"
         assert running_time_entity.native_value is None
@@ -402,31 +363,24 @@ class TestRunningTimeSensor:
         running_time_entity.reported_state["applianceState"] = "POWEROFF"
         assert running_time_entity.native_value is None
 
-    def test_running_time_zero_when_just_started(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_zero_when_just_started(self, running_time_entity: ElectroluxSensor):
         """Test runningTime shows 0 when appliance just started."""
         running_time_entity.reported_state["runningTime"] = 0
         # 0 is valid for just-started appliance
         assert running_time_entity.native_value == 0
 
-    def test_running_time_none_when_value_is_negative_one(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_none_when_value_is_negative_one(self, running_time_entity: ElectroluxSensor):
         """Test runningTime returns None when value is -1 (not set)."""
         running_time_entity.reported_state["runningTime"] = -1
         assert running_time_entity.native_value is None
 
-    def test_running_time_none_when_value_is_none(
-        self, running_time_entity: ElectroluxSensor
-    ):
+    def test_running_time_none_when_value_is_none(self, running_time_entity: ElectroluxSensor):
         """Test runningTime returns None when value is None."""
         running_time_entity.reported_state["runningTime"] = None
         assert running_time_entity.native_value is None
 
 
 class TestAlertsSensor:
-
     @pytest.fixture
     def alerts_entity(self, mock_coordinator) -> ElectroluxSensor:
         """Create an alerts sensor entity."""
@@ -502,9 +456,7 @@ class TestAlertsSensor:
             "active_alerts": [],
         }
 
-    def test_alerts_extra_state_attributes_with_alerts(
-        self, alerts_entity: ElectroluxSensor
-    ):
+    def test_alerts_extra_state_attributes_with_alerts(self, alerts_entity: ElectroluxSensor):
         """Test alerts extra attributes shows alert details."""
         alerts_entity.reported_state["alerts"] = [
             {
@@ -528,9 +480,7 @@ class TestAlertsSensor:
             ],
         }
 
-    def test_alerts_extra_state_attributes_multiple_alerts(
-        self, alerts_entity: ElectroluxSensor
-    ):
+    def test_alerts_extra_state_attributes_multiple_alerts(self, alerts_entity: ElectroluxSensor):
         """Test alerts extra attributes with multiple active alerts."""
         alerts_entity.reported_state["alerts"] = [
             {
@@ -567,7 +517,6 @@ class TestAlertsSensor:
 
 
 class TestValueMapping:
-
     @pytest.fixture
     def mapped_sensor_entity(self, mock_coordinator) -> ElectroluxSensor:
         """Create a sensor entity with value mapping."""
@@ -607,23 +556,17 @@ class TestValueMapping:
         entity.reported_state = {"testAttribute": 1}
         return entity
 
-    def test_value_mapping_converts_integer_to_string(
-        self, mapped_sensor_entity: ElectroluxSensor
-    ):
+    def test_value_mapping_converts_integer_to_string(self, mapped_sensor_entity: ElectroluxSensor):
         """Test value mapping converts integer to mapped string."""
         # String values are always title-cased in sensor
         assert mapped_sensor_entity.native_value == "Running"
 
-    def test_value_mapping_returns_original_if_not_in_map(
-        self, mapped_sensor_entity: ElectroluxSensor
-    ):
+    def test_value_mapping_returns_original_if_not_in_map(self, mapped_sensor_entity: ElectroluxSensor):
         """Test value mapping returns original value if not in mapping."""
         mapped_sensor_entity.reported_state["testAttribute"] = 99
         assert mapped_sensor_entity.native_value == 99
 
-    def test_string_formatting_replaces_underscores(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_string_formatting_replaces_underscores(self, basic_sensor_entity: ElectroluxSensor):
         """Test string values have underscores replaced with spaces."""
         basic_sensor_entity.reported_state["testAttribute"] = "STEAM_TANK_FULL"
         assert basic_sensor_entity.native_value == "Steam Tank Full"
@@ -635,7 +578,6 @@ class TestValueMapping:
 
 
 class TestTimeUnitConversion:
-
     @pytest.fixture
     def time_sensor_entity(self, mock_coordinator) -> ElectroluxSensor:
         """Create a time sensor entity."""
@@ -667,43 +609,30 @@ class TestTimeUnitConversion:
         entity.reported_state = {"testAttribute": 180}
         return entity
 
-    def test_time_conversion_seconds_to_minutes(
-        self, time_sensor_entity: ElectroluxSensor
-    ):
+    def test_time_conversion_seconds_to_minutes(self, time_sensor_entity: ElectroluxSensor):
         """Test time values are converted from seconds to minutes."""
         assert time_sensor_entity.native_value == 3.0
 
-    def test_time_conversion_returns_none_for_zero(
-        self, time_sensor_entity: ElectroluxSensor
-    ):
+    def test_time_conversion_returns_none_for_zero(self, time_sensor_entity: ElectroluxSensor):
         """Test time values return None when 0."""
         time_sensor_entity.reported_state["testAttribute"] = 0
         assert time_sensor_entity.native_value is None
 
-    def test_time_conversion_returns_none_for_negative_one(
-        self, time_sensor_entity: ElectroluxSensor
-    ):
+    def test_time_conversion_returns_none_for_negative_one(self, time_sensor_entity: ElectroluxSensor):
         """Test time values return None when -1 (unset)."""
         time_sensor_entity.reported_state["testAttribute"] = -1
         assert time_sensor_entity.native_value is None
 
-    def test_time_conversion_handles_float_values(
-        self, time_sensor_entity: ElectroluxSensor
-    ):
+    def test_time_conversion_handles_float_values(self, time_sensor_entity: ElectroluxSensor):
         """Test time conversion handles float values."""
-        time_sensor_entity.reported_state["testAttribute"] = (
-            120.0  # 2.0 minutes exactly
-        )
+        time_sensor_entity.reported_state["testAttribute"] = 120.0  # 2.0 minutes exactly
         result = time_sensor_entity.native_value
         assert isinstance(result, float)
         assert result == 2.0
 
 
 class TestConstantAccessSensors:
-
-    def test_constant_access_uses_default_value(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_constant_access_uses_default_value(self, basic_sensor_entity: ElectroluxSensor):
         """Test sensors with constant access use default value."""
         basic_sensor_entity.capability = {
             "access": "constant",
@@ -714,9 +643,7 @@ class TestConstantAccessSensors:
         # String values are title-cased with underscores replaced
         assert basic_sensor_entity.native_value == "Constant Value"
 
-    def test_constant_access_overridden_by_live_data_for_special_keys(
-        self, basic_sensor_entity: ElectroluxSensor
-    ):
+    def test_constant_access_overridden_by_live_data_for_special_keys(self, basic_sensor_entity: ElectroluxSensor):
         """Test special sensors use live data even with constant access."""
         # Test the live waterTankEmpty sensor (not the fppn notification ID)
         basic_sensor_entity.entity_key = "watertankempty"
@@ -748,9 +675,7 @@ class TestSensorMissingCoverage:
 
     # ── native_value: offline path ────────────────────────────────────────────
 
-    def test_native_value_none_when_offline_non_connectivity_sensor(
-        self, basic_sensor_entity
-    ):
+    def test_native_value_none_when_offline_non_connectivity_sensor(self, basic_sensor_entity):
         """Line 89 — return None when disconnected for non-connectivityState entity."""
         with patch.object(basic_sensor_entity, "is_connected", return_value=False):
             assert basic_sensor_entity.native_value is None
@@ -804,9 +729,7 @@ class TestSensorMissingCoverage:
         result = basic_sensor_entity.native_value
         assert result is True  # "STEAM_TANK_EMPTY" != "STEAM_TANK_FULL"
 
-    def test_watertankempty_boolean_capability_type_when_full(
-        self, basic_sensor_entity
-    ):
+    def test_watertankempty_boolean_capability_type_when_full(self, basic_sensor_entity):
         """Line 186 — boolean capability: STEAM_TANK_FULL → False."""
         basic_sensor_entity.entity_key = "watertankempty"
         basic_sensor_entity.entity_attr = "waterTankEmpty"
@@ -830,9 +753,7 @@ class TestSensorMissingCoverage:
 
     # ── UnitOfTime.MINUTES error paths ────────────────────────────────────────
 
-    def test_minutes_unit_returns_none_when_converter_returns_none(
-        self, mock_coordinator
-    ):
+    def test_minutes_unit_returns_none_when_converter_returns_none(self, mock_coordinator):
         """Lines 227-230 — when time_seconds_to_minutes returns None, error is logged and None returned."""
         entity = ElectroluxSensor(
             coordinator=mock_coordinator,
@@ -850,9 +771,7 @@ class TestSensorMissingCoverage:
             icon="mdi:timer",
         )
         entity.hass = mock_coordinator.hass
-        entity.reported_state = {
-            "testAttribute": 300
-        }  # valid value (not 0 or sentinel)
+        entity.reported_state = {"testAttribute": 300}  # valid value (not 0 or sentinel)
         with patch(
             "custom_components.electrolux.sensor.time_seconds_to_minutes",
             return_value=None,
@@ -897,23 +816,16 @@ class TestSensorMissingCoverage:
     def test_native_unit_of_measurement(self, basic_sensor_entity):
         """Line 260 — native_unit_of_measurement returns self.unit."""
         basic_sensor_entity.unit = UnitOfTemperature.CELSIUS
-        assert (
-            basic_sensor_entity.native_unit_of_measurement == UnitOfTemperature.CELSIUS
-        )
+        assert basic_sensor_entity.native_unit_of_measurement == UnitOfTemperature.CELSIUS
 
     def test_suggested_unit_of_measurement(self, basic_sensor_entity):
         """Line 265 — suggested_unit_of_measurement returns self.unit."""
         basic_sensor_entity.unit = UnitOfTemperature.CELSIUS
-        assert (
-            basic_sensor_entity.suggested_unit_of_measurement
-            == UnitOfTemperature.CELSIUS
-        )
+        assert basic_sensor_entity.suggested_unit_of_measurement == UnitOfTemperature.CELSIUS
 
     # ── extra_state_attributes non-alerts ─────────────────────────────────────
 
-    def test_extra_state_attributes_empty_for_non_alerts_sensor(
-        self, basic_sensor_entity
-    ):
+    def test_extra_state_attributes_empty_for_non_alerts_sensor(self, basic_sensor_entity):
         """Line 291 — extra_state_attributes returns {} for non-alerts sensors."""
         assert basic_sensor_entity.extra_state_attributes == {}
 

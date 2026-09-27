@@ -30,8 +30,7 @@ def make_coordinator():
     mock_hass = MagicMock()
     mock_hass.loop = asyncio.get_event_loop()
     mock_hass.async_create_task = MagicMock(
-        side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close())
-        or MagicMock()
+        side_effect=lambda coro, **kw: (asyncio.iscoroutine(coro) and coro.close()) or MagicMock()
     )
     coord.hass = mock_hass
     coord.config_entry = MagicMock()
@@ -153,9 +152,7 @@ class TestSetupEntities:
         coord.api.get_appliances_list = AsyncMock(return_value=[appliance_json()])
         coord.api.get_appliances_info = AsyncMock(return_value=mock_appliance_info())
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
-        coord.api.get_appliance_capabilities = AsyncMock(
-            side_effect=TimeoutError("capabilities timeout")
-        )
+        coord.api.get_appliance_capabilities = AsyncMock(side_effect=TimeoutError("capabilities timeout"))
 
         result = await coord.setup_entities()
 
@@ -177,9 +174,7 @@ class TestSetupSingleAppliance:
         coord = make_coordinator()
         coord.api.get_appliances_info = AsyncMock(return_value=mock_appliance_info())
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
-        coord.api.get_appliance_capabilities = AsyncMock(
-            return_value={"program": {"values": {}}}
-        )
+        coord.api.get_appliance_capabilities = AsyncMock(return_value={"program": {"values": {}}})
 
         await coord._setup_single_appliance(appliance_json())
 
@@ -194,9 +189,7 @@ class TestSetupSingleAppliance:
         coord = make_coordinator()
         coord.api.get_appliances_info = AsyncMock(return_value=mock_appliance_info())
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
-        coord.api.get_appliance_capabilities = AsyncMock(
-            side_effect=TimeoutError()
-        )
+        coord.api.get_appliance_capabilities = AsyncMock(side_effect=TimeoutError())
         coord._schedule_capability_retry = MagicMock()
 
         await coord._setup_single_appliance(appliance_json())
@@ -211,9 +204,7 @@ class TestSetupSingleAppliance:
         coord = make_coordinator()
         coord.api.get_appliances_info = AsyncMock(return_value=mock_appliance_info())
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
-        coord.api.get_appliance_capabilities = AsyncMock(
-            side_effect=ConnectionError("network error")
-        )
+        coord.api.get_appliance_capabilities = AsyncMock(side_effect=ConnectionError("network error"))
         coord._schedule_capability_retry = MagicMock()
 
         await coord._setup_single_appliance(appliance_json())
@@ -226,9 +217,7 @@ class TestSetupSingleAppliance:
     async def test_network_error_on_required_data_creates_minimal_appliance(self):
         """TimeoutError on info/state gather → minimal appliance with disconnected state."""
         coord = make_coordinator()
-        coord.api.get_appliances_info = AsyncMock(
-            side_effect=TimeoutError("timeout")
-        )
+        coord.api.get_appliances_info = AsyncMock(side_effect=TimeoutError("timeout"))
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
         coord.api.get_appliance_capabilities = AsyncMock(return_value={})
         coord._cleanup_appliance_tasks = AsyncMock()
@@ -245,12 +234,8 @@ class TestSetupSingleAppliance:
     async def test_connection_error_on_required_data_creates_minimal_appliance(self):
         """ConnectionError on required data gather → minimal appliance."""
         coord = make_coordinator()
-        coord.api.get_appliances_info = AsyncMock(
-            side_effect=ConnectionError("connection refused")
-        )
-        coord.api.get_appliance_state = AsyncMock(
-            side_effect=ConnectionError("connection refused")
-        )
+        coord.api.get_appliances_info = AsyncMock(side_effect=ConnectionError("connection refused"))
+        coord.api.get_appliance_state = AsyncMock(side_effect=ConnectionError("connection refused"))
         coord.api.get_appliance_capabilities = AsyncMock(return_value={})
         coord._cleanup_appliance_tasks = AsyncMock()
 
@@ -345,9 +330,7 @@ class TestSetupSingleAppliance:
     async def test_model_falls_back_to_json_model_name(self):
         """When appliance_info model is empty, modelName from JSON is used."""
         coord = make_coordinator()
-        coord.api.get_appliances_info = AsyncMock(
-            return_value=[{"model": "", "brand": "AEG", "serial_number": None}]
-        )
+        coord.api.get_appliances_info = AsyncMock(return_value=[{"model": "", "brand": "AEG", "serial_number": None}])
         coord.api.get_appliance_state = AsyncMock(return_value=mock_appliance_state())
         coord.api.get_appliance_capabilities = AsyncMock(return_value={})
 

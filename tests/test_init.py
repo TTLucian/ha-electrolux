@@ -464,9 +464,7 @@ class TestAsyncSetupEntryAdditional:
 
         mock_entry = _make_mock_entry()
         mock_coordinator = _make_mock_coordinator()
-        mock_coordinator.async_config_entry_first_refresh = AsyncMock(
-            side_effect=TimeoutError()
-        )
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock(side_effect=TimeoutError())
         mock_coordinator.last_update_success = True
 
         with (

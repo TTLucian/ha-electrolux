@@ -60,9 +60,7 @@ class TestElectroluxText:
             catalog_entry=None,
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
-        entity.appliance_status = {
-            "properties": {"reported": {"testAttr": "test value"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"testAttr": "test value"}}}
         entity.reported_state = {"testAttr": "test value"}
         return entity
 
@@ -220,9 +218,7 @@ class TestElectroluxText:
 
     def test_available_true_when_remote_control_enabled(self, text_entity):
         """Test available property when remote control is enabled."""
-        text_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        text_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
         assert text_entity.available is True
 
     def test_available_false_when_remote_control_disabled(self, text_entity):
@@ -235,9 +231,7 @@ class TestElectroluxText:
                 }
             }
         }
-        assert (
-            text_entity.available is True
-        )  # Should be available even with remote control disabled
+        assert text_entity.available is True  # Should be available even with remote control disabled
 
     def test_available_false_when_no_remote_control_info(self, text_entity):
         """Test available property when no remote control info is available."""
@@ -254,9 +248,7 @@ class TestElectroluxText:
         """Test successful value setting."""
         # Set remote control enabled
         text_entity.appliance_status = {
-            "properties": {
-                "reported": {"remoteControl": "ENABLED", "testAttr": "old value"}
-            }
+            "properties": {"reported": {"remoteControl": "ENABLED", "testAttr": "old value"}}
         }
 
         # Mock the API call
@@ -265,14 +257,10 @@ class TestElectroluxText:
         await text_entity.async_set_value("new value")
 
         # Verify command was sent
-        text_entity.api.execute_appliance_command.assert_called_once_with(
-            "TEST_PNC", {"testAttr": "new value"}
-        )
+        text_entity.api.execute_appliance_command.assert_called_once_with("TEST_PNC", {"testAttr": "new value"})
 
     @pytest.mark.asyncio
-    async def test_set_value_with_entity_source(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_set_value_with_entity_source(self, mock_coordinator, mock_capability):
         """Test set_value with entity source."""
         entity = ElectroluxText(
             coordinator=mock_coordinator,
@@ -315,15 +303,11 @@ class TestElectroluxText:
         """Test set_value when API call fails."""
         # Set remote control enabled
         text_entity.appliance_status = {
-            "properties": {
-                "reported": {"remoteControl": "ENABLED", "testAttr": "old value"}
-            }
+            "properties": {"reported": {"remoteControl": "ENABLED", "testAttr": "old value"}}
         }
 
         # Mock the API call to raise an exception
-        text_entity.api.execute_appliance_command = AsyncMock(
-            side_effect=Exception("API failure")
-        )
+        text_entity.api.execute_appliance_command = AsyncMock(side_effect=Exception("API failure"))
 
         with pytest.raises(Exception, match="API failure"):
             await text_entity.async_set_value("new value")
@@ -345,9 +329,7 @@ class TestElectroluxText:
         text_entity.api.execute_appliance_command.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_set_value_with_dam_appliance(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_set_value_with_dam_appliance(self, mock_coordinator, mock_capability):
         """Test set_value with DAM appliance (ID starts with '1:')."""
         entity = ElectroluxText(
             coordinator=mock_coordinator,
@@ -367,9 +349,7 @@ class TestElectroluxText:
         )
 
         # Set remote control enabled
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
@@ -380,9 +360,7 @@ class TestElectroluxText:
         )
 
     @pytest.mark.asyncio
-    async def test_set_value_with_legacy_appliance(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_set_value_with_legacy_appliance(self, mock_coordinator, mock_capability):
         """Test set_value with legacy appliance (ID doesn't start with '1:')."""
         entity = ElectroluxText(
             coordinator=mock_coordinator,
@@ -402,19 +380,13 @@ class TestElectroluxText:
         )
 
         # Set remote control enabled
-        entity.appliance_status = {
-            "properties": {
-                "reported": {"remoteControl": "ENABLED", "testAttr": "old value"}
-            }
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED", "testAttr": "old value"}}}
 
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
 
         await entity.async_set_value("new value")
 
-        entity.api.execute_appliance_command.assert_called_once_with(
-            "TEST_PNC", {"testAttr": "new value"}
-        )
+        entity.api.execute_appliance_command.assert_called_once_with("TEST_PNC", {"testAttr": "new value"})
 
     def test_mode_from_catalog(self, mock_coordinator, mock_capability):
         """Test mode from catalog entry."""
@@ -462,9 +434,7 @@ class TestTextSetValueAdvancedPaths:
     def mock_capability(self):
         return {"access": "readwrite", "type": "string", "maxLength": 50}
 
-    def _make_text(
-        self, coordinator, capability, pnc_id="TEST_PNC", entity_source=None
-    ):
+    def _make_text(self, coordinator, capability, pnc_id="TEST_PNC", entity_source=None):
         entity = ElectroluxText(
             coordinator=coordinator,
             capability=capability,
@@ -483,17 +453,13 @@ class TestTextSetValueAdvancedPaths:
         )
         entity.hass = coordinator.hass
         entity._reported_state_cache = {"connectivityState": "connected"}
-        entity.appliance_status = {
-            "properties": {"reported": {"connectivityState": "connected"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"connectivityState": "connected"}}}
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock(return_value=True)
         return entity
 
     @pytest.mark.asyncio
-    async def test_offline_raises_home_assistant_error(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_offline_raises_home_assistant_error(self, mock_coordinator, mock_capability):
         """Test async_set_value raises HomeAssistantError when appliance is offline."""
         from homeassistant.exceptions import HomeAssistantError
 
@@ -504,9 +470,7 @@ class TestTextSetValueAdvancedPaths:
             await entity.async_set_value("hello")
 
     @pytest.mark.asyncio
-    async def test_dam_user_selections_wraps_command(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_dam_user_selections_wraps_command(self, mock_coordinator, mock_capability):
         """Test DAM appliance with userSelections entity_source builds correct command."""
         entity = self._make_text(
             mock_coordinator,
@@ -544,9 +508,7 @@ class TestTextSetValueAdvancedPaths:
         )
 
     @pytest.mark.asyncio
-    async def test_dam_no_entity_source_wraps_command(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_dam_no_entity_source_wraps_command(self, mock_coordinator, mock_capability):
         """Test DAM appliance with no entity_source wraps command in commands list."""
         entity = self._make_text(mock_coordinator, mock_capability, pnc_id="1:TEST_PNC")
 
@@ -558,9 +520,7 @@ class TestTextSetValueAdvancedPaths:
         )
 
     @pytest.mark.asyncio
-    async def test_auth_error_handled_then_reraised(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_auth_error_handled_then_reraised(self, mock_coordinator, mock_capability):
         """Test AuthenticationError triggers coordinator.handle_authentication_error then is re-raised."""
         from unittest.mock import patch
 
@@ -643,9 +603,7 @@ class TestUserSelectionsProgramUidGate:
         """A key no program lists must not be bundled with programUID (#232)."""
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener")
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         await entity.async_set_value("ON")
 
@@ -659,9 +617,7 @@ class TestUserSelectionsProgramUidGate:
         """A real program option must keep programUID (#30 must not regress)."""
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "xtraDryOption")
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         await entity.async_set_value("ON")
 
@@ -676,9 +632,7 @@ class TestUserSelectionsProgramUidGate:
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
         entity.reported_state = {"connectivityState": "connected"}
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         await entity.async_set_value("ON")
 

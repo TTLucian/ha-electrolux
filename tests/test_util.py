@@ -48,10 +48,7 @@ async def test_report_token_refresh_creates_issue(monkeypatch):
     assert captured["args"][0] is hass
     assert captured["args"][1] == DOMAIN
     assert captured["args"][2] == "invalid_refresh_token"
-    assert (
-        captured["kwargs"]["translation_placeholders"]["message"]
-        == "Refresh token is invalid."
-    )
+    assert captured["kwargs"]["translation_placeholders"]["message"] == "Refresh token is invalid."
     assert captured["kwargs"]["is_fixable"] is True
 
 
@@ -69,9 +66,7 @@ async def test_report_token_refresh_no_hass_does_not_create_issue(monkeypatch):
         fake_create_issue,
     )
 
-    client = ElectroluxApiClient(
-        "api", "access", "refresh", hass=None, config_entry=None
-    )
+    client = ElectroluxApiClient("api", "access", "refresh", hass=None, config_entry=None)
 
     await client._report_token_refresh_error("No HA available")
 
@@ -111,9 +106,7 @@ class TestExecuteCommandWithErrorHandling:
         )
 
         mock_client = MagicMock()
-        mock_client.execute_appliance_command = AsyncMock(
-            side_effect=Exception("Remote control disabled")
-        )
+        mock_client.execute_appliance_command = AsyncMock(side_effect=Exception("Remote control disabled"))
         mock_logger = MagicMock()
 
         with pytest.raises(HomeAssistantError, match="Remote control is disabled"):
@@ -133,9 +126,7 @@ class TestExecuteCommandWithErrorHandling:
         )
 
         mock_client = MagicMock()
-        mock_client.execute_appliance_command = AsyncMock(
-            side_effect=Exception("Appliance disconnected")
-        )
+        mock_client.execute_appliance_command = AsyncMock(side_effect=Exception("Appliance disconnected"))
         mock_logger = MagicMock()
 
         with pytest.raises(HomeAssistantError, match="disconnected"):
@@ -156,9 +147,7 @@ class TestExecuteCommandWithErrorHandling:
         )
 
         mock_client = MagicMock()
-        mock_client.execute_appliance_command = AsyncMock(
-            side_effect=Exception("401 Unauthorized")
-        )
+        mock_client.execute_appliance_command = AsyncMock(side_effect=Exception("401 Unauthorized"))
         mock_logger = MagicMock()
 
         with pytest.raises(AuthenticationError):
@@ -252,16 +241,10 @@ class TestFormatCommandForAppliance:
         capability = {"type": "number", "min": 30, "max": 250, "step": 5}
 
         # Test value on step boundary
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 180) == 180
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 180) == 180
         # Test value not on step boundary (should round to nearest)
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 182) == 180
-        )
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 183) == 185
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 182) == 180
+        assert format_command_for_appliance(capability, "targetTemperatureC", 183) == 185
 
     def test_numeric_capability_min_max_clamping(self):
         """Test that numeric values are clamped to min/max."""
@@ -270,13 +253,9 @@ class TestFormatCommandForAppliance:
         # Test value below min
         assert format_command_for_appliance(capability, "targetTemperatureC", 20) == 30
         # Test value above max
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 300) == 250
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 300) == 250
         # Test value within range
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 150) == 150
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 150) == 150
 
     def test_numeric_capability_misaligned_min_with_step(self):
         """Test formatting numeric values when min is not aligned with step boundaries.
@@ -288,21 +267,13 @@ class TestFormatCommandForAppliance:
         capability = {"type": "temperature", "min": 15.56, "max": 32.22, "step": 1.0}
 
         # Test value that should stay as-is (aligned with rounded min)
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 24) == 24.0
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 24) == 24.0
         # Test another aligned value
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 20) == 20.0
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 20) == 20.0
         # Test value at rounded min boundary
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 16) == 16.0
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 16) == 16.0
         # Test value near max
-        assert (
-            format_command_for_appliance(capability, "targetTemperatureC", 30) == 30.0
-        )
+        assert format_command_for_appliance(capability, "targetTemperatureC", 30) == 30.0
         # Test rounding behavior (24.5 should round to nearest step: 24.0 or 25.0)
         result = format_command_for_appliance(capability, "targetTemperatureC", 24.5)
         assert result in [24.0, 25.0]  # Either is acceptable depending on rounding
@@ -392,9 +363,7 @@ class TestFormatCommandForAppliance:
         assert result == "ON"
         assert isinstance(result, str)
 
-        result = format_command_for_appliance(
-            string_on_off_capability, "UVState", False
-        )
+        result = format_command_for_appliance(string_on_off_capability, "UVState", False)
         assert result == "OFF"
         assert isinstance(result, str)
 
@@ -994,9 +963,7 @@ class TestMapCommandError:
         )
 
         ex = Exception("Error: type mismatch for cavityLight")
-        result = map_command_error_to_home_assistant_error(
-            ex, "cavityLight", self._logger()
-        )
+        result = map_command_error_to_home_assistant_error(ex, "cavityLight", self._logger())
         assert "type" in str(result).lower() or "mismatch" in str(result).lower()
 
     # ------------------------------------------------------------------ #
@@ -1012,9 +979,7 @@ class TestMapCommandError:
         class _Ex(Exception):
             status = 403
 
-        result = map_command_error_to_home_assistant_error(
-            _Ex("403"), "attr", self._logger()
-        )
+        result = map_command_error_to_home_assistant_error(_Ex("403"), "attr", self._logger())
         assert "Remote control" in str(result)
 
     def test_http_429_returns_rate_limit(self):
@@ -1026,9 +991,7 @@ class TestMapCommandError:
         class _Ex(Exception):
             status = 429
 
-        result = map_command_error_to_home_assistant_error(
-            _Ex("429"), "attr", self._logger()
-        )
+        result = map_command_error_to_home_assistant_error(_Ex("429"), "attr", self._logger())
         assert "Too many" in str(result)
 
     def test_http_503_returns_disconnected(self):
@@ -1040,9 +1003,7 @@ class TestMapCommandError:
         class _Ex(Exception):
             status = 503
 
-        result = map_command_error_to_home_assistant_error(
-            _Ex("503"), "attr", self._logger()
-        )
+        result = map_command_error_to_home_assistant_error(_Ex("503"), "attr", self._logger())
         assert "disconnected" in str(result).lower()
 
     @pytest.mark.parametrize("status", [500, 502, 504])
@@ -1065,10 +1026,7 @@ class TestMapCommandError:
         result = map_command_error_to_home_assistant_error(ex, "attr", self._logger())
 
         assert "temporarily unavailable" in str(result).lower()
-        assert (
-            getattr(result, "translation_key", None)
-            == "service_temporarily_unavailable"
-        )
+        assert getattr(result, "translation_key", None) == "service_temporarily_unavailable"
         assert getattr(result, "translation_domain", None) == DOMAIN
 
     @pytest.mark.parametrize("status", [500, 502, 504])
@@ -1101,9 +1059,7 @@ class TestMapCommandError:
         class _Ex(Exception):
             status = 406
 
-        result = map_command_error_to_home_assistant_error(
-            _Ex("406"), "attr", self._logger()
-        )
+        result = map_command_error_to_home_assistant_error(_Ex("406"), "attr", self._logger())
         assert isinstance(result, Exception)
 
     def test_http_406_with_remote_control_detail(self):
@@ -1277,9 +1233,7 @@ class TestFormatCommandEdgeCases:
         # float input must also be coerced to int
         result = format_command_for_appliance(fanspeed_cap, "Fanspeed", 3.0)
         assert result == 3
-        assert isinstance(
-            result, int
-        ), f"Expected int from float input, got {type(result)}: {result}"
+        assert isinstance(result, int), f"Expected int from float input, got {type(result)}: {result}"
 
     def test_temperature_type_in_cap_type_tuple(self):
         """'type: temperature' is handled numerically via the cap_type tuple (defense in depth).
@@ -1306,9 +1260,7 @@ class TestFormatCommandEdgeCases:
         # Fractional step=0.5, but value is a whole number → must return int
         cap = {"type": "number", "min": 0.0, "max": 10.0, "step": 0.5}
         result = format_command_for_appliance(cap, "someValue", 2.0)
-        assert isinstance(
-            result, int
-        ), f"Expected int for 2.0, got {type(result)}: {result}"
+        assert isinstance(result, int), f"Expected int for 2.0, got {type(result)}: {result}"
         assert result == 2
 
     def test_number_type_integer_step_returns_int(self):
@@ -1322,13 +1274,9 @@ class TestFormatCommandEdgeCases:
 
         anti_crease_cap = {"type": "number", "min": 30, "max": 120, "step": 30}
         for val in [30, 60, 90, 120, 30.0, 60.0, 90.0, 120.0]:
-            result = format_command_for_appliance(
-                anti_crease_cap, "antiCreaseValue", val
-            )
+            result = format_command_for_appliance(anti_crease_cap, "antiCreaseValue", val)
             assert result == int(val), f"Expected {int(val)}, got {result}"
-            assert isinstance(
-                result, int
-            ), f"Expected int for value {val}, got {type(result)}: {result}"
+            assert isinstance(result, int), f"Expected int for value {val}, got {type(result)}: {result}"
 
     def test_number_type_fractional_step_returns_float(self):
         """Genuinely fractional values (non-integer) are preserved as float.
@@ -1356,9 +1304,7 @@ class TestUtilMissingCoverage:
             map_command_error_to_home_assistant_error,
         )
 
-        return map_command_error_to_home_assistant_error(
-            ex, "attr", self._logger(), **kwargs
-        )
+        return map_command_error_to_home_assistant_error(ex, "attr", self._logger(), **kwargs)
 
     # ------------------------------------------------------------------ #
     # Lines 405-406: response.json() raises → inner except Exception: pass
@@ -1508,9 +1454,7 @@ class TestUtilMissingCoverage:
 
         result = self._map(ex)
         assert isinstance(result, HomeAssistantError)
-        assert "Command not accepted: program does not support this setting" in str(
-            result
-        )
+        assert "Command not accepted: program does not support this setting" in str(result)
 
     # ------------------------------------------------------------------ #
     # Line 709: long exception string (>= 200 chars) → generic fallback message
@@ -1526,7 +1470,4 @@ class TestUtilMissingCoverage:
 
         result = self._map(ex)
         assert isinstance(result, HomeAssistantError)
-        assert (
-            "Command not accepted by appliance. Check that the appliance supports this operation."
-            in str(result)
-        )
+        assert "Command not accepted by appliance. Check that the appliance supports this operation." in str(result)

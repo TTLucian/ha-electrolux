@@ -2564,9 +2564,7 @@ class TestUserSelectionsProgramUidGate:
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener")
         entity.reported_state = {"connectivityState": "connected"}
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         with patch(
             "custom_components.electrolux.number.format_command_for_appliance",
@@ -2583,9 +2581,7 @@ class TestUserSelectionsProgramUidGate:
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "xtraDryOption")
         entity.reported_state = {"connectivityState": "connected"}
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         with patch(
             "custom_components.electrolux.number.format_command_for_appliance",
@@ -2606,9 +2602,7 @@ class TestUserSelectionsProgramUidGate:
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
         entity.reported_state = {"connectivityState": "connected"}
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {}}}}
 
         with patch(
             "custom_components.electrolux.number.format_command_for_appliance",
@@ -2618,4 +2612,3 @@ class TestUserSelectionsProgramUidGate:
 
         _, command = api.execute_appliance_command.call_args[0]
         assert command == {"commands": [{"userSelections": {"autoDoorOpener": 20}}]}
-

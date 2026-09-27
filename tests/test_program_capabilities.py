@@ -57,9 +57,7 @@ class TestProgramCapabilitiesLookup:
         entity.hass = mock_coordinator.hass
         return entity
 
-    def test_get_program_capabilities_oven_structure(
-        self, base_entity, mock_coordinator
-    ):
+    def test_get_program_capabilities_oven_structure(self, base_entity, mock_coordinator):
         """Test program capabilities lookup for oven-style appliances.
 
         Ovens store program capabilities under:
@@ -102,9 +100,7 @@ class TestProgramCapabilitiesLookup:
         assert defrost_caps["targetTemperatureC"]["min"] == 30
         assert defrost_caps["targetTemperatureC"]["max"] == 60
 
-    def test_get_program_capabilities_dryer_structure(
-        self, base_entity, mock_coordinator
-    ):
+    def test_get_program_capabilities_dryer_structure(self, base_entity, mock_coordinator):
         """Test program capabilities lookup for dryer-style appliances.
 
         Dryers store program capabilities under:
@@ -122,14 +118,10 @@ class TestProgramCapabilitiesLookup:
                             "step": 30,
                             "disabled": False,
                         },
-                        "userSelections/humidityTarget": {
-                            "values": {"CUPBOARD": {}, "IRON": {}}
-                        },
+                        "userSelections/humidityTarget": {"values": {"CUPBOARD": {}, "IRON": {}}},
                     },
                     "SHOES_PR_RUNNINGSHOES": {
-                        "userSelections/drynessValue": {
-                            "values": {"MAXIMUM": {}, "MEDIUM": {}, "MINIMUM": {}}
-                        }
+                        "userSelections/drynessValue": {"values": {"MAXIMUM": {}, "MEDIUM": {}, "MINIMUM": {}}}
                         # Note: antiCreaseValue NOT in this program
                     },
                 }
@@ -148,19 +140,13 @@ class TestProgramCapabilitiesLookup:
         assert "userSelections/antiCreaseValue" not in shoes_caps
         assert "userSelections/drynessValue" in shoes_caps
 
-    def test_get_program_capabilities_cycle_personalization_structure(
-        self, base_entity, mock_coordinator
-    ):
+    def test_get_program_capabilities_cycle_personalization_structure(self, base_entity, mock_coordinator):
         """Test program capabilities lookup with cyclePersonalization fallback."""
         # Setup alternative structure through coordinator
         mock_appliance = mock_coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.data.capabilities = {
             "cyclePersonalization/programUID": {
-                "values": {
-                    "SOME_PROGRAM": {
-                        "someControl": {"min": 0, "max": 100, "disabled": False}
-                    }
-                }
+                "values": {"SOME_PROGRAM": {"someControl": {"min": 0, "max": 100, "disabled": False}}}
             }
         }
 
@@ -169,23 +155,17 @@ class TestProgramCapabilitiesLookup:
         assert "someControl" in caps
         assert caps["someControl"]["min"] == 0
 
-    def test_get_program_capabilities_no_appliance_data(
-        self, base_entity, mock_coordinator
-    ):
+    def test_get_program_capabilities_no_appliance_data(self, base_entity, mock_coordinator):
         """Test graceful handling when appliance data is missing."""
         # Return None for get_appliance
         mock_coordinator.data["appliances"].get_appliance.return_value = None
         caps = base_entity._get_program_capabilities("ANY_PROGRAM")
         assert caps == {}
 
-    def test_get_program_capabilities_program_not_found(
-        self, base_entity, mock_coordinator
-    ):
+    def test_get_program_capabilities_program_not_found(self, base_entity, mock_coordinator):
         """Test when program doesn't exist in any location."""
         mock_appliance = mock_coordinator.data["appliances"].get_appliance.return_value
-        mock_appliance.data.capabilities = {
-            "program": {"values": {"EXISTING_PROGRAM": {}}}
-        }
+        mock_appliance.data.capabilities = {"program": {"values": {"EXISTING_PROGRAM": {}}}}
 
         caps = base_entity._get_program_capabilities("NONEXISTENT_PROGRAM")
         assert caps == {}
@@ -245,9 +225,7 @@ class TestIsSupportedByProgramWithRealData:
                 }
             }
         }
-        entity._reported_state_cache = {
-            "userSelections": {"programUID": "COTTON_PR_COTTONSECO"}
-        }
+        entity._reported_state_cache = {"userSelections": {"programUID": "COTTON_PR_COTTONSECO"}}
         entity._program_cache_key = "COTTON_PR_COTTONSECO"
 
         # Clear cache to force recomputation
@@ -281,17 +259,13 @@ class TestIsSupportedByProgramWithRealData:
             "userSelections/programUID": {
                 "values": {
                     "SHOES_PR_RUNNINGSHOES": {
-                        "userSelections/drynessValue": {
-                            "values": {"MAXIMUM": {}, "MEDIUM": {}, "MINIMUM": {}}
-                        }
+                        "userSelections/drynessValue": {"values": {"MAXIMUM": {}, "MEDIUM": {}, "MINIMUM": {}}}
                         # antiCreaseValue NOT present
                     }
                 }
             }
         }
-        entity._reported_state_cache = {
-            "userSelections": {"programUID": "SHOES_PR_RUNNINGSHOES"}
-        }
+        entity._reported_state_cache = {"userSelections": {"programUID": "SHOES_PR_RUNNINGSHOES"}}
         entity._program_cache_key = "SHOES_PR_RUNNINGSHOES"
 
         # Clear cache to force recomputation
@@ -398,9 +372,7 @@ class TestGetProgramConstraintWithRealData:
                 }
             }
         }
-        entity.reported_state = {
-            "userSelections": {"programUID": "COTTON_PR_COTTONSECO"}
-        }
+        entity.reported_state = {"userSelections": {"programUID": "COTTON_PR_COTTONSECO"}}
 
         # Clear constraint cache
         entity._constraints_cache = {}
@@ -500,15 +472,11 @@ class TestGetProgramConstraintWithRealData:
         }
 
         # Test with COTTON program
-        entity.reported_state = {
-            "userSelections": {"programUID": "COTTON_PR_COTTONSECO"}
-        }
+        entity.reported_state = {"userSelections": {"programUID": "COTTON_PR_COTTONSECO"}}
         entity._constraints_cache = {}
         assert entity._get_program_constraint("max") == 120
 
         # Switch to SYNTHETIC program
-        entity.reported_state = {
-            "userSelections": {"programUID": "SYNTHETIC_PR_SYNTHETICS"}
-        }
+        entity.reported_state = {"userSelections": {"programUID": "SYNTHETIC_PR_SYNTHETICS"}}
         entity._constraints_cache = {}  # Cache would be cleared by program change
         assert entity._get_program_constraint("max") == 90

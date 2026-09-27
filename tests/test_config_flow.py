@@ -58,19 +58,13 @@ class TestConfigFlowUserStep:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
-            patch(
-                "custom_components.electrolux.config_flow.async_get_clientsession"
-            ) as mock_client_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession") as mock_client_session,
         ):
             # Mock successful API connection
             mock_client = Mock()
             mock_client.get_appliances_list = AsyncMock(
-                return_value=[
-                    {"applianceId": "test_123", "applianceName": "Test Device"}
-                ]
+                return_value=[{"applianceId": "test_123", "applianceName": "Test Device"}]
             )
             mock_session.return_value = mock_client
             mock_client_session.return_value = Mock()
@@ -96,17 +90,11 @@ class TestConfigFlowUserStep:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
-            patch(
-                "custom_components.electrolux.config_flow.async_get_clientsession"
-            ) as mock_client_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession") as mock_client_session,
         ):
             mock_client = Mock()
-            mock_client.get_appliances_list = AsyncMock(
-                side_effect=ConnectionError("Connection failed")
-            )
+            mock_client.get_appliances_list = AsyncMock(side_effect=ConnectionError("Connection failed"))
             mock_session.return_value = mock_client
             mock_client_session.return_value = Mock()
 
@@ -132,17 +120,11 @@ class TestConfigFlowUserStep:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
-            patch(
-                "custom_components.electrolux.config_flow.async_get_clientsession"
-            ) as mock_client_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession") as mock_client_session,
         ):
             mock_client = Mock()
-            mock_client.get_appliances_list = AsyncMock(
-                side_effect=ValueError("401 Unauthorized")
-            )
+            mock_client.get_appliances_list = AsyncMock(side_effect=ValueError("401 Unauthorized"))
             mock_session.return_value = mock_client
             mock_client_session.return_value = Mock()
 
@@ -165,9 +147,7 @@ class TestConfigFlowOptionsFlow:
         flow = ElectroluxStatusFlowHandler()
         flow.hass = Mock()
 
-        with patch.object(
-            ElectroluxStatusFlowHandler, "async_get_options_flow"
-        ) as mock_get_flow:
+        with patch.object(ElectroluxStatusFlowHandler, "async_get_options_flow") as mock_get_flow:
             options_flow = Mock()
             options_flow.async_step_init = AsyncMock(
                 return_value={
@@ -194,18 +174,14 @@ class TestRepairFlow:
         mock_hass.config_entries.async_get_entry = Mock(return_value=None)
 
         # Test that the repair flow can be created
-        flow = await async_create_fix_flow(
-            mock_hass, "invalid_refresh_token_test", None
-        )
+        flow = await async_create_fix_flow(mock_hass, "invalid_refresh_token_test", None)
         assert flow is not None
         assert isinstance(flow, ElectroluxRepairFlow)
 
     @pytest.mark.asyncio
     async def test_repairs_module_passes_issue_id_to_flow(self):
         """Home Assistant's repairs module passes issue_id outside flow context."""
-        flow = await async_create_repairs_fix_flow(
-            Mock(), "invalid_refresh_token_test_entry", None
-        )
+        flow = await async_create_repairs_fix_flow(Mock(), "invalid_refresh_token_test_entry", None)
 
         assert isinstance(flow, ElectroluxRepairFlow)
         assert flow._get_issue_id() == "invalid_refresh_token_test_entry"
@@ -255,12 +231,8 @@ class TestRepairFlow:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
-            patch(
-                "custom_components.electrolux.config_flow.async_get_clientsession"
-            ) as mock_client_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession") as mock_client_session,
             patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
         ):
             mock_client = Mock()
@@ -298,17 +270,11 @@ class TestRepairFlow:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
-            patch(
-                "custom_components.electrolux.config_flow.async_get_clientsession"
-            ) as mock_client_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession") as mock_client_session,
         ):
             mock_client = Mock()
-            mock_client.get_appliances_list = AsyncMock(
-                side_effect=ValueError("401 Unauthorized")
-            )
+            mock_client.get_appliances_list = AsyncMock(side_effect=ValueError("401 Unauthorized"))
             mock_session.return_value = mock_client
             mock_client_session.return_value = Mock()
 
@@ -421,11 +387,7 @@ class TestExtractTokenExpiry:
         import json
 
         header = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode().rstrip("=")
-        payload = (
-            base64.urlsafe_b64encode(json.dumps({"sub": "user"}).encode())
-            .decode()
-            .rstrip("=")
-        )
+        payload = base64.urlsafe_b64encode(json.dumps({"sub": "user"}).encode()).decode().rstrip("=")
         token = f"{header}.{payload}.sig"
         assert _extract_token_expiry(token) is None
 
@@ -434,11 +396,7 @@ class TestExtractTokenExpiry:
         import json
 
         header = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode().rstrip("=")
-        payload = (
-            base64.urlsafe_b64encode(json.dumps({"exp": 9999999999}).encode())
-            .decode()
-            .rstrip("=")
-        )
+        payload = base64.urlsafe_b64encode(json.dumps({"exp": 9999999999}).encode()).decode().rstrip("=")
         token = f"{header}.{payload}.sig"
         result = _extract_token_expiry(token)
         assert result == 9999999999
@@ -467,9 +425,7 @@ class TestCredentialValidationRotation:
             )
             return []
 
-        mock_client.set_token_update_callback_with_expiry = Mock(
-            side_effect=capture_callback
-        )
+        mock_client.set_token_update_callback_with_expiry = Mock(side_effect=capture_callback)
         mock_client.get_appliances_list = AsyncMock(side_effect=get_appliances_list)
 
         with patch(
@@ -543,14 +499,10 @@ class TestReauthFlow:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch("homeassistant.helpers.issue_registry.async_delete_issue"),
-            patch.object(
-                flow, "async_update_reload_and_abort", return_value={"type": "abort"}
-            ),
+            patch.object(flow, "async_update_reload_and_abort", return_value={"type": "abort"}),
         ):
             mock_session.return_value.get_appliances_list = AsyncMock(return_value=[])
             result = await flow.async_step_reauth_validate(user_input)  # type: ignore[arg-type]
@@ -585,14 +537,10 @@ class TestReauthFlow:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=ValueError("Unauthorized")
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=ValueError("Unauthorized"))
             result = await flow.async_step_reauth_validate(user_input)  # type: ignore[arg-type]
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
@@ -664,9 +612,7 @@ class TestReconfigureFlow:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
             patch.object(
@@ -728,14 +674,10 @@ class TestReconfigureFlow:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=ConnectionError
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=ConnectionError)
             result = await flow.async_step_reconfigure(user_input)
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
@@ -811,9 +753,7 @@ class TestOptionsFlowHandler:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
             mock_session.return_value.get_appliances_list = AsyncMock(return_value=[])
@@ -834,14 +774,10 @@ class TestOptionsFlowHandler:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=ValueError("Unauthorized")
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=ValueError("Unauthorized"))
             result = await flow.async_step_user(user_input)
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
@@ -871,9 +807,7 @@ class TestConfigFlowMissingCoverage:
         flow.hass.config_entries = Mock()
         flow.hass.config_entries.async_entries.return_value = []
 
-        result = await flow.async_step_user(
-            {"api_key": "short", "access_token": "short", "refresh_token": "short"}
-        )
+        result = await flow.async_step_user({"api_key": "short", "access_token": "short", "refresh_token": "short"})
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
         assert result["errors"]["base"] == "invalid_format"  # type: ignore[index]
@@ -898,9 +832,7 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.config_flow._extract_token_expiry",
@@ -933,9 +865,7 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             # Patch _get_reauth_entry to return None on first call
             patch.object(flow, "_get_reauth_entry", return_value=None),
@@ -976,9 +906,7 @@ class TestConfigFlowMissingCoverage:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch("homeassistant.helpers.issue_registry.async_delete_issue"),
             patch(
@@ -1027,9 +955,7 @@ class TestConfigFlowMissingCoverage:
                 new_callable=PropertyMock,
                 return_value=False,
             ),
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch(
                 "custom_components.electrolux.config_flow._extract_token_expiry",
@@ -1078,14 +1004,10 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=RuntimeError("unexpected error")
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=RuntimeError("unexpected error"))
             result = await flow.async_step_user(user_input)
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
@@ -1116,14 +1038,10 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=RuntimeError("unexpected error")
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=RuntimeError("unexpected error"))
             result = await flow.async_step_user(user_input)
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
@@ -1170,9 +1088,7 @@ class TestConfigFlowMissingCoverage:
         flow.hass.config_entries = Mock()
         flow.hass.config_entries.async_get_entry = Mock(return_value=mock_entry)
 
-        result = await flow.async_step_init(
-            {"api_key": "short", "access_token": "short", "refresh_token": "short"}
-        )
+        result = await flow.async_step_init({"api_key": "short", "access_token": "short", "refresh_token": "short"})
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]
         assert result["errors"]["base"] == "invalid_format"  # type: ignore[index]
@@ -1204,9 +1120,7 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
             patch("custom_components.electrolux.config_flow.ir.async_delete_issue"),
             patch(
@@ -1246,14 +1160,10 @@ class TestConfigFlowMissingCoverage:
         }
 
         with (
-            patch(
-                "custom_components.electrolux.config_flow.get_electrolux_session"
-            ) as mock_session,
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
             patch("custom_components.electrolux.config_flow.async_get_clientsession"),
         ):
-            mock_session.return_value.get_appliances_list = AsyncMock(
-                side_effect=RuntimeError("unexpected error")
-            )
+            mock_session.return_value.get_appliances_list = AsyncMock(side_effect=RuntimeError("unexpected error"))
             result = await flow.async_step_init(user_input)
 
         assert result["type"] == data_entry_flow.FlowResultType.FORM  # type: ignore[typeddict-item]

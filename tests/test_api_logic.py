@@ -121,9 +121,7 @@ class TestKeepSourceLogic:
         result = entity.sources_list()
         assert result is not None
         assert "someWaterUsage" in result  # Whitelisted pattern
-        assert (
-            "fCMiscellaneous/blocked" not in result
-        )  # Blacklisted and not whitelisted
+        assert "fCMiscellaneous/blocked" not in result  # Blacklisted and not whitelisted
 
     def test_keep_source_nested_capabilities(self):
         """Test that nested capabilities are properly handled."""
@@ -307,9 +305,7 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=True)
-            assert (
-                result == value
-            ), f"Expected '{value}' for unknown input, got {result}"
+            assert result == value, f"Expected '{value}' for unknown input, got {result}"
 
     def test_string_to_boolean_unknown_with_fallback_false(self):
         """Test unknown values with fallback=False return False."""
@@ -317,9 +313,7 @@ class TestStringToBoolean:
 
         for value in unknown_values:
             result = string_to_boolean(value, fallback=False)
-            assert (
-                result is False
-            ), f"Expected False for unknown input '{value}', got {result}"
+            assert result is False, f"Expected False for unknown input '{value}', got {result}"
 
     def test_string_to_boolean_case_insensitive(self):
         """Test that the function is case insensitive."""
@@ -372,17 +366,11 @@ class TestElectroluxLibraryEntityBasics:
 
     # L88-91: get_value with nested slash notation
     def test_get_value_slash_notation(self):
-        entity = self._make_entity(
-            state={
-                "properties": {"reported": {"userSelections": {"programUID": "COTTON"}}}
-            }
-        )
+        entity = self._make_entity(state={"properties": {"reported": {"userSelections": {"programUID": "COTTON"}}}})
         assert entity.get_value("userSelections/programUID") == "COTTON"
 
     def test_get_value_slash_missing_key(self):
-        entity = self._make_entity(
-            state={"properties": {"reported": {"userSelections": {}}}}
-        )
+        entity = self._make_entity(state={"properties": {"reported": {"userSelections": {}}}})
         assert entity.get_value("userSelections/programUID") is None
 
     def test_get_value_plain_key(self):
@@ -564,9 +552,7 @@ class TestSourcesListMissingBranches:
             state={},
             appliance_info={},
             capabilities={
-                "fCMiscellaneousState": {
-                    "waterUsage": {"type": "number", "access": "read"}
-                },
+                "fCMiscellaneousState": {"waterUsage": {"type": "number", "access": "read"}},
                 "fCMiscellaneousState/waterUsage": {"type": "number", "access": "read"},
             },
         )

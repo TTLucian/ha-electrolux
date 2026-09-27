@@ -41,9 +41,7 @@ def _entity(entity_attr):
     return entity
 
 
-@pytest.mark.parametrize(
-    "entity_attr", ["program", "targetDuration", "startTime", "stopTime"]
-)
+@pytest.mark.parametrize("entity_attr", ["program", "targetDuration", "startTime", "stopTime"])
 def test_global_time_entities_are_not_locked_by_program(entity_attr):
     """Global entities stay adjustable even though no programme declares them.
 

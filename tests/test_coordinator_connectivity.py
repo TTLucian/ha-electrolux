@@ -713,4 +713,3 @@ class TestMultiApplianceMatrix:
             coordinator.record_sse_disconnect(reason="Drop 3", is_cancellation=False)
             assert coordinator.consecutive_sse_drops == 3
             assert coordinator.sse_connected is False
-

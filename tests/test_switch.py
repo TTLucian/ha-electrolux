@@ -100,17 +100,13 @@ class TestElectroluxSwitch:
 
     def test_is_on_boolean_true(self, switch_entity):
         """Test is_on returns True for boolean True."""
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": True}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": True}}}
         switch_entity.reported_state = {"testAttr": True}
         assert switch_entity.is_on is True
 
     def test_is_on_boolean_false(self, switch_entity):
         """Test is_on returns False for boolean False."""
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": False}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": False}}}
         switch_entity.reported_state = {"testAttr": False}
         assert switch_entity.is_on is False
 
@@ -122,31 +118,23 @@ class TestElectroluxSwitch:
 
     def test_is_on_string_on(self, switch_entity):
         """Test is_on returns True for string 'ON'."""
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": "ON"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": "ON"}}}
         switch_entity.reported_state = {"testAttr": "ON"}
         assert switch_entity.is_on is True
 
     def test_is_on_string_off(self, switch_entity):
         """Test is_on returns False for string 'OFF'."""
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": "OFF"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": "OFF"}}}
         switch_entity.reported_state = {"testAttr": "OFF"}
         assert switch_entity.is_on is False
 
     def test_is_on_string_lowercase(self, switch_entity):
         """Test is_on handles lowercase string values."""
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": "on"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": "on"}}}
         switch_entity.reported_state = {"testAttr": "on"}
         assert switch_entity.is_on is True
 
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"testAttr": "off"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"testAttr": "off"}}}
         switch_entity.reported_state = {"testAttr": "off"}
         assert switch_entity.is_on is False
 
@@ -206,9 +194,7 @@ class TestElectroluxSwitch:
         entity.reported_state = {"connectivityState": "disconnected", "testAttr": True}
         assert entity.is_on is None
 
-    def test_is_on_offline_with_state_mapping_returns_none(
-        self, mock_coordinator, mock_capability
-    ):
+    def test_is_on_offline_with_state_mapping_returns_none(self, mock_coordinator, mock_capability):
         """The state_mapping fallback must not revive a stale value while offline.
 
         ``get_state_attr`` reads raw reported state and has no offline guard of
@@ -272,9 +258,7 @@ class TestElectroluxSwitch:
         add_entities.assert_called_once()
         assert add_entities.call_args[0][0][0] is entity
 
-    def test_async_setup_entry_keeps_nested_user_selection_switches(
-        self, mock_coordinator
-    ):
+    def test_async_setup_entry_keeps_nested_user_selection_switches(self, mock_coordinator):
         """Nested userSelections switches should not be filtered as phantom capabilities."""
         entity = MagicMock()
         entity.entity_type = SWITCH
@@ -309,38 +293,26 @@ class TestElectroluxSwitch:
         """Test turning switch on."""
         switch_entity.api = AsyncMock()
         switch_entity.is_remote_control_enabled = MagicMock(return_value=True)
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await switch_entity.async_turn_on()
 
-            mock_format.assert_called_once_with(
-                switch_entity.capability, "testAttr", True
-            )
+            mock_format.assert_called_once_with(switch_entity.capability, "testAttr", True)
 
     @pytest.mark.asyncio
     async def test_async_turn_off(self, switch_entity):
         """Test turning switch off."""
         switch_entity.api = AsyncMock()
         switch_entity.is_remote_control_enabled = MagicMock(return_value=True)
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "OFF"
             await switch_entity.async_turn_off()
 
-            mock_format.assert_called_once_with(
-                switch_entity.capability, "testAttr", False
-            )
+            mock_format.assert_called_once_with(switch_entity.capability, "testAttr", False)
 
     @pytest.mark.asyncio
     async def test_async_turn_on_remote_control_disabled(self, switch_entity):
@@ -393,9 +365,7 @@ class TestElectroluxSwitch:
             }
         }
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
@@ -404,14 +374,10 @@ class TestElectroluxSwitch:
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
             # Program-level key with programUID should be bundled
-            assert command == {
-                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "ON"}
-            }
+            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "ON"}}
 
     @pytest.mark.asyncio
-    async def test_switch_command_with_user_selections_source_appliance_level_key(
-        self, mock_coordinator
-    ):
+    async def test_switch_command_with_user_selections_source_appliance_level_key(self, mock_coordinator):
         """Test switch command with userSelections source omits programUID for appliance-level keys.
 
         Appliance-level keys (not listed by any program's constraint dict) should
@@ -452,9 +418,7 @@ class TestElectroluxSwitch:
             }
         }
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
@@ -462,14 +426,10 @@ class TestElectroluxSwitch:
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
             # Appliance-level key: no programUID bundled, sent as simple payload
-            assert command == {
-                "userSelections": {"autoDoorOpener": "ON"}
-            }
+            assert command == {"userSelections": {"autoDoorOpener": "ON"}}
 
     @pytest.mark.asyncio
-    async def test_switch_command_with_user_selections_source_real_program_option(
-        self, mock_coordinator
-    ):
+    async def test_switch_command_with_user_selections_source_real_program_option(self, mock_coordinator):
         """Real dishwasher option keeps programUID — no #30 regression (#232).
 
         The program constraint dicts of a real dishwasher name their entries
@@ -505,23 +465,17 @@ class TestElectroluxSwitch:
             }
         }
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
             call_args = api.execute_appliance_command.call_args
             _, command = call_args[0]
             # Program option: bundled with the active programUID
-            assert command == {
-                "userSelections": {"programUID": "ECO", "glassCareOption": "ON"}
-            }
+            assert command == {"userSelections": {"programUID": "ECO", "glassCareOption": "ON"}}
 
     @pytest.mark.asyncio
-    async def test_switch_with_appliance_source(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_with_appliance_source(self, mock_coordinator, mock_capability):
         """Test switch command with appliance-type entity source."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
@@ -541,13 +495,9 @@ class TestElectroluxSwitch:
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock()
         entity.is_remote_control_enabled = MagicMock(return_value=True)
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
 
@@ -564,13 +514,9 @@ class TestElectroluxSwitch:
         switch_entity.api = MagicMock()
         switch_entity.api.execute_appliance_command = AsyncMock()
         switch_entity.is_remote_control_enabled = MagicMock(return_value=True)
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        switch_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
-        with patch(
-            "custom_components.electrolux.switch.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await switch_entity.async_turn_on()
 
@@ -585,9 +531,7 @@ class TestElectroluxSwitch:
         """Test availability when remote control is disabled (but connected)."""
         switch_entity.is_connected = MagicMock(return_value=True)
         switch_entity.is_remote_control_enabled = MagicMock(return_value=False)
-        assert (
-            switch_entity.available
-        )  # Should be available even with remote control disabled
+        assert switch_entity.available  # Should be available even with remote control disabled
 
     def test_available_property_remote_control_enabled(self, switch_entity):
         """Test availability when remote control is enabled."""
@@ -604,9 +548,7 @@ class TestElectroluxSwitch:
             await switch_entity.switch(True)
 
     @pytest.mark.asyncio
-    async def test_switch_dam_appliance_with_entity_source(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_dam_appliance_with_entity_source(self, mock_coordinator, mock_capability):
         """DAM appliance switch wraps command in 'commands' list."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
@@ -625,9 +567,7 @@ class TestElectroluxSwitch:
         )
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock(return_value=None)
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
         with patch(
             "custom_components.electrolux.switch.format_command_for_appliance",
@@ -639,9 +579,7 @@ class TestElectroluxSwitch:
         assert "commands" in call_args[1]
 
     @pytest.mark.asyncio
-    async def test_switch_dam_appliance_without_entity_source(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_dam_appliance_without_entity_source(self, mock_coordinator, mock_capability):
         """DAM appliance switch without entity_source uses plain attr command."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
@@ -660,9 +598,7 @@ class TestElectroluxSwitch:
         )
         entity.api = MagicMock()
         entity.api.execute_appliance_command = AsyncMock(return_value=None)
-        entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
         with patch(
             "custom_components.electrolux.switch.format_command_for_appliance",
@@ -679,12 +615,8 @@ class TestElectroluxSwitch:
         from custom_components.electrolux.util import AuthenticationError
 
         switch_entity.api = MagicMock()
-        switch_entity.api.execute_appliance_command = AsyncMock(
-            side_effect=AuthenticationError("token expired")
-        )
-        switch_entity.appliance_status = {
-            "properties": {"reported": {"remoteControl": "ENABLED"}}
-        }
+        switch_entity.api.execute_appliance_command = AsyncMock(side_effect=AuthenticationError("token expired"))
+        switch_entity.appliance_status = {"properties": {"reported": {"remoteControl": "ENABLED"}}}
 
         mock_coord = MagicMock()
         mock_coord.handle_authentication_error = AsyncMock()
@@ -698,16 +630,15 @@ class TestElectroluxSwitch:
                 "custom_components.electrolux.switch.format_command_for_appliance",
                 return_value="ON",
             ),
-            patch.object(switch_entity, "coordinator", mock_coord),pytest.raises(AuthenticationError)
+            patch.object(switch_entity, "coordinator", mock_coord),
+            pytest.raises(AuthenticationError),
         ):
             await switch_entity.switch(True)
 
         mock_coord.handle_authentication_error.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_switch_dam_user_selections_wraps_command(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_dam_user_selections_wraps_command(self, mock_coordinator, mock_capability):
         """DAM appliance with userSelections source wraps with programUID."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
@@ -745,9 +676,7 @@ class TestElectroluxSwitch:
         assert "commands" in call_args[1]
 
     @pytest.mark.asyncio
-    async def test_switch_generic_exception_reraised(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_generic_exception_reraised(self, mock_coordinator, mock_capability):
         """Generic (non-auth) exceptions from execute_command_with_error_handling are re-raised."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,
@@ -777,16 +706,15 @@ class TestElectroluxSwitch:
             patch(
                 "custom_components.electrolux.switch.format_command_for_appliance",
                 return_value="OFF",
-            ),pytest.raises(HomeAssistantError, match="remote control disabled")
+            ),
+            pytest.raises(HomeAssistantError, match="remote control disabled"),
         ):
             await entity.switch(True)
 
     # ... (existing tests in TestElectroluxSwitch class) ...
 
     @pytest.mark.asyncio
-    async def test_switch_schedules_state_refresh_after_command(
-        self, mock_coordinator, mock_capability
-    ):
+    async def test_switch_schedules_state_refresh_after_command(self, mock_coordinator, mock_capability):
         """State refresh is scheduled after a successful switch command."""
         entity = ElectroluxSwitch(
             coordinator=mock_coordinator,

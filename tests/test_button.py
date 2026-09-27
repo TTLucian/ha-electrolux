@@ -555,9 +555,7 @@ class TestExecuteCommandNames:
             ("STOPRESET", "Stop / reset"),
         ],
     )
-    def test_known_execute_command_uses_command_translation(
-        self, mock_coordinator, command, translated_name
-    ):
+    def test_known_execute_command_uses_command_translation(self, mock_coordinator, command, translated_name):
         """Known executeCommand values resolve to their translated action names."""
         entity = self._make_button(mock_coordinator, command)
 
@@ -1903,17 +1901,12 @@ class TestCyclePhaseDimensionGating:
 
     def test_phase_rules_derived_from_td916900511(self):
         """The dryer's cyclePhase trigger yields STOPRESET: [ANTICREASE]."""
-        assert execute_phase_states_from_capabilities({"cyclePhase": TD_CYCLE_PHASE}) == {
-            "STOPRESET": ["ANTICREASE"]
-        }
+        assert execute_phase_states_from_capabilities({"cyclePhase": TD_CYCLE_PHASE}) == {"STOPRESET": ["ANTICREASE"]}
 
     def test_remote_control_triggers_with_no_values_contribute_nothing(self):
         """The third trigger-publishing capability (remoteControl) has empty
         value sets — it must not create rules (tanarchytan's observation)."""
-        assert (
-            execute_phase_states_from_capabilities({"remoteControl": TD_REMOTE_CONTROL})
-            is None
-        )
+        assert execute_phase_states_from_capabilities({"remoteControl": TD_REMOTE_CONTROL}) is None
         assert execute_states_from_capabilities({"remoteControl": TD_REMOTE_CONTROL}) is None
 
     def test_stopreset_available_during_anticrease(self, mock_coordinator):

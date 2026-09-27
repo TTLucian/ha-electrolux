@@ -132,9 +132,7 @@ async def test_async_update_data_api_error(mock_coordinator, mock_api_client):
 async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
     """Test data update when authentication fails."""
     # Mock the API to raise an exception with auth keywords
-    mock_api_client.get_appliance_state = AsyncMock(
-        side_effect=Exception("401 Unauthorized")
-    )
+    mock_api_client.get_appliance_state = AsyncMock(side_effect=Exception("401 Unauthorized"))
 
     # Create a mock appliance
     mock_appliance = MagicMock(spec=Appliance)
@@ -149,9 +147,7 @@ async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
     mock_coordinator.config_entry = MagicMock()  # Mock config entry
     mock_coordinator.config_entry.entry_id = "test_entry_id"
     mock_coordinator.config_entry.title = "Test Entry"
-    mock_coordinator._auth_failure_threshold = (
-        1  # Trigger reauth on first failure for test
-    )
+    mock_coordinator._auth_failure_threshold = 1  # Trigger reauth on first failure for test
 
     # Call the update method and expect it to raise ConfigEntryAuthFailed
     from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -164,17 +160,11 @@ async def test_async_update_data_auth_error(mock_coordinator, mock_api_client):
 async def test_async_update_data_multiple_appliances(mock_coordinator, mock_api_client):
     """Test data update with multiple appliances."""
     # Create mock appliance states
-    mock_state_1 = {
-        "properties": {"reported": {"powerState": "on", "temperature": 20.0}}
-    }
-    mock_state_2 = {
-        "properties": {"reported": {"powerState": "off", "temperature": 15.0}}
-    }
+    mock_state_1 = {"properties": {"reported": {"powerState": "on", "temperature": 20.0}}}
+    mock_state_2 = {"properties": {"reported": {"powerState": "off", "temperature": 15.0}}}
 
     # Mock the API to return different states for different appliances
-    mock_api_client.get_appliance_state = AsyncMock(
-        side_effect=[mock_state_1, mock_state_2]
-    )
+    mock_api_client.get_appliance_state = AsyncMock(side_effect=[mock_state_1, mock_state_2])
 
     # Create mock appliances
     mock_appliance_1 = MagicMock()
@@ -231,9 +221,7 @@ async def test_handle_authentication_error(mock_coordinator):
 
     # Test with auth error
     with pytest.raises(ConfigEntryAuthFailed):
-        await mock_coordinator.handle_authentication_error(
-            Exception("401 Unauthorized: Invalid token")
-        )
+        await mock_coordinator.handle_authentication_error(Exception("401 Unauthorized: Invalid token"))
 
     # Test with non-auth error (should not raise)
     await mock_coordinator.handle_authentication_error(Exception("Network error"))
@@ -341,9 +329,7 @@ async def test_token_refresh_error_handling():
 
     hass = MagicMock()
     hass.config_entries.async_entries.return_value = [MagicMock()]
-    client = ElectroluxApiClient(
-        "api", "access", "refresh", hass=hass, config_entry=MagicMock()
-    )
+    client = ElectroluxApiClient("api", "access", "refresh", hass=hass, config_entry=MagicMock())
     client.coordinator = MagicMock()
 
     # Call _trigger_reauth
@@ -436,9 +422,7 @@ async def test_async_login_raises_config_entry_auth_failed_on_auth_error():
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
         coord.api = MagicMock()
-        coord.api.get_appliances_list = AsyncMock(
-            side_effect=AuthenticationError("bad creds")
-        )
+        coord.api.get_appliances_list = AsyncMock(side_effect=AuthenticationError("bad creds"))
         coord.api._token_manager = MagicMock()
         coord.api._token_manager.is_token_valid.return_value = False
 
@@ -483,9 +467,7 @@ async def test_async_login_raises_config_entry_not_ready_on_unexpected_error():
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
         coord.api = MagicMock()
-        coord.api.get_appliances_list = AsyncMock(
-            side_effect=RuntimeError("unexpected")
-        )
+        coord.api.get_appliances_list = AsyncMock(side_effect=RuntimeError("unexpected"))
         coord.api._token_manager = MagicMock()
         coord.api._token_manager.is_token_valid.return_value = True
 
@@ -516,13 +498,14 @@ async def test_cancel_cleanup_tasks_cancelled_error_is_reraised(mock_coordinator
         # Second call (drain) returns normally
         return []
 
-    with patch(
-        "custom_components.electrolux.coordinator.asyncio.gather",
-        side_effect=_fake_gather,
-    ), pytest.raises(asyncio.CancelledError):
-        await mock_coordinator._cleanup_appliance_tasks(
-            [mock_task], "test_appliance_id"
-        )
+    with (
+        patch(
+            "custom_components.electrolux.coordinator.asyncio.gather",
+            side_effect=_fake_gather,
+        ),
+        pytest.raises(asyncio.CancelledError),
+    ):
+        await mock_coordinator._cleanup_appliance_tasks([mock_task], "test_appliance_id")
 
     # Gather was called twice: once initially, once for the drain
     assert gather_call_count == 2
@@ -539,6 +522,4 @@ async def test_cancel_cleanup_tasks_generic_exception_is_swallowed(mock_coordina
         side_effect=RuntimeError("gather exploded"),
     ):
         # Must NOT raise
-        await mock_coordinator._cleanup_appliance_tasks(
-            [mock_task], "test_appliance_id"
-        )
+        await mock_coordinator._cleanup_appliance_tasks([mock_task], "test_appliance_id")
