@@ -272,15 +272,24 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:play-circle",
         friendly_name="Cleaning Mode",
     ),
+    # Writable on Gordias/700series (access: readwrite, values off/low/medium/high),
+    # so expose it as a select the user can actually change rather than a
+    # diagnostic sensor. The "max" value previously listed here is not reported by
+    # the appliance — the option set comes from the live capability.
     "waterPumpRate": ElectroluxDevice(
         capability_info={
-            "access": "read",
+            "access": "readwrite",
             "type": "string",
-            "values": {"off": {}, "low": {}, "medium": {}, "high": {}, "max": {}},
+            "values": {
+                "off": {"icon": "mdi:water-off"},
+                "low": {"icon": "mdi:water-minus"},
+                "medium": {"icon": "mdi:water"},
+                "high": {"icon": "mdi:water-plus"},
+            },
         },
-        device_class=SensorDeviceClass.ENUM,
+        device_class=None,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:water-pump",
         friendly_name="Water Pump Rate",
     ),
@@ -549,12 +558,15 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:bottle-tonic",
         friendly_name="Auto Detergent Usage",
     ),
+    # Read-only, but surfaced as a normal binary sensor (not diagnostic) so the
+    # mop attachment is visible without enabling diagnostics — a user setting up
+    # mopping needs to see whether the mop is even fitted (#228).
     "mopInstalled": ElectroluxDevice(
         capability_info={"access": "read", "type": "boolean"},
         device_class=None,
         entity_platform=BINARY_SENSOR,
         unit=None,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_category=None,
         entity_icon="mdi:water",
         friendly_name="Mop Installed",
     ),
