@@ -726,9 +726,47 @@ class ElectroluxEntity(CoordinatorEntity):
                 if affected_key.startswith("userSelections/"):
                     leaf = affected_key[len("userSelections/") :]
                     if leaf in merged:
-                        merged[leaf] = action_def["default"]
+                        default = action_def["default"]
+                        if self._capability_value_disabled(caps, affected_key, default):
+                            # The trigger's own default is a value the API marks
+                            # unwritable, so applying it would produce a payload
+                            # the cloud rejects with 406 "Value disabled" (#257).
+                            # The current reported value stays in place - it was
+                            # accepted by the appliance, and omitting the key is
+                            # the variant the reporter expects to work. The mutual
+                            # exclusion the trigger expresses is then resolved by
+                            # the appliance rather than by us.
+                            _LOGGER.debug(
+                                "Trigger default for %s is %s=%s which the capability marks disabled - keeping the current value",
+                                changed_attr,
+                                leaf,
+                                default,
+                            )
+                            continue
+                        merged[leaf] = default
 
         return merged
+
+    @staticmethod
+    def _capability_value_disabled(caps: dict[str, Any], cap_key: str, value: Any) -> bool:
+        """True when the capability marks this exact value ``"disabled": true``.
+
+        A capability's ``values`` map carries the remote-control permission per
+        value - a microwave program disabled in #193, a washer's
+        ``analogSpinSpeed: DISABLED`` in #257. Writing one of those is rejected
+        by the cloud with HTTP 406 ``COMMAND_VALIDATION_ERROR`` / "Value
+        disabled", so a payload must never carry one.
+        """
+        cap_def = caps.get(cap_key)
+        if not isinstance(cap_def, dict):
+            return False
+        values = cap_def.get("values")
+        if not isinstance(values, dict):
+            return False
+        entry = values.get(value)
+        if entry is None and isinstance(value, str):
+            entry = values.get(value.upper()) or values.get(value.lower())
+        return isinstance(entry, dict) and bool(entry.get("disabled"))
 
     @property
     def is_dam_appliance(self) -> bool:

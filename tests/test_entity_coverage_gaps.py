@@ -2213,3 +2213,180 @@ class TestEvaluateTriggerConditionOperand2Dict:
         result = entity._evaluate_trigger_condition(condition, "steamMode")
         # "cool" == "on" → False
         assert result is False
+
+
+# ---------------------------------------------------------------------------
+# #257 - a trigger default the API marks disabled must never be sent
+#
+# Capability shapes are lifted verbatim from the reporter's EWX1493A
+# diagnostics. Enabling nightCycle has a trigger writing
+# analogSpinSpeed="DISABLED", and DISABLED is itself a value that the
+# analogSpinSpeed capability marks disabled - so applying the trigger
+# produces a payload the cloud rejects with 406 "Value disabled".
+# ---------------------------------------------------------------------------
+
+_SPIN_SPEED_CAP = {
+    "access": "readwrite",
+    "type": "string",
+    "triggers": [
+        {
+            "action": {
+                "userSelections/EWX1493A_nightCycle": {"default": False},
+                "userSelections/EWX1493A_rinseHold": {"default": False},
+            },
+            "condition": {"operand_1": "value", "operand_2": "DISABLED", "operator": "ne"},
+        }
+    ],
+    "values": {
+        "0_RPM": {},
+        "1000_RPM": {},
+        "1200_RPM": {},
+        "1400_RPM": {},
+        "1600_RPM": {},
+        "400_RPM": {},
+        "600_RPM": {},
+        "800_RPM": {},
+        "DISABLED": {"disabled": True},
+    },
+}
+
+_NIGHT_CYCLE_CAP = {
+    "access": "readwrite",
+    "default": False,
+    "type": "boolean",
+    "triggers": [
+        {
+            "action": {
+                "userSelections/EWX1493A_anticreaseNoSteam": {"default": False},
+                "userSelections/EWX1493A_anticreaseWSteam": {"default": False},
+                "userSelections/EWX1493A_rinseHold": {"default": False},
+                "userSelections/analogSpinSpeed": {"default": "DISABLED"},
+            },
+            "condition": {"operand_1": "value", "operand_2": True, "operator": "eq"},
+        }
+    ],
+}
+
+_WASHING_CAPABILITIES = {
+    "userSelections/analogSpinSpeed": _SPIN_SPEED_CAP,
+    "userSelections/EWX1493A_nightCycle": _NIGHT_CYCLE_CAP,
+    "userSelections/EWX1493A_rinseHold": {"access": "readwrite", "type": "boolean"},
+    "userSelections/EWX1493A_anticreaseNoSteam": {"access": "readwrite", "type": "boolean"},
+    "userSelections/EWX1493A_anticreaseWSteam": {"access": "readwrite", "type": "boolean"},
+}
+
+
+def _washing_entity(entity_attr: str, reported_selections: dict) -> ElectroluxNumber:
+    """Build an entity wired to a mock appliance carrying the real capabilities."""
+    coordinator, mock_appliance = make_coordinator(
+        reported={"userSelections": {"programUID": "ECO", **reported_selections}}
+    )
+    entity = ElectroluxNumber(
+        coordinator=coordinator,
+        name="Night Cycle",
+        config_entry=coordinator.config_entry,
+        pnc_id="TEST_APPLIANCE_123",
+        entity_type=Platform.NUMBER,
+        entity_name="night_cycle",
+        entity_attr=entity_attr,
+        entity_source="userSelections",
+        capability=_NIGHT_CYCLE_CAP,
+        unit=None,
+        device_class=None,
+        entity_category=EntityCategory.CONFIG,
+        icon=None,
+        catalog_entry=None,
+    )
+    entity.hass = coordinator.hass
+    mock_appliance.data = MagicMock()
+    mock_appliance.data.capabilities = _WASHING_CAPABILITIES
+    return entity
+
+
+class TestDisabledTriggerDefaultSkipped:
+    """#257: the trigger default must not reintroduce a rejected value.
+
+    Enabling nightCycle used to write ``analogSpinSpeed="DISABLED"``, a value
+    the same capability marks ``disabled: true`` - the cloud answered 406
+    COMMAND_VALIDATION_ERROR / "Value disabled". The current reported value stays
+    instead, which the appliance already accepted.
+    """
+
+    def test_disabled_trigger_default_is_not_written(self):
+        entity = _washing_entity(
+            "EWX1493A_nightCycle",
+            {"EWX1493A_nightCycle": False, "analogSpinSpeed": "1200_RPM"},
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_nightCycle", True)
+
+        assert payload["EWX1493A_nightCycle"] is True
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+
+    def test_writable_trigger_defaults_still_apply(self):
+        """The other three actions on the same trigger are unaffected."""
+        entity = _washing_entity(
+            "EWX1493A_nightCycle",
+            {
+                "EWX1493A_nightCycle": False,
+                "EWX1493A_rinseHold": True,
+                "EWX1493A_anticreaseNoSteam": True,
+                "EWX1493A_anticreaseWSteam": True,
+                "analogSpinSpeed": "1200_RPM",
+            },
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_nightCycle", True)
+
+        assert payload["EWX1493A_rinseHold"] is False
+        assert payload["EWX1493A_anticreaseNoSteam"] is False
+        assert payload["EWX1493A_anticreaseWSteam"] is False
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+
+    def test_writable_spin_speed_still_resolves_the_reverse_trigger(self):
+        """The reciprocal trigger (spin speed != DISABLED -> nightCycle off) works."""
+        entity = _washing_entity(
+            "analogSpinSpeed",
+            {
+                "EWX1493A_nightCycle": True,
+                "EWX1493A_rinseHold": True,
+                "analogSpinSpeed": "1000_RPM",
+            },
+        )
+
+        payload = entity._build_full_user_selections("analogSpinSpeed", "1200_RPM")
+
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+        assert payload["EWX1493A_nightCycle"] is False
+        assert payload["EWX1493A_rinseHold"] is False
+
+
+class TestCapabilityValueDisabledPredicate:
+    """The ``disabled`` lookup behind the skip, including malformed input."""
+
+    def test_disabled_value_is_detected(self):
+        assert ElectroluxNumber._capability_value_disabled(
+            _WASHING_CAPABILITIES, "userSelections/analogSpinSpeed", "DISABLED"
+        )
+
+    def test_writable_value_is_not_disabled(self):
+        assert not ElectroluxNumber._capability_value_disabled(
+            _WASHING_CAPABILITIES, "userSelections/analogSpinSpeed", "1000_RPM"
+        )
+
+    def test_missing_capability_is_not_disabled(self):
+        assert not ElectroluxNumber._capability_value_disabled(_WASHING_CAPABILITIES, "userSelections/nope", "X")
+
+    def test_capability_without_values_is_not_disabled(self):
+        assert not ElectroluxNumber._capability_value_disabled(
+            {"userSelections/x": {"access": "readwrite"}}, "userSelections/x", "DISABLED"
+        )
+
+    def test_non_dict_entry_is_not_disabled(self):
+        assert not ElectroluxNumber._capability_value_disabled(
+            {"userSelections/x": {"values": {"DISABLED": None}}}, "userSelections/x", "DISABLED"
+        )
+
+    def test_case_fallback_matches_an_upper_cased_value_map(self):
+        caps = {"userSelections/x": {"values": {"DISABLED": {"disabled": True}}}}
+        assert ElectroluxNumber._capability_value_disabled(caps, "userSelections/x", "disabled")
