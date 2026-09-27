@@ -1081,3 +1081,37 @@ class TestCatalogUtilsFactories:
             icon="mdi:state-machine",
         )
         assert result.entity_icon == "mdi:state-machine"
+
+
+class TestRvcUsableControls:
+    """RVC controls the user acts on should not be diagnostic-only (#228)."""
+
+    def test_water_pump_rate_is_writable_not_diagnostic(self):
+        """Gordias declares waterPumpRate as readwrite, so it must be a control."""
+
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        entry = CATALOG_RVC["waterPumpRate"]
+        assert isinstance(entry, ElectroluxDevice)
+        assert entry.capability_info["access"] == "readwrite"
+        assert entry.entity_category is None
+        assert set(entry.capability_info["values"]) == {"off", "low", "medium", "high"}
+
+    def test_mop_installed_is_visible_without_diagnostics(self):
+        """Mop attachment is needed to set up mopping, so it is not diagnostic."""
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        entry = CATALOG_RVC["mopInstalled"]
+        assert isinstance(entry, ElectroluxDevice)
+        assert entry.entity_category is None
+        # read-only: it must stay a binary sensor, never a switch
+        assert entry.capability_info["access"] == "read"
+
+    def test_vacuum_mode_declares_no_unreported_values(self):
+        """'max' is Cybele-only; the catalog must not invent a mode for Gordias."""
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+
+        values = set(CATALOG_RVC["vacuumMode"].capability_info["values"])
+        assert {"quiet", "energySaving", "standard", "powerful"} <= values

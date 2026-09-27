@@ -414,6 +414,13 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         See https://github.com/TTLucian/ha-electrolux/issues/81
         """
         if not self._is_purei9:
+            # Prefer the values the appliance actually declares. Cybele reports
+            # energySaving/max, but Gordias (UltimateHome 700) declares four:
+            # quiet, energySaving, standard, powerful — so the hardcoded list
+            # both hid two real modes and offered a "max" the device rejects.
+            declared = self._declared_fan_speeds("vacuumMode")
+            if declared:
+                return declared
             return _MODERN_FAN_SPEEDS
 
         if self._is_purei9_gen1:
@@ -421,6 +428,31 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
 
         pm_min, pm_max = self._purei9_power_mode_range()
         return [_PUREI9_INT_TO_SPEED[i] for i in range(pm_min, pm_max + 1) if i in _PUREI9_INT_TO_SPEED]
+
+    def _declared_fan_speeds(self, attr_name: str) -> list[str]:
+        """Return the string values an appliance declares for a capability.
+
+        Returns an empty list when the capability is absent, unreadable, or
+        declares no values, so callers can fall back to a known-good default.
+        """
+        try:
+            appliance = self.get_appliance
+            if not appliance or not getattr(appliance, "data", None):
+                return []
+            cap = appliance.data.get_capability(attr_name)
+            if not isinstance(cap, dict):
+                return []
+            values = cap.get("values")
+            if not isinstance(values, dict):
+                return []
+            return [str(value) for value in values]
+        except TypeError, ValueError:
+            _LOGGER.debug(
+                "Could not read %s capability values for %s, using default list",
+                attr_name,
+                self.pnc_id,
+            )
+            return []
 
     def _purei9_power_mode_range(self) -> tuple[int, int]:
         """Return the (min, max) powerMode range from device capabilities.

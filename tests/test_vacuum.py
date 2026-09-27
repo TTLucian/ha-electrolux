@@ -1013,3 +1013,64 @@ class TestElectroluxVacuum700series:
 
         mock_vacuum_class.assert_called_once()
         async_add_entities.assert_called_once()
+
+
+def _declare_vacuum_mode(vacuum: ElectroluxVacuum, values: list[str]) -> None:
+    """Make the mocked appliance report `values` for its vacuumMode capability.
+
+    The order is preserved deliberately: the appliance declares the options in
+    the order it wants them offered.
+    """
+    vacuum.get_appliance.data.get_capability = lambda key: (
+        {"access": "readwrite", "type": "string", "values": {value: {} for value in values}}
+        if key == "vacuumMode"
+        else None
+    )
+
+
+class TestModernFanSpeedList:
+    """Modern RVC fan speeds must come from the appliance, not a guess (#228).
+
+    Cybele reports energySaving/max, but Gordias (UltimateHome 700) declares
+    quiet, energySaving, standard, powerful. The previous hardcoded list hid
+    two real modes and offered "max", which the Gordias never reports.
+    """
+
+    def test_uses_values_declared_by_the_appliance(self):
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        _declare_vacuum_mode(vacuum, ["quiet", "energySaving", "standard", "powerful"])
+
+        assert vacuum.fan_speed_list == ["quiet", "energySaving", "standard", "powerful"]
+
+    def test_cybele_two_value_declaration_is_preserved(self):
+        vacuum = _make_modern_vacuum(appliance_type="Cybele")
+        _declare_vacuum_mode(vacuum, ["energySaving", "max"])
+
+        assert vacuum.fan_speed_list == ["energySaving", "max"]
+
+    def test_falls_back_to_default_when_capability_absent(self):
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        vacuum.get_appliance.data.get_capability = lambda key: None
+
+        assert vacuum.fan_speed_list == ["energySaving", "max"]
+
+    def test_falls_back_to_default_when_capability_declares_no_values(self):
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        vacuum.get_appliance.data.get_capability = lambda key: {"access": "readwrite", "type": "string"}
+
+        assert vacuum.fan_speed_list == ["energySaving", "max"]
+
+    def test_current_speed_can_be_absent_from_the_declared_list(self):
+        """A reported speed the capability omits must not raise."""
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        vacuum.reported_state["vacuumMode"] = "powerful"
+        _declare_vacuum_mode(vacuum, ["quiet", "energySaving"])
+
+        assert vacuum.fan_speed == "powerful"
+
+    def test_capability_attributes_track_the_declared_list(self):
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        _declare_vacuum_mode(vacuum, ["quiet", "powerful"])
+
+        attributes = vacuum.capability_attributes
+        assert list(attributes.values()) == [["quiet", "powerful"]]
