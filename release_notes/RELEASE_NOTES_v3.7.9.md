@@ -82,9 +82,9 @@ BIG thank-yous to all contributors and to all supporters!
 
 Huge and heartfelt thanks to @monsivar, who authored the bulk of the dishwasher work in this release — the maintenance indicators (#223), alert-code support via #240, the verified model fixture and program order (#224), the score presentation (#225), the command button icons (#220), the entity and internals reorganization (#227), the status metadata (#241), and the Norwegian Bokmål translation (#219). That is a sustained body of work across every dishwasher change here.
 
-Thank you to @McKay111 for the two coordinator state-rollback reports with recorder timelines, to @ChristmasSocks0824 for the Gordias diagnostics, and to @IvanAlekseev for the auth fix — each of you turned a vague symptom into a verifiable root cause, which is what made those fixes possible.
+Thank you to @McKay111 for the two coordinator state-rollback reports with recorder timelines, to @ChristmasSocks0824 for the Gordias diagnostics, and to @IvanAlekseev for the auth fix — each of you turned a vague symptom into a verifiable root cause, which is what made those fixes possible. Thanks also to Dependabot for the three dependency bumps.
 
-And thanks to Dependabot for the three dependency bumps, and to everyone who filed issues and shared appliance diagnostics that made these fixes checkable in the first place.
+And a general thank-you to everyone who has shared appliance diagnostics and opened issues along the way. Those files are the raw material for this entire release — several catalog corrections here were only possible because a reporter attached the evidence rather than describing the symptom — and the project simply cannot verify capabilities it has never seen reported.
 
 Without you, this project would not have been possible.
 
