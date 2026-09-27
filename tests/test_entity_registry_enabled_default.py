@@ -147,15 +147,42 @@ class TestEntityRegistryEnabledDefault:
                     disabled=True,
                     extra_values={"MICROWAVE_FULL": {"disabled": False}},
                 )
-            }
+            },
+            # An oven that offers microwave programs also advertises the power
+            # control; every collected appliance that has one does (GT3_CMW).
+            "targetMicrowavePower": {"access": "readwrite", "type": "number"},
         }
         entity = make_number(capabilities=caps)
         assert entity.entity_registry_enabled_default is True
 
     def test_enabled_for_oven_without_microwave_programs(self):
-        caps = {"program": {"values": {"TRUE_FAN": {}, "GRILL": {}}}}
+        """GT3_PS1_Ca advertises the control but lists no MICROWAVE_* programs.
+
+        Unchanged behaviour: the entity stays enabled. Program count is not a
+        valid proxy for whether the appliance has a microwave.
+        """
+        caps = {
+            "program": {"values": {"TRUE_FAN": {}, "GRILL": {}}},
+            "targetMicrowavePower": {"access": "readwrite", "type": "number"},
+        }
         entity = make_number(capabilities=caps)
         assert entity.entity_registry_enabled_default is True
+
+    def test_disabled_when_capability_not_advertised(self):
+        """A plain oven that never advertises the control gets no usable entity.
+
+        The catalog creates the entity anyway (targetDuration and friends work
+        the same way), and the cloud reports targetMicrowavePower = 65535 as a
+        not-applicable sentinel, so the number renders with min == max == 0.
+        """
+        caps = {"program": {"values": {"TRUE_FAN": {}, "GRILL": {}}}}
+        entity = make_number(capabilities=caps)
+        assert entity.entity_registry_enabled_default is False
+
+    def test_disabled_when_no_capabilities_at_all(self):
+        caps = {"program": {"values": {"TRUE_FAN": {}}}}
+        entity = make_number(capabilities=caps)
+        assert entity.entity_registry_enabled_default is False
 
     def test_other_attributes_not_suppressed(self):
         """Only targetMicrowavePower is subject to the suppression rule."""
