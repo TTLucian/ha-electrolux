@@ -71,6 +71,29 @@ class ApplianceState(TypedDict, total=False):
     connectivityState: str
 
 
+# Catalog entries that must never be created unless the appliance advertises the
+# matching capability. Matched on the *leaf* name, so a namespaced entry such as
+# ``upperOven/targetMicrowavePower`` is covered by ``targetMicrowavePower``.
+#
+# The catalog is deliberately generous: it creates an entry for any key with
+# ``capability_info`` even when the API does not declare it, because reported
+# state often carries keys the capability list omits (``targetDuration`` and
+# ``targetDurationProgram`` on most ovens, for example). Those entities are
+# harmless - a missing key just reads as unknown.
+#
+# ``targetMicrowavePower`` is not harmless. A plain oven reports it in reported
+# state as 65535, the unsigned 16-bit max used as a not-applicable sentinel, and
+# never declares ``targetMicrowavePower`` as a capability. The number platform
+# reads the capability to build its range, so a min and max of 0 is produced and
+# the user gets a zero-width slider that can never move (#252). Presence in
+# ``capabilities`` is the only signal that separates the two cases across the
+# sampled models: advertised by GT3_CMW and GT3_PS1_Ca, absent on PUX_AEG_AP and
+# SPX_AO4TK1. Program count is not usable - GT3_PS1_Ca advertises the capability
+# with zero microwave programs, and GT3_CMW advertises it with every microwave
+# program disabled.
+CAPABILITY_REQUIRED_CATALOG_KEYS: frozenset[str] = frozenset({"targetMicrowavePower"})
+
+
 class ApplianceData:
     """Class for appliance data from API."""
 
@@ -811,6 +834,25 @@ class Appliance:
             if is_dangerous:
                 _LOGGER.info(
                     "Skipping dangerous entity %s - blocked by DANGEROUS_ENTITIES_BLACKLIST for safety",
+                    catalog_key,
+                )
+                continue
+
+            # A few catalog entries only make sense when the appliance actually
+            # advertises the matching capability. Every other entry is created
+            # even when the API does not declare it — that is deliberate, and is
+            # what makes targetDuration and friends exist on models that omit
+            # them. The microwave power control is the exception: a plain oven
+            # reports the key in reported state as a not-applicable sentinel
+            # (65535) and never declares the capability, so creating the entity
+            # yields a number with min == max == 0 — a control that can never be
+            # used. Advertised by GT3_CMW and GT3_PS1_Ca; not by PUX_AEG_AP or
+            # SPX_AO4TK1, so presence in capabilities is the only reliable signal.
+            if catalog_key.rsplit("/", 1)[-1] in CAPABILITY_REQUIRED_CATALOG_KEYS and not _has_nested_key(
+                self.data.capabilities or {}, catalog_key
+            ):
+                _LOGGER.debug(
+                    "Skipping catalog entity %s - appliance does not advertise the capability",
                     catalog_key,
                 )
                 continue

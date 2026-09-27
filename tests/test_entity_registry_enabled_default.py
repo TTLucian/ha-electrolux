@@ -168,21 +168,25 @@ class TestEntityRegistryEnabledDefault:
         entity = make_number(capabilities=caps)
         assert entity.entity_registry_enabled_default is True
 
-    def test_disabled_when_capability_not_advertised(self):
-        """A plain oven that never advertises the control gets no usable entity.
+    def test_capability_gate_not_applied_here(self):
+        """The unadvertised-capability rule no longer lives on this property.
 
-        The catalog creates the entity anyway (targetDuration and friends work
-        the same way), and the cloud reports targetMicrowavePower = 65535 as a
-        not-applicable sentinel, so the number renders with min == max == 0.
+        It was removed when the suppression moved to creation time in
+        Appliance.setup() (CAPABILITY_REQUIRED_CATALOG_KEYS). It could not have
+        worked here: Home Assistant only consults
+        entity_registry_enabled_default when it first creates a registry entry,
+        so an existing entry is never re-evaluated. An unadvertised capability
+        therefore returns the catalog default, and the entity is simply never
+        created - covered by tests/test_oven_microwave_power.py.
         """
         caps = {"program": {"values": {"TRUE_FAN": {}, "GRILL": {}}}}
         entity = make_number(capabilities=caps)
-        assert entity.entity_registry_enabled_default is False
+        assert entity.entity_registry_enabled_default is True
 
-    def test_disabled_when_no_capabilities_at_all(self):
+    def test_no_capabilities_at_all_does_not_suppress(self):
         caps = {"program": {"values": {"TRUE_FAN": {}}}}
         entity = make_number(capabilities=caps)
-        assert entity.entity_registry_enabled_default is False
+        assert entity.entity_registry_enabled_default is True
 
     def test_other_attributes_not_suppressed(self):
         """Only targetMicrowavePower is subject to the suppression rule."""
