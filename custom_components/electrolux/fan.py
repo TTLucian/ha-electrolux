@@ -210,11 +210,22 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         return FAN
 
     @property
-    def is_on(self) -> bool:
-        """Return true if the fan is on."""
+    def is_on(self) -> bool | None:
+        """Return true if the fan is on, None if state is unknown (e.g. offline).
+
+        ``Workmode`` is read through ``get_state_attr``, which bypasses the
+        offline guard of ``extract_value`` and would happily return the last
+        reported value of a disconnected appliance. Reporting ``False`` here
+        would claim the fan is off while the appliance is unreachable, so an
+        offline appliance (or a missing Workmode) reports None — the same
+        "unknown" convention used by sensor/number/binary_sensor/switch (#231).
+        """
+        if not self.is_connected():
+            return None
+
         workmode = self.get_state_attr("Workmode")
         if workmode is None:
-            return False
+            return None
 
         # Fan is off only when Workmode is PowerOff
         return str(workmode).lower() != "poweroff"
@@ -229,6 +240,11 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         the bridge from issuing a redundant set_percentage call that would
         cause the appliance firmware to revert Workmode to Manual.
         """
+        if self.is_on is None:
+            # Unknown state (appliance offline / Workmode not reported) must not
+            # be reported as 0% — that is a positive "fan is off" claim (#231).
+            return None
+
         if not self.is_on:
             return 0
 

@@ -1,5 +1,7 @@
 """Test number platform for Electrolux."""
 
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -9,6 +11,12 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import NUMBER
 from custom_components.electrolux.number import ElectroluxNumber
+
+# Real dishwasher capabilities (verbatim excerpt of samples/DW-911473025_00.json).
+# Program constraint dicts key their entries *namespaced* —
+# "userSelections/glassCareOption" — which is what the #232 programUID gate has
+# to match; see tests/test_program_level_key.py.
+DW_CAPS = json.loads((Path(__file__).parent / "fixtures" / "dw_user_selections.json").read_text())["capabilities"]
 
 
 class TestElectroluxNumber:
@@ -2490,3 +2498,124 @@ class TestNumberMissingCoverage:
         """L807: entity_registry_enabled_default returns True."""
         entity = self._make_entity(mock_coordinator)
         assert entity.entity_registry_enabled_default is True
+
+
+# ---------------------------------------------------------------------------
+# #232 — programUID gating for userSelections writes
+# ---------------------------------------------------------------------------
+
+
+class TestUserSelectionsProgramUidGate:
+    """Only program-scoped keys are bundled with programUID (#232).
+
+    ``DW_CAPS`` is a verbatim excerpt of samples/DW-911473025_00.json where the
+    program constraint dicts name their entries "userSelections/<option>" and
+    autoDoorOpener is listed by no program.  See tests/test_program_level_key.py.
+    """
+
+    @staticmethod
+    def _coordinator_with(caps):
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1_000_000.0
+        coordinator.config_entry = MagicMock()
+        coordinator._last_update_times = {}
+        mock_appliance = MagicMock()
+        mock_appliance.data = MagicMock()
+        mock_appliance.data.capabilities = caps
+        mock_appliances = MagicMock()
+        mock_appliances.get_appliance.return_value = mock_appliance
+        coordinator.data = {"appliances": mock_appliances}
+        return coordinator
+
+    @staticmethod
+    def _entity(coordinator, entity_attr, pnc_id="TEST_PNC"):
+        # The api double is kept in a local so the assertions below read
+        # ``call_args`` off a real AsyncMock. Going through ``entity.api``
+        # would resolve the declared ElectroluxApiClient type, where
+        # execute_appliance_command is a method with no ``call_args``.
+        api = MagicMock()
+        api.execute_appliance_command = AsyncMock(return_value=True)
+        entity = ElectroluxNumber(
+            coordinator=coordinator,
+            name="Test Number",
+            config_entry=coordinator.config_entry,
+            pnc_id=pnc_id,
+            entity_type=NUMBER,
+            entity_name="test_number",
+            entity_attr=entity_attr,
+            entity_source="userSelections",
+            capability={"access": "readwrite", "type": "number", "min": 0, "max": 100, "step": 10},
+            unit=None,
+            device_class=None,
+            entity_category=None,
+            icon="mdi:test",
+        )
+        entity.api = api
+        entity.is_remote_control_enabled = MagicMock(return_value=True)
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        return entity, api
+
+    @pytest.mark.asyncio
+    async def test_appliance_level_key_omits_program_uid(self):
+        """A key no program lists must not be bundled with programUID (#232)."""
+        coordinator = self._coordinator_with(DW_CAPS)
+        entity, api = self._entity(coordinator, "autoDoorOpener")
+        entity.reported_state = {"connectivityState": "connected"}
+        entity.appliance_status = {
+            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
+        }
+
+        with patch(
+            "custom_components.electrolux.number.format_command_for_appliance",
+            return_value=20,
+        ):
+            await entity.async_set_native_value(20.0)
+
+        _, command = api.execute_appliance_command.call_args[0]
+        assert command == {"userSelections": {"autoDoorOpener": 20}}
+
+    @pytest.mark.asyncio
+    async def test_program_level_key_keeps_program_uid(self):
+        """A real program option must keep programUID (#30 must not regress)."""
+        coordinator = self._coordinator_with(DW_CAPS)
+        entity, api = self._entity(coordinator, "xtraDryOption")
+        entity.reported_state = {"connectivityState": "connected"}
+        entity.appliance_status = {
+            "properties": {"reported": {"userSelections": {"programUID": "ECO"}}}
+        }
+
+        with patch(
+            "custom_components.electrolux.number.format_command_for_appliance",
+            return_value=20,
+        ):
+            await entity.async_set_native_value(20.0)
+
+        _, command = api.execute_appliance_command.call_args[0]
+        assert command == {"userSelections": {"programUID": "ECO", "xtraDryOption": 20}}
+
+    @pytest.mark.asyncio
+    async def test_dam_appliance_level_key_needs_no_program_uid(self):
+        """A DAM appliance-level write must not require programUID (#232).
+
+        The DAM branch used to raise "appliance state is incomplete" whenever
+        ``programUID`` was missing, which blocked appliance-level keys entirely.
+        """
+        coordinator = self._coordinator_with(DW_CAPS)
+        entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
+        entity.reported_state = {"connectivityState": "connected"}
+        entity.appliance_status = {
+            "properties": {"reported": {"userSelections": {}}}
+        }
+
+        with patch(
+            "custom_components.electrolux.number.format_command_for_appliance",
+            return_value=20,
+        ):
+            await entity.async_set_native_value(20.0)
+
+        _, command = api.execute_appliance_command.call_args[0]
+        assert command == {"commands": [{"userSelections": {"autoDoorOpener": 20}}]}
+

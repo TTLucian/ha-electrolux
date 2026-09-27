@@ -1,5 +1,7 @@
 """Test switch platform for Electrolux."""
 
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -8,6 +10,17 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import SWITCH
 from custom_components.electrolux.switch import ElectroluxSwitch, async_setup_entry
+
+# Real dishwasher capabilities (verbatim excerpt of samples/DW-911473025_00.json).
+# Program constraint dicts key their entries *namespaced* —
+# "userSelections/glassCareOption" — which is what the #232 programUID gate has
+# to match; see tests/test_program_level_key.py.
+DW_CAPS = json.loads((Path(__file__).parent / "fixtures" / "dw_user_selections.json").read_text())["capabilities"]
+
+
+def _set_appliance_capabilities(coordinator, caps=DW_CAPS) -> None:
+    """Attach real capabilities to the coordinator's mocked appliance."""
+    coordinator.data["appliances"].get_appliance.return_value.data.capabilities = caps
 
 
 class TestElectroluxSwitch:
@@ -172,6 +185,62 @@ class TestElectroluxSwitch:
         entity.extract_value = MagicMock(return_value=None)
         entity.get_state_attr = MagicMock(return_value=True)
         assert entity.is_on is True
+
+    def test_is_on_offline_returns_none(self, mock_coordinator, mock_capability):
+        """A disconnected appliance reports unknown, never a stale on/off (#231)."""
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source=None,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+        )
+        entity.reported_state = {"connectivityState": "disconnected", "testAttr": True}
+        assert entity.is_on is None
+
+    def test_is_on_offline_with_state_mapping_returns_none(
+        self, mock_coordinator, mock_capability
+    ):
+        """The state_mapping fallback must not revive a stale value while offline.
+
+        ``get_state_attr`` reads raw reported state and has no offline guard of
+        its own, so this is the case that kept reporting ``off``/``on`` for the
+        mapped dishwasher switches in #231.
+        """
+        from custom_components.electrolux.model import ElectroluxDevice
+
+        catalog_entry = ElectroluxDevice(
+            capability_info=mock_capability,
+            state_mapping="applianceState",
+        )
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability=mock_capability,
+            name="Test Switch",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="testAttr",
+            entity_source=None,
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:test",
+            catalog_entry=catalog_entry,
+        )
+        entity.reported_state = {"connectivityState": "disconnected", "applianceState": "OFF"}
+        assert entity.is_on is None
+        # HA renders is_on=None as "unknown" (SwitchEntity.state returns None)
+        assert entity.state is None
 
     def test_async_setup_entry_keeps_write_only_switches(self, mock_coordinator):
         """Write-only capabilities should stay available as switches even when absent from reported state."""
@@ -348,6 +417,9 @@ class TestElectroluxSwitch:
         Appliance-level keys (not listed by any program's constraint dict) should
         be sent without programUID to avoid silent rejection (fixes #232).
         """
+        # Real dishwasher capabilities: its programs list the options
+        # (glassCareOption, sanitizeOption, …) but never autoDoorOpener.
+        _set_appliance_capabilities(mock_coordinator)
         mock_capability = {
             "access": "readwrite",
             "type": "boolean",
@@ -375,7 +447,7 @@ class TestElectroluxSwitch:
             "properties": {
                 "reported": {
                     "remoteControl": "ENABLED",
-                    "userSelections": {"programUID": "TEST_PROGRAM"},
+                    "userSelections": {"programUID": "ECO"},
                 }
             }
         }
@@ -392,6 +464,58 @@ class TestElectroluxSwitch:
             # Appliance-level key: no programUID bundled, sent as simple payload
             assert command == {
                 "userSelections": {"autoDoorOpener": "ON"}
+            }
+
+    @pytest.mark.asyncio
+    async def test_switch_command_with_user_selections_source_real_program_option(
+        self, mock_coordinator
+    ):
+        """Real dishwasher option keeps programUID — no #30 regression (#232).
+
+        The program constraint dicts of a real dishwasher name their entries
+        "userSelections/<option>"; a gate that only matched the bare attribute
+        would drop programUID here and the write would be rejected silently.
+        """
+        _set_appliance_capabilities(mock_coordinator)
+        entity = ElectroluxSwitch(
+            coordinator=mock_coordinator,
+            capability={"access": "readwrite", "type": "boolean"},
+            name="Glass Care",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SWITCH,
+            entity_name="test_switch",
+            entity_attr="glassCareOption",
+            entity_source="userSelections",
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:glass-wine",
+        )
+        api = MagicMock()
+        api.execute_appliance_command = AsyncMock()
+        entity.api = api
+        entity.is_remote_control_enabled = MagicMock(return_value=True)  # type: ignore[method-assign]
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "ECO"},
+                }
+            }
+        }
+
+        with patch(
+            "custom_components.electrolux.switch.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "ON"
+            await entity.async_turn_on()
+
+            call_args = api.execute_appliance_command.call_args
+            _, command = call_args[0]
+            # Program option: bundled with the active programUID
+            assert command == {
+                "userSelections": {"programUID": "ECO", "glassCareOption": "ON"}
             }
 
     @pytest.mark.asyncio

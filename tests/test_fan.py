@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -81,10 +81,14 @@ def _make_fan(
     # Create a per-call subclass so we can override the read-only is_dam_appliance property
     _is_dam = is_dam
     _entity_source = entity_source
+
+    def _is_dam_property(self: ElectroluxFan, v: bool = _is_dam) -> bool:
+        return v
+
     FanCls = type(
         "_ElectroluxFanTest",
         (ElectroluxFan,),
-        {"is_dam_appliance": property(lambda self, v=_is_dam: v)},
+        {"is_dam_appliance": property(_is_dam_property)},
     )
 
     fan = FanCls(
@@ -280,10 +284,22 @@ class TestIsOn:
         fan.get_state_attr = MagicMock(return_value="PowerOff")
         assert fan.is_on is False
 
-    def test_off_when_workmode_none(self):
+    def test_none_when_workmode_none(self):
+        """A missing Workmode is unknown, not a positive "fan is off" claim (#231)."""
         fan = _make_fan()
         fan.get_state_attr = MagicMock(return_value=None)
-        assert fan.is_on is False
+        assert fan.is_on is None
+
+    def test_none_when_offline(self):
+        """Offline appliance: the last reported Workmode must not be trusted (#231).
+
+        ``is_on`` reads Workmode through ``get_state_attr``, which bypasses the
+        offline guard of ``extract_value`` — the exact hole described in #231.
+        """
+        fan = _make_fan(workmode="PowerOff", connected=False)
+        assert fan.is_on is None
+        # HA renders is_on=None as "unknown" (FanEntity.state returns None)
+        assert fan.state is None
 
     def test_case_insensitive_poweroff(self):
         fan = _make_fan()
@@ -873,7 +889,7 @@ class TestFanMissingCoverage:
 
     def test_init_reads_preset_modes_from_workmode_capability(self):
         """Lines 134-136 — __init__ builds _preset_modes from Workmode capability."""
-        mock_caps = {
+        mock_caps: dict[str, Any] = {
             "Workmode": {
                 "values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}}
             },
@@ -1145,7 +1161,7 @@ class TestIsFanspeedDisabled:
                 return caps_with_triggers
             return original_get_cap(attr)
 
-        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_capability = _get_cap_override  # type: ignore[assignment]
         fan.get_state_attr = MagicMock(
             side_effect=lambda k: workmode if k == "Workmode" else None
         )
@@ -1175,7 +1191,7 @@ class TestIsFanspeedDisabled:
         """No triggers key in capability → Fanspeed assumed enabled."""
         fan = _make_fan(workmode="Auto")
         # Standard workmode cap without triggers
-        fan.get_capability = MagicMock(  # type: ignore[method-assign]
+        fan.get_capability = MagicMock(
             return_value=_make_capability_workmode(["Auto", "Manual", "Quiet"])
         )
         fan.get_state_attr = MagicMock(return_value="Auto")
@@ -1184,7 +1200,7 @@ class TestIsFanspeedDisabled:
     def test_returns_false_when_workmode_capability_missing(self):
         """get_capability returns None → safe fallback to False."""
         fan = _make_fan(workmode="Auto")
-        fan.get_capability = MagicMock(return_value=None)  # type: ignore[method-assign]
+        fan.get_capability = MagicMock(return_value=None)
         fan.get_state_attr = MagicMock(return_value="Auto")
         assert fan._is_fanspeed_disabled() is False
 
@@ -1214,7 +1230,7 @@ class TestPercentageDisabledFanspeed:
                 return caps_with_triggers
             return original_get_cap(attr)
 
-        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_capability = _get_cap_override  # type: ignore[assignment]
         fan.get_state_attr = MagicMock(
             side_effect=lambda k: workmode if k == "Workmode" else 3
         )
@@ -1245,6 +1261,12 @@ class TestPercentageDisabledFanspeed:
         # _is_fanspeed_disabled() check
         assert fan.percentage == 0
 
+    def test_percentage_none_when_state_unknown(self):
+        """Unknown state must not be reported as 0% ("fan is off") (#231)."""
+        fan = _make_fan(workmode="Manual", connected=False)
+        assert fan.is_on is None
+        assert fan.percentage is None
+
 
 # ---------------------------------------------------------------------------
 # async_set_percentage — Manual-first guard when Fanspeed is disabled
@@ -1266,7 +1288,7 @@ class TestAsyncSetPercentageManualFirst:
                 return caps_with_triggers
             return original_get_cap(attr)
 
-        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_capability = _get_cap_override  # type: ignore[assignment]
         fan.get_state_attr = MagicMock(return_value="Auto")
         fan.is_connected = MagicMock(return_value=True)
         fan._send_workmode_command = AsyncMock()
@@ -1305,7 +1327,7 @@ class TestAsyncSetPercentageManualFirst:
                 return caps_with_triggers
             return original_get_cap(attr)
 
-        fan.get_capability = _get_cap_override  # type: ignore[method-assign]
+        fan.get_capability = _get_cap_override  # type: ignore[assignment]
         fan.get_state_attr = MagicMock(return_value="Manual")
         fan.is_connected = MagicMock(return_value=True)
         fan._send_workmode_command = AsyncMock()

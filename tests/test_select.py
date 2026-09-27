@@ -1,5 +1,7 @@
 """Test select platform for Electrolux."""
 
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -9,6 +11,17 @@ from homeassistant.exceptions import HomeAssistantError
 from custom_components.electrolux.const import SELECT
 from custom_components.electrolux.entity import ElectroluxEntity
 from custom_components.electrolux.select import ElectroluxSelect
+
+# Real dishwasher capabilities (verbatim excerpt of samples/DW-911473025_00.json).
+# Program constraint dicts key their entries *namespaced* —
+# "userSelections/glassCareOption" — which is what the #232 programUID gate has
+# to match; see tests/test_program_level_key.py.
+DW_CAPS = json.loads((Path(__file__).parent / "fixtures" / "dw_user_selections.json").read_text())["capabilities"]
+
+
+def _set_appliance_capabilities(coordinator, caps=DW_CAPS) -> None:
+    """Attach real capabilities to the coordinator's mocked appliance."""
+    coordinator.data["appliances"].get_appliance.return_value.data.capabilities = caps
 
 
 class _FakeStore:
@@ -1299,6 +1312,36 @@ class TestDiscoveredPrograms:
         return coordinator
 
     @pytest.fixture
+    def mock_coordinator_with_program_caps(self):
+        """Create a mock coordinator with program-level capability data."""
+        coordinator = MagicMock()
+        coordinator.hass = MagicMock()
+        coordinator.hass.data = {}
+        coordinator.hass.loop = MagicMock()
+        coordinator.hass.loop.time.return_value = 1000000.0
+        coordinator.config_entry = MagicMock()
+        coordinator.config_entry.data = {"api_key": "test_api_key_12345"}
+        coordinator._last_update_times = {}
+        # Simulate appliance capabilities with a program that lists testAttr,
+        # making it a program-level key for ``_is_program_level_key``.
+        mock_appliance = MagicMock()
+        mock_appliance.data = MagicMock()
+        mock_appliance.data.capabilities = {
+            "program": {
+                "values": {
+                    "TEST_PROGRAM": {
+                        "testAttr": {"disabled": False},
+                    }
+                }
+            }
+        }
+        mock_appliances = MagicMock()
+        mock_appliances.get_appliance.return_value = mock_appliance
+        coordinator.data = {"appliances": mock_appliances}
+
+        return coordinator
+
+    @pytest.fixture
     def mock_capability(self):
         """Capability with only base programs (no GUIDED)."""
         return {
@@ -1909,7 +1952,6 @@ class TestDiscoveredPrograms:
             }
         }
         entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
-        entity._options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
 
         with patch(
             "custom_components.electrolux.select.format_command_for_appliance"
@@ -1926,10 +1968,101 @@ class TestDiscoveredPrograms:
             }
 
     @pytest.mark.asyncio
+    async def test_select_option_real_program_option_keeps_program_uid(
+        self, mock_coordinator
+    ):
+        """Real dishwasher option keeps programUID — no #30 regression (#232)."""
+        _set_appliance_capabilities(mock_coordinator)
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability={"access": "readwrite", "type": "string", "values": {"A": {}, "B": {}}},
+            name="Program Option",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SELECT,
+            entity_name="test_select",
+            entity_attr="xtraDryOption",
+            entity_source="userSelections",
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:hair-dryer",
+        )
+        api = MagicMock()
+        api.execute_appliance_command = AsyncMock()
+        entity.api = api
+        entity.is_remote_control_enabled = MagicMock(return_value=True)  # type: ignore[method-assign]
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "remoteControl": "ENABLED",
+                    "userSelections": {"programUID": "ECO"},
+                }
+            }
+        }
+        entity.options_list = {"A": "A", "B": "B"}
+
+        with patch(
+            "custom_components.electrolux.select.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "A"
+            await entity.async_select_option("A")
+
+            call_args = api.execute_appliance_command.call_args
+            _, command = call_args[0]
+            # Listed by the ECO program under "userSelections/xtraDryOption"
+            assert command == {
+                "userSelections": {"programUID": "ECO", "xtraDryOption": "A"}
+            }
+
+    @pytest.mark.asyncio
+    async def test_dam_appliance_level_key_omits_program_uid(self, mock_coordinator):
+        """DAM appliance-level key: no programUID, and no "incomplete state" error (#232)."""
+        _set_appliance_capabilities(mock_coordinator)
+        entity = ElectroluxSelect(
+            coordinator=mock_coordinator,
+            capability={"access": "readwrite", "type": "string", "values": {"A": {}, "B": {}}},
+            name="Auto Door Opener",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="1:TEST_PNC",
+            entity_type=SELECT,
+            entity_name="test_select",
+            entity_attr="autoDoorOpener",
+            entity_source="userSelections",
+            unit=None,
+            device_class="",
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:door-open",
+        )
+        api = MagicMock()
+        api.execute_appliance_command = AsyncMock()
+        entity.api = api
+        entity.is_remote_control_enabled = MagicMock(return_value=True)  # type: ignore[method-assign]
+        entity.reported_state = {"connectivityState": "connected"}
+        # No programUID reported: previously this raised "appliance state is incomplete"
+        entity.appliance_status = {
+            "properties": {"reported": {"userSelections": {}}}
+        }
+        entity.options_list = {"A": "A", "B": "B"}
+
+        with patch(
+            "custom_components.electrolux.select.format_command_for_appliance"
+        ) as mock_format:
+            mock_format.return_value = "A"
+            await entity.async_select_option("A")
+
+        call_args = api.execute_appliance_command.call_args
+        _, command = call_args[0]
+        assert command == {"commands": [{"userSelections": {"autoDoorOpener": "A"}}]}
+
+    @pytest.mark.asyncio
     async def test_select_option_appliance_level_key_omits_program_uid(
         self, mock_coordinator
     ):
         """Select option for an appliance-level key omits programUID (fixes #232)."""
+        # Real dishwasher capabilities: its programs list the options but never
+        # autoDoorOpener, so the write must not be bundled with programUID.
+        _set_appliance_capabilities(mock_coordinator)
         mock_capability = {
             "access": "readwrite",
             "type": "string",
@@ -1962,7 +2095,6 @@ class TestDiscoveredPrograms:
             }
         }
         entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
-        entity._options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
 
         with patch(
             "custom_components.electrolux.select.format_command_for_appliance"

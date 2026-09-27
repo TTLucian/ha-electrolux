@@ -101,9 +101,20 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
     @property
     def is_on(self) -> bool | None:
         """Return true if the switch is on, None if state is unknown (e.g. offline)."""
+        # While the appliance is offline the cloud keeps reporting the last known
+        # values, so a positive on/off claim would be stale. Report "unknown"
+        # instead, matching the convention settled for sensor/number/binary_sensor
+        # (#15, #231).
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         value = self.extract_value()
 
         if value is None:
+            # ``state_mapping`` resolves the state from raw reported values via
+            # ``get_state_attr``, which has no offline guard of its own — the
+            # early return above is what keeps this fallback from reviving a
+            # stale value while the appliance is offline (#231).
             if self.catalog_entry and self.catalog_entry.state_mapping:
                 mapping = self.catalog_entry.state_mapping
                 value = self.get_state_attr(mapping)
