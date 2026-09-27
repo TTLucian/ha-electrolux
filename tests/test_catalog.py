@@ -1115,3 +1115,36 @@ class TestRvcUsableControls:
 
         values = set(CATALOG_RVC["vacuumMode"].capability_info["values"])
         assert {"quiet", "energySaving", "standard", "powerful"} <= values
+
+class TestNoUnverifiedPowerEnergyKeys:
+    """The AC catalog must not claim capabilities no device has reported (#229).
+
+    powerConsumption/energyConsumption were shipped as if they were real AC
+    capabilities, but neither appears in any of the 54 collected appliance
+    diagnostics nor in the SDK's own capability mappings. The README marks the
+    AC catalog as verified against real hardware, so an invented key there
+    misrepresents what the project has actually observed. If a real air
+    conditioner reports either key, re-add it together with the diagnostic that
+    proves it.
+    """
+
+    def test_ac_catalog_declares_no_power_or_energy_consumption(self):
+        from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
+
+        assert "powerConsumption" not in CATALOG_AC
+        assert "energyConsumption" not in CATALOG_AC
+
+    def test_no_catalog_invents_a_consumption_key(self):
+        """Belt and braces: no catalog may declare an energy-total capability."""
+        from custom_components.electrolux.catalog_core import _get_catalog_by_type
+
+        offenders = [
+            f"{appliance_type}.{key}"
+            for appliance_type, catalog in _get_catalog_by_type().items()
+            for key, entry in catalog.items()
+            if getattr(entry, "device_class", None) is SensorDeviceClass.ENERGY
+        ]
+        assert offenders == [], (
+            f"{offenders} claim SensorDeviceClass.ENERGY, but no collected appliance "
+            "reports an energy capability - re-add only with a real diagnostic"
+        )
