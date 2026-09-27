@@ -288,9 +288,6 @@
       "endofcyclesound": {
         "default": "mdi:volume-high"
       },
-      "energyconsumption": {
-        "default": "mdi:lightning-bolt"
-      },
       "errcommsensordisplaybrd": {
         "default": "mdi:alert-circle"
       },
@@ -488,9 +485,6 @@
       },
       "networkinterface_swversion": {
         "default": "mdi:chip"
-      },
-      "powerconsumption": {
-        "default": "mdi:flash"
       },
       "prewashphase": {
         "default": "mdi:washing-machine"

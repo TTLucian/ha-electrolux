@@ -189,29 +189,12 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:timer",
     ),
-    # Energy monitoring
-    "powerConsumption": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "number",
-            "unit": "W",
-        },
-        device_class=SensorDeviceClass.POWER,
-        unit="W",
-        entity_category=None,
-        entity_icon="mdi:flash",
-    ),
-    "energyConsumption": ElectroluxDevice(
-        capability_info={
-            "access": "read",
-            "type": "number",
-            "unit": "kWh",
-        },
-        device_class=SensorDeviceClass.ENERGY,
-        unit="kWh",
-        entity_category=None,
-        entity_icon="mdi:lightning-bolt",
-    ),
+    # NOTE: powerConsumption / energyConsumption were removed here. Neither key
+    # appears in any of the 54 collected appliance diagnostics, nor in the SDK's
+    # own capability mappings, so they were unverifiable guesses sitting in a
+    # catalog the README marks as verified against real hardware. Catalog keys
+    # must be backed by device data - if a real AC reports either, re-add it with
+    # the diagnostic that proves it. (#229)
     # Additional operating modes and features
     "cleanAirMode": ElectroluxDevice(
         capability_info={

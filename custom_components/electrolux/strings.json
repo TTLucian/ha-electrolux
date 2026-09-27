@@ -996,12 +996,6 @@
       "filterstatus": {
         "name": "Filter status"
       },
-      "powerconsumption": {
-        "name": "Power consumption"
-      },
-      "energyconsumption": {
-        "name": "Energy consumption"
-      },
       "fanspeedstate": {
         "name": "Fan speed state"
       },
