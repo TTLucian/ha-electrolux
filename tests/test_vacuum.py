@@ -1073,4 +1073,6 @@ class TestModernFanSpeedList:
         _declare_vacuum_mode(vacuum, ["quiet", "powerful"])
 
         attributes = vacuum.capability_attributes
+        # StateVacuumEntity.capability_attributes is typed `dict | None`.
+        assert attributes is not None
         assert list(attributes.values()) == [["quiet", "powerful"]]
