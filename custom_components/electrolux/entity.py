@@ -1332,6 +1332,59 @@ class ElectroluxEntity(CoordinatorEntity):
         self._is_supported_cache = True
         return True
 
+    def _is_program_level_key(self) -> bool:
+        """Return True when a ``userSelections`` write must carry ``programUID``.
+
+        Some appliances (e.g. dishwashers, washers) accept a program-scoped
+        ``userSelections`` payload only when it is bundled with the active
+        ``programUID``; every program lists the options it supports inside its
+        own constraint dict. Keys that no program lists are appliance-level
+        (e.g. ``autoDoorOpener``) and are silently rejected by the cloud when
+        they are bundled into a program-targeted payload, so they have to be
+        written on their own (fixes #232).
+
+        Constraint dicts key their entries either bare (``startTime``) or
+        namespaced with the entity source (``userSelections/glassCareOption``),
+        so both forms are matched. Verified against real device dumps: the
+        dishwasher/washer option dicts use the namespaced form
+        (``samples/DW-*.json``, ``samples/WM-*.json``).
+
+        Program constraints live in ``program`` (ovens), ``userSelections/programUID``
+        (dishwashers, washers, dryers) or ``cyclePersonalization/programUID``
+        (alternative layout) — see ``_get_program_capabilities``.
+
+        Returns True when the appliance exposes no usable program metadata:
+        without evidence the previous behaviour (bundle ``programUID``) is kept,
+        since dropping it for a genuine program option makes the write fail
+        silently in the cloud.
+        """
+        try:
+            appliance = self.get_appliance
+            if not (hasattr(appliance, "data") and appliance.data):
+                return True
+            caps = appliance.data.capabilities
+            if not isinstance(caps, dict):
+                return True
+
+            names = {self.entity_attr}
+            if self.entity_source:
+                names.add(f"{self.entity_source}/{self.entity_attr}")
+
+            found_program_metadata = False
+            for cap_key in ("program", "userSelections/programUID", "cyclePersonalization/programUID"):
+                values = (caps.get(cap_key) or {}).get("values")
+                if not isinstance(values, dict):
+                    continue
+                for prog_constraints in values.values():
+                    if not isinstance(prog_constraints, dict):
+                        continue
+                    found_program_metadata = True
+                    if names & set(prog_constraints):
+                        return True
+        except Exception:
+            return True
+        return not found_program_metadata
+
     def _get_program_constraint(self, key: str) -> int | float | str | bool | None:
         """Get a specific constraint (min/max/step) for the current program.
 

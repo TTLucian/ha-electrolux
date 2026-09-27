@@ -1,0 +1,719 @@
+{
+  "_note": "verbatim capability excerpt of userSelections/programUID (all programs kept)",
+  "_source": "samples/DW-911473025_00.json :: 911473025_00:61710015-443E0782DDC4",
+  "capabilities": {
+    "endOfCycleSound": {
+      "access": "readwrite",
+      "type": "string",
+      "values": {
+        "NO_SOUND": {},
+        "SHORT_SOUND": {}
+      }
+    },
+    "keyTone": {
+      "access": "readwrite",
+      "type": "boolean"
+    },
+    "rinseAidLevel": {
+      "access": "readwrite",
+      "default": 5,
+      "max": 8,
+      "min": 0,
+      "step": 1,
+      "type": "number"
+    },
+    "userSelections/autoDoorOpener": {
+      "access": "readwrite",
+      "type": "boolean"
+    },
+    "userSelections/ecoScore": {
+      "access": "read",
+      "max": 7,
+      "min": 0,
+      "step": 1,
+      "type": "number"
+    },
+    "userSelections/energyScore": {
+      "access": "read",
+      "max": 7,
+      "min": 0,
+      "step": 1,
+      "type": "number"
+    },
+    "userSelections/extraPowerOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/extraSilentOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/glassCareOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/oneRackOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/programUID": {
+      "access": "readwrite",
+      "type": "string",
+      "values": {
+        "120_MIN": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/extraPowerOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/extraSilentOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/glassCareOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sanitizeOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sprayZoneOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/xtraDryOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/zoneCleanOption": {
+            "access": "readwrite",
+            "disabled": false
+          }
+        },
+        "AUTO": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          }
+        },
+        "ECO": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/extraSilentOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/xtraDryOption": {
+            "access": "readwrite",
+            "disabled": false
+          }
+        },
+        "MACHINE_CARE": {
+          "dummy_for_empty_cycle_DW": {
+            "access": "readwrite",
+            "disabled": true,
+            "values": {
+              "0": {
+                "disabled": true
+              }
+            }
+          }
+        },
+        "MACHINE_SETTINGS_HIDDEN_TEST": {
+          "disabled": true,
+          "dummy_for_empty_cycle_DW": {
+            "access": "readwrite",
+            "disabled": true,
+            "values": {
+              "0": {
+                "disabled": true
+              }
+            }
+          }
+        },
+        "NORMAL90": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/extraPowerOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/extraSilentOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/glassCareOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sanitizeOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sprayZoneOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/xtraDryOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/zoneCleanOption": {
+            "access": "readwrite",
+            "disabled": false
+          }
+        },
+        "QUICK30": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/extraPowerOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/glassCareOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/oneRackOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sanitizeOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sprayZoneOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/zoneCleanOption": {
+            "access": "readwrite",
+            "disabled": false
+          }
+        },
+        "QUICK60": {
+          "startTime": {
+            "access": "readwrite",
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          },
+          "userSelections/ecoScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/energyScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/extraPowerOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/glassCareOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/oneRackOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sanitizeOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/sprayZoneOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/waterScore": {
+            "access": "read",
+            "disabled": false,
+            "max": 7,
+            "min": 0,
+            "step": 1
+          },
+          "userSelections/xtraDryOption": {
+            "access": "readwrite",
+            "disabled": false
+          },
+          "userSelections/zoneCleanOption": {
+            "access": "readwrite",
+            "disabled": false
+          }
+        },
+        "RINSE": {
+          "dummy_for_empty_cycle_DW": {
+            "access": "readwrite",
+            "disabled": true,
+            "values": {
+              "0": {
+                "disabled": true
+              }
+            }
+          },
+          "startTime": {
+            "access": "readwrite",
+            "default": 0,
+            "disabled": false,
+            "max": 86400,
+            "min": 0,
+            "step": 600
+          }
+        }
+      }
+    },
+    "userSelections/programsOrder": {
+      "items": [
+        "MACHINE_SETTINGS_HIDDEN_TEST",
+        "QUICK30",
+        "QUICK60",
+        "NORMAL90",
+        "120_MIN",
+        "ECO",
+        "AUTO",
+        "MACHINE_CARE",
+        "RINSE"
+      ]
+    },
+    "userSelections/sanitizeOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/sprayZoneOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/waterScore": {
+      "access": "read",
+      "max": 7,
+      "min": 0,
+      "step": 1,
+      "type": "number"
+    },
+    "userSelections/xtraDryOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/zoneCleanOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    },
+    "userSelections/zoneCleanOption": {
+      "access": "readwrite",
+      "triggers": [
+        {
+          "action": {
+            "userSelections/extraPowerOption": {
+              "default": false
+            },
+            "userSelections/extraSilentOption": {
+              "default": false
+            },
+            "userSelections/glassCareOption": {
+              "default": false
+            },
+            "userSelections/oneRackOption": {
+              "default": false
+            },
+            "userSelections/sanitizeOption": {
+              "default": false
+            },
+            "userSelections/sprayZoneOption": {
+              "default": false
+            },
+            "userSelections/xtraDryOption": {
+              "default": false
+            }
+          },
+          "condition": {
+            "operand_1": "value",
+            "operand_2": true,
+            "operator": "eq"
+          }
+        }
+      ],
+      "type": "boolean"
+    }
+  },
+  "pnc_id": "911473025_00",
+  "reported": {
+    "applianceState": "IDLE",
+    "connectivityState": "connected",
+    "keyTone": true,
+    "rinseAidLevel": 8,
+    "userSelections": {
+      "autoDoorOpener": true,
+      "autoXtraDryOption": false,
+      "ecoScore": 4,
+      "energyScore": 4,
+      "extraPowerOption": false,
+      "extraSilentOption": false,
+      "glassCareOption": false,
+      "oneRackOption": false,
+      "programUID": "AUTO",
+      "sanitizeOption": false,
+      "sprayZoneOption": false,
+      "waterScore": 4,
+      "xtraDryOption": false,
+      "zoneCleanOption": false
+    }
+  }
+}

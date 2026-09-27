@@ -50,3 +50,11 @@ ignore = [
     "TRY203",
     "TRY401",
 ]
+
+[[tool.mypy.overrides]]
+# Unit tests replace bound methods with MagicMock()/closure doubles on purpose;
+# that is the standard way to exercise error paths without a real appliance.
+# Scoped to the test tree only - custom_components/ stays fully type-checked
+# (CI runs `mypy custom_components/electrolux`, which this override cannot affect).
+module = "tests.*"
+disable_error_code = ["method-assign"]

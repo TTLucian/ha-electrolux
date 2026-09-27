@@ -99,17 +99,28 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         return SWITCH
 
     @property
-    def is_on(self) -> bool:
-        """Return true if the binary_sensor is on."""
+    def is_on(self) -> bool | None:
+        """Return true if the switch is on, None if state is unknown (e.g. offline)."""
+        # While the appliance is offline the cloud keeps reporting the last known
+        # values, so a positive on/off claim would be stale. Report "unknown"
+        # instead, matching the convention settled for sensor/number/binary_sensor
+        # (#15, #231).
+        if self.entity_attr != "connectivityState" and not self.is_connected():
+            return None
+
         value = self.extract_value()
 
         if value is None:
+            # ``state_mapping`` resolves the state from raw reported values via
+            # ``get_state_attr``, which has no offline guard of its own — the
+            # early return above is what keeps this fallback from reviving a
+            # stale value while the appliance is offline (#231).
             if self.catalog_entry and self.catalog_entry.state_mapping:
                 mapping = self.catalog_entry.state_mapping
                 value = self.get_state_attr(mapping)
 
         if value is None:
-            return False
+            return None
 
         # Handle boolean values
         if isinstance(value, bool):
@@ -155,7 +166,10 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 # which treat partial writes as full replacements (resetting omitted
                 # options to defaults) keep their sibling options intact.
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                if full_selections.get("programUID"):
+                # Only bundle programUID for program-level keys (fixes #232).
+                # Appliance-level keys (e.g. autoDoorOpener) not listed by any program
+                # are silently rejected when sent bundled with a programUID.
+                if full_selections.get("programUID") and self._is_program_level_key():
                     command = {"userSelections": full_selections}
                 else:
                     command = {self.entity_source: {self.entity_attr: command_value}}
@@ -167,7 +181,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             if self.entity_source == "userSelections":
                 # Build the full current userSelections payload (DAM path).
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                command = {self.entity_source: full_selections}
+                # Only bundle programUID for program-level keys (fixes #232).
+                if full_selections.get("programUID") and self._is_program_level_key():
+                    command = {self.entity_source: full_selections}
+                else:
+                    command = {self.entity_source: {self.entity_attr: command_value}}
             else:
                 command = {self.entity_source: {self.entity_attr: command_value}}
         else:
