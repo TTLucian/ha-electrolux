@@ -503,7 +503,14 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._pending_state_refresh_tasks[appliance_id] = task
 
         def _cleanup(t: asyncio.Task, app_id: str = appliance_id) -> None:
-            self._pending_state_refresh_tasks.pop(app_id, None)
+            # Only clear the entry if it still points at *this* task. A cancelled
+            # task's done-callback runs one loop iteration later, by which time
+            # the replacement is already stored; popping unconditionally would
+            # orphan the replacement — it could no longer be cancelled and it
+            # would apply a REST snapshot older than the SSE it overwrote (#230).
+            # Mirrors the guarded cleanup in _schedule_deferred_update.
+            if self._pending_state_refresh_tasks.get(app_id) is t:
+                self._pending_state_refresh_tasks.pop(app_id, None)
 
         task.add_done_callback(_cleanup)
 
@@ -516,6 +523,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         values without waiting for the 6-hour coordinator refresh cycle.
         """
         await asyncio.sleep(STATE_CHANGE_REFRESH_DELAY)
+        # Belt and braces for #230: cancellation is cooperative, so re-check that
+        # we are still the registered refresh before applying anything. If a newer
+        # trigger superseded us, its poll is the authoritative one and ours carries
+        # a snapshot that predates the SSE we would overwrite.
+        pending = self._pending_state_refresh_tasks.get(appliance_id)
+        if pending is not None and pending is not asyncio.current_task():
+            _LOGGER.debug(
+                "Discarding superseded state-refresh for %s before applying",
+                appliance_id,
+            )
+            return
         if self.data is None:
             return
         appliances: Any = self.data.get("appliances")
