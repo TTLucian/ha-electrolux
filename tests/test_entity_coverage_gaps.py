@@ -30,6 +30,7 @@ Targets the following uncovered lines identified by coverage report:
 - 1112: _evaluate_operand cap_name == 'value' path
 """
 
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -260,9 +261,7 @@ class TestEntityInitGaps:
 
     def test_program_key_from_userselections_in_init(self):
         """When reported state has userSelections.programUID, init caches it."""
-        coordinator, _ = make_coordinator(
-            reported={"userSelections": {"programUID": "Cotton"}}
-        )
+        coordinator, _ = make_coordinator(reported={"userSelections": {"programUID": "Cotton"}})
         entity = ElectroluxNumber(
             coordinator=coordinator,
             name="Test",
@@ -282,9 +281,7 @@ class TestEntityInitGaps:
 
     def test_program_key_from_cyclepersonalization_in_init(self):
         """When reported state has cyclePersonalization.programUID, init caches it."""
-        coordinator, _ = make_coordinator(
-            reported={"cyclePersonalization": {"programUID": "Delicate"}}
-        )
+        coordinator, _ = make_coordinator(reported={"cyclePersonalization": {"programUID": "Delicate"}})
         entity = ElectroluxNumber(
             coordinator=coordinator,
             name="Test",
@@ -354,9 +351,7 @@ class TestHandleCoordinatorUpdateGaps:
 
     def test_program_from_userselections_in_update(self):
         """_handle_coordinator_update reads program from userSelections.programUID."""
-        coordinator = self._make_coordinator_with_state(
-            {"userSelections": {"programUID": "QuickWash"}}
-        )
+        coordinator = self._make_coordinator_with_state({"userSelections": {"programUID": "QuickWash"}})
         entity = ElectroluxNumber(
             coordinator=coordinator,
             name="Test",
@@ -390,9 +385,7 @@ class TestHandleCoordinatorUpdateGaps:
 
     def test_program_from_cyclepersonalization_in_update(self):
         """_handle_coordinator_update reads program from cyclePersonalization.programUID."""
-        coordinator = self._make_coordinator_with_state(
-            {"cyclePersonalization": {"programUID": "Synthetic"}}
-        )
+        coordinator = self._make_coordinator_with_state({"cyclePersonalization": {"programUID": "Synthetic"}})
         entity = ElectroluxNumber(
             coordinator=coordinator,
             name="Test",
@@ -610,9 +603,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(
             entity_attr="glassCareOption",
             entity_source="userSelections",
-            reported={
-                "userSelections": {"programUID": "ECO", "glassCareOption": False}
-            },
+            reported={"userSelections": {"programUID": "ECO", "glassCareOption": False}},
         )
         entity.entity_id = ""
         write_mock = MagicMock()
@@ -621,10 +612,7 @@ class TestApplyOptimisticUpdateGaps:
         entity._apply_optimistic_update("glassCareOption", True)
 
         # Value must be at the nested path, NOT at the top level
-        assert (
-            entity.reported_state.get("userSelections", {}).get("glassCareOption")
-            is True
-        )
+        assert entity.reported_state.get("userSelections", {}).get("glassCareOption") is True
         assert entity.reported_state.get("glassCareOption") is None
 
     def test_nested_single_level_source_does_not_shadow_sse_update(self):
@@ -632,9 +620,7 @@ class TestApplyOptimisticUpdateGaps:
         entity = make_entity(
             entity_attr="extraPowerOption",
             entity_source="userSelections",
-            reported={
-                "userSelections": {"programUID": "ECO", "extraPowerOption": False}
-            },
+            reported={"userSelections": {"programUID": "ECO", "extraPowerOption": False}},
         )
         entity.entity_id = ""
         write_mock = MagicMock()
@@ -648,10 +634,7 @@ class TestApplyOptimisticUpdateGaps:
         entity.reported_state["userSelections"]["extraPowerOption"] = False
 
         # The entity must now reflect the SSE value, not a stale top-level key
-        assert (
-            entity.reported_state.get("userSelections", {}).get("extraPowerOption")
-            is False
-        )
+        assert entity.reported_state.get("userSelections", {}).get("extraPowerOption") is False
         assert entity.reported_state.get("extraPowerOption") is None  # no phantom key
 
     def test_nested_multi_level_source_writes_to_correct_path(self):
@@ -709,9 +692,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["userSelections/extraPowerOption"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         entity.entity_id = ""
         write_mock = MagicMock()
         object.__setattr__(entity, "async_write_ha_state", write_mock)
@@ -761,9 +742,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["userSelections/extraPowerOption"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -782,9 +761,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["mode"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -841,9 +818,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["mode"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -901,9 +876,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["mode"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         set_updated_mock = MagicMock()
         entity.coordinator.async_set_updated_data = set_updated_mock
 
@@ -946,9 +919,7 @@ class TestApplyOptimisticUpdateGaps:
             reported=reported,
             capability=capabilities["userSelections/extraPowerOption"],
         )
-        entity.coordinator.data["appliances"].get_appliance(
-            "TEST_APPLIANCE_123"
-        ).data.capabilities = capabilities
+        entity.coordinator.data["appliances"].get_appliance("TEST_APPLIANCE_123").data.capabilities = capabilities
         entity.entity_id = ""
         write_mock = MagicMock()
         object.__setattr__(entity, "async_write_ha_state", write_mock)
@@ -992,9 +963,7 @@ class TestDeviceInfoGaps:
 
     def _make_entity_with_pnc(self, pnc_id: str, appliance_type="WM", model=None):
         entity = make_entity(pnc_id=pnc_id)
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.model = model
         mock_appliance.brand = "Electrolux"
         mock_appliance.name = "Test Appliance"
@@ -1005,9 +974,7 @@ class TestDeviceInfoGaps:
     def test_model_falls_back_to_name_when_type_unknown(self):
         """When model is Unknown and appliance_type is also Unknown, uses name."""
         entity = self._make_entity_with_pnc("916099949_00", "Unknown", model="Unknown")
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.name = "My Appliance"
 
         info = entity.device_info
@@ -1016,9 +983,7 @@ class TestDeviceInfoGaps:
     def test_model_falls_back_to_str_when_no_name_no_type(self):
         """When model=Unknown, type=Unknown, name is None → device name uses 'Unknown Appliance'."""
         entity = self._make_entity_with_pnc("916099949_00", "Unknown", model="Unknown")
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.name = None
 
         info = entity.device_info
@@ -1072,9 +1037,7 @@ class TestDeviceInfoGaps:
     def test_device_info_serial_none(self):
         """serial_number = None → serial_number not in device_info or None."""
         entity = self._make_entity_with_pnc("916099949_00:31862190-443E07363DAB", "WM")
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.serial_number = None
         info = entity.device_info
         assert info.get("serial_number") is None
@@ -1082,9 +1045,7 @@ class TestDeviceInfoGaps:
     def test_device_info_no_appliance_type(self):
         """appliance_type = None → type_part is empty, no type prefix in model."""
         entity = self._make_entity_with_pnc("916099949_00:31862190-443E07363DAB")
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.appliance_type = None
         mock_appliance.model = "SomeModel"
 
@@ -1239,7 +1200,10 @@ def _make_entity_with_capabilities(
     mock_data = MagicMock()
     mock_data.capabilities = appliance_capabilities or {}
     entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
-    return entity
+    # make_entity() returns a union because use_sensor selects the class; this
+    # helper never sets use_sensor, so it is always a number. The cast keeps mypy
+    # happy on the narrower annotation (tests/ is type-checked in CI).
+    return cast(ElectroluxNumber, entity)
 
 
 class TestIsSupportedByProgramGaps:
@@ -1248,9 +1212,7 @@ class TestIsSupportedByProgramGaps:
     def test_program_from_cyclepersonalization(self):
         """Program retrieved from cyclePersonalization.programUID."""
         caps = {
-            "cyclePersonalization/programUID": {
-                "values": {"Synthetic": {"targetTemperatureC": {"min": 30, "max": 60}}}
-            }
+            "cyclePersonalization/programUID": {"values": {"Synthetic": {"targetTemperatureC": {"min": 30, "max": 60}}}}
         }
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureC",
@@ -1279,11 +1241,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_F_entity_found_via_C_counterpart(self):
         """F temperature entity is found via its C counterpart in program caps."""
-        caps = {
-            "program": {
-                "values": {"Roasting": {"targetTemperatureC": {"min": 50, "max": 250}}}
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetTemperatureC": {"min": 50, "max": 250}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureF",  # F entity
             reported={"program": "Roasting"},
@@ -1294,11 +1252,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_C_entity_found_via_F_counterpart(self):
         """C temperature entity is found via its F counterpart in program caps."""
-        caps = {
-            "program": {
-                "values": {"Roasting": {"targetTemperatureF": {"min": 122, "max": 482}}}
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetTemperatureF": {"min": 122, "max": 482}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureC",  # C entity
             reported={"program": "Roasting"},
@@ -1309,13 +1263,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_food_probe_F_found_via_C_counterpart(self):
         """FoodProbeTemperatureF entity found via C counterpart."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetFoodProbeTemperatureF",
             reported={"program": "Roasting"},
@@ -1369,15 +1317,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_entity_cap_from_C_counterpart_for_F_entity(self):
         """entity_cap is fetched from C counterpart when F entity's cap is absent."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {
-                        "targetTemperatureC": {"min": 50, "max": 250, "disabled": False}
-                    }
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetTemperatureC": {"min": 50, "max": 250, "disabled": False}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureF",
             reported={"program": "Roasting"},
@@ -1388,11 +1328,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_trigger_disables_entity(self):
         """A trigger that sets disabled=True makes entity unsupported."""
-        caps = {
-            "program": {
-                "values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}
-            }
-        }
+        caps = {"program": {"values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}}}
         all_caps = {
             **caps,
             "steamMode": {
@@ -1420,11 +1356,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_trigger_condition_not_met_does_not_disable(self):
         """A trigger that evaluates False does NOT disable the entity."""
-        caps = {
-            "program": {
-                "values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}
-            }
-        }
+        caps = {"program": {"values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}}}
         all_caps = {
             **caps,
             "steamMode": {
@@ -1450,13 +1382,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_food_probe_not_inserted_returns_false(self):
         """food probe not inserted → _is_supported_by_program returns False."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetFoodProbeTemperatureC",
             reported={
@@ -1470,13 +1396,7 @@ class TestIsSupportedByProgramGaps:
 
     def test_food_probe_F_not_inserted_returns_false(self):
         """targetFoodProbeTemperatureF also respects foodProbeInsertionState."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {"targetFoodProbeTemperatureF": {"min": 86, "max": 194}}
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetFoodProbeTemperatureF": {"min": 86, "max": 194}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetFoodProbeTemperatureF",
             reported={
@@ -1506,19 +1426,13 @@ class TestIsSupportedByProgramGaps:
             reported={"program": "Cotton"},
         )
         # Set up program caps via mock
-        program_caps = {
-            "Cotton": {"targetTemperatureC": {"min": 30, "max": 90, "disabled": False}}
-        }
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        program_caps = {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90, "disabled": False}}}
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         # No .data attribute
         del mock_appliance.data
 
         # Make _get_program_capabilities return program caps
-        entity._get_program_capabilities = MagicMock(
-            return_value=program_caps["Cotton"]
-        )
+        entity._get_program_capabilities = MagicMock(return_value=program_caps["Cotton"])
 
         result = entity._is_supported_by_program()
         assert result is True  # not disabled
@@ -1554,15 +1468,7 @@ class TestGetProgramConstraintGaps:
 
     def test_F_entity_gets_constraint_from_C_counterpart(self):
         """F temperature entity falls back to C counterpart for constraints."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {
-                        "targetTemperatureC": {"min": 50, "max": 250, "step": 5}
-                    }
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetTemperatureC": {"min": 50, "max": 250, "step": 5}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureF",
             reported={"program": "Roasting"},
@@ -1574,15 +1480,7 @@ class TestGetProgramConstraintGaps:
 
     def test_C_entity_gets_constraint_from_F_counterpart(self):
         """C temperature entity falls back to F counterpart for constraints."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {
-                        "targetTemperatureF": {"min": 122, "max": 482, "step": 9}
-                    }
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetTemperatureF": {"min": 122, "max": 482, "step": 9}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureC",
             reported={"program": "Roasting"},
@@ -1594,13 +1492,7 @@ class TestGetProgramConstraintGaps:
 
     def test_food_probe_F_constraint_from_C(self):
         """targetFoodProbeTemperatureF falls back to C counterpart."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetFoodProbeTemperatureC": {"min": 30, "max": 90}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetFoodProbeTemperatureF",
             reported={"program": "Roasting"},
@@ -1611,13 +1503,7 @@ class TestGetProgramConstraintGaps:
 
     def test_food_probe_C_constraint_from_F(self):
         """targetFoodProbeTemperatureC falls back to F counterpart."""
-        caps = {
-            "program": {
-                "values": {
-                    "Roasting": {"targetFoodProbeTemperatureF": {"min": 86, "max": 194}}
-                }
-            }
-        }
+        caps = {"program": {"values": {"Roasting": {"targetFoodProbeTemperatureF": {"min": 86, "max": 194}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetFoodProbeTemperatureC",
             reported={"program": "Roasting"},
@@ -1651,11 +1537,7 @@ class TestGetProgramConstraintGaps:
 
     def test_constraint_cached_after_first_call(self):
         """Second call uses cache instead of re-computing."""
-        caps = {
-            "program": {
-                "values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}
-            }
-        }
+        caps = {"program": {"values": {"Cotton": {"targetTemperatureC": {"min": 30, "max": 90}}}}}
         entity = _make_entity_with_capabilities(
             entity_attr="targetTemperatureC",
             reported={"program": "Cotton"},
@@ -1664,9 +1546,7 @@ class TestGetProgramConstraintGaps:
 
         result1 = entity._get_program_constraint("min")
         # Poison the caps so if re-computed it would differ
-        entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value.data.capabilities = {}
+        entity.coordinator.data["appliances"].get_appliance.return_value.data.capabilities = {}
         result2 = entity._get_program_constraint("min")
         assert result1 == result2 == 30
 
@@ -1761,9 +1641,7 @@ class TestGetProgramCapabilitiesGaps:
             reported={"program": "Cotton"},
         )
         # Remove .data from the appliance mock
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         del mock_appliance.data
 
         result = entity._get_program_capabilities("Cotton")
@@ -1777,9 +1655,7 @@ class TestGetProgramCapabilitiesGaps:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Cotton")
         assert result == {}
@@ -1788,14 +1664,10 @@ class TestGetProgramCapabilitiesGaps:
         """Program caps found via userSelections/programUID path."""
         mock_data = MagicMock()
         mock_data.capabilities = {
-            "userSelections/programUID": {
-                "values": {"QuickWash": {"spinSpeed": {"min": 400, "max": 1200}}}
-            }
+            "userSelections/programUID": {"values": {"QuickWash": {"spinSpeed": {"min": 400, "max": 1200}}}}
         }
         entity = make_entity(entity_attr="spinSpeed", reported={"program": "QuickWash"})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("QuickWash")
         assert "spinSpeed" in result
@@ -1804,14 +1676,10 @@ class TestGetProgramCapabilitiesGaps:
         """Program caps found via cyclePersonalization/programUID path."""
         mock_data = MagicMock()
         mock_data.capabilities = {
-            "cyclePersonalization/programUID": {
-                "values": {"Synthetic": {"temperature": {"min": 30, "max": 60}}}
-            }
+            "cyclePersonalization/programUID": {"values": {"Synthetic": {"temperature": {"min": 30, "max": 60}}}}
         }
         entity = make_entity(entity_attr="temperature", reported={})
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_capabilities("Synthetic")
         assert "temperature" in result
@@ -2112,15 +1980,11 @@ class TestIsSupportedByProgramNoApplianceData:
             reported={"program": "Cotton"},
         )
         # Set appliance.data = None so the data check fires
-        mock_appliance = entity.coordinator.data[
-            "appliances"
-        ].get_appliance.return_value
+        mock_appliance = entity.coordinator.data["appliances"].get_appliance.return_value
         mock_appliance.data = None
 
         # Mock _get_program_capabilities so entity IS found in caps
-        entity._get_program_capabilities = MagicMock(
-            return_value={"targetTemperatureC": {"min": 30, "max": 90}}
-        )
+        entity._get_program_capabilities = MagicMock(return_value={"targetTemperatureC": {"min": 30, "max": 90}})
 
         result = entity._is_supported_by_program()
         assert result is True  # not disabled (disabled=False → not False = True)
@@ -2133,14 +1997,10 @@ class TestIsSupportedByProgramNoApplianceData:
         )
         mock_data = MagicMock()
         mock_data.capabilities = None
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
 
         # Mock _get_program_capabilities so entity IS found in caps
-        entity._get_program_capabilities = MagicMock(
-            return_value={"targetTemperatureC": {"min": 30, "max": 90}}
-        )
+        entity._get_program_capabilities = MagicMock(return_value={"targetTemperatureC": {"min": 30, "max": 90}})
 
         result = entity._is_supported_by_program()
         # capabilities is None → not (True and None) = True → return not disabled
@@ -2161,9 +2021,7 @@ class TestGetProgramConstraintNoProgram:
         mock_data.capabilities = {
             "program": {"values": {}}  # UnknownProgram not in values
         }
-        entity.coordinator.data["appliances"].get_appliance.return_value.data = (
-            mock_data
-        )
+        entity.coordinator.data["appliances"].get_appliance.return_value.data = mock_data
 
         result = entity._get_program_constraint("min")
         assert result is None
