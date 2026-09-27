@@ -88,6 +88,7 @@ def _make_coordinator() -> Any:
         coord._deferred_tasks = set()
         coord._deferred_tasks_by_appliance = {}
         coord._pending_state_refresh_tasks = {}
+        coord._sse_value_history = {}  # SSE ordering guard (#233)
         coord._listeners = {}
         coord._api_connected = True
         coord._consecutive_api_failures = 0

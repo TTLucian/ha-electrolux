@@ -60,6 +60,7 @@ def make_coordinator():
     coord.listen_task = None
     coord._last_remote_control = {}
     coord._pending_state_refresh_tasks = {}
+    coord._sse_value_history = {}  # SSE ordering guard (#233)
 
     # API client mock
     coord.api = MagicMock()
