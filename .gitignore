@@ -5,7 +5,11 @@ __pycache__/
 *.vscode*
 .github/**/*instruction*
 *samples*
-*pyrightconfig*
+# pyrightconfig.json is tracked on purpose: without an explicit pythonVersion,
+# Pylance falls back to <=3.13 and cannot parse the project's PEP 758
+# `except A, B:` syntax, producing bogus "has no attribute" errors.
+# Local editor overrides stay ignored.
+pyrightconfig.local.json
 *.log
 *diag-sample.json*
 *translate.py*
