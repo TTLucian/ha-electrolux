@@ -184,7 +184,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._consecutive_auth_failures = 0  # Track consecutive auth failures before creating repair
         self._auth_failure_threshold = 3  # Number of consecutive auth failures before repair
         self._last_token_update = 0.0  # Track last token refresh time to prevent reload
-        self._appliances_cache = None  # Cache appliances reference for hot path lookups
+        # Annotated: without it mypy infers the attribute as None from this line and
+        # then rejects the real Appliances assigned in _setup_entities.
+        self._appliances_cache: Appliances | None = None  # Cache appliances reference for hot path lookups
         self._pending_capability_retry: set[str] = (
             set()
         )  # Appliances that need capability re-fetch (initial fetch failed)

@@ -20,7 +20,7 @@ import pytest
 from custom_components.electrolux import coordinator as coord_mod
 from custom_components.electrolux.const import CONF_API_KEY
 from custom_components.electrolux.coordinator import ElectroluxCoordinator
-from custom_components.electrolux.models import Appliance, _get_nested_value
+from custom_components.electrolux.models import Appliance, Appliances, _get_nested_value
 
 PNC = "dw1"
 
@@ -117,9 +117,10 @@ def _feed_history(coord, clock, *values) -> None:
 
 
 def _wire(coord: ElectroluxCoordinator, appliance: Appliance) -> None:
-    apps = MagicMock()
-    apps.appliances = {PNC: appliance}
-    apps.get_appliance.side_effect = lambda aid: apps.appliances.get(aid)
+    # The real container rather than a mock: coordinator declares
+    # _appliances_cache as None first, so a MagicMock is not assignable and, more
+    # to the point, the real Appliances is what production hands it.
+    apps = Appliances({PNC: appliance})
     coord.data = {"appliances": apps}
     coord._appliances_cache = apps
 
