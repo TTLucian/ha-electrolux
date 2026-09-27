@@ -110,10 +110,19 @@ def _sse(coord: ElectroluxCoordinator, prop: str, value, clock: _Clock) -> None:
     clock.advance(0.0)
 
 
-def _feed_history(coord, clock, *values) -> None:
+def _feed_history(coord, clock, *values, gap: float = 0.2) -> None:
+    """Deliver a sequence of applianceState values, ``gap`` seconds apart.
+
+    The default gap is deliberately small, but callers must pass a realistic one
+    for anything that exercises age pruning. A real dishwasher holds RUNNING for
+    the length of the cycle - hours, not fractions of a second - and a machine
+    held at READY_TO_START while a program is set does so for minutes. A 0.2s
+    gap keeps every entry inside the authority window, so the age paths are never
+    reached and a regression there stays invisible (issue #233).
+    """
     for value in values:
         _sse(coord, "applianceState", value, clock)
-        clock.advance(0.2)
+        clock.advance(gap)
 
 
 def _wire(coord: ElectroluxCoordinator, appliance: Appliance) -> None:
@@ -240,13 +249,103 @@ class TestScope:
         assert [value for _, value in history] == ["RUNNING", "END_OF_CYCLE", "OFF"]
 
     def test_history_is_pruned_by_age(self):
+        """A value drops out once the entry that replaced it ages past the window.
+
+        Superseded, not superseded long ago: the entry that leaves the history is
+        the one whose *successor* fell outside the window, so OFF stays until the
+        READY_TO_START that replaced it ages out in turn.
+        """
         coord, clock = _make_coordinator()
         _feed_history(coord, clock, "RUNNING", "END_OF_CYCLE", "OFF")
         clock.advance(coord_mod.SSE_AUTHORITY_WINDOW + 1)
         _sse(coord, "applianceState", "READY_TO_START", clock)
 
         history = coord._sse_value_history[PNC]["applianceState"]
-        assert [value for _, value in history] == ["READY_TO_START"]
+        assert [value for _, value in history] == ["OFF", "READY_TO_START"]
+
+    def test_history_prunes_by_supersession_not_delivery_age(self):
+        """A long-held value is dropped only when its *successor* ages out.
+
+        The old code compared each entry's own delivery time against the window,
+        so a value held for the length of a cycle was pruned the moment the next
+        transition arrived, and the poll could then restore it (issue #233).
+        """
+        coord, clock = _make_coordinator()
+        # RUNNING held for two hours, then the cycle ends.
+        _feed_history(coord, clock, "RUNNING", gap=7200)
+        _sse(coord, "applianceState", "END_OF_CYCLE", clock)
+        clock.advance(3)
+        _sse(coord, "applianceState", "OFF", clock)
+
+        history = coord._sse_value_history[PNC]["applianceState"]
+        assert [value for _, value in history] == ["RUNNING", "END_OF_CYCLE", "OFF"]
+
+    def test_long_held_state_is_not_restored_by_a_poll(self):
+        """#233 live case: RUNNING held for a whole cycle, then the cycle ends.
+
+        Reported with a recorder timeline: RUNNING is delivered at the start of a
+        ~2h cycle, so by the time the post-transition poll runs its entry has been
+        pruned on delivery age and history[:-1] is empty. The poll's stale RUNNING
+        must not come back.
+        """
+        coord, clock = _make_coordinator()
+        _feed_history(coord, clock, "RUNNING", gap=7200)
+        _sse(coord, "applianceState", "END_OF_CYCLE", clock)
+        clock.advance(3)
+        _sse(coord, "applianceState", "OFF", clock)
+        appliance = _make_appliance({"applianceState": "OFF"})
+        _wire(coord, appliance)
+        clock.advance(7.1)  # the STATE_CHANGE_REFRESH_DELAY poll
+
+        coord._apply_rest_status(appliance, _rest_body({"applianceState": "RUNNING"}))
+
+        assert appliance.reported_state["applianceState"] == "OFF"
+
+    def test_state_held_while_setting_a_program_is_not_restored(self):
+        """#233 second live case: READY_TO_START held for minutes, then started.
+
+        The machine sat at READY_TO_START for 3.5 min while the program was set,
+        so that entry is older than the window by the time the post-transition
+        poll returns it 10.1s after RUNNING arrived.
+        """
+        coord, clock = _make_coordinator()
+        _feed_history(coord, clock, "READY_TO_START", gap=219)
+        _sse(coord, "applianceState", "RUNNING", clock)
+        appliance = _make_appliance({"applianceState": "RUNNING"})
+        _wire(coord, appliance)
+        clock.advance(10.147)
+
+        coord._apply_rest_status(appliance, _rest_body({"applianceState": "READY_TO_START"}))
+
+        assert appliance.reported_state["applianceState"] == "RUNNING"
+
+    def test_value_sse_never_delivered_still_applies(self):
+        """The dropped-SSE-event recovery must survive the change.
+
+        A value SSE never announced is new information, not a rollback, and the
+        next poll has to be able to deliver it.
+        """
+        coord, clock = _make_coordinator()
+        _feed_history(coord, clock, "RUNNING", "OFF")
+        appliance = _make_appliance({"applianceState": "OFF"})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(appliance, _rest_body({"applianceState": "ALARM"}))
+
+        assert appliance.reported_state["applianceState"] == "ALARM"
+
+    def test_poll_outside_the_window_is_authoritative(self):
+        """Once the window has passed, REST is trusted again."""
+        coord, clock = _make_coordinator()
+        _feed_history(coord, clock, "RUNNING", "OFF")
+        appliance = _make_appliance({"applianceState": "OFF"})
+        _wire(coord, appliance)
+        clock.advance(coord_mod.SSE_AUTHORITY_WINDOW + 5)
+
+        coord._apply_rest_status(appliance, _rest_body({"applianceState": "RUNNING"}))
+
+        assert appliance.reported_state["applianceState"] == "RUNNING"
 
     def test_history_has_a_hard_cap(self):
         coord, clock = _make_coordinator()
@@ -263,9 +362,7 @@ class TestScope:
         appliance = _make_appliance({"applianceState": "OFF", "timeToEnd": 0})
         _wire(coord, appliance)
 
-        coord._apply_rest_status(
-            appliance, _rest_body({"applianceState": "RUNNING", "timeToEnd": 60})
-        )
+        coord._apply_rest_status(appliance, _rest_body({"applianceState": "RUNNING", "timeToEnd": 60}))
 
         assert appliance.reported_state["applianceState"] == "OFF"
         assert appliance.reported_state["timeToEnd"] == 60
@@ -315,9 +412,7 @@ class TestAllApplySitesAreGuarded:
         _, _, after = source.partition("def _apply_rest_status(")
         _, _, call_sites = after.partition("    def incoming_data(")
         offenders = [
-            line.strip()
-            for line in call_sites.splitlines()
-            if "appliance.update(" in line or "app_obj.update(" in line
+            line.strip() for line in call_sites.splitlines() if "appliance.update(" in line or "app_obj.update(" in line
         ]
         assert offenders == [], f"unguarded apply sites: {offenders}"
 

@@ -625,13 +625,23 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 del per_appliance[prop]
 
     def _prune_sse_history(self, history: list[tuple[float, Any]], now: float) -> bool:
-        """Drop entries older than the authority window. Return False if all are gone.
+        """Drop entries superseded longer ago than the authority window.
 
-        The newest entry is kept even when stale: it is still the best local
-        value, and the age check in ``_superseded_by_sse`` decides authority.
+        An entry is superseded by the one that *replaced* it, so its age is
+        measured from its successor's timestamp, not from its own delivery time.
+        That distinction is the whole point (#233): a dishwasher delivers RUNNING
+        once at the start of a ~2h cycle, and under a delivery-age rule that
+        entry fell out of the history the moment END_OF_CYCLE arrived - leaving
+        nothing for ``_superseded_by_sse`` to compare against, so the
+        post-transition poll could restore RUNNING. Here it survives until the
+        transition that replaced it has itself aged out.
+
+        The newest entry is always kept, even when stale: it is still the best
+        local value, and the age check in ``_superseded_by_sse`` decides
+        authority.
         """
         cutoff = now - SSE_AUTHORITY_WINDOW
-        while len(history) > 1 and history[0][0] < cutoff:
+        while len(history) > 1 and history[1][0] < cutoff:
             history.pop(0)
         if len(history) > SSE_VALUE_HISTORY_MAX:
             del history[: len(history) - SSE_VALUE_HISTORY_MAX]
@@ -666,7 +676,14 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # agreeing is not a conflict, and an unseen value is new information.
             if polled == newest_value:
                 continue
-            superseded = {value for ts, value in history[:-1] if now - ts <= SSE_AUTHORITY_WINDOW}
+            # A value counts as superseded while the entry that replaced it is
+            # still inside the authority window - the same successor-timestamp
+            # rule _prune_sse_history uses, kept in step deliberately (#233).
+            superseded = {
+                history[index][1]
+                for index in range(len(history) - 1)
+                if now - history[index + 1][0] <= SSE_AUTHORITY_WINDOW
+            }
             if polled in superseded:
                 retain.add(prop)
                 _LOGGER.debug(
