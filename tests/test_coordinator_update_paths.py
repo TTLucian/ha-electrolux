@@ -923,3 +923,94 @@ class TestDesyncRecovery:
         # Desync recovery should not trigger because state is already RUNNING
         coordinator._schedule_state_refresh.assert_not_called()
         assert coordinator._last_time_to_end["app1"] == 13440
+
+
+# ---------------------------------------------------------------------------
+# _schedule_state_refresh: a superseded poll must never apply (#230)
+# ---------------------------------------------------------------------------
+
+
+class TestStateRefreshSupersede:
+    """A cancelled refresh must not be able to evict its own replacement.
+
+    Opening a dishwasher door mid-cycle produces applianceState -> Paused, then
+    remoteControl leaving TEMPORARY_LOCKED, then applianceState -> Running, all
+    inside one STATE_CHANGE_REFRESH_DELAY window. The done-callback of the
+    cancelled task used to pop the *newer* task from the registry, orphaning it:
+    it could no longer be cancelled and it applied a REST snapshot older than
+    the SSE it overwrote.
+    """
+
+    @staticmethod
+    def _use_real_task_creation(coordinator) -> None:
+        """Make async_create_task schedule on the running loop, not a mock."""
+        coordinator.hass.async_create_task = lambda coro, *a, **kw: asyncio.ensure_future(coro)
+
+    @pytest.mark.asyncio
+    async def test_cancelled_task_does_not_evict_its_replacement(self, coordinator):
+        """The registry must still track the live task after a cancel."""
+        self._use_real_task_creation(coordinator)
+        appliance = _make_appliance("dw1")
+        coordinator.data = {"appliances": _make_appliances({"dw1": appliance})}
+        coordinator.api.get_appliance_state = AsyncMock(return_value={"properties": {"reported": {}}})
+        coordinator.async_set_updated_data = MagicMock()
+
+        with patch("custom_components.electrolux.coordinator.STATE_CHANGE_REFRESH_DELAY", 0.05):
+            # 1. "Paused" SSE schedules task A
+            coordinator._schedule_state_refresh("dw1")
+            await asyncio.sleep(0.01)
+            task_a = coordinator._pending_state_refresh_tasks.get("dw1")
+            assert task_a is not None
+
+            # 2. panel unlock SSE cancels A and stores task B
+            coordinator._schedule_state_refresh("dw1")
+            task_b = coordinator._pending_state_refresh_tasks.get("dw1")
+            assert task_b is not None and task_b is not task_a
+
+            # 3. let the loop deliver A's done-callback
+            await asyncio.sleep(0.01)
+
+            # B must still be registered: this is the whole bug.
+            assert coordinator._pending_state_refresh_tasks.get("dw1") is task_b
+            assert not task_b.done(), "replacement was orphaned by the cancelled task's callback"
+
+            await asyncio.sleep(0.2)
+
+    @pytest.mark.asyncio
+    async def test_superseded_poll_never_applies_a_stale_snapshot(self, coordinator):
+        """An orphaned refresh must not overwrite fresher SSE state."""
+        self._use_real_task_creation(coordinator)
+        appliance = _make_appliance("dw1")
+        coordinator.data = {"appliances": _make_appliances({"dw1": appliance})}
+        coordinator.api.get_appliance_state = AsyncMock(return_value={"properties": {"reported": {}}})
+        coordinator.async_set_updated_data = MagicMock()
+
+        with patch("custom_components.electrolux.coordinator.STATE_CHANGE_REFRESH_DELAY", 0.05):
+            coordinator._schedule_state_refresh("dw1")  # Paused
+            await asyncio.sleep(0.01)
+            coordinator._schedule_state_refresh("dw1")  # unlock -> cancels the first
+            await asyncio.sleep(0.01)
+            coordinator._schedule_state_refresh("dw1")  # Running -> must cancel the second
+            await asyncio.sleep(0.3)
+
+        # Only the final, non-superseded task may reach appliance.update().
+        assert appliance.update.call_count == 1, (
+            "a superseded refresh applied a stale snapshot "
+            f"(update called {appliance.update.call_count} times)"
+        )
+
+    @pytest.mark.asyncio
+    async def test_completed_refresh_clears_its_own_registry_entry(self, coordinator):
+        """The happy path still cleans up after itself."""
+        self._use_real_task_creation(coordinator)
+        appliance = _make_appliance("dw1")
+        coordinator.data = {"appliances": _make_appliances({"dw1": appliance})}
+        coordinator.api.get_appliance_state = AsyncMock(return_value={"properties": {"reported": {}}})
+        coordinator.async_set_updated_data = MagicMock()
+
+        with patch("custom_components.electrolux.coordinator.STATE_CHANGE_REFRESH_DELAY", 0.01):
+            coordinator._schedule_state_refresh("dw1")
+            await asyncio.sleep(0.2)
+
+        assert appliance.update.call_count == 1
+        assert coordinator._pending_state_refresh_tasks == {}
