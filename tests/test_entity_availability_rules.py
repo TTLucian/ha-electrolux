@@ -75,9 +75,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -106,9 +104,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -117,9 +113,7 @@ class TestEntityAvailabilityRules:
         # Should return default value (180) when not supported (locked value priority: default > min)
         assert entity.native_value == 180.0
 
-    def test_number_entity_shows_zero_fallback_when_no_minimum_defined(
-        self, mock_coordinator
-    ):
+    def test_number_entity_shows_zero_fallback_when_no_minimum_defined(self, mock_coordinator):
         """Test that number entities show 0 when no minimum is defined and not supported by program."""
         capability_no_min = {
             "access": "readwrite",
@@ -144,9 +138,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:counter",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -176,9 +168,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -189,9 +179,7 @@ class TestEntityAvailabilityRules:
             await entity.async_set_native_value(200.0)
 
     @pytest.mark.asyncio
-    async def test_food_probe_temperature_prevents_modification_when_not_supported_by_program(
-        self, mock_coordinator
-    ):
+    async def test_food_probe_temperature_prevents_modification_when_not_supported_by_program(self, mock_coordinator):
         """Test that food probe temperature entities prevent modification when not supported by program."""
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
@@ -215,9 +203,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer-probe",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "DOUGH_PROVING"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "DOUGH_PROVING"}}}
         entity.reported_state = {"program": "DOUGH_PROVING"}
 
         # Mock _is_supported_by_program to return False
@@ -254,9 +240,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:menu",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -285,9 +269,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:menu",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
@@ -317,23 +299,17 @@ class TestEntityAvailabilityRules:
             icon="mdi:menu",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "unsupported_program"}}}
         entity.reported_state = {"program": "unsupported_program"}
 
         # Mock _is_supported_by_program to return False
         entity._is_supported_by_program = MagicMock(return_value=False)
 
         # Attempting to select option should raise HomeAssistantError
-        with pytest.raises(
-            HomeAssistantError, match="not supported by current program"
-        ):
+        with pytest.raises(HomeAssistantError, match="not supported by current program"):
             await entity.async_select_option("Option 1")
 
-    def test_select_config_entity_bypasses_program_support_check(
-        self, mock_coordinator, mock_capability_select
-    ):
+    def test_select_config_entity_bypasses_program_support_check(self, mock_coordinator, mock_capability_select):
         """Test that CONFIG select entities bypass program support checking (persistent settings)."""
         entity = ElectroluxSelect(
             coordinator=mock_coordinator,
@@ -391,9 +367,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:menu",
         )
         entity.hass = mock_coordinator.hass
-        entity.appliance_status = {
-            "properties": {"reported": {"program": "test_program"}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"program": "test_program"}}}
         entity.reported_state = {"program": "test_program"}
 
         # Mock program constraints to only allow option1 and option2
@@ -409,9 +383,7 @@ class TestEntityAvailabilityRules:
     # INTEGRATION TESTS - Multiple Entity Types
     # ============================================================================
 
-    def test_multiple_number_entities_clamped_when_program_not_supported(
-        self, mock_coordinator
-    ):
+    def test_multiple_number_entities_clamped_when_program_not_supported(self, mock_coordinator):
         """Test that multiple number entities are properly clamped when not supported."""
         # Test targetTemperatureC
         temp_entity = ElectroluxNumber(
@@ -435,9 +407,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer",
         )
         temp_entity.hass = mock_coordinator.hass
-        temp_entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported"}}
-        }
+        temp_entity.appliance_status = {"properties": {"reported": {"program": "unsupported"}}}
         temp_entity.reported_state = {"program": "unsupported"}
         temp_entity._is_supported_by_program = MagicMock(return_value=False)
 
@@ -463,9 +433,7 @@ class TestEntityAvailabilityRules:
             icon="mdi:thermometer-probe",
         )
         probe_entity.hass = mock_coordinator.hass
-        probe_entity.appliance_status = {
-            "properties": {"reported": {"program": "unsupported"}}
-        }
+        probe_entity.appliance_status = {"properties": {"reported": {"program": "unsupported"}}}
         probe_entity.reported_state = {"program": "unsupported"}
         probe_entity._is_supported_by_program = MagicMock(return_value=False)
 
@@ -516,9 +484,7 @@ class TestEntityAvailabilityRules:
         select_entity.hass = mock_coordinator.hass
 
         # Test with program that doesn't support entities
-        appliance_status_unsupported = {
-            "properties": {"reported": {"program": "unsupported_program"}}
-        }
+        appliance_status_unsupported = {"properties": {"reported": {"program": "unsupported_program"}}}
         temp_entity.appliance_status = appliance_status_unsupported
         temp_entity.reported_state = {"program": "unsupported_program"}
         temp_entity._is_supported_by_program = MagicMock(return_value=False)
@@ -532,16 +498,12 @@ class TestEntityAvailabilityRules:
         assert select_entity.available is True
 
         # Should show constrained values
-        assert (
-            temp_entity.native_value == 180.0
-        )  # default value (locked value priority: default > min)
+        assert temp_entity.native_value == 180.0  # default value (locked value priority: default > min)
         assert select_entity.current_option == ""  # empty selection
 
         # Test with program that supports entities
         appliance_status_supported = {
-            "properties": {
-                "reported": {"program": "supported_program", "targetTemperatureC": 200}
-            }
+            "properties": {"reported": {"program": "supported_program", "targetTemperatureC": 200}}
         }
         temp_entity.appliance_status = appliance_status_supported
         temp_entity.reported_state = {
@@ -549,9 +511,7 @@ class TestEntityAvailabilityRules:
             "targetTemperatureC": 200,
         }
         temp_entity._is_supported_by_program = MagicMock(return_value=True)
-        temp_entity._is_locked_by_program = MagicMock(
-            return_value=False
-        )  # Not locked when supported
+        temp_entity._is_locked_by_program = MagicMock(return_value=False)  # Not locked when supported
 
         select_entity.appliance_status = appliance_status_supported
         select_entity.reported_state = {

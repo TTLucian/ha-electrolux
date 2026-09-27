@@ -183,7 +183,7 @@ class TestRealSampleClassification:
         for path in files:
             try:
                 dump = json.loads(path.read_text())
-            except (ValueError, OSError):
+            except ValueError, OSError:
                 continue
             detail = (dump.get("data") or {}).get("appliances_detail") or {}
             for node in detail.values():
@@ -215,4 +215,3 @@ class TestRealSampleClassification:
 
         if checked == 0:
             pytest.skip("no local dump with autoDoorOpener plus program-listed options")
-

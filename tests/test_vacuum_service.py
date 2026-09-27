@@ -39,6 +39,4 @@ def test_zone_cleaning_schema_accepts_a_target():
 def test_zone_cleaning_schema_still_validates_payload():
     """Payload validation is unchanged: zones are required and non empty."""
     with pytest.raises(vol.Invalid):
-        SERVICE_START_ZONE_CLEANING_SCHEMA(
-            {"entity_id": "vacuum.robot", "persistent_map_id": "map-1", "zones": []}
-        )
+        SERVICE_START_ZONE_CLEANING_SCHEMA({"entity_id": "vacuum.robot", "persistent_map_id": "map-1", "zones": []})

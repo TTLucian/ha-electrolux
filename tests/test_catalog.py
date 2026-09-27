@@ -43,9 +43,9 @@ class TestCatalogCore:
 
         catalog = CATALOG_BASE()
         for key, value in catalog.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
+            assert isinstance(value, ElectroluxDevice), (
+                f"Catalog entry '{key}' is {type(value)}, expected ElectroluxDevice"
+            )
 
     def test_catalog_by_type_loads(self):
         """Appliance-type-specific catalogs load correctly."""
@@ -82,15 +82,12 @@ class TestCatalogOven:
         assert isinstance(CATALOG_OV, dict)
         assert len(CATALOG_OV) > 0
 
-
     def test_oven_entities_are_electrolux_devices(self):
         """All oven catalog values are ElectroluxDevice instances."""
         from custom_components.electrolux.catalogs.catalog_ov import CATALOG_OV
 
         for key, value in CATALOG_OV.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Oven catalog entry '{key}' is {type(value)}"
+            assert isinstance(value, ElectroluxDevice), f"Oven catalog entry '{key}' is {type(value)}"
 
     def test_oven_has_temperature_entities(self):
         """Oven catalog has temperature entities."""
@@ -120,9 +117,7 @@ class TestCatalogWasher:
         from custom_components.electrolux.catalogs.catalog_wm import CATALOG_WM
 
         for key, value in CATALOG_WM.items():
-            assert isinstance(
-                value, ElectroluxDevice
-            ), f"Washer catalog entry '{key}' is {type(value)}"
+            assert isinstance(value, ElectroluxDevice), f"Washer catalog entry '{key}' is {type(value)}"
 
 
 class TestCatalogWasherDryer:
@@ -272,9 +267,7 @@ class TestCatalogDehumidifier:
         }
 
         assert CATALOG_DH["waterBucketLevel"].friendly_name == "Water Bucket Level"
-        assert (
-            CATALOG_DH["waterBucketLevel"].entity_category == EntityCategory.DIAGNOSTIC
-        )
+        assert CATALOG_DH["waterBucketLevel"].entity_category == EntityCategory.DIAGNOSTIC
 
 
 class TestCatalogRobotVacuum:
@@ -436,9 +429,10 @@ class TestCatalogDishwasher:
         assert fixture["pnc"] == "911472038_00"
         assert fixture["appliance_type"] == "DW"
         assert fixture["capabilities"]["userSelections/programsOrder"]["items"][-1] == "RINSE"
-        assert fixture["capabilities"]["userSelections/programUID"]["values"]["MACHINE_SETTINGS_HIDDEN_TEST"][
-            "disabled"
-        ] is True
+        assert (
+            fixture["capabilities"]["userSelections/programUID"]["values"]["MACHINE_SETTINGS_HIDDEN_TEST"]["disabled"]
+            is True
+        )
         """Dishwasher catalog loads without error."""
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
 
@@ -457,14 +451,8 @@ class TestCatalogDishwasher:
         # capabilities-document form (maint1_*) which never appears in reported state.
         assert "applianceCareAndMaintenance0/1/occured" in CATALOG_DW
         assert "applianceCareAndMaintenance0/1/threshold" in CATALOG_DW
-        assert (
-            CATALOG_DW["applianceCareAndMaintenance0/1/occured"].device_class
-            == BinarySensorDeviceClass.PROBLEM
-        )
-        assert (
-            CATALOG_DW["applianceCareAndMaintenance0/1/threshold"].entity_category
-            == EntityCategory.DIAGNOSTIC
-        )
+        assert CATALOG_DW["applianceCareAndMaintenance0/1/occured"].device_class == BinarySensorDeviceClass.PROBLEM
+        assert CATALOG_DW["applianceCareAndMaintenance0/1/threshold"].entity_category == EntityCategory.DIAGNOSTIC
 
     def test_rinse_aid_level_does_not_hardcode_model_specific_limits(self):
         """Rinse aid level should use appliance capability limits, not stale catalog values."""
@@ -502,6 +490,7 @@ class TestCatalogDishwasher:
         assert entry.unit == UnitOfTime.SECONDS
         assert entry.capability_info["min"] == -1
         assert entry.capability_info["max"] == 86400
+
     def test_dishwasher_network_always_on_is_configuration(self):
         """Persistent network behavior is presented as a configuration switch."""
         from homeassistant.components.switch import SwitchDeviceClass
@@ -545,17 +534,9 @@ class TestCatalogDishwasher:
 
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
 
-        assert (
-            CATALOG_DW["displayLight"].reported_only_entity_platform == Platform.SENSOR
-        )
-        assert (
-            CATALOG_DW["displayOnFloor"].reported_only_entity_platform
-            == Platform.SENSOR
-        )
-        assert (
-            CATALOG_DW["preSelectLast"].reported_only_entity_platform
-            == Platform.BINARY_SENSOR
-        )
+        assert CATALOG_DW["displayLight"].reported_only_entity_platform == Platform.SENSOR
+        assert CATALOG_DW["displayOnFloor"].reported_only_entity_platform == Platform.SENSOR
+        assert CATALOG_DW["preSelectLast"].reported_only_entity_platform == Platform.BINARY_SENSOR
 
     def test_purea9_has_rssi_and_filter_rfid_diagnostics(self):
         """PUREA9 should expose RSSI and FilterRFID as diagnostics."""
@@ -814,6 +795,7 @@ class TestCatalogStructuredOven:
         ):
             assert CATALOG_SO[key].entity_registry_enabled_default is False
 
+
 class TestCatalogHood:
     """Tests for catalog_hd.py — values verified against HD-942051563_00 (issue #211)."""
 
@@ -920,7 +902,6 @@ class TestCatalogHood:
 
         for key, value in CATALOG_HD.items():
             assert isinstance(value, ElectroluxDevice), f"{key} is {type(value)}"
-
 
 
 class TestCatalogUtils:
@@ -1115,6 +1096,7 @@ class TestRvcUsableControls:
 
         values = set(CATALOG_RVC["vacuumMode"].capability_info["values"])
         assert {"quiet", "energySaving", "standard", "powerful"} <= values
+
 
 class TestNoUnverifiedPowerEnergyKeys:
     """The AC catalog must not claim capabilities no device has reported (#229).

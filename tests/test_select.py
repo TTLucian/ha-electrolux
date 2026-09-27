@@ -264,9 +264,7 @@ class TestElectroluxSelect:
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
             # Program-level key with programUID bundled
-            assert command == {
-                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPTION1"}
-            }
+            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPTION1"}}
 
     @pytest.mark.asyncio
     async def test_select_with_appliance_source(self, mock_coordinator, mock_capability):
@@ -1093,9 +1091,7 @@ class TestSelectOptionsFiltering:
     def test_program_select_uses_appliance_program_order(self, mock_coordinator):
         """Program selectors follow the order published by the appliance."""
         mock_appliance = MagicMock()
-        mock_appliance.data.capabilities = {
-            "userSelections/programsOrder": {"items": ["QUICK60", "ECO", "AUTO"]}
-        }
+        mock_appliance.data.capabilities = {"userSelections/programsOrder": {"items": ["QUICK60", "ECO", "AUTO"]}}
         mock_coordinator.data = {"appliances": MagicMock()}
         mock_coordinator.data["appliances"].get_appliance.return_value = mock_appliance
 
@@ -1916,9 +1912,7 @@ class TestDiscoveredPrograms:
         assert set(entity.options) == {"Bake", "Broil"}
 
     @pytest.mark.asyncio
-    async def test_select_option_program_level_key_bundles_program_uid(
-        self, mock_coordinator_with_program_caps
-    ):
+    async def test_select_option_program_level_key_bundles_program_uid(self, mock_coordinator_with_program_caps):
         """Select option for a program-level key bundles programUID (fixes #232)."""
         mock_capability = {
             "access": "readwrite",
@@ -1953,9 +1947,7 @@ class TestDiscoveredPrograms:
         }
         entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
 
-        with patch(
-            "custom_components.electrolux.select.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.select.format_command_for_appliance") as mock_format:
             mock_format.return_value = "OPT1"
             await entity.async_select_option("Opt 1")
 
@@ -1963,14 +1955,10 @@ class TestDiscoveredPrograms:
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
             # Program-level key: programUID bundled
-            assert command == {
-                "userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPT1"}
-            }
+            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "testAttr": "OPT1"}}
 
     @pytest.mark.asyncio
-    async def test_select_option_real_program_option_keeps_program_uid(
-        self, mock_coordinator
-    ):
+    async def test_select_option_real_program_option_keeps_program_uid(self, mock_coordinator):
         """Real dishwasher option keeps programUID — no #30 regression (#232)."""
         _set_appliance_capabilities(mock_coordinator)
         entity = ElectroluxSelect(
@@ -2002,18 +1990,14 @@ class TestDiscoveredPrograms:
         }
         entity.options_list = {"A": "A", "B": "B"}
 
-        with patch(
-            "custom_components.electrolux.select.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.select.format_command_for_appliance") as mock_format:
             mock_format.return_value = "A"
             await entity.async_select_option("A")
 
             call_args = api.execute_appliance_command.call_args
             _, command = call_args[0]
             # Listed by the ECO program under "userSelections/xtraDryOption"
-            assert command == {
-                "userSelections": {"programUID": "ECO", "xtraDryOption": "A"}
-            }
+            assert command == {"userSelections": {"programUID": "ECO", "xtraDryOption": "A"}}
 
     @pytest.mark.asyncio
     async def test_dam_appliance_level_key_omits_program_uid(self, mock_coordinator):
@@ -2040,14 +2024,10 @@ class TestDiscoveredPrograms:
         entity.is_remote_control_enabled = MagicMock(return_value=True)  # type: ignore[method-assign]
         entity.reported_state = {"connectivityState": "connected"}
         # No programUID reported: previously this raised "appliance state is incomplete"
-        entity.appliance_status = {
-            "properties": {"reported": {"userSelections": {}}}
-        }
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {}}}}
         entity.options_list = {"A": "A", "B": "B"}
 
-        with patch(
-            "custom_components.electrolux.select.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.select.format_command_for_appliance") as mock_format:
             mock_format.return_value = "A"
             await entity.async_select_option("A")
 
@@ -2056,9 +2036,7 @@ class TestDiscoveredPrograms:
         assert command == {"commands": [{"userSelections": {"autoDoorOpener": "A"}}]}
 
     @pytest.mark.asyncio
-    async def test_select_option_appliance_level_key_omits_program_uid(
-        self, mock_coordinator
-    ):
+    async def test_select_option_appliance_level_key_omits_program_uid(self, mock_coordinator):
         """Select option for an appliance-level key omits programUID (fixes #232)."""
         # Real dishwasher capabilities: its programs list the options but never
         # autoDoorOpener, so the write must not be bundled with programUID.
@@ -2096,9 +2074,7 @@ class TestDiscoveredPrograms:
         }
         entity.options_list = {"Opt 1": "OPT1", "Opt 2": "OPT2"}
 
-        with patch(
-            "custom_components.electrolux.select.format_command_for_appliance"
-        ) as mock_format:
+        with patch("custom_components.electrolux.select.format_command_for_appliance") as mock_format:
             mock_format.return_value = "OPT1"
             await entity.async_select_option("Opt 1")
 
@@ -2106,7 +2082,4 @@ class TestDiscoveredPrograms:
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
             # Appliance-level key: no programUID bundled
-            assert command == {
-                "userSelections": {"autoDoorOpener": "OPT1"}
-            }
-
+            assert command == {"userSelections": {"autoDoorOpener": "OPT1"}}

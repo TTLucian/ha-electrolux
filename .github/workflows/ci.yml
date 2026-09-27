@@ -42,18 +42,24 @@ jobs:
 
       # 5️⃣ Lint with Ruff (no auto-fix — fixes must be committed locally)
       - name: Lint with Ruff
-        run: ruff check custom_components/electrolux
+        run: ruff check custom_components/electrolux tests
 
       # 6️⃣ Check formatting with Ruff (replaces Black)
       - name: Check formatting with Ruff
-        run: ruff format --check --diff custom_components/electrolux
+        run: ruff format --check --diff custom_components/electrolux tests
 
       # 7️⃣ Validate Home Assistant integration
       # Removed due to import issues in CI environment
 
       # 8️⃣ Type checking with mypy
+      # Two separate invocations on purpose: passing both paths in one command
+      # trips mypy's "Source file found twice under different module names"
+      # because the component is importable as both `electrolux.*` and
+      # `custom_components.electrolux.*`.
       - name: Run mypy type checks
-        run: mypy custom_components/electrolux --ignore-missing-imports
+        run: |
+          mypy custom_components/electrolux --ignore-missing-imports
+          mypy tests --ignore-missing-imports
 
       # 9️⃣ Run tests with coverage
       - name: Run tests

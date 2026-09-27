@@ -94,39 +94,25 @@ def _make_coordinator(
         api.get_user_metadata = AsyncMock(return_value=user_meta or {"userId": "u1"})
 
     if fail_appliances_list:
-        api.get_appliances_list = AsyncMock(
-            side_effect=Exception("appliances list error")
-        )
+        api.get_appliances_list = AsyncMock(side_effect=Exception("appliances list error"))
     else:
-        app_list = (
-            appliances_list
-            if appliances_list is not None
-            else [{"applianceId": "APP1"}]
-        )
+        app_list = appliances_list if appliances_list is not None else [{"applianceId": "APP1"}]
         api.get_appliances_list = AsyncMock(return_value=app_list)
 
     if fail_appliances_info:
-        api.get_appliances_info = AsyncMock(
-            side_effect=Exception("appliances info error")
-        )
+        api.get_appliances_info = AsyncMock(side_effect=Exception("appliances info error"))
     else:
-        api.get_appliances_info = AsyncMock(
-            return_value=appliances_info or [{"applianceId": "APP1", "model": "M1"}]
-        )
+        api.get_appliances_info = AsyncMock(return_value=appliances_info or [{"applianceId": "APP1", "model": "M1"}])
 
     if fail_capabilities:
         api.get_appliance_capabilities = AsyncMock(side_effect=Exception("cap error"))
     else:
-        api.get_appliance_capabilities = AsyncMock(
-            return_value=capabilities or {"powerState": {}}
-        )
+        api.get_appliance_capabilities = AsyncMock(return_value=capabilities or {"powerState": {}})
 
     if fail_state:
         api.get_appliance_state = AsyncMock(side_effect=Exception("state error"))
     else:
-        api.get_appliance_state = AsyncMock(
-            return_value=state or {"properties": {"reported": {"powerState": "on"}}}
-        )
+        api.get_appliance_state = AsyncMock(return_value=state or {"properties": {"reported": {"powerState": "on"}}})
 
     coord = MagicMock()
     coord.api = api
@@ -273,9 +259,7 @@ class TestAsyncGetDiagnostics:
             }
         )
         hass = _make_hass("e1")
-        entry = _make_entry(
-            "e1", data={"api_key": "secret", "access_token": "tok"}, coordinator=coord
-        )
+        entry = _make_entry("e1", data={"api_key": "secret", "access_token": "tok"}, coordinator=coord)
 
         result = await _async_get_diagnostics(hass, entry)
 
@@ -364,9 +348,7 @@ class TestAsyncGetDeviceDiagnostics:
                 "custom_components.electrolux.diagnostics.er.async_entries_for_device",
                 return_value=[],
             ),
-            patch(
-                "custom_components.electrolux.diagnostics.attr.asdict", return_value={}
-            ),
+            patch("custom_components.electrolux.diagnostics.attr.asdict", return_value={}),
         ):
             result = await async_get_device_diagnostics(hass, entry, mock_device)
 
@@ -401,9 +383,7 @@ class TestAsyncGetDeviceDiagnostics:
                 "custom_components.electrolux.diagnostics.er.async_entries_for_device",
                 return_value=[],
             ),
-            patch(
-                "custom_components.electrolux.diagnostics.attr.asdict", return_value={}
-            ),
+            patch("custom_components.electrolux.diagnostics.attr.asdict", return_value={}),
         ):
             result = await async_get_device_diagnostics(hass, entry, mock_device)
 

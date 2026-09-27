@@ -842,9 +842,7 @@ class TestSetupEntities:
 
 
 class TestDesyncRecovery:
-    def test_timetoend_decrement_in_ready_to_start_schedules_state_refresh(
-        self, coordinator
-    ):
+    def test_timetoend_decrement_in_ready_to_start_schedules_state_refresh(self, coordinator):
         """When timeToEnd decrements while applianceState is READY_TO_START,
 
         a state-refresh is scheduled to recover from the dropped RUNNING SSE event.
@@ -870,9 +868,7 @@ class TestDesyncRecovery:
         coordinator._schedule_state_refresh.assert_called_once_with("app1")
         assert coordinator._last_time_to_end["app1"] == 13440
 
-    def test_timetoend_static_in_ready_to_start_does_not_schedule_refresh(
-        self, coordinator
-    ):
+    def test_timetoend_static_in_ready_to_start_does_not_schedule_refresh(self, coordinator):
         """When timeToEnd is unchanged while in READY_TO_START,
 
         no state refresh is scheduled (avoids unnecessary API calls while idle).
@@ -897,9 +893,7 @@ class TestDesyncRecovery:
         # No state refresh should be scheduled
         coordinator._schedule_state_refresh.assert_not_called()
 
-    def test_timetoend_decrement_in_running_does_not_schedule_desync_refresh(
-        self, coordinator
-    ):
+    def test_timetoend_decrement_in_running_does_not_schedule_desync_refresh(self, coordinator):
         """When timeToEnd decrements while already in RUNNING,
 
         normal operation applies and desync recovery is not triggered.
@@ -996,8 +990,7 @@ class TestStateRefreshSupersede:
 
         # Only the final, non-superseded task may reach appliance.update().
         assert appliance.update.call_count == 1, (
-            "a superseded refresh applied a stale snapshot "
-            f"(update called {appliance.update.call_count} times)"
+            f"a superseded refresh applied a stale snapshot (update called {appliance.update.call_count} times)"
         )
 
     @pytest.mark.asyncio

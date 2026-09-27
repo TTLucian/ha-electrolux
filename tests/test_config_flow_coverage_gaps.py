@@ -31,17 +31,13 @@ class TestConfigFlowCoverageGaps:
     @pytest.mark.asyncio
     async def test_validate_creds_returns_none_with_missing_api_key(self):
         """Test _validate_credentials_and_capture_rotation returns None when api_key is None."""
-        result = await _validate_credentials_and_capture_rotation(
-            None, "token", "refresh"
-        )
+        result = await _validate_credentials_and_capture_rotation(None, "token", "refresh")
         assert result is None
 
     @pytest.mark.asyncio
     async def test_validate_creds_returns_none_with_missing_access_token(self):
         """Test returns None when access_token is None."""
-        result = await _validate_credentials_and_capture_rotation(
-            "key", None, "refresh"
-        )
+        result = await _validate_credentials_and_capture_rotation("key", None, "refresh")
         assert result is None
 
     @pytest.mark.asyncio
@@ -94,6 +90,7 @@ class TestConfigFlowCoverageGaps:
             result = await flow._test_credentials("key", "token", "refresh")
 
         assert result is False
+
     # =====================================================================
     # Lines 764-779: Exception in RepairFlow._test_credentials
     # =====================================================================

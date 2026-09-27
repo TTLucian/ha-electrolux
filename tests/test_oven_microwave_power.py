@@ -28,8 +28,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from custom_components.electrolux.api import ElectroluxLibraryEntity
-from custom_components.electrolux.entity import ElectroluxEntity
 from custom_components.electrolux.const import CONF_API_KEY
+from custom_components.electrolux.entity import ElectroluxEntity
 from custom_components.electrolux.models import (
     CAPABILITY_REQUIRED_CATALOG_KEYS,
     Appliance,
