@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import ElectroluxLibraryEntity
 from .auth_errors import is_auth_error, is_forbidden_resource_error
 from .const import DOMAIN, TIME_ENTITIES_TO_UPDATE, ApplianceDesyncAttribute
-from .models import Appliance, Appliances, ApplianceState
+from .models import Appliance, Appliances, ApplianceState, _get_nested_value, _has_nested_key
 from .util import (
     AuthenticationError,
     ElectroluxApiClient,
@@ -62,6 +62,36 @@ SSE_RESYNC_DEBOUNCE = 60.0  # seconds between full-state resyncs after SSE recon
 DEFERRED_UPDATE_DELAY = 70  # seconds
 DEFERRED_TASK_LIMIT = 5  # maximum concurrent deferred tasks
 STATE_CHANGE_REFRESH_DELAY = 10  # seconds: delay after applianceState change before re-polling
+# How long after an SSE write a REST snapshot can still be treated as older than
+# it. The post-transition poll fires STATE_CHANGE_REFRESH_DELAY after the event,
+# and the measured SSE-write-to-snapshot-apply gap was 10.147s (issue #233), so
+# the window must exceed the delay itself; 10 exactly would still let it through.
+SSE_AUTHORITY_WINDOW = STATE_CHANGE_REFRESH_DELAY + 5
+# Lifecycle properties worth ordering. Deliberately narrow: a wrong state on
+# applianceState is a real false trigger, whereas suppressing a fast-toggling
+# property would be its own regression.
+SSE_ORDERED_PROPERTIES = frozenset(
+    {
+        ApplianceDesyncAttribute.APPLIANCE_STATE.value,
+        ApplianceDesyncAttribute.TIME_TO_END.value,
+        ApplianceDesyncAttribute.DOOR_STATE.value,
+        ApplianceDesyncAttribute.DOOR_LOCK.value,
+        ApplianceDesyncAttribute.POWER_STATE.value,
+        ApplianceDesyncAttribute.WORK_MODE.value,
+        ApplianceDesyncAttribute.HOB_WORK_MODE.value,
+        ApplianceDesyncAttribute.STATUS.value,
+        ApplianceDesyncAttribute.ROBOT_STATUS.value,
+        ApplianceDesyncAttribute.ACTIVITY.value,
+        ApplianceDesyncAttribute.TARGET_TEMPERATURE_C.value,
+        ApplianceDesyncAttribute.TARGET_TEMPERATURE_F.value,
+    }
+)
+# Upper bound on remembered SSE values per property, so a chatty appliance cannot
+# grow the history without limit. Entries are normally pruned by age (the authority
+# window); this only caps the worst case. Three is the minimum that catches the
+# reported RUNNING -> END_OF_CYCLE -> OFF sequence, where the poll returned the
+# *oldest* of the three - a depth of two would evict it before the guard sees it.
+SSE_VALUE_HISTORY_MAX = 8
 CLEANUP_INTERVAL = 3600  # 1 hour in seconds (reduced from 24h for better UX)
 TASK_CANCEL_TIMEOUT = 2.0  # seconds for task cancellation timeouts
 TASK_CANCEL_EXCEPTIONS = (TimeoutError, asyncio.CancelledError)
@@ -168,6 +198,10 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._pending_state_refresh_tasks: dict[
             str, asyncio.Task
         ] = {}  # Deduplicate _refresh_after_appliance_state_change tasks per appliance
+        # appliance_id -> property -> [(monotonic_ts, value), ...] for SSE-delivered
+        # lifecycle values, used to tell a REST snapshot that is merely old apart
+        # from one carrying a genuinely new value (#233).
+        self._sse_value_history: dict[str, dict[str, list[tuple[float, Any]]]] = {}
 
         # Real-time API & SSE stream diagnostic tracking
         self._api_connected: bool = True
@@ -457,7 +491,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         f"This confirms SSE did NOT send the final update - Electrolux bug exists!"
                     )
 
-                appliance.update(appliance_status)
+                self._apply_rest_status(appliance, appliance_status)
                 self.async_set_updated_data(self.data)
                 self._mark_time_to_end_fresh(appliance_id)
         except asyncio.CancelledError:
@@ -545,7 +579,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 return
             _LOGGER.debug("Polling fresh state for %s after panel/state transition", appliance_id)
             status = await self.api.get_appliance_state(appliance_id)
-            appliance.update(status)
+            self._apply_rest_status(appliance, status)
             self.async_set_updated_data(self.data)
             self._mark_time_to_end_fresh(appliance_id)
             _LOGGER.debug("State-change refresh completed for %s", appliance_id)
@@ -557,6 +591,111 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 appliance_id,
                 ex,
             )
+
+    @staticmethod
+    def _is_ordered_property(path: str) -> bool:
+        """True when a property is one of the ordered lifecycle keys.
+
+        Compared on the leaf name so namespaced properties are covered too: the
+        cloud reports ``upperOven/targetTemperatureC`` as a single key, and the
+        scope list is written in flat form.
+        """
+        return path.rsplit("/", 1)[-1] in SSE_ORDERED_PROPERTIES
+
+    def _record_sse_values(self, appliance_id: str, values: dict[str, Any]) -> None:
+        """Remember recently SSE-delivered lifecycle values for this appliance.
+
+        Only properties in SSE_ORDERED_PROPERTIES are tracked, and entries are
+        pruned by age rather than a fixed depth: a poll can legitimately return a
+        value from several transitions back, so what matters is "delivered inside
+        the authority window", not "the last N".
+        """
+        now = self.hass.loop.time()
+        per_appliance = self._sse_value_history.setdefault(appliance_id, {})
+        for prop, value in values.items():
+            if not self._is_ordered_property(prop):
+                continue
+            history = per_appliance.setdefault(prop, [])
+            if history and history[-1][1] == value:
+                continue  # duplicate SSE frame - already the newest entry
+            history.append((now, value))
+            if not self._prune_sse_history(history, now):
+                del per_appliance[prop]
+
+    def _prune_sse_history(self, history: list[tuple[float, Any]], now: float) -> bool:
+        """Drop entries older than the authority window. Return False if all are gone.
+
+        The newest entry is kept even when stale: it is still the best local
+        value, and the age check in ``_superseded_by_sse`` decides authority.
+        """
+        cutoff = now - SSE_AUTHORITY_WINDOW
+        while len(history) > 1 and history[0][0] < cutoff:
+            history.pop(0)
+        if len(history) > SSE_VALUE_HISTORY_MAX:
+            del history[: len(history) - SSE_VALUE_HISTORY_MAX]
+        return bool(history)
+
+    def _superseded_by_sse(self, appliance_id: str, reported: dict[str, Any]) -> set[str]:
+        """Return the properties whose polled value is older than SSE already is.
+
+        A poll is only rejected when it proposes a value that SSE has *already
+        moved away from* inside the authority window. A value SSE has never
+        delivered still comes through, so a dropped SSE event is recovered by the
+        next poll rather than suppressed - the failure mode a blanket time window
+        would introduce.
+        """
+        per_appliance = self._sse_value_history.get(appliance_id)
+        if not per_appliance or not isinstance(reported, dict):
+            return set()
+
+        now = self.hass.loop.time()
+        retain: set[str] = set()
+        for prop, history in per_appliance.items():
+            if not history:
+                continue
+            newest_ts, newest_value = history[-1]
+            # Outside the window the poll is authoritative again.
+            if now - newest_ts > SSE_AUTHORITY_WINDOW:
+                continue
+            if not _has_nested_key(reported, prop):
+                continue
+            polled = _get_nested_value(reported, prop)
+            # Only reject a value SSE has already superseded; the current SSE value
+            # agreeing is not a conflict, and an unseen value is new information.
+            if polled == newest_value:
+                continue
+            superseded = {value for ts, value in history[:-1] if now - ts <= SSE_AUTHORITY_WINDOW}
+            if polled in superseded:
+                retain.add(prop)
+                _LOGGER.debug(
+                    "REST snapshot for %s proposes superseded %s=%s (SSE has %s) - retaining SSE value",
+                    appliance_id,
+                    prop,
+                    polled,
+                    newest_value,
+                )
+        return retain
+
+    def _apply_rest_status(self, appliance: Appliance, status: Any) -> None:
+        """The single place a REST snapshot is applied, with the SSE ordering guard.
+
+        All five poll paths funnel through here so no apply site can bypass the
+        guard (#233).
+        """
+        retain: set[str] = set()
+        reported = None
+        if isinstance(status, dict):
+            candidate = status.get("properties", {})
+            if isinstance(candidate, dict):
+                reported = candidate.get("reported")
+        if isinstance(reported, dict):
+            retain = self._superseded_by_sse(appliance.pnc_id, reported)
+        if retain:
+            appliance.update(status, retain=retain)
+        else:
+            # Keep the plain call when there is nothing to guard, so the common
+            # path is exactly what it was before this existed.
+            appliance.update(status)
 
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
@@ -613,6 +752,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
     def _process_incremental_update(self, data: dict[str, Any], appliances: Any) -> None:
         """Process an incremental property update."""
         appliance_id = data[APPLIANCE_ID_KEY]
+        # Remember what SSE delivered before applying, so a later REST poll that
+        # still proposes a superseded value cannot roll the state back (#233).
+        self._record_sse_values(appliance_id, {data[PROPERTY_KEY]: data[VALUE_KEY]})
 
         # Track timeToEnd to detect when the appliance skips the deferred-update
         # trigger window entirely (Electrolux bug: no final-state push on cycle end).
@@ -872,6 +1014,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
 
         _LOGGER.debug(f"Electrolux appliance state updated for {appliance_id} (bulk: {list(appliance_data.keys())})")
 
+        # Bulk frames carry many properties at once; record them all (#233).
+        self._record_sse_values(appliance_id, appliance_data)
+
         try:
             appliance.update_reported_data(appliance_data)
         except (KeyError, ValueError, TypeError) as ex:
@@ -919,7 +1064,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             """Update single appliance. Returns success status."""
             try:
                 status = await asyncio.wait_for(self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT)
-                app_obj.update(status)
+                self._apply_rest_status(app_obj, status)
 
                 # Update connectivity state
                 new_state = status.get("connectivityState", "connected")
@@ -1242,7 +1387,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             return
         try:
             status = await self.api.get_appliance_state(appliance_id)
-            appliance.update(status)
+            self._apply_rest_status(appliance, status)
             self.async_set_updated_data(self.data)
             self._mark_time_to_end_fresh(appliance_id)
         except asyncio.CancelledError:
@@ -1928,7 +2073,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             try:
                 # Use a strict timeout for the background refresh
                 status = await asyncio.wait_for(self.api.get_appliance_state(app_id), timeout=UPDATE_TIMEOUT)
-                app_obj.update(status)
+                self._apply_rest_status(app_obj, status)
 
                 # Track connectivity transitions for SSE restart logic
                 old_state = self._last_known_connectivity.get(app_id)
@@ -2521,6 +2666,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         self._last_time_to_end_seen.pop(appliance_id, None)
                         # Clean up remote control tracking
                         self._last_remote_control.pop(appliance_id, None)
+                        # Clean up SSE value history (#233) - same leak precedent as #180
+                        self._sse_value_history.pop(appliance_id, None)
                         # Cancel and clean up any deferred tasks
                         if appliance_id in self._deferred_tasks_by_appliance:
                             task = self._deferred_tasks_by_appliance.pop(appliance_id)

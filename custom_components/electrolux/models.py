@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import logging
 import re
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 if TYPE_CHECKING:
@@ -106,6 +107,16 @@ def _has_nested_key(state: dict[str, Any], path: str) -> bool:
     return False
 
 
+def _get_nested_value(state: dict[str, Any], path: str, default: Any = None) -> Any:
+    """Return the value at a slash-separated path, or ``default`` if any hop is missing."""
+    node: Any = state
+    for part in path.split("/"):
+        if not isinstance(node, dict) or part not in node:
+            return default
+        node = node[part]
+    return node
+
+
 def _set_nested_value(state: dict[str, Any], path: str, value: Any) -> None:
     """Set the value at a slash-separated path, creating intermediate dicts."""
     parts = path.split("/")
@@ -193,8 +204,18 @@ class Appliance:
         # compatibility with minimal-state objects that embed it there.
         return self._appliance_type or self.reported_state.get("applianceInfo", {}).get("applianceType")
 
-    def update(self, appliance_status: ApplianceState | dict[str, Any]) -> None:
-        """Update appliance status."""
+    def update(
+        self,
+        appliance_status: ApplianceState | dict[str, Any],
+        retain: Collection[str] | None = None,
+    ) -> None:
+        """Update appliance status.
+
+        ``retain`` names slash-separated paths whose local value is newer than
+        the incoming snapshot and must therefore survive the full replace. The
+        coordinator computes it from SSE ordering (#233); see
+        ``_retain_sse_authoritative_values``.
+        """
         new_state = cast(ApplianceState, appliance_status)
         # Retain last-known advertised temperature readings before the full-state
         # replace: the Electrolux cloud omits live compartment temperatures
@@ -203,10 +224,43 @@ class Appliance:
         # the last pushed reading until the next event.
         if isinstance(new_state, dict):
             self._retain_advertised_temperature_values(new_state)
+            if retain:
+                self._retain_sse_authoritative_values(new_state, retain)
         self.state = new_state
         self.initialize_constant_values()
         for entity in self.entities:
             entity.update(self.state)
+
+    def _retain_sse_authoritative_values(
+        self,
+        new_state: ApplianceState | dict[str, Any],
+        paths: Collection[str],
+    ) -> None:
+        """Keep SSE-delivered values that a REST snapshot would roll backwards (#233).
+
+        The cloud's REST view can lag its own SSE bus, so a poll issued after an
+        SSE event can carry a snapshot older than the event it overwrites. When
+        the coordinator flags a path here, the locally-held value came from SSE
+        more recently than the incoming one and wins.
+
+        Only values actually present in the poll are considered: an omitted key
+        is the temperature case above, not an ordering conflict.
+        """
+        new_reported = new_state.get("properties", {}).get("reported")
+        if not isinstance(new_reported, dict):
+            return
+
+        for path in paths:
+            if not _has_nested_key(new_reported, path):
+                continue
+            local_value = self.get_state(path)
+            if local_value is None:
+                continue
+            incoming = _get_nested_value(new_reported, path)
+            if incoming == local_value:
+                continue
+            _set_nested_value(new_reported, path, local_value)
+            _LOGGER.debug("Retained SSE-authoritative value for %s over REST snapshot", path)
 
     def _retain_advertised_temperature_values(self, new_state: ApplianceState | dict[str, Any]) -> None:
         """Carry last-known readings over a full state poll for advertised temperature sensors.
