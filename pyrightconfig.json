@@ -1,0 +1,19 @@
+{
+  "pythonVersion": "3.14",
+  "exclude": [
+    "**/.*",
+    "**/site-packages/**",
+    "**/Lib/**",
+    "**/__pycache__/**",
+    "**/node_modules/**",
+    "**/.pytest_cache/**",
+    "**/.mypy_cache/**",
+    ".venv"
+  ],
+  "extraPaths": [
+    "./custom_components"
+  ],
+  "reportReturnType": "none",
+  "reportGeneralTypeIssues": "warning",
+  "typeCheckingMode": "basic"
+}
