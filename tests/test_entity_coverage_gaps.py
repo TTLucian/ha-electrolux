@@ -2219,8 +2219,67 @@ class TestDisabledTriggerDefaultSkipped:
         assert payload["EWX1493A_rinseHold"] is False
 
 
+class TestDisabledReportedValueOmitted:
+    """#257: a *reported* value marked disabled must not ride along in the payload.
+
+    The reporter could not reproduce this one — he never captured the appliance
+    reporting analogSpinSpeed=DISABLED — but it is the same root cause as the
+    trigger path, and the payload is a full userSelections replacement, so a
+    single such sibling value would fail every option write.
+    """
+
+    def test_disabled_reported_value_is_omitted(self):
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {
+                "EWX1493A_preWashPhase": False,
+                "analogSpinSpeed": "DISABLED",
+                "EWX1493A_rinseHold": False,
+            },
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        # The key the user changed is written...
+        assert payload["EWX1493A_preWashPhase"] is True
+        # ...the writable sibling is carried as normal...
+        assert payload["EWX1493A_rinseHold"] is False
+        # ...and the value the cloud refuses is absent entirely.
+        assert "analogSpinSpeed" not in payload
+
+    def test_writable_reported_values_are_still_carried(self):
+        """The normal reported-value path is untouched."""
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {
+                "EWX1493A_preWashPhase": False,
+                "analogSpinSpeed": "1200_RPM",
+                "EWX1493A_rinseHold": False,
+            },
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+        assert payload["EWX1493A_rinseHold"] is False
+
+    def test_program_uid_is_never_omitted(self):
+        """programUID short-circuits above the guard and must always ship."""
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {
+                "EWX1493A_preWashPhase": False,
+                "analogSpinSpeed": "DISABLED",
+            },
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["programUID"] == "ECO"
+
+
 class TestCapabilityValueDisabledPredicate:
-    """The ``disabled`` lookup behind the skip, including malformed input."""
+    """The ``disabled`` lookup behind both guards, including malformed input."""
 
     def test_disabled_value_is_detected(self):
         assert ElectroluxNumber._capability_value_disabled(

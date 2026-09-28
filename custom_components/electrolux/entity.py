@@ -688,6 +688,26 @@ class ElectroluxEntity(CoordinatorEntity):
                 continue
             if cap.get("access") == "read":
                 continue
+            # A value the appliance is currently reporting may itself be one the
+            # API refuses to accept remotely. If it is, carrying it would fail
+            # *every* option write with 406 "Value disabled" (#257) - the payload
+            # is a full userSelections replacement, so one bad sibling value
+            # takes down the key the user actually changed. Leaving the key out
+            # is the only variant that can succeed.
+            #
+            # Logged at warning, not debug: omission can itself change behaviour,
+            # because an appliance that treats the write as a full replacement
+            # resets the missing field to its default. The alternative was a loud
+            # 406 that changed nothing, so this needs to be visible in the field
+            # rather than silent.
+            if self._capability_value_disabled(caps, f"userSelections/{key}", val):
+                _LOGGER.warning(
+                    "Omitting reported userSelections/%s=%s from the payload - the capability marks it disabled, "
+                    "and the appliance may reset it to its default",
+                    key,
+                    val,
+                )
+                continue
             merged[key] = val
 
         # Always override with the new value (and ensure programUID is present).
