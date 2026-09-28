@@ -84,6 +84,12 @@ SSE_ORDERED_PROPERTIES = frozenset(
         ApplianceDesyncAttribute.ACTIVITY.value,
         ApplianceDesyncAttribute.TARGET_TEMPERATURE_C.value,
         ApplianceDesyncAttribute.TARGET_TEMPERATURE_F.value,
+        # Reported as userSelections/programUID, and matched on the leaf name.
+        # Unlike a fast-toggling property it only changes on an explicit program
+        # selection, so it cannot churn the history — and a stale one is exactly
+        # as misleading as a stale applianceState: the program select shows the
+        # wrong program until the next poll corrects it (#233).
+        ApplianceDesyncAttribute.PROGRAM_UID.value,
     }
 )
 # Upper bound on remembered SSE values per property, so a chatty appliance cannot
