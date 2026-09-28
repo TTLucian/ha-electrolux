@@ -422,3 +422,75 @@ class TestAllApplySitesAreGuarded:
 
         source = inspect.getsource(coord_mod)
         assert "_sse_value_history.pop(appliance_id, None)" in source
+
+
+# ---------------------------------------------------------------------------
+# #233 - programUID joins the ordered set
+# ---------------------------------------------------------------------------
+
+
+class TestProgramUidGuarded:
+    """#233: a stale programUID must not overwrite a fresher one.
+
+    Reported on hardware: an `update_entity` landed a stale REST snapshot in
+    which `timeToEnd` was correctly rejected by the guard while
+    `userSelections/programUID` from the same snapshot went through, leaving
+    the program select showing the wrong program until the next poll.
+    """
+
+    def test_superseded_program_uid_is_not_restored(self):
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/programUID", "ECO", clock)
+        _sse(coord, "userSelections/programUID", "AUTO", clock)
+        appliance = _make_appliance({"userSelections": {"programUID": "AUTO"}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(appliance, _rest_body({"userSelections": {"programUID": "ECO"}}))
+
+        assert appliance.reported_state["userSelections"]["programUID"] == "AUTO"
+
+    def test_program_uid_never_seen_on_sse_still_applies(self):
+        """A panel-initiated program change must not be suppressed.
+
+        The guard only holds back a value SSE has already moved away from, so
+        a program the stream never announced is new information and the poll
+        delivers it normally.
+        """
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/programUID", "ECO", clock)
+        appliance = _make_appliance({"userSelections": {"programUID": "ECO"}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(appliance, _rest_body({"userSelections": {"programUID": "QUICK"}}))
+
+        assert appliance.reported_state["userSelections"]["programUID"] == "QUICK"
+
+    def test_program_uid_outside_the_window_is_authoritative(self):
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/programUID", "ECO", clock)
+        appliance = _make_appliance({"userSelections": {"programUID": "ECO"}})
+        _wire(coord, appliance)
+        clock.advance(coord_mod.SSE_AUTHORITY_WINDOW + 5)
+
+        coord._apply_rest_status(appliance, _rest_body({"userSelections": {"programUID": "AUTO"}}))
+
+        assert appliance.reported_state["userSelections"]["programUID"] == "AUTO"
+
+    def test_sibling_values_from_the_same_snapshot_still_apply(self):
+        """Only programUID is held back; the rest of the body goes through."""
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/programUID", "ECO", clock)
+        _sse(coord, "userSelections/programUID", "AUTO", clock)
+        appliance = _make_appliance({"userSelections": {"programUID": "AUTO"}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"programUID": "ECO", "autoDoorOpener": True}}),
+        )
+
+        assert appliance.reported_state["userSelections"]["programUID"] == "AUTO"
+        assert appliance.reported_state["userSelections"]["autoDoorOpener"] is True
