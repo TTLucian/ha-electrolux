@@ -2559,8 +2559,14 @@ class TestUserSelectionsProgramUidGate:
         return entity, api
 
     @pytest.mark.asyncio
-    async def test_appliance_level_key_omits_program_uid(self):
-        """A key no program lists must not be bundled with programUID (#232)."""
+    async def test_appliance_level_key_keeps_program_uid(self):
+        """A key no program lists must still carry programUID.
+
+        Dropping it was tried in v3.8.0 and reset the selected program on
+        hardware: timeToEnd 16200 -> 780, ecoScore 7 -> 1, and the appliance
+        display went 4:30 -> 0:13 (#232). The program must never be collateral
+        damage of an option write.
+        """
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener")
         entity.reported_state = {"connectivityState": "connected"}
@@ -2573,7 +2579,26 @@ class TestUserSelectionsProgramUidGate:
             await entity.async_set_native_value(20.0)
 
         _, command = api.execute_appliance_command.call_args[0]
-        assert command == {"userSelections": {"autoDoorOpener": 20}}
+        assert command == {"userSelections": {"programUID": "ECO", "autoDoorOpener": 20}}
+
+    @pytest.mark.asyncio
+    async def test_appliance_level_key_warns_that_the_cloud_may_ignore_it(self, caplog):
+        """The no-op is announced rather than silently swallowed."""
+        coordinator = self._coordinator_with(DW_CAPS)
+        entity, _api = self._entity(coordinator, "autoDoorOpener")
+        entity.reported_state = {"connectivityState": "connected"}
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
+
+        with (
+            caplog.at_level("WARNING"),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=20,
+            ),
+        ):
+            await entity.async_set_native_value(20.0)
+
+        assert any("no program lists" in record.message for record in caplog.records)
 
     @pytest.mark.asyncio
     async def test_program_level_key_keeps_program_uid(self):
@@ -2593,16 +2618,35 @@ class TestUserSelectionsProgramUidGate:
         assert command == {"userSelections": {"programUID": "ECO", "xtraDryOption": 20}}
 
     @pytest.mark.asyncio
-    async def test_dam_appliance_level_key_needs_no_program_uid(self):
-        """A DAM appliance-level write must not require programUID (#232).
+    async def test_dam_appliance_level_key_requires_program_uid(self):
+        """A DAM write with no programUID is refused rather than sent bare.
 
-        The DAM branch used to raise "appliance state is incomplete" whenever
-        ``programUID`` was missing, which blocked appliance-level keys entirely.
+        Sending it bare was the v3.8.0 behaviour that reset the selected program
+        on hardware. The DAM branch now applies the same rule as the legacy one:
+        programUID or nothing (#232).
         """
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
         entity.reported_state = {"connectivityState": "connected"}
         entity.appliance_status = {"properties": {"reported": {"userSelections": {}}}}
+
+        with (
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=20,
+            ),
+            pytest.raises(HomeAssistantError, match="appliance state is incomplete"),
+        ):
+            await entity.async_set_native_value(20.0)
+
+        api.execute_appliance_command.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_dam_appliance_level_key_bundles_program_uid_when_present(self):
+        coordinator = self._coordinator_with(DW_CAPS)
+        entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
+        entity.reported_state = {"connectivityState": "connected"}
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
 
         with patch(
             "custom_components.electrolux.number.format_command_for_appliance",
@@ -2611,4 +2655,4 @@ class TestUserSelectionsProgramUidGate:
             await entity.async_set_native_value(20.0)
 
         _, command = api.execute_appliance_command.call_args[0]
-        assert command == {"commands": [{"userSelections": {"autoDoorOpener": 20}}]}
+        assert command == {"commands": [{"userSelections": {"programUID": "ECO", "autoDoorOpener": 20}}]}

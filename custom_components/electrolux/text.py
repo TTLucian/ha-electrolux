@@ -151,10 +151,11 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Only bundle programUID for program-level keys (fixes #232).
-                # Appliance-level keys (e.g. autoDoorOpener) are silently
-                # rejected when sent bundled with a programUID.
-                if program_uid and self._is_program_level_key():
+                # Always bundle programUID, for appliance-level keys too (#232).
+                # Dropping it was tried in v3.8.0 and reset the selected program
+                # on hardware; see switch.py for the full evidence.
+                if program_uid:
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {
                         "userSelections": {
                             "programUID": program_uid,
@@ -174,10 +175,11 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Only bundle programUID for program-level keys (fixes #232).
-                # Appliance-level keys (e.g. autoDoorOpener) are silently
-                # rejected when sent bundled with a programUID.
-                if program_uid and self._is_program_level_key():
+                # Always bundle programUID, for appliance-level keys too (#232).
+                # Dropping it was tried in v3.8.0 and reset the selected program
+                # on hardware; see switch.py for the full evidence.
+                if program_uid:
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {
                         self.entity_source: {
                             "programUID": program_uid,

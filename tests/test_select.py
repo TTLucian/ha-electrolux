@@ -2000,8 +2000,12 @@ class TestDiscoveredPrograms:
             assert command == {"userSelections": {"programUID": "ECO", "xtraDryOption": "A"}}
 
     @pytest.mark.asyncio
-    async def test_dam_appliance_level_key_omits_program_uid(self, mock_coordinator):
-        """DAM appliance-level key: no programUID, and no "incomplete state" error (#232)."""
+    async def test_dam_appliance_level_key_keeps_program_uid(self, mock_coordinator):
+        """DAM appliance-level key keeps programUID too (#232 regression).
+
+        Dropping it was the v3.8.0 behaviour and it reset the selected program
+        on hardware, so the DAM branch is held to the same rule as the legacy one.
+        """
         _set_appliance_capabilities(mock_coordinator)
         entity = ElectroluxSelect(
             coordinator=mock_coordinator,
@@ -2023,8 +2027,7 @@ class TestDiscoveredPrograms:
         entity.api = api
         entity.is_remote_control_enabled = MagicMock(return_value=True)  # type: ignore[method-assign]
         entity.reported_state = {"connectivityState": "connected"}
-        # No programUID reported: previously this raised "appliance state is incomplete"
-        entity.appliance_status = {"properties": {"reported": {"userSelections": {}}}}
+        entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
         entity.options_list = {"A": "A", "B": "B"}
 
         with patch("custom_components.electrolux.select.format_command_for_appliance") as mock_format:
@@ -2033,13 +2036,16 @@ class TestDiscoveredPrograms:
 
         call_args = api.execute_appliance_command.call_args
         _, command = call_args[0]
-        assert command == {"commands": [{"userSelections": {"autoDoorOpener": "A"}}]}
+        assert command == {"commands": [{"userSelections": {"programUID": "ECO", "autoDoorOpener": "A"}}]}
 
     @pytest.mark.asyncio
-    async def test_select_option_appliance_level_key_omits_program_uid(self, mock_coordinator):
-        """Select option for an appliance-level key omits programUID (fixes #232)."""
-        # Real dishwasher capabilities: its programs list the options but never
-        # autoDoorOpener, so the write must not be bundled with programUID.
+    async def test_select_option_appliance_level_key_keeps_program_uid(self, mock_coordinator):
+        """Select option for an appliance-level key keeps programUID (#232 regression).
+
+        Real dishwasher capabilities: its programs list the options but never
+        autoDoorOpener. Bundling programUID is still required - omitting it reset
+        the selected program on hardware.
+        """
         _set_appliance_capabilities(mock_coordinator)
         mock_capability = {
             "access": "readwrite",
@@ -2081,5 +2087,5 @@ class TestDiscoveredPrograms:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Appliance-level key: no programUID bundled
-            assert command == {"userSelections": {"autoDoorOpener": "OPT1"}}
+            # Appliance-level key: programUID is still bundled (#232)
+            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "autoDoorOpener": "OPT1"}}

@@ -425,8 +425,9 @@ class TestElectroluxSwitch:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Appliance-level key: no programUID bundled, sent as simple payload
-            assert command == {"userSelections": {"autoDoorOpener": "ON"}}
+            # Appliance-level key: programUID is still bundled (#232 regression).
+            # Omitting it reset the selected program on hardware.
+            assert command == {"userSelections": {"programUID": "ECO", "autoDoorOpener": "ON"}}
 
     @pytest.mark.asyncio
     async def test_switch_command_with_user_selections_source_real_program_option(self, mock_coordinator):

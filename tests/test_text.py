@@ -599,8 +599,12 @@ class TestUserSelectionsProgramUidGate:
         return entity, api
 
     @pytest.mark.asyncio
-    async def test_appliance_level_key_omits_program_uid(self):
-        """A key no program lists must not be bundled with programUID (#232)."""
+    async def test_appliance_level_key_keeps_program_uid(self):
+        """A key no program lists must still be bundled with programUID (#232).
+
+        Dropping it was the v3.8.0 behaviour and it reset the selected program
+        on hardware: timeToEnd 16200 -> 780, ecoScore 7 -> 1, display 4:30 -> 0:13.
+        """
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener")
         entity.appliance_status = {"properties": {"reported": {"userSelections": {"programUID": "ECO"}}}}
@@ -609,7 +613,7 @@ class TestUserSelectionsProgramUidGate:
 
         api.execute_appliance_command.assert_called_once_with(
             "TEST_PNC",
-            {"userSelections": {"autoDoorOpener": "ON"}},
+            {"userSelections": {"programUID": "ECO", "autoDoorOpener": "ON"}},
         )
 
     @pytest.mark.asyncio
@@ -627,8 +631,8 @@ class TestUserSelectionsProgramUidGate:
         )
 
     @pytest.mark.asyncio
-    async def test_dam_appliance_level_key_omits_program_uid(self):
-        """DAM writes follow the same gate."""
+    async def test_dam_appliance_level_key_keeps_program_uid(self):
+        """DAM writes keep programUID too (#232 regression)."""
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener", pnc_id="1:TEST_PNC")
         entity.reported_state = {"connectivityState": "connected"}
@@ -638,5 +642,5 @@ class TestUserSelectionsProgramUidGate:
 
         api.execute_appliance_command.assert_called_once_with(
             "1:TEST_PNC",
-            {"commands": [{"userSelections": {"autoDoorOpener": "ON"}}]},
+            {"commands": [{"userSelections": {"programUID": "ECO", "autoDoorOpener": "ON"}}]},
         )
