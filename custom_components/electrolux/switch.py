@@ -166,10 +166,13 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 # which treat partial writes as full replacements (resetting omitted
                 # options to defaults) keep their sibling options intact.
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                # Only bundle programUID for program-level keys (fixes #232).
-                # Appliance-level keys (e.g. autoDoorOpener) not listed by any program
-                # are silently rejected when sent bundled with a programUID.
-                if full_selections.get("programUID") and self._is_program_level_key():
+                # Always bundle programUID, for appliance-level keys too (#232).
+                # Dropping it was tried in v3.8.0 and reset the selected program
+                # on hardware: timeToEnd 16200 -> 780, ecoScore 7 -> 1, display
+                # 4:30 -> 0:13. The key may still be ignored by the cloud, which
+                # is what the warning is for; the program must not be damaged.
+                if full_selections.get("programUID"):
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {"userSelections": full_selections}
                 else:
                     command = {self.entity_source: {self.entity_attr: command_value}}
@@ -181,8 +184,9 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             if self.entity_source == "userSelections":
                 # Build the full current userSelections payload (DAM path).
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                # Only bundle programUID for program-level keys (fixes #232).
-                if full_selections.get("programUID") and self._is_program_level_key():
+                # See the legacy branch above: programUID is always bundled.
+                if full_selections.get("programUID"):
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {self.entity_source: full_selections}
                 else:
                     command = {self.entity_source: {self.entity_attr: command_value}}

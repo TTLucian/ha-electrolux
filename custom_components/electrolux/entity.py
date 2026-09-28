@@ -1407,6 +1407,30 @@ class ElectroluxEntity(CoordinatorEntity):
         self._is_supported_cache = True
         return True
 
+    def _warn_if_appliance_level_write(self, entity_attr: str) -> None:
+        """Log when a ``userSelections`` write targets an appliance-level key.
+
+        Such a key is one no program lists, e.g. ``autoDoorOpener``. The
+        payload still carries ``programUID`` - see the call sites - because
+        omitting it resets the selected program's parameters on appliances that
+        treat ``userSelections`` as a full replacement (#232). The cost of
+        including it is that the cloud appears to ignore the write: the command
+        succeeds and the value reverts on the next refresh.
+
+        Neither shape is known to work, so this is logged rather than swallowed.
+        A user who sees it knows the switch did not take, instead of wondering
+        whether HA is at fault.
+        """
+        if self._is_program_level_key():
+            return
+        _LOGGER.warning(
+            "Writing userSelections/%s on appliance %s, which no program lists. The write carries programUID "
+            "so the selected program is preserved, but the appliance may ignore the option entirely and the "
+            "value will revert on the next refresh.",
+            entity_attr,
+            self.pnc_id,
+        )
+
     def _is_program_level_key(self) -> bool:
         """Return True when a ``userSelections`` write must carry ``programUID``.
 
@@ -1417,6 +1441,15 @@ class ElectroluxEntity(CoordinatorEntity):
         (e.g. ``autoDoorOpener``) and are silently rejected by the cloud when
         they are bundled into a program-targeted payload, so they have to be
         written on their own (fixes #232).
+
+        .. warning::
+           That rule was withdrawn in v3.8.0. On hardware (#232) a write
+           without ``programUID`` was accepted and then reset the selected
+           program: ``timeToEnd`` 16200 → 780, ``ecoScore`` 7 → 1, confirmed
+           on the appliance display as 4:30 → 0:13. The same toggle from the
+           Electrolux app left the program untouched, so the corruption came
+           from the write shape, not the command. Call sites now always bundle
+           ``programUID`` and use this classification only to warn.
 
         Constraint dicts key their entries either bare (``startTime``) or
         namespaced with the entity source (``userSelections/glassCareOption``),

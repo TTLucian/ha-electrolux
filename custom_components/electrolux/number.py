@@ -771,10 +771,11 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Only bundle programUID for program-level keys (fixes #232).
-                # Appliance-level keys (e.g. autoDoorOpener) are silently
-                # rejected when sent bundled with a programUID.
-                if program_uid and self._is_program_level_key():
+                # Always bundle programUID, for appliance-level keys too (#232).
+                # Dropping it was tried in v3.8.0 and reset the selected program
+                # on hardware; see switch.py for the full evidence.
+                if program_uid:
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {
                         "userSelections": {
                             "programUID": program_uid,
@@ -814,31 +815,28 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
             reported = self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
             program_uid = reported.get("userSelections", {}).get("programUID")
 
-            # Only bundle programUID for program-level keys (fixes #232).
-            # Appliance-level keys (e.g. autoDoorOpener) are silently
-            # rejected when sent bundled with a programUID.
-            if self._is_program_level_key():
-                # Validate programUID — a program-scoped write needs it.
-                if not program_uid:
-                    _LOGGER.error(
-                        "Cannot send command: programUID missing for appliance %s",
-                        self.pnc_id,
-                    )
-                    raise HomeAssistantError(
-                        "Cannot change setting: appliance state is incomplete. "
-                        "Please wait for the appliance to initialize.",
-                        translation_domain=DOMAIN,
-                        translation_key="appliance_state_incomplete",
-                    )
+            # Always bundle programUID, for appliance-level keys too (#232).
+            # Dropping it was tried in v3.8.0 and reset the selected program
+            # on hardware; see switch.py for the full evidence.
+            self._warn_if_appliance_level_write(self.entity_attr)
+            if not program_uid:
+                _LOGGER.error(
+                    "Cannot send command: programUID missing for appliance %s",
+                    self.pnc_id,
+                )
+                raise HomeAssistantError(
+                    "Cannot change setting: appliance state is incomplete. "
+                    "Please wait for the appliance to initialize.",
+                    translation_domain=DOMAIN,
+                    translation_key="appliance_state_incomplete",
+                )
 
-                command = {
-                    self.entity_source: {
-                        "programUID": program_uid,
-                        self.entity_attr: formatted_value,
-                    },
-                }
-            else:
-                command = {self.entity_source: {self.entity_attr: formatted_value}}
+            command = {
+                self.entity_source: {
+                    "programUID": program_uid,
+                    self.entity_attr: formatted_value,
+                },
+            }
         elif self.entity_source:
             command = {self.entity_source: {self.entity_attr: formatted_value}}
         else:
