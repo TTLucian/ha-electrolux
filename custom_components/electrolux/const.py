@@ -76,6 +76,12 @@ class ApplianceDesyncAttribute(StrEnum):
     PROGRAM = "program"
     PROGRAM_UID = "programUID"
 
+    # Washer spin speed. Reported as userSelections/analogSpinSpeed, and matched
+    # on the leaf name. Guarded because a stale poll otherwise reverts the value
+    # the user just picked, and because the next command is built from that
+    # state - so a wrong spin speed silently propagates into the next write.
+    ANALOG_SPIN_SPEED = "analogSpinSpeed"
+
     # Cavity illumination & physical alerts
     CAVITY_LIGHT = "cavityLight"
     WATER_TANK_EMPTY = "waterTankEmpty"

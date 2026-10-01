@@ -2219,16 +2219,17 @@ class TestDisabledTriggerDefaultSkipped:
         assert payload["EWX1493A_rinseHold"] is False
 
 
-class TestDisabledReportedValueOmitted:
-    """#257: a *reported* value marked disabled must not ride along in the payload.
+class TestDisabledReportedValueCarried:
+    """#257: a reported value the API marks disabled IS carried in the payload.
 
-    The reporter could not reproduce this one — he never captured the appliance
-    reporting analogSpinSpeed=DISABLED — but it is the same root cause as the
-    trigger path, and the payload is a full userSelections replacement, so a
-    single such sibling value would fail every option write.
+    The earlier version omitted it. That was measured on hardware and is worse
+    than the 406 it avoided: with the key missing the appliance fell back to
+    "no spin" rather than the program default, so a night cycle set on the
+    panel followed by an unrelated option write left the laundry unspun with no
+    error anywhere. A rejected command is the lesser fault.
     """
 
-    def test_disabled_reported_value_is_omitted(self):
+    def test_disabled_reported_value_is_still_carried(self):
         entity = _washing_entity(
             "EWX1493A_preWashPhase",
             {
@@ -2240,12 +2241,11 @@ class TestDisabledReportedValueOmitted:
 
         payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
 
-        # The key the user changed is written...
         assert payload["EWX1493A_preWashPhase"] is True
-        # ...the writable sibling is carried as normal...
         assert payload["EWX1493A_rinseHold"] is False
-        # ...and the value the cloud refuses is absent entirely.
-        assert "analogSpinSpeed" not in payload
+        # Carried, so the cloud rejects the command loudly. Silently dropping it
+        # is what reset the spin speed to "no spin" on the reporter's washer.
+        assert payload["analogSpinSpeed"] == "DISABLED"
 
     def test_writable_reported_values_are_still_carried(self):
         """The normal reported-value path is untouched."""
@@ -2262,20 +2262,6 @@ class TestDisabledReportedValueOmitted:
 
         assert payload["analogSpinSpeed"] == "1200_RPM"
         assert payload["EWX1493A_rinseHold"] is False
-
-    def test_program_uid_is_never_omitted(self):
-        """programUID short-circuits above the guard and must always ship."""
-        entity = _washing_entity(
-            "EWX1493A_preWashPhase",
-            {
-                "EWX1493A_preWashPhase": False,
-                "analogSpinSpeed": "DISABLED",
-            },
-        )
-
-        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
-
-        assert payload["programUID"] == "ECO"
 
 
 class TestCapabilityValueDisabledPredicate:

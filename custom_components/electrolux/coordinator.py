@@ -90,6 +90,11 @@ SSE_ORDERED_PROPERTIES = frozenset(
         # as misleading as a stale applianceState: the program select shows the
         # wrong program until the next poll corrects it (#233).
         ApplianceDesyncAttribute.PROGRAM_UID.value,
+        # Verified on a washer: the 10s follow-up poll reverted six of seven
+        # option writes by re-proposing a superseded spin speed. Unlike a
+        # fast-toggling property this one holds its value between selections,
+        # so the bounded delay costs nothing.
+        ApplianceDesyncAttribute.ANALOG_SPIN_SPEED.value,
     }
 )
 # Upper bound on remembered SSE values per property, so a chatty appliance cannot
