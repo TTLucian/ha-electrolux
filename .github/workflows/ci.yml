@@ -82,11 +82,12 @@ jobs:
           mypy tests --ignore-missing-imports
 
       # 9️⃣ Run tests with coverage
-      # The floor was 70% against a ~96% actual, which meant a regression down
-      # to 71% still passed. 90% leaves roughly six points of headroom for
-      # legitimate new code while catching a genuine drop.
+      # No --cov-fail-under here on purpose. The floor is fail_under in
+      # pyproject.toml's [tool.coverage.report], so this job, the pre-commit
+      # pytest hook and a bare `pytest --cov=...` all enforce the same number.
+      # It was duplicated in three places and had already drifted apart.
       - name: Run tests
-        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing --cov-fail-under=90
+        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing
 
       # 🔟 Check for dirty files
       - name: Check for dirty files

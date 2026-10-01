@@ -1,19 +1,31 @@
 repos:
+  # These revs must track the tool versions in pyproject.toml / uv.lock. They
+  # sat at ruff v0.15.17 and mypy v2.1.0 while the project ran ruff 0.16.9 and
+  # mypy 2.3.1, so the hooks could pass on things CI rejected. A mirror that
+  # does not mirror is worse than none, because it reads as a passing check.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
+    rev: v0.16.9
     hooks:
       - id: ruff
         args: [--fix]
-        files: ^custom_components/electrolux/
+        # CI runs ruff over the component AND tests. Scoping the hook to the
+        # component alone left every file in tests/ unchecked until CI said so.
+        files: ^(custom_components/electrolux/|tests/)
       - id: ruff-format
-        files: ^custom_components/electrolux/
+        files: ^(custom_components/electrolux/|tests/)
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.1
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
-        files: ^custom_components/electrolux/
+        args:
+          - --ignore-missing-imports
+          # Without this the hook dies with "Source file found twice under
+          # different module names" (electrolux.* vs custom_components.electrolux.*),
+          # because it hands mypy individual file paths. CI avoids it by running
+          # two separate invocations; the flag gets the same result in one pass.
+          - --explicit-package-bases
+        files: ^(custom_components/electrolux/|tests/)
         additional_dependencies:
           - homeassistant
 
@@ -34,7 +46,8 @@ repos:
         entry: pytest
         language: system
         pass_filenames: false
-        # Kept in step with CI's --cov-fail-under. When this was 70 against a
-        # ~96% actual, the hook passed on regressions that CI would reject.
-        args: [--cov=custom_components/electrolux, --cov-fail-under=90, -q]
-        stages: [push]
+        # No --cov-fail-under here on purpose: the floor is fail_under in
+        # pyproject.toml's [tool.coverage.report], shared with CI. Spelling it
+        # out in both places is how they ended up disagreeing.
+        args: [--cov=custom_components/electrolux, -q]
+        stages: [pre-push]
