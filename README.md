@@ -169,6 +169,23 @@ All appliances must be:
 
 **Note:** No custom repository URL needed anymore!
 
+### 🧪 Beta Channel (opt-in)
+
+Prereleases are published as HACS prereleases. Install one **only if you are
+willing to report what it does to your appliance** — these ship unverified
+against real hardware by definition, and the maintainer of this integration
+does not own most supported appliance types.
+
+1. In HACS, open **Electrolux** → **⋮** → **Show more options**
+2. Enable **Include prereleases**
+3. Update to the prerelease, then **restart Home Assistant**
+
+To go back to the latest stable release, disable that option and update again.
+
+The manual copy-folder method below also works, but note that it leaves you on
+a hand-overwritten install that HACS no longer tracks. If you do it, copy the
+files again after every update.
+
 ### 🔧 Manual Installation
 
 1. Download the `custom_components/electrolux/` directory
