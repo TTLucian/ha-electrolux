@@ -494,3 +494,62 @@ class TestProgramUidGuarded:
 
         assert appliance.reported_state["userSelections"]["programUID"] == "AUTO"
         assert appliance.reported_state["userSelections"]["autoDoorOpener"] is True
+
+
+class TestAnalogSpinSpeedGuarded:
+    """#257: a stale spin speed must not revert the one the user just picked.
+
+    Measured on a washer: the 10s follow-up poll re-proposed a superseded
+    analogSpinSpeed on six of seven option writes, so HA showed the opposite of
+    what the appliance displayed. That matters beyond the display, because the
+    next command is built from the reported state - a wrong spin speed, or a
+    wrong preWashPhase, propagates into the next write.
+    """
+
+    def test_superseded_spin_speed_is_not_restored(self):
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/analogSpinSpeed", "1200_RPM", clock)
+        _sse(coord, "userSelections/analogSpinSpeed", "1000_RPM", clock)
+        appliance = _make_appliance({"userSelections": {"analogSpinSpeed": "1000_RPM"}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(appliance, _rest_body({"userSelections": {"analogSpinSpeed": "1200_RPM"}}))
+
+        assert appliance.reported_state["userSelections"]["analogSpinSpeed"] == "1000_RPM"
+
+    def test_disabled_spin_speed_never_seen_on_sse_still_applies(self):
+        """A DISABLED speed the stream never announced is new information."""
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/analogSpinSpeed", "1200_RPM", clock)
+        appliance = _make_appliance({"userSelections": {"analogSpinSpeed": "1200_RPM"}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(appliance, _rest_body({"userSelections": {"analogSpinSpeed": "DISABLED"}}))
+
+        assert appliance.reported_state["userSelections"]["analogSpinSpeed"] == "DISABLED"
+
+    def test_sibling_options_are_not_held_back(self):
+        """Only the spin speed is retained; a pre-wash change still applies."""
+        coord, clock = _make_coordinator()
+        _sse(coord, "userSelections/analogSpinSpeed", "1200_RPM", clock)
+        _sse(coord, "userSelections/analogSpinSpeed", "1000_RPM", clock)
+        appliance = _make_appliance({"userSelections": {"analogSpinSpeed": "1000_RPM", "EWX1493A_preWashPhase": False}})
+        _wire(coord, appliance)
+        clock.advance(5)
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body(
+                {
+                    "userSelections": {
+                        "analogSpinSpeed": "1200_RPM",
+                        "EWX1493A_preWashPhase": True,
+                    }
+                }
+            ),
+        )
+
+        assert appliance.reported_state["userSelections"]["analogSpinSpeed"] == "1000_RPM"
+        assert appliance.reported_state["userSelections"]["EWX1493A_preWashPhase"] is True
