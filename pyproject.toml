@@ -27,6 +27,15 @@ dev = [
     "pre-commit",
 ]
 
+# The coverage floor lives here and nowhere else. CI (ci.yml) and the
+# pre-commit pytest hook both call `pytest --cov=...` with no --cov-fail-under
+# argument, so they pick this up from coverage's own config. It was previously
+# spelled out in three places - the workflow, the hook, and AGENTS.md - and had
+# already drifted to 70 in one of them against 90 in the others, with a gate
+# that could not fail either way.
+[tool.coverage.report]
+fail_under = 90
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

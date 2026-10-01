@@ -20,10 +20,11 @@
 
 ## Testing
 
-- Run `uv run pytest --cov=custom_components/electrolux --cov-fail-under=90` before marking any task done
+- Run `uv run pytest --cov=custom_components/electrolux` before marking any task done. The **floor is `fail_under` in `pyproject.toml`'s `[tool.coverage.report]`** — never pass `--cov-fail-under`; that re-duplicates the value and reintroduces the drift the config exists to prevent.
 - CI requires **90%** coverage. It was 70% against a ~96% actual, which let a regression down to 71% pass silently.
 - Fix test failures before pushing — no PRs with known failing tests
 - Use `uv sync --group test --locked` to set up the test env. `--locked` matches CI: the lockfile is committed and is what gets tested.
+- `tests/test_repo_consistency.py` asserts pre-commit and CI cannot drift apart: hook `rev`s against `uv.lock`, hook `files:` scope against the paths CI passes, and that the coverage floor appears only in `pyproject.toml`. Change one side and that test fails — that is the point.
 
 ## Code style
 

@@ -46,7 +46,8 @@ repos:
         entry: pytest
         language: system
         pass_filenames: false
-        # Kept in step with CI's --cov-fail-under. When this was 70 against a
-        # ~96% actual, the hook passed on regressions that CI would reject.
-        args: [--cov=custom_components/electrolux, --cov-fail-under=90, -q]
+        # No --cov-fail-under here on purpose: the floor is fail_under in
+        # pyproject.toml's [tool.coverage.report], shared with CI. Spelling it
+        # out in both places is how they ended up disagreeing.
+        args: [--cov=custom_components/electrolux, -q]
         stages: [pre-push]
