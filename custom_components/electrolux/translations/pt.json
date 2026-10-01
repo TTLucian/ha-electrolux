@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Estado da porta"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Produto de enxaguamento"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Falta sal"
-            },
             "foodprobeinsertionstate": {
                 "name": "Sonda Alimentar"
             },

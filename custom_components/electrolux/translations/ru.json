@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Состояние двери"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Посудомоечная машина"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Соль отсутствует"
-            },
             "foodprobeinsertionstate": {
                 "name": "Пищевой зонд"
             },

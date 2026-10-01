@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Deur staat"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Spoelmiddel"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Zout ontbreekt"
-            },
             "foodprobeinsertionstate": {
                 "name": "Voedsel sonde"
             },

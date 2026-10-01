@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Stanje vrata"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Sredstvo za ispiranje nisko"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Nedostaje sol"
-            },
             "foodprobeinsertionstate": {
                 "name": "Sonda za hranu"
             },

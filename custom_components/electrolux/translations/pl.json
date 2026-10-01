@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Stan drzwi"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Dodatek do płukania"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Brak soli"
-            },
             "foodprobeinsertionstate": {
                 "name": "Sonda żywnościowa"
             },

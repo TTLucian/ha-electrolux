@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Türzustand"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "KLARSPÜLER"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Salz fehlt"
-            },
             "foodprobeinsertionstate": {
                 "name": "Lebensmittelsonde"
             },

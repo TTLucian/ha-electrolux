@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Κατάσταση πόρτας"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Χαμηλή υποβοήθηση ξεβγάλματος"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Λείπει το αλάτι"
-            },
             "foodprobeinsertionstate": {
                 "name": "Food Probe"
             },

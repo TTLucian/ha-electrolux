@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Ajtó állapota"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Öblítőszerek"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Hiányzó só"
-            },
             "foodprobeinsertionstate": {
                 "name": "Élelmiszer-szonda"
             },

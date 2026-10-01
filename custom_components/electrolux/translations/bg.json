@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Състояние на вратата"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "подобрители на изплакването"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Липсва сол"
-            },
             "foodprobeinsertionstate": {
                 "name": "Хранителна сонда"
             },

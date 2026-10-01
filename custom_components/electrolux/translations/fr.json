@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "État de la porte"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Produit de Rinçage"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Sel manquant"
-            },
             "foodprobeinsertionstate": {
                 "name": "Sonde alimentaire"
             },

@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Стан дверей"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Низький рівень ополіскувача"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Відсутня сіль"
-            },
             "foodprobeinsertionstate": {
                 "name": "Харчовий зонд"
             },

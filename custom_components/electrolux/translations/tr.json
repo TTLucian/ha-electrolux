@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Kapı durumu"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Durulama yardımcısı düşük"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Tuz eksik"
-            },
             "foodprobeinsertionstate": {
                 "name": "Gıda Sondası"
             },

@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Stav dverí"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Oplachovací prostriedok"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Chýba soľ"
-            },
             "foodprobeinsertionstate": {
                 "name": "Potravinová sonda"
             },

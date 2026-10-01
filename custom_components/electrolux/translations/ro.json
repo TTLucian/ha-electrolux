@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Starea ușii"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "AGENT DE CLĂTIRE"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Lipsă sare"
-            },
             "foodprobeinsertionstate": {
                 "name": "Sondă alimentară"
             },

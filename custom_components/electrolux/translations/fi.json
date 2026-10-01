@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Oven tila"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Huutelukirkaste"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Suolaa puuttuu"
-            },
             "foodprobeinsertionstate": {
                 "name": "Ruoka-anturi"
             },

@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Stanje vrat"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Sredstvo za izpiranje"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Manjka sol"
-            },
             "foodprobeinsertionstate": {
                 "name": "Prehranska sonda"
             },

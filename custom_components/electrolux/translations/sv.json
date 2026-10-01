@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Dörrtillstånd"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Sköljmedel"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Salt saknas"
-            },
             "foodprobeinsertionstate": {
                 "name": "Matsond"
             },

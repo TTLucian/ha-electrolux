@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Dier Staat"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Spülen Hëllefe profitéieren Low"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "SALT DAMAGE"
-            },
             "foodprobeinsertionstate": {
                 "name": "Liewensmëttel Sonde"
             },

@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Durvju stāvoklis"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Skalošanas līdzeklis"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Trūkst sāls"
-            },
             "foodprobeinsertionstate": {
                 "name": "Pārtikas zonde"
             },

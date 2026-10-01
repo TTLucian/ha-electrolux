@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Ukse olek"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Loputusvahend"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Sool puudub"
-            },
             "foodprobeinsertionstate": {
                 "name": "Toidusond"
             },

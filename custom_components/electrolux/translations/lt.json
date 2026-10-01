@@ -177,12 +177,6 @@
             "doorstate": {
                 "name": "Durų būklė"
             },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Skalavimo priemonė"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Trūksta druskos"
-            },
             "foodprobeinsertionstate": {
                 "name": "Maisto zondas"
             },
