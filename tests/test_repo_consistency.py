@@ -21,6 +21,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from packaging.version import Version
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = REPO_ROOT / "pyproject.toml"
@@ -100,6 +101,39 @@ class TestPreCommitScopeMatchesCI:
                     missing.append(f"{hook_id} would skip {path}/")
 
         assert not missing, "pre-commit hooks are scoped narrower than CI: " + "; ".join(sorted(set(missing)))
+
+
+class TestHomeAssistantTracksStableOnly:
+    """HA publishes a prerelease for every monthly release.
+
+    PyPI currently carries 60 pre-release versions in the 2026 range
+    (2026.10.0b0, 2026.11.0b1, ...), and the declared range
+    ``homeassistant>=2026.9.4,<2027.0.0`` does not exclude them - a beta
+    satisfies it. PEP 440 has no "no prerelease" clause, so dependabot would
+    happily propose one and it would install.
+
+    The intent is to track stable only, so assert it here rather than trusting
+    the range to say what it cannot. This fails the dependabot PR that first
+    proposes a beta, which is exactly when it is cheap to reject.
+    """
+
+    def test_locked_homeassistant_is_not_a_prerelease(self) -> None:
+        locked = _locked_versions()["homeassistant"]
+
+        assert not Version(locked).is_prerelease, (
+            f"uv.lock resolves homeassistant {locked}, which is a prerelease. "
+            f"This integration tracks stable only - reject the bump."
+        )
+
+    def test_declared_floor_is_not_a_prerelease(self) -> None:
+        groups = _load_toml(PYPROJECT)["dependency-groups"]
+        pyproject = groups["test"]
+        homeassistant = next(dep for dep in pyproject if dep.startswith("homeassistant"))
+        floor = homeassistant.split(">=")[1].split(",")[0]
+
+        assert not Version(floor).is_prerelease, (
+            f"The declared homeassistant floor is {floor}, a prerelease. Pin the floor to a stable release."
+        )
 
 
 class TestCoverageFloorHasOneHome:
