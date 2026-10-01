@@ -2,6 +2,8 @@
 __pycache__/
 .coverage
 .venv/
+.mypy_cache
+.ruff_cache
 *.vscode*
 .github/**/*instruction*
 *samples*

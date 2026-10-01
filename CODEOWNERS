@@ -3,3 +3,9 @@
 
 # Integration owner
 /custom_components/electrolux/ @TTLucian
+
+# Default owner for everything else - tests, workflows, docs, translations.
+# Without this, a change to tests/ or .github/ has no reviewer assigned.
+# Note this must live here, not in .github/CODEOWNERS: GitHub resolves
+# /CODEOWNERS before docs/ and .github/, so a second copy would be ignored.
+* @TTLucian
