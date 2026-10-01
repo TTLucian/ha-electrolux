@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API Schlëssel",
                     "access_token": "Zougang Token",
-                    "refresh_token": "Refresh Token"
+                    "refresh_token": "Refresh Token",
+                    "spin_speed_substitution": "Spinngeschwindegkeet Ersatz (experimentell - kuckt #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Dier Staat"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Spülen Hëllefe profitéieren Low"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "SALT DAMAGE"
             },
             "foodprobeinsertionstate": {
                 "name": "Liewensmëttel Sonde"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Muecht"
+            },
+            "executecommand_on": {
+                "name": "Ëmdréinen"
+            },
+            "executecommand_off": {
+                "name": "Auszeschalten"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Weidermaachen"
+            },
+            "executecommand_stopreset": {
+                "name": "Arrêt / Réinitialisation"
             },
             "waterfilterstatereset": {
                 "name": "Waasserfilter zrécksetzen"

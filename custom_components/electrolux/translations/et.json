@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API võti",
                     "access_token": "Juurdepääsuluba",
-                    "refresh_token": "Värskenda märki"
+                    "refresh_token": "Värskenda märki",
+                    "spin_speed_substitution": "Tsentrifuugimiskiiruse asendamine (eksperimentaalne - vt #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Ukse olek"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Loputusvahend"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sool puudub"
             },
             "foodprobeinsertionstate": {
                 "name": "Toidusond"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Võimsus"
+            },
+            "executecommand_on": {
+                "name": "Lülitage sisse"
+            },
+            "executecommand_off": {
+                "name": "Lülitatakse välja"
+            },
+            "executecommand_start": {
+                "name": "Alusta"
+            },
+            "executecommand_pause": {
+                "name": "Paus"
+            },
+            "executecommand_resume": {
+                "name": "Jätkamine"
+            },
+            "executecommand_stopreset": {
+                "name": "Peata / lähtesta"
             },
             "waterfilterstatereset": {
                 "name": "Lähtestage veefilter"

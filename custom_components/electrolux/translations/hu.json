@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API kulcs",
                     "access_token": "Hozzáférési token",
-                    "refresh_token": "Token frissítése"
+                    "refresh_token": "Token frissítése",
+                    "spin_speed_substitution": "Centrifugálási sebesség helyettesítése (kísérleti - lásd #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Ajtó állapota"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Öblítőszerek"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Hiányzó só"
             },
             "foodprobeinsertionstate": {
                 "name": "Élelmiszer-szonda"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Hatalom"
+            },
+            "executecommand_on": {
+                "name": "Bekapcsol"
+            },
+            "executecommand_off": {
+                "name": "Kapcsold ki"
+            },
+            "executecommand_start": {
+                "name": "Indítás"
+            },
+            "executecommand_pause": {
+                "name": "Szünet"
+            },
+            "executecommand_resume": {
+                "name": "Folytatás"
+            },
+            "executecommand_stopreset": {
+                "name": "STOP visszaállítás"
             },
             "waterfilterstatereset": {
                 "name": "Állítsa vissza a vízszűrőt"

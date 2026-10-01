@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Klucz API",
                     "access_token": "Token dostępu",
-                    "refresh_token": "Odśwież token"
+                    "refresh_token": "Odśwież token",
+                    "spin_speed_substitution": "Zmiana prędkości wirowania (eksperymentalna - patrz #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Stan drzwi"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Dodatek do płukania"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Brak soli"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda żywnościowa"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Moc"
+            },
+            "executecommand_on": {
+                "name": "Włącz"
+            },
+            "executecommand_off": {
+                "name": "Wyłącz"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Wstrzymaj"
+            },
+            "executecommand_resume": {
+                "name": "Resume"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/reset"
             },
             "waterfilterstatereset": {
                 "name": "Zresetuj filtr wody"

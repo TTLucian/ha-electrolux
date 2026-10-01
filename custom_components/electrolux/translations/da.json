@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API nøgle",
                     "access_token": "Adgangstoken",
-                    "refresh_token": "Opdater token"
+                    "refresh_token": "Opdater token",
+                    "spin_speed_substitution": "Udskiftning af centrifugeringshastighed (eksperimentel - se #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Dørtilstand"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Skyllemiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salt mangler"
             },
             "foodprobeinsertionstate": {
                 "name": "Fødevaresonde"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Magt"
+            },
+            "executecommand_on": {
+                "name": "Slå til"
+            },
+            "executecommand_off": {
+                "name": "Slå fra"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Resume"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/nulstil"
             },
             "waterfilterstatereset": {
                 "name": "Nulstil vandfilteret"

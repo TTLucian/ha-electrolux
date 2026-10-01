@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Chave de API",
                     "access_token": "Token de acesso",
-                    "refresh_token": "Atualizar token"
+                    "refresh_token": "Atualizar token",
+                    "spin_speed_substitution": "Substituição da velocidade de rotação (experimental - ver #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Estado da porta"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Produto de enxaguamento"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Falta sal"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda Alimentar"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Poder"
+            },
+            "executecommand_on": {
+                "name": "Ligar"
+            },
+            "executecommand_off": {
+                "name": "Desligar"
+            },
+            "executecommand_start": {
+                "name": "Iniciar"
+            },
+            "executecommand_pause": {
+                "name": "Pausar"
+            },
+            "executecommand_resume": {
+                "name": "Retomar"
+            },
+            "executecommand_stopreset": {
+                "name": "Parar/Redefinir"
             },
             "waterfilterstatereset": {
                 "name": "Redefinir filtro de água"

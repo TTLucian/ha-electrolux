@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API ključ",
                     "access_token": "Žeton za dostop",
-                    "refresh_token": "Osveži žeton"
+                    "refresh_token": "Osveži žeton",
+                    "spin_speed_substitution": "Zamenjava hitrosti ožemanja (eksperimentalno - glej #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Stanje vrat"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Sredstvo za izpiranje"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Manjka sol"
             },
             "foodprobeinsertionstate": {
                 "name": "Prehranska sonda"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Moč"
+            },
+            "executecommand_on": {
+                "name": "Vklop"
+            },
+            "executecommand_off": {
+                "name": "Izklop"
+            },
+            "executecommand_start": {
+                "name": "Začetek"
+            },
+            "executecommand_pause": {
+                "name": "Premor"
+            },
+            "executecommand_resume": {
+                "name": "Življenjepis (seznam)"
+            },
+            "executecommand_stopreset": {
+                "name": "Ustavi / ponastavi"
             },
             "waterfilterstatereset": {
                 "name": "Ponastavite vodni filter"

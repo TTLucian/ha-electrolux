@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Κλειδί API",
                     "access_token": "Token πρόσβασης",
-                    "refresh_token": "Ανανέωση διακριτικού"
+                    "refresh_token": "Ανανέωση διακριτικού",
+                    "spin_speed_substitution": "Υποκατάσταση ταχύτητας σπιν (πειραματική - βλέπε #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Κατάσταση πόρτας"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Χαμηλή υποβοήθηση ξεβγάλματος"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Λείπει το αλάτι"
             },
             "foodprobeinsertionstate": {
                 "name": "Food Probe"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Εξουσία"
+            },
+            "executecommand_on": {
+                "name": "Ανοιχτά"
+            },
+            "executecommand_off": {
+                "name": " Απενεργοποίηση"
+            },
+            "executecommand_start": {
+                "name": "Έναρξη"
+            },
+            "executecommand_pause": {
+                "name": "Παύση"
+            },
+            "executecommand_resume": {
+                "name": "Επιστροφή"
+            },
+            "executecommand_stopreset": {
+                "name": "Διακοπή / επαναφορά"
             },
             "waterfilterstatereset": {
                 "name": "Επαναφέρετε το φίλτρο νερού"

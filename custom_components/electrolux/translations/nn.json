@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API Key",
                     "access_token": "Tilgangssjetong",
-                    "refresh_token": "Oppdateringstoken"
+                    "refresh_token": "Oppdateringstoken",
+                    "spin_speed_substitution": "Spinnhastighetssubstitusjon (eksperimentell - se #257)"
                 }
             }
         },
@@ -345,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Effekt"
+            },
+            "executecommand_on": {
+                "name": "Slå & på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Hald fram"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / tilbakestill"
             },
             "waterfilterstatereset": {
                 "name": "Tilbakestill Vann Filter"

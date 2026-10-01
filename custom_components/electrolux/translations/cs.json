@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Klíč API",
                     "access_token": "Přístupový token",
-                    "refresh_token": "Obnovit token"
+                    "refresh_token": "Obnovit token",
+                    "spin_speed_substitution": "Náhrada rychlosti odstřeďování (experimentální - viz #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Stav dveří"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Oplachovací prostředky"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sůl chybí"
             },
             "foodprobeinsertionstate": {
                 "name": "Potravinová sonda"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Moc"
+            },
+            "executecommand_on": {
+                "name": "Zapnout"
+            },
+            "executecommand_off": {
+                "name": "Vypnout"
+            },
+            "executecommand_start": {
+                "name": "Začít"
+            },
+            "executecommand_pause": {
+                "name": "Pozastavení"
+            },
+            "executecommand_resume": {
+                "name": "Pokračovat"
+            },
+            "executecommand_stopreset": {
+                "name": "Zastavit / resetovat"
             },
             "waterfilterstatereset": {
                 "name": "Resetujte vodní filtr"

@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-Schlüssel",
                     "access_token": "Zugriffstoken",
-                    "refresh_token": "Aktualisierungstoken"
+                    "refresh_token": "Aktualisierungstoken",
+                    "spin_speed_substitution": "Drehzahlaustausch (experimentell - siehe #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Türzustand"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "KLARSPÜLER"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salz fehlt"
             },
             "foodprobeinsertionstate": {
                 "name": "Lebensmittelsonde"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Leistung"
+            },
+            "executecommand_on": {
+                "name": "Einschalten"
+            },
+            "executecommand_off": {
+                "name": "Ausschalten"
+            },
+            "executecommand_start": {
+                "name": "Beginnen"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Fortsetzen"
+            },
+            "executecommand_stopreset": {
+                "name": "Anhalten/Zurücksetzen"
             },
             "waterfilterstatereset": {
                 "name": "Wasserfilter zurücksetzen"

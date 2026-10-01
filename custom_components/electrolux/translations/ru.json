@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-ключ",
                     "access_token": "Токен доступа",
-                    "refresh_token": "Обновить токен"
+                    "refresh_token": "Обновить токен",
+                    "spin_speed_substitution": "Замена скорости вращения (экспериментальная - см. №257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Состояние двери"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Посудомоечная машина"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Соль отсутствует"
             },
             "foodprobeinsertionstate": {
                 "name": "Пищевой зонд"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Власть"
+            },
+            "executecommand_on": {
+                "name": "Включение"
+            },
+            "executecommand_off": {
+                "name": "Выключить"
+            },
+            "executecommand_start": {
+                "name": "Запуск"
+            },
+            "executecommand_pause": {
+                "name": "Пауза"
+            },
+            "executecommand_resume": {
+                "name": "Описание"
+            },
+            "executecommand_stopreset": {
+                "name": "Останов / сброс"
             },
             "waterfilterstatereset": {
                 "name": "Сброс фильтра воды"

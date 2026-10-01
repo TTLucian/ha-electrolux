@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Chiave API",
                     "access_token": "Gettone di accesso",
-                    "refresh_token": "Aggiorna gettone"
+                    "refresh_token": "Aggiorna gettone",
+                    "spin_speed_substitution": "Sostituzione della velocità di centrifuga (sperimentale - vedere #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Stato della porta"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Brillantanti"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sale mancante"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda alimentare"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Energia"
+            },
+            "executecommand_on": {
+                "name": "Attiva"
+            },
+            "executecommand_off": {
+                "name": "Spegnere"
+            },
+            "executecommand_start": {
+                "name": "Inizia"
+            },
+            "executecommand_pause": {
+                "name": "Metti in pausa"
+            },
+            "executecommand_resume": {
+                "name": "Riprendi"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/Reset"
             },
             "waterfilterstatereset": {
                 "name": "Reimpostare il filtro dell'acqua"

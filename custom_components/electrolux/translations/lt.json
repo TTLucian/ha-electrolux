@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API raktas",
                     "access_token": "Prieigos prieigos raktas",
-                    "refresh_token": "Atnaujinti žetoną"
+                    "refresh_token": "Atnaujinti žetoną",
+                    "spin_speed_substitution": "Sukimosi greičio pakeitimas (eksperimentinis - žr. #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Durų būklė"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Skalavimo priemonė"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Trūksta druskos"
             },
             "foodprobeinsertionstate": {
                 "name": "Maisto zondas"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Galia"
+            },
+            "executecommand_on": {
+                "name": "Įjungti"
+            },
+            "executecommand_off": {
+                "name": "Išjungti"
+            },
+            "executecommand_start": {
+                "name": "Startas"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Tęsti"
+            },
+            "executecommand_stopreset": {
+                "name": "Sustabdyti / nustatyti IŠ naujo"
             },
             "waterfilterstatereset": {
                 "name": "Iš naujo nustatykite vandens filtrą"

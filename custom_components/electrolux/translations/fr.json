@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Clé API",
                     "access_token": "Jeton d'accès",
-                    "refresh_token": "Actualiser le jeton"
+                    "refresh_token": "Actualiser le jeton",
+                    "spin_speed_substitution": "Substitution de vitesse de rotation (expérimentale - voir #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "État de la porte"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Produit de Rinçage"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sel manquant"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonde alimentaire"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Pouvoir"
+            },
+            "executecommand_on": {
+                "name": "Allumer"
+            },
+            "executecommand_off": {
+                "name": "Éteindre"
+            },
+            "executecommand_start": {
+                "name": "Début"
+            },
+            "executecommand_pause": {
+                "name": "Mettre en pause"
+            },
+            "executecommand_resume": {
+                "name": "Reprendre"
+            },
+            "executecommand_stopreset": {
+                "name": "ARRÊT / RÉINITIALISATION"
             },
             "waterfilterstatereset": {
                 "name": "Réinitialiser le filtre à eau"

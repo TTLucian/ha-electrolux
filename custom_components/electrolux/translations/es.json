@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Clave API",
                     "access_token": "Token de acceso",
-                    "refresh_token": "Actualizar ficha"
+                    "refresh_token": "Actualizar ficha",
+                    "spin_speed_substitution": "Sustitución de la velocidad de centrifugado (experimental - ver #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Estado de la puerta"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Abrillantador"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Falta sal"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda de alimentos"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Fuerza"
+            },
+            "executecommand_on": {
+                "name": "Encender"
+            },
+            "executecommand_off": {
+                "name": "Apagado"
+            },
+            "executecommand_start": {
+                "name": "Comienzo"
+            },
+            "executecommand_pause": {
+                "name": "Pausa"
+            },
+            "executecommand_resume": {
+                "name": "Reanudar"
+            },
+            "executecommand_stopreset": {
+                "name": "MODO DE PARADA / REINICIO"
             },
             "waterfilterstatereset": {
                 "name": "Restablecer el filtro de agua"

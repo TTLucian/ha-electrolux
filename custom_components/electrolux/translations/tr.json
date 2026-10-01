@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API Anahtarı",
                     "access_token": "Erişim Jetonu",
-                    "refresh_token": "Jetonu Yenile"
+                    "refresh_token": "Jetonu Yenile",
+                    "spin_speed_substitution": "Dönüş hızı ikamesi (deneysel - bkz. #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Kapı durumu"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Durulama yardımcısı düşük"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Tuz eksik"
             },
             "foodprobeinsertionstate": {
                 "name": "Gıda Sondası"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Güç"
+            },
+            "executecommand_on": {
+                "name": "Aç "
+            },
+            "executecommand_off": {
+                "name": "Kapat"
+            },
+            "executecommand_start": {
+                "name": "Başla"
+            },
+            "executecommand_pause": {
+                "name": "Duraklat"
+            },
+            "executecommand_resume": {
+                "name": "Geri"
+            },
+            "executecommand_stopreset": {
+                "name": "Durdur / Sıfırla"
             },
             "waterfilterstatereset": {
                 "name": "Su filtresini sıfırla"

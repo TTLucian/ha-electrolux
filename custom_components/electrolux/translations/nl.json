@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-sleutel",
                     "access_token": "Toegangstoken",
-                    "refresh_token": "Token vernieuwen"
+                    "refresh_token": "Token vernieuwen",
+                    "spin_speed_substitution": "Spinsnelheid vervangen (experimenteel - zie #257)"
                 }
             }
         },
@@ -175,6 +176,12 @@
             },
             "doorstate": {
                 "name": "Deur staat"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Spoelmiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Zout ontbreekt"
             },
             "foodprobeinsertionstate": {
                 "name": "Voedsel sonde"
@@ -339,6 +346,24 @@
             },
             "executecommand": {
                 "name": "Stroom"
+            },
+            "executecommand_on": {
+                "name": "Inschakelen"
+            },
+            "executecommand_off": {
+                "name": "Uitschakelen"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pauze"
+            },
+            "executecommand_resume": {
+                "name": "Hervatten"
+            },
+            "executecommand_stopreset": {
+                "name": "Stoppen / resetten"
             },
             "waterfilterstatereset": {
                 "name": "Waterfilter resetten"
