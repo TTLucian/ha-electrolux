@@ -5,11 +5,19 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+# Deliberately NOT cancel-in-progress. This workflow publishes releases, and
+# cancelling one midway could leave a half-uploaded asset or a release created
+# without its notes. Queued runs wait their turn instead.
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
       pull-requests: write
@@ -29,18 +37,33 @@ jobs:
 
       - name: Read release notes
         id: release_notes
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
         run: |
-          RELEASE_FILE="release_notes/RELEASE_NOTES_v${{ steps.get_version.outputs.version }}.md"
+          RELEASE_FILE="release_notes/RELEASE_NOTES_v${VERSION}.md"
+          # A prerelease version (3.8.3-beta1) has no matching notes file and is
+          # published by hand through the API. Detect that explicitly so the
+          # skip is explained, rather than looking like the workflow broke.
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+            echo "Prerelease version ${VERSION} - published manually, nothing to do here."
+            exit 0
+          fi
+          echo "prerelease=false" >> $GITHUB_OUTPUT
           if [ -f "$RELEASE_FILE" ]; then
             echo "found=true" >> $GITHUB_OUTPUT
-            echo "title=Version ${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "title=Version ${VERSION}" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
-            echo "No release notes file found: $RELEASE_FILE"
+            # This used to be a bare echo buried in the log. A stable version
+            # whose notes file is missing publishes nothing at all, silently -
+            # so raise it into the run summary where it is actually read.
+            echo "::warning title=No release notes::Version ${VERSION} is stable but ${RELEASE_FILE} does not exist, so no release was created."
+            echo "::notice title=Missing release notes::Create ${RELEASE_FILE} before tagging ${VERSION}."
           fi
 
       - name: Create electrolux.zip asset
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.release_notes.outputs.prerelease != 'true'
         run: |
           mkdir -p dist
           # -j (junk paths) is often preferred for HA components so the zip 

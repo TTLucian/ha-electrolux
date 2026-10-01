@@ -6,15 +6,30 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: hacs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   hacs:
     name: HACS Validation
     runs-on: "ubuntu-latest"
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: HACS validation
-        uses: hacs/action@main
+        # Pinned to a commit SHA, not @main. A branch ref means the upstream
+        # repository can change what executes here without a PR in this repo
+        # ever appearing - and Dependabot cannot bump a branch ref, which is
+        # why that ref stayed unpinned in the first place. A SHA is both
+        # reviewable and updatable by Dependabot.
+        uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main
         with:
           category: integration
           ignore: brands

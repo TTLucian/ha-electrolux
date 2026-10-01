@@ -1,0 +1,28 @@
+name: Workflow lint
+
+# Nothing validated these workflows before, so a bad action ref or a malformed
+# expression was only ever discovered when the workflow failed to run. That is
+# especially costly here because a silently-broken CI job reports green.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+concurrency:
+  group: actionlint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: docker://rhysd/actionlint:1.7.12

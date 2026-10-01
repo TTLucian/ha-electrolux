@@ -5,11 +5,27 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, reopened, synchronize, edited]
+    # ready_for_review is load-bearing: without it, marking a draft PR ready
+    # fires no event here, so the PR reaches main having never been checked
+    # as non-draft. Draft PRs are the norm in this repo, so this fires often.
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+# Superseded runs are cancelled. Without this, three pushes in a minute queue
+# three full runs and only the last to land reflects the code that shipped.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# Default GITHUB_TOKEN permissions follow the repo's org settings. This
+# workflow only ever needs to read the repository.
+permissions:
+  contents: read
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    # A hung test run should fail rather than occupy a runner until the 6h default.
+    timeout-minutes: 20
 
     steps:
       # 1️⃣ Checkout repo
@@ -35,9 +51,13 @@ jobs:
           python-version: "${{ steps.ha_python.outputs.version }}"
 
       # 4️⃣ Install dependencies
+      # --locked: uv.lock is committed and is what actually gets tested. Plain
+      # `uv sync` may re-resolve and rewrite it, so CI would run against
+      # dependencies nobody pinned. --locked fails when the lockfile and
+      # pyproject.toml have drifted, which is exactly the signal wanted here.
       - name: Install dependencies
         run: |
-          uv sync --group test
+          uv sync --group test --locked
           echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
 
       # 5️⃣ Lint with Ruff (no auto-fix — fixes must be committed locally)
@@ -62,8 +82,11 @@ jobs:
           mypy tests --ignore-missing-imports
 
       # 9️⃣ Run tests with coverage
+      # The floor was 70% against a ~96% actual, which meant a regression down
+      # to 71% still passed. 90% leaves roughly six points of headroom for
+      # legitimate new code while catching a genuine drop.
       - name: Run tests
-        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing --cov-fail-under=70
+        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing --cov-fail-under=90
 
       # 🔟 Check for dirty files
       - name: Check for dirty files

@@ -1,18 +1,44 @@
 version: 2
 updates:
+  # Split into groups rather than one "*" bucket. A single group puts a risky
+  # transitive bump in the same PR as safe ones, and one blocked update stalls
+  # every other update behind it.
   - package-ecosystem: uv
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 6
     versioning-strategy: increase
     labels:
       - "dependencies"
       - "python"
+    commit-message:
+      prefix: "chore(deps)"
     groups:
-      python-dependencies:
+      # The one dependency that ships to users and talks to the appliance cloud.
+      # Isolated so it gets reviewed and tested on its own - a change here can
+      # alter what commands the integration sends.
+      runtime:
         patterns:
-          - "*"
+          - "electrolux-group-developer-sdk"
+      # Framework and async libraries: broad blast radius, but no behaviour of
+      # our own, so they can move together.
+      framework:
+        patterns:
+          - "homeassistant"
+          - "aiohttp"
+          - "pydantic"
+          - "pyjwt"
+          - "deep_translator"
+      # Developer tooling only - nothing here reaches a user's install.
+      tooling:
+        patterns:
+          - "pytest"
+          - "pytest-asyncio"
+          - "pytest-cov"
+          - "ruff"
+          - "mypy"
+          - "pre-commit"
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -22,6 +48,8 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
     groups:
       github-actions-dependencies:
         patterns:

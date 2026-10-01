@@ -6,9 +6,21 @@ on:
   schedule:
     - cron:  '0 0 * * *'
 
+concurrency:
+  group: hassfest-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: "ubuntu-latest"
+    timeout-minutes: 10
     steps:
         - uses: "actions/checkout@v7"
-        - uses: "home-assistant/actions/hassfest@master"
+          with:
+            persist-credentials: false
+        # Pinned to a commit SHA, not @master - same reasoning as hacs.yml:
+        # a branch ref is neither reviewable here nor updatable by Dependabot.
+        - uses: "home-assistant/actions/hassfest@06749dd8c0b54f350bc69c8752456cee498808a3" # master
