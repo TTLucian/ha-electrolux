@@ -17,6 +17,16 @@ repos:
         additional_dependencies:
           - homeassistant
 
+  # CI runs actionlint from its Docker image. Using the identical image and
+  # version here means a local run checks exactly what CI checks. The plain
+  # `actionlint` hook would compile via Go and, critically, would skip every
+  # shellcheck rule when shellcheck is absent locally - which is how 8 SC2086
+  # findings got to CI before. Requires Docker.
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint-docker
+
   - repo: local
     hooks:
       - id: pytest
@@ -24,5 +34,7 @@ repos:
         entry: pytest
         language: system
         pass_filenames: false
-        args: [--cov=custom_components/electrolux, --cov-fail-under=70, -q]
+        # Kept in step with CI's --cov-fail-under. When this was 70 against a
+        # ~96% actual, the hook passed on regressions that CI would reject.
+        args: [--cov=custom_components/electrolux, --cov-fail-under=90, -q]
         stages: [push]

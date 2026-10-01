@@ -41,7 +41,7 @@ jobs:
           REQUIRES=$(curl -s https://pypi.org/pypi/homeassistant/json | jq -r '.info.requires_python')
           # Extract major.minor from e.g. ">=3.13.2" → "3.13"
           VERSION=$(echo "$REQUIRES" | grep -oP '\d+\.\d+' | head -1)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved Python version: $VERSION (HA requires: $REQUIRES)"
 
       # 3️⃣ Set up uv and that Python version
@@ -58,7 +58,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync --group test --locked
-          echo "${{ github.workspace }}/.venv/bin" >> $GITHUB_PATH
+          echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
 
       # 5️⃣ Lint with Ruff (no auto-fix — fixes must be committed locally)
       - name: Lint with Ruff

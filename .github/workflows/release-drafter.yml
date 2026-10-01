@@ -32,7 +32,7 @@ jobs:
         run: |
           # Robust extraction of the version value
           VERSION=$(jq -r '.version' custom_components/electrolux/manifest.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version found: $VERSION"
 
       - name: Read release notes
@@ -45,16 +45,16 @@ jobs:
           # published by hand through the API. Detect that explicitly so the
           # skip is explained, rather than looking like the workflow broke.
           if [[ "$VERSION" == *-* ]]; then
-            echo "prerelease=true" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
             echo "Prerelease version ${VERSION} - published manually, nothing to do here."
             exit 0
           fi
-          echo "prerelease=false" >> $GITHUB_OUTPUT
+          echo "prerelease=false" >> "$GITHUB_OUTPUT"
           if [ -f "$RELEASE_FILE" ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-            echo "title=Version ${VERSION}" >> $GITHUB_OUTPUT
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "title=Version ${VERSION}" >> "$GITHUB_OUTPUT"
           else
-            echo "found=false" >> $GITHUB_OUTPUT
+            echo "found=false" >> "$GITHUB_OUTPUT"
             # This used to be a bare echo buried in the log. A stable version
             # whose notes file is missing publishes nothing at all, silently -
             # so raise it into the run summary where it is actually read.
