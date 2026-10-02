@@ -1,0 +1,98 @@
+{
+  // 1. DYNAMIC INTERPRETER & REPO VENV
+  // Use the repository-local virtual environment for this project.
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.diagnosticMode": "workspace",
+  "github.copilot.chat.scopeSelection": true,
+  "github.copilot.chat.useProjectTemplates": true,
+
+  // 2. TERMINAL PROFILES (Updated icons and shell integration)
+  "terminal.integrated.profiles.linux": {
+    "Bash-HA-UV": {
+      "path": "/bin/bash",
+      "args": ["--init-file", "${workspaceFolder}/.vscode/terminal_init.sh"],
+      "icon": "terminal-linux"
+    }
+  },
+  "terminal.integrated.defaultProfile.linux": "Bash-HA-UV",
+
+  "terminal.integrated.profiles.windows": {
+    "WSL-HA": {
+      "path": "wsl.exe",
+      "args": ["-d", "Ubuntu-24.04"]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "WSL-HA",
+
+  // 3. 2026 AUTO-APPROVE (Includes uv, ruff, mypy, and pytest)
+  "terminal.integrated.shellIntegration.enabled": true,
+  "chat.tools.terminal.enableAutoApprove": true,
+  "chat.tools.terminal.autoApprove": {
+    "ls": true,
+    "cd": true,
+    "python": true,
+    "uv": true,
+    "uvx": true,
+    "ruff": true,
+    "mypy": true,
+    "pytest": true,
+    "git": true,
+    "wc": true,
+    "sed": true
+  },
+
+  // 4. CENTRAL VENV ACTIVATION
+  // Replaces your manual HA-WSL path with the new HA-UV hub
+  "terminal.integrated.env.linux": {
+    "VIRTUAL_ENV": "${workspaceFolder}/.venv",
+    "PATH": "${workspaceFolder}/.venv/bin:${env:PATH}"
+  },
+
+  // 5. FORMATTER & LINTER — Unified under Ruff (Replaces Black)
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+
+  // 6. TYPE CHECKER — Mypy Extension Settings
+  // Args must mirror the CI and pre-commit invocations, or the editor is not a
+  // proxy for CI. Both of those run mypy with the two package-bases flags
+  // because tests/ is a namespace package; without them mypy aborts with
+  // "Source file found twice under different module names". The editor hands
+  // mypy individual file paths, so it needs them too.
+  // --ignore-missing-imports was removed on purpose: CI does not pass it, and
+  // passing it here hid real import errors from the editor alone.
+  //
+  // There is no "run" setting in this extension (checked against
+  // ms-python.mypy-type-checker 2026.6.0's package.json). It re-checks on
+  // open and save. Edits made from outside the editor -- a formatter, sed, or
+  // an agent tool -- can leave stale diagnostics in the Problems panel; run
+  // "Mypy: Restart Server" from the Command Palette to force a re-check.
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "mypy-type-checker.preferDaemon": false,
+  "mypy-type-checker.path": [
+    "${workspaceFolder}/.venv/bin/mypy"
+  ],
+  "mypy-type-checker.interpreter": [
+    "${workspaceFolder}/.venv/bin/python"
+  ],
+  "mypy-type-checker.args": [
+    "--namespace-packages",
+    "--explicit-package-bases"
+  ],
+
+  // 7. HOUSEKEEPING
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true
+  },
+  "git.confirmSync": false,
+  "git.autofetch": true
+}

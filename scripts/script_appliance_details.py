@@ -9,7 +9,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 
 # Add the repository root directory to the path (parent of scripts directory)
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -40,9 +40,7 @@ async def get_appliance_details(client: ElectroluxApiClient, appliance_id: str):
         # Look for any field containing model-like information
         print("\n🔍 Searching for model-related fields...")
         for key, value in reported.items():
-            if isinstance(value, str) and (
-                "model" in key.lower() or "BSE" in str(value)
-            ):
+            if isinstance(value, str) and ("model" in key.lower() or "BSE" in str(value)):
                 print(f"Found potential model field: {key} = {value}")
 
         # Get capabilities
@@ -58,9 +56,7 @@ async def get_appliance_details(client: ElectroluxApiClient, appliance_id: str):
         # Look for any model-related constants
         for key, value in capabilities.items():
             if isinstance(value, dict) and value.get("access") == "constant":
-                if "model" in key.lower() or (
-                    isinstance(value.get("default"), str) and "BSE" in value["default"]
-                ):
+                if "model" in key.lower() or (isinstance(value.get("default"), str) and "BSE" in value["default"]):
                     print(f"Constant field: {key} = {value}")
 
         return state, capabilities
@@ -102,9 +98,7 @@ async def main():
         refresh_token = input("Enter your Electrolux Refresh Token: ").strip()
 
     if not api_key or not access_token or not refresh_token:
-        print(
-            "All credentials are required. Please provide your Electrolux API credentials."
-        )
+        print("All credentials are required. Please provide your Electrolux API credentials.")
         print("You can also set environment variables:")
         print("  export ELECTROLUX_API_KEY='your_api_key'")
         print("  export ELECTROLUX_ACCESS_TOKEN='your_access_token'")
@@ -129,9 +123,7 @@ async def main():
         for i, appliance in enumerate(appliances, 1):
             print(f"  {i}. {appliance['applianceName']} ({appliance['applianceId']})")
             print(f"     Type: {appliance['applianceType']}")
-            print(
-                f"     Model: {appliance.get('applianceData', {}).get('modelName', 'Unknown')}"
-            )
+            print(f"     Model: {appliance.get('applianceData', {}).get('modelName', 'Unknown')}")
             print(f"     Connection: {appliance['connectionState']}")
             print()
 
@@ -157,9 +149,7 @@ async def main():
         state, capabilities = await get_appliance_details(client, appliance_id)
 
         # Save details to file regardless of success/failure
-        model_name = selected_appliance.get("applianceData", {}).get(
-            "modelName", "Unknown"
-        )
+        model_name = selected_appliance.get("applianceData", {}).get("modelName", "Unknown")
         # Strip PNC (appliance ID) from model name if present
         model_without_pnc = model_name.replace(appliance_id, "").strip()
         if not model_without_pnc:  # If stripping left nothing, use original
@@ -183,7 +173,11 @@ async def main():
 
         try:
             print(f"Debug: Opening temp file {temp_filename} for writing...")
-            with open(temp_filename, "w", encoding="utf-8") as f:
+            # Blocking file I/O is fine here: this is a standalone CLI
+            # diagnostic run as `python scripts/...`, not an event-loop
+            # callback. Refactoring it to aiofiles would add a dependency
+            # and risk the output for a lint rule that does not apply.
+            with open(temp_filename, "w", encoding="utf-8") as f:  # noqa: ASYNC230
                 print("Debug: Temp file opened successfully, writing header...")
                 f.write("=" * 50 + "\n")
                 f.write("APPLIANCE DETAILS\n")
@@ -191,11 +185,9 @@ async def main():
                 f.write(f"Name: {appliance_name}\n")
                 f.write(f"ID: {appliance_id}\n")
                 f.write(f"Type: {selected_appliance['applianceType']}\n")
-                f.write(
-                    f"Model: {selected_appliance.get('applianceData', {}).get('modelName', 'Unknown')}\n"
-                )
+                f.write(f"Model: {selected_appliance.get('applianceData', {}).get('modelName', 'Unknown')}\n")
                 f.write(f"Connection: {selected_appliance['connectionState']}\n")
-                f.write(f"Retrieved at: {datetime.now().isoformat()}\n")
+                f.write(f"Retrieved at: {datetime.now(UTC).isoformat()}\n")
                 f.write("\n")
                 print("Debug: Header written, checking state data...")
 
@@ -221,9 +213,7 @@ async def main():
                         f.write("\n")
                         print("Debug: Capabilities data written successfully")
                     except Exception as json_error:
-                        print(
-                            f"Debug: Error serializing capabilities data: {json_error}"
-                        )
+                        print(f"Debug: Error serializing capabilities data: {json_error}")
                         f.write("RAW CAPABILITIES DATA: Error serializing data\n")
                 else:
                     print("Debug: Capabilities data not available")
@@ -260,9 +250,7 @@ async def main():
             print(f"Name: {appliance_name}")
             print(f"ID: {appliance_id}")
             print(f"Type: {selected_appliance['applianceType']}")
-            print(
-                f"Model: {selected_appliance.get('applianceData', {}).get('modelName', 'Unknown')}"
-            )
+            print(f"Model: {selected_appliance.get('applianceData', {}).get('modelName', 'Unknown')}")
             print(f"Connection: {selected_appliance['connectionState']}")
             print()
 

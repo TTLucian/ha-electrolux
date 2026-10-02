@@ -1,53 +1,63 @@
 repos:
-  # These revs must track the tool versions in pyproject.toml / uv.lock. They
-  # sat at ruff v0.15.17 and mypy v2.1.0 while the project ran ruff 0.16.9 and
-  # mypy 2.3.1, so the hooks could pass on things CI rejected. A mirror that
-  # does not mirror is worse than none, because it reads as a passing check.
+  # These revs must track the tool versions in pyproject.toml / uv.lock.
+  # Hooks that drift from the locked versions can pass on things CI rejects, or
+  # fail on things CI accepts, and a mirror that does not mirror reads as a
+  # passing check. Dependabot does not edit this file, so re-check the revs
+  # after merging its "uv" pull requests.
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.9
     hooks:
       - id: ruff
         args: [--fix]
-        # CI runs ruff over the component AND tests. Scoping the hook to the
-        # component alone left every file in tests/ unchecked until CI said so.
-        files: ^(custom_components/electrolux/|tests/)
+        # Matches every path CI checks, by directory rather than by the
+        # integration name, so this file is identical across repositories.
+        files: ^(custom_components/|tests/|scripts/|\.github/scripts/)
       - id: ruff-format
-        files: ^(custom_components/electrolux/|tests/)
+        files: ^(custom_components/|tests/|scripts/|\.github/scripts/)
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.3.1
     hooks:
       - id: mypy
         args:
-          - --ignore-missing-imports
-          # Without this the hook dies with "Source file found twice under
-          # different module names" (electrolux.* vs custom_components.electrolux.*),
-          # because it hands mypy individual file paths. CI avoids it by running
-          # two separate invocations; the flag gets the same result in one pass.
+          # tests/ may be a namespace package, so the package-bases flags are
+          # required; without them the hook dies with "Source file found twice
+          # under different module names", because it hands mypy individual file
+          # paths. Harmless where tests/ is a regular package.
+          - --namespace-packages
           - --explicit-package-bases
-        files: ^(custom_components/electrolux/|tests/)
+        files: ^(custom_components/|tests/|scripts/|\.github/scripts/)
         additional_dependencies:
           - homeassistant
+          - types-PyYAML
+          - pyyaml
+          - packaging
 
-  # CI runs actionlint from its Docker image. Using the identical image and
-  # version here means a local run checks exactly what CI checks. The plain
-  # `actionlint` hook would compile via Go and, critically, would skip every
-  # shellcheck rule when shellcheck is absent locally - which is how 8 SC2086
-  # findings got to CI before. Requires Docker.
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
-    hooks:
-      - id: actionlint-docker
 
   - repo: local
     hooks:
+      - id: uv-lock-check
+        name: uv lock is up to date
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|uv\.lock)$
+
       - id: pytest
         name: pytest
         entry: pytest
         language: system
         pass_filenames: false
-        # No --cov-fail-under here on purpose: the floor is fail_under in
-        # pyproject.toml's [tool.coverage.report], shared with CI. Spelling it
-        # out in both places is how they ended up disagreeing.
-        args: [--cov=custom_components/electrolux, -q]
         stages: [pre-push]
+
+      # CI runs the same script, so a local run and CI check identically. Both
+      # tools are pinned: shellcheck ships inside the venv via shellcheck-py,
+      # and the script fetches actionlint at a fixed version. It fails loudly
+      # if either is missing, because actionlint alone silently skips every
+      # shellcheck rule rather than reporting that it skipped them.
+      - id: workflow-lint
+        name: actionlint + shellcheck
+        entry: uv run --frozen python .github/scripts/run_actionlint.py
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/

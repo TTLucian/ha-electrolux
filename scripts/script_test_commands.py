@@ -16,16 +16,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from custom_components.electrolux.util import ElectroluxApiClient
 
 
-async def send_test_command(
-    client: ElectroluxApiClient, appliance_id: str, command: dict
-):
+async def send_test_command(client: ElectroluxApiClient, appliance_id: str, command: dict):
     """Send a test command to an appliance (optimistic - no remote control pre-check)."""
     try:
         print(f"📤 Sending command optimistically to appliance {appliance_id}:")
         print(f"   Command: {json.dumps(command, indent=2)}")
-        print(
-            "   (Commands are sent directly to API - API will validate remote control status)"
-        )
+        print("   (Commands are sent directly to API - API will validate remote control status)")
 
         result = await client.execute_appliance_command(appliance_id, command)
 
@@ -70,9 +66,7 @@ async def send_test_command(
             # If all parsing fails, show the error message
             print(f"Error: {error_msg}")
 
-        print(
-            "\n💡 Tip: API validates remote control status, appliance state, and command support."
-        )
+        print("\n💡 Tip: API validates remote control status, appliance state, and command support.")
         return False
 
 
@@ -138,9 +132,7 @@ async def main():
         refresh_token = input("Enter your Electrolux Refresh Token: ").strip()
 
     if not api_key or not access_token or not refresh_token:
-        print(
-            "All credentials are required. Please provide your Electrolux API credentials."
-        )
+        print("All credentials are required. Please provide your Electrolux API credentials.")
         print("You can also set environment variables:")
         print("  export ELECTROLUX_API_KEY='your_api_key'")
         print("  export ELECTROLUX_ACCESS_TOKEN='your_access_token'")
@@ -165,9 +157,7 @@ async def main():
         for i, appliance in enumerate(appliances, 1):
             print(f"  {i}. {appliance['applianceName']} ({appliance['applianceId']})")
             print(f"     Type: {appliance['applianceType']}")
-            print(
-                f"     Model: {appliance.get('applianceData', {}).get('modelName', 'Unknown')}"
-            )
+            print(f"     Model: {appliance.get('applianceData', {}).get('modelName', 'Unknown')}")
             print(f"     Connection: {appliance['connectionState']}")
             print()
 
@@ -187,9 +177,7 @@ async def main():
         appliance_id = selected_appliance["applianceId"]
         appliance_name = selected_appliance["applianceName"]
 
-        print(
-            f"\n🔧 Starting test command session for: {appliance_name} ({appliance_id})"
-        )
+        print(f"\n🔧 Starting test command session for: {appliance_name} ({appliance_id})")
 
         # Show initial state
         await show_appliance_state(client, appliance_id)
@@ -231,13 +219,9 @@ async def main():
                     print("\n" + "=" * 70)
                     print("OPTIMISTIC COMMAND SENDING")
                     print("=" * 70)
-                    print(
-                        "Commands are sent directly to API - no client-side validation."
-                    )
+                    print("Commands are sent directly to API - no client-side validation.")
                     print("The API is authoritative for:")
-                    print(
-                        "  • Remote control status (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, etc.)"
-                    )
+                    print("  • Remote control status (ENABLED, NOT_SAFETY_RELEVANT_ENABLED, etc.)")
                     print("  • Appliance state compatibility")
                     print("  • Command support validation")
                     print("\nCommands:")

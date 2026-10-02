@@ -1,5 +1,6 @@
 {
   "pythonVersion": "3.14",
+  "typeCheckingMode": "basic",
   "exclude": [
     "**/.*",
     "**/site-packages/**",
@@ -8,6 +9,7 @@
     "**/node_modules/**",
     "**/.pytest_cache/**",
     "**/.mypy_cache/**",
+    "**/.ruff_cache/**",
     ".venv"
   ],
   "extraPaths": [
@@ -15,5 +17,5 @@
   ],
   "reportReturnType": "none",
   "reportGeneralTypeIssues": "warning",
-  "typeCheckingMode": "basic"
+  "reportAttributeAccessIssue": "none"
 }

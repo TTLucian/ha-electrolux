@@ -1,0 +1,82 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "sync",
+      "detail": "Install the locked dependency set",
+      "type": "shell",
+      "command": "uv sync --locked",
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "detail": "Run the test suite",
+      "type": "shell",
+      "command": "uv run pytest",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "detail": "ruff check over the whole repository",
+      "type": "shell",
+      "command": "uv run ruff check .",
+      "problemMatcher": []
+    },
+    {
+      "label": "format",
+      "detail": "ruff format in place (NOT black: ruff format is the configured formatter, and one formatter is easier to keep consistent than two)",
+      "type": "shell",
+      "command": "uv run ruff format .",
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck",
+      "detail": "mypy over the whole repository (dot-directories are skipped by a bare '.', so the targets are listed)",
+      "type": "shell",
+      "command": "uv run mypy --namespace-packages --explicit-package-bases $(for d in custom_components tests scripts .github/scripts; do [ -d \"$d\" ] && printf '%s ' \"$d\"; done)",
+      "problemMatcher": []
+    },
+    {
+      "label": "check all",
+      "detail": "lint, format check, typecheck and the tests",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "lint",
+        "typecheck",
+        "test"
+      ],
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "validate workflows",
+      "detail": "Check every action reference and input in .github/workflows",
+      "type": "shell",
+      "command": "uv run python .github/scripts/validate_workflow_actions.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint workflows",
+      "detail": "actionlint + shellcheck (both pinned; fails loudly if either is missing)",
+      "type": "shell",
+      "command": "uv run python .github/scripts/run_actionlint.py",
+      "problemMatcher": [],
+      "dependsOn": [
+        "lint",
+        "typecheck",
+        "test"
+      ]
+    },
+    {
+      "label": "check dependencies",
+      "detail": "Confirm Home Assistant is pinned to the latest stable release",
+      "type": "shell",
+      "command": "uv run --with packaging python .github/scripts/check_dependency_freshness.py",
+      "problemMatcher": []
+    }
+  ]
+}

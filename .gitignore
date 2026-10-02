@@ -4,7 +4,13 @@ __pycache__/
 .venv/
 .mypy_cache
 .ruff_cache
-*.vscode*
+# .vscode/ is deliberately TRACKED. It used to be ignored (as *.vscode*),
+# so the editor config was local-only: when VS Code lost the cached
+# interpreter the settings could not restore it, and Pylance fell back to a
+# system python with no homeassistant installed, which surfaced as dozens of
+# bogus "could not be resolved" import errors.
+# Personal overrides that should stay local:
+.vscode/*.local.json
 .github/**/*instruction*
 *samples*
 # pyrightconfig.json is tracked on purpose: without an explicit pythonVersion,

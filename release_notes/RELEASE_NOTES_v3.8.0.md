@@ -10,7 +10,8 @@ A patch release carrying one hotfix. **v3.7.9 shipped an incomplete fix for #233
 
   ```python
   # _prune_sse_history: drop the oldest entry only once its *successor* is outside the window
-  while len(history) > 1 and history[1][0] < cutoff: history.pop(0)
+  while len(history) > 1 and history[1][0] < cutoff:
+      history.pop(0)
 
   # _superseded_by_sse: history[i] is superseded while history[i+1] is inside the window
   ```

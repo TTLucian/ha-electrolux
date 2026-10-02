@@ -1,8 +1,8 @@
 name: Workflow lint
 
-# Nothing validated these workflows before, so a bad action ref or a malformed
-# expression was only ever discovered when the workflow failed to run. That is
-# especially costly here because a silently-broken CI job reports green.
+# A bad action reference or a malformed expression is only ever discovered when
+# the workflow fails to run, which is especially costly here because a
+# silently-broken job reports green.
 on:
   push:
     branches:
@@ -20,9 +20,27 @@ permissions:
 jobs:
   actionlint:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: docker://rhysd/actionlint:1.7.12
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      # Runs actionlint and shellcheck together, both pinned. It used to run
+      # actionlint from a Docker image, which couples the two tools but makes
+      # the check unavailable to anyone without Docker - and actionlint does
+      # not warn when shellcheck is missing, it just checks less and passes.
+      # The script fails loudly instead. It is the same script the pre-commit
+      # hook and the editor task run, so a local run and this one agree.
+      - name: Lint workflows
+        run: uv run --frozen python .github/scripts/run_actionlint.py

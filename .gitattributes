@@ -1,0 +1,11 @@
+# Normalise every text file to LF, in the repository and in the working tree.
+#
+# Without this, line endings depend on the machine: a checkout with
+# core.autocrlf set produces CRLF working copies, and committing those
+# produces CRLF blobs. The result is that the same file has different
+# endings in different clones, and flipping one turns a one-line change into
+# a whole-file diff.
+#
+# `text=auto` lets git detect binaries itself, so images and archives are
+# left untouched; `eol=lf` forces LF for everything it recognises as text.
+* text=auto eol=lf

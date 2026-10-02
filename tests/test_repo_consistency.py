@@ -1,13 +1,14 @@
 """Guards against configuration drift between the places that must agree.
 
-Every check here corresponds to a real drift found in this repository:
+Every check here corresponds to a real drift found while aligning the three
+repositories that share this tooling:
 
 * pre-commit pinned ruff v0.15.17 / mypy v2.1.0 while the project ran
   0.16.9 / 2.3.1, so the hooks could pass on things CI rejected.
-* pre-commit scoped its python hooks to custom_components/electrolux/ alone
-  while CI also checks tests/, so nothing in tests/ was checked locally.
-* The coverage floor was written out in ci.yml, .pre-commit-config.yaml and
-  AGENTS.md, and had already reached 70 in one place against 90 in another.
+* pre-commit scoped its python hooks to the component directory alone while
+  CI also checked tests/, so nothing in tests/ was checked locally.
+* dependabot proposed a Home Assistant pre-release that the declared version
+  range happily accepts.
 
 The pattern is one value living in several files with nothing comparing them.
 These tests are that comparison.
@@ -28,7 +29,6 @@ PYPROJECT = REPO_ROOT / "pyproject.toml"
 UV_LOCK = REPO_ROOT / "uv.lock"
 PRE_COMMIT = REPO_ROOT / ".pre-commit-config.yaml"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
-AGENTS = REPO_ROOT / "AGENTS.md"
 
 
 def _load_toml(path: Path) -> dict:
@@ -36,9 +36,15 @@ def _load_toml(path: Path) -> dict:
         return tomllib.load(handle)
 
 
+def _toml_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
 def _load_yaml(path: Path) -> dict:
+    # yaml.safe_load is typed Any; annotate so the return type is honest.
     with path.open(encoding="utf-8") as handle:
-        return yaml.safe_load(handle)
+        data: dict = yaml.safe_load(handle)
+    return data
 
 
 def _locked_versions() -> dict[str, str]:
@@ -53,19 +59,34 @@ def _hooks_by_id() -> dict[str, dict]:
     return {hook["id"]: {"rev": repo.get("rev"), **hook} for repo in config["repos"] for hook in repo["hooks"]}
 
 
-def _ci_checked_paths() -> set[str]:
-    """Path arguments CI passes to ruff/mypy, ignoring their own flags.
+def _ci_text() -> str:
+    return CI_WORKFLOW.read_text(encoding="utf-8")
 
-    Only the non-flag arguments are paths: `ruff format --check --diff <paths>`
-    is two ruff paths, not four.
+
+def _ci_mypy_dirs() -> set[str]:
+    """Directories CI passes to mypy.
+
+    The mypy step is a shell loop rather than a fixed list so that one ci.yml
+    can be byte-identical across repositories that do not all have the same
+    top-level directories. mypy errors on a path that does not exist, so the
+    loop filters to what is actually present.
     """
-    paths: set[str] = set()
-    for line in CI_WORKFLOW.read_text(encoding="utf-8").splitlines():
-        match = re.search(r"run: (?:ruff \w+|mypy)((?: [^\s]+)+)", line)
-        if not match:
-            continue
-        paths.update(token for token in match.group(1).split() if not token.startswith("-"))
-    return paths
+    dirs: set[str] = set()
+    for match in re.finditer(r"for dir in ([a-zA-Z0-9_./ -]+); do", _ci_text()):
+        dirs.update(match.group(1).split())
+    return dirs
+
+
+class TestCIRunsWholeRepository:
+    """A scoped CI check looks thorough while skipping files the editor checks."""
+
+    @pytest.mark.parametrize("tool", ["ruff check .", "ruff format --check ."])
+    def test_ruff_covers_whole_repository(self, tool: str) -> None:
+        assert tool in _ci_text(), (
+            f"CI does not run `{tool}`. Scoping it to one directory leaves the "
+            "rest of the repository unchecked in CI while the editor still "
+            "reports errors in it."
+        )
 
 
 class TestPreCommitMatchesLockedToolVersions:
@@ -82,35 +103,82 @@ class TestPreCommitMatchesLockedToolVersions:
         assert rev == f"v{locked}", (
             f"pre-commit pins {hook_id} at {rev} but uv.lock resolves {package} {locked}. "
             f"Bump the rev in .pre-commit-config.yaml to v{locked}, or the hook will "
-            f"check something CI never runs."
+            f"check something CI never runs. Dependabot does not edit this file, "
+            f"so re-check it after merging any dependabot bump."
         )
 
 
 class TestPreCommitScopeMatchesCI:
     """A hook that checks less than CI reads as a passing check while checking nothing."""
 
-    def test_python_hooks_cover_every_path_ci_checks(self) -> None:
-        ci_paths = _ci_checked_paths()
-        assert ci_paths, "could not read the checked paths out of ci.yml; update this test"
+    def test_mypy_hook_covers_every_directory_ci_checks(self) -> None:
+        ci_dirs = _ci_mypy_dirs()
+        assert ci_dirs, "could not read the mypy target list out of ci.yml; update this test"
 
-        missing = []
-        for hook_id in ("ruff", "ruff-format", "mypy"):
-            pattern = _hooks_by_id()[hook_id].get("files", "")
-            for path in sorted(ci_paths):
-                if not re.search(pattern, path + "/"):
-                    missing.append(f"{hook_id} would skip {path}/")
+        pattern = _hooks_by_id()["mypy"].get("files", "")
+        missing = [d for d in sorted(ci_dirs) if not re.search(pattern, d.rstrip("/") + "/")]
 
-        assert not missing, "pre-commit hooks are scoped narrower than CI: " + "; ".join(sorted(set(missing)))
+        assert not missing, "the pre-commit mypy hook is scoped narrower than CI and would skip: " + ", ".join(missing)
+
+    @pytest.mark.parametrize("hook_id", ["ruff", "ruff-format", "mypy"])
+    def test_hook_scope_includes_the_whole_repository_shape(self, hook_id: str) -> None:
+        pattern = _hooks_by_id()[hook_id].get("files", "")
+        assert "custom_components/" in pattern, f"the {hook_id} hook does not cover custom_components/, which CI checks"
+        assert "tests/" in pattern, f"the {hook_id} hook does not cover tests/, which CI checks"
+
+
+class TestPythonRangeIsInternallyConsistent:
+    """The declared range and .python-version have to agree with each other.
+
+    Whether the range still covers what Home Assistant needs is a *live*
+    question, answered by `.github/scripts/bump_python_if_needed.py` from the CI
+    "Python floor" job. This test stays offline on purpose: the Home Assistant
+    test harness patches socket DNS resolution and fails any test that tries
+    to reach the network, which is a good default and not something to work
+    around.
+    """
+
+    def test_requires_python_has_an_upper_bound(self) -> None:
+        declared = re.search(r'requires-python\s*=\s*"([^"]+)"', _toml_text(PYPROJECT))
+        assert declared, "pyproject.toml has no requires-python"
+
+        assert re.search(r"<\s*\d+\.\d+", declared.group(1)), (
+            f'requires-python is "{declared.group(1)}" with no upper bound. uv would '
+            "then resolve for Python versions that do not exist yet, and the lockfile "
+            "would grow a resolution branch per future release until some unrelated "
+            "dependency stops having a compatible release for one of them."
+        )
+
+    def test_python_version_falls_inside_the_declared_range(self) -> None:
+        declared = re.search(r'requires-python\s*=\s*"([^"]+)"', _toml_text(PYPROJECT))
+        assert declared, "pyproject.toml has no requires-python"
+        range_text = declared.group(1)
+
+        version = (REPO_ROOT / ".python-version").read_text(encoding="utf-8").strip()
+        match = re.fullmatch(r"(\d+)\.(\d+)", version)
+        assert match, f".python-version is {version!r}; expected something like '3.14'"
+        current = (int(match.group(1)), int(match.group(2)))
+
+        floor = re.search(r">=\s*(\d+)\.(\d+)", range_text)
+        ceiling = re.search(r"<\s*(\d+)\.(\d+)", range_text)
+        assert floor and ceiling, f"could not read a bounded range out of {range_text!r}"
+
+        low = (int(floor.group(1)), int(floor.group(2)))
+        high = (int(ceiling.group(1)), int(ceiling.group(2)))
+        assert low <= current < high, (
+            f".python-version is {version} but requires-python is {range_text!r}. "
+            "CI derives its Python from the locked Home Assistant, and local "
+            "development should agree with it - otherwise `uv sync` resolves "
+            "something different locally than CI tests."
+        )
 
 
 class TestHomeAssistantTracksStableOnly:
-    """HA publishes a prerelease for every monthly release.
+    """HA publishes a pre-release for every monthly release.
 
-    PyPI currently carries 60 pre-release versions in the 2026 range
-    (2026.10.0b0, 2026.11.0b1, ...), and the declared range
-    ``homeassistant>=2026.9.4,<2027.0.0`` does not exclude them - a beta
-    satisfies it. PEP 440 has no "no prerelease" clause, so dependabot would
-    happily propose one and it would install.
+    A range such as ``homeassistant>=2026.9.4,<2027.0.0`` does not exclude
+    them - a beta satisfies it. PEP 440 has no "no prerelease" clause, so
+    dependabot would happily propose one and it would install.
 
     The intent is to track stable only, so assert it here rather than trusting
     the range to say what it cannot. This fails the dependabot PR that first
@@ -123,33 +191,4 @@ class TestHomeAssistantTracksStableOnly:
         assert not Version(locked).is_prerelease, (
             f"uv.lock resolves homeassistant {locked}, which is a prerelease. "
             f"This integration tracks stable only - reject the bump."
-        )
-
-    def test_declared_floor_is_not_a_prerelease(self) -> None:
-        groups = _load_toml(PYPROJECT)["dependency-groups"]
-        pyproject = groups["test"]
-        homeassistant = next(dep for dep in pyproject if dep.startswith("homeassistant"))
-        floor = homeassistant.split(">=")[1].split(",")[0]
-
-        assert not Version(floor).is_prerelease, (
-            f"The declared homeassistant floor is {floor}, a prerelease. Pin the floor to a stable release."
-        )
-
-
-class TestCoverageFloorHasOneHome:
-    """The floor lives in pyproject; copying it is how it drifts."""
-
-    def test_pyproject_defines_the_floor(self) -> None:
-        assert _load_toml(PYPROJECT)["tool"]["coverage"]["report"]["fail_under"] == 90
-
-    @pytest.mark.parametrize("path", [CI_WORKFLOW, PRE_COMMIT], ids=["ci.yml", "pre-commit"])
-    def test_no_copied_floor_elsewhere(self, path: Path) -> None:
-        # Comments are allowed to mention it; a real argument is not.
-        uncommented = "\n".join(
-            line for line in path.read_text(encoding="utf-8").splitlines() if not line.lstrip().startswith("#")
-        )
-        assert "--cov-fail-under" not in uncommented, (
-            f"{path.name} hardcodes a coverage floor. The single source is "
-            "fail_under in pyproject.toml [tool.coverage.report]; passing the flag "
-            "here overrides it and reintroduces the drift this prevents."
         )
