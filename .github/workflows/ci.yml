@@ -6,95 +6,254 @@ on:
       - main
   pull_request:
     # ready_for_review is load-bearing: without it, marking a draft PR ready
-    # fires no event here, so the PR reaches main having never been checked
-    # as non-draft. Draft PRs are the norm in this repo, so this fires often.
+    # fires no event, so the PR can reach main having never been checked as
+    # non-draft.
     types: [opened, reopened, synchronize, edited, ready_for_review]
+  # Weekly dependency drift check (see .github/scripts/check_dependency_freshness.py).
+  # Dependabot proposes the upgrades; this is the backstop that notices when
+  # one is never merged.
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
 
-# Superseded runs are cancelled. Without this, three pushes in a minute queue
-# three full runs and only the last to land reflects the code that shipped.
+# Cancel superseded runs on the same ref to avoid wasting runner minutes.
+# Keyed per pull request where there is one, so a push to the branch and a
+# push to the PR do not cancel each other's runs.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# Default GITHUB_TOKEN permissions follow the repo's org settings. This
-# workflow only ever needs to read the repository.
 permissions:
   contents: read
 
-jobs:
-  ci:
-    runs-on: ubuntu-latest
-    # A hung test run should fail rather than occupy a runner until the 6h default.
-    timeout-minutes: 20
+env:
+  # Never let a tool silently re-resolve dependencies: the lockfile is the
+  # single source of truth for what CI tests against.
+  UV_FROZEN: "1"
 
+jobs:
+  lint:
+    name: Lint and type check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      # 1️⃣ Checkout repo
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      # 2️⃣ Resolve the Python version required by the latest Home Assistant release
-      - name: Resolve HA Python requirement
-        id: ha_python
+      # Python is derived from the Home Assistant version in the lockfile, not
+      # from a hard-coded number and not from whatever is newest on PyPI.
+      # That makes it follow Dependabot automatically: when a PR bumps
+      # Home Assistant, CI picks up whatever Python that release needs, while
+      # still testing exactly the pin the repository chose. .python-version
+      # covers local development; the two agree because both track the lock.
+      - name: Resolve the Python version the locked Home Assistant requires
+        id: python
         run: |
-          REQUIRES=$(curl -s https://pypi.org/pypi/homeassistant/json | jq -r '.info.requires_python')
-          # Extract major.minor from e.g. ">=3.13.2" → "3.13"
-          VERSION=$(echo "$REQUIRES" | grep -oP '\d+\.\d+' | head -1)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Resolved Python version: $VERSION (HA requires: $REQUIRES)"
-
-      # 3️⃣ Set up uv and that Python version
-      - name: Set up uv with Python ${{ steps.ha_python.outputs.version }}
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: "${{ steps.ha_python.outputs.version }}"
-
-      # 4️⃣ Install dependencies
-      # --locked: uv.lock is committed and is what actually gets tested. Plain
-      # `uv sync` may re-resolve and rewrite it, so CI would run against
-      # dependencies nobody pinned. --locked fails when the lockfile and
-      # pyproject.toml have drifted, which is exactly the signal wanted here.
-      - name: Install dependencies
-        run: |
-          uv sync --group test --locked
-          echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
-
-      # 5️⃣ Lint with Ruff (no auto-fix — fixes must be committed locally)
-      - name: Lint with Ruff
-        run: ruff check custom_components/electrolux tests
-
-      # 6️⃣ Check formatting with Ruff (replaces Black)
-      - name: Check formatting with Ruff
-        run: ruff format --check --diff custom_components/electrolux tests
-
-      # 7️⃣ Validate Home Assistant integration
-      # Removed due to import issues in CI environment
-
-      # 8️⃣ Type checking with mypy
-      # Two separate invocations on purpose: passing both paths in one command
-      # trips mypy's "Source file found twice under different module names"
-      # because the component is importable as both `electrolux.*` and
-      # `custom_components.electrolux.*`.
-      - name: Run mypy type checks
-        run: |
-          mypy custom_components/electrolux --ignore-missing-imports
-          mypy tests --ignore-missing-imports
-
-      # 9️⃣ Run tests with coverage
-      # No --cov-fail-under here on purpose. The floor is fail_under in
-      # pyproject.toml's [tool.coverage.report], so this job, the pre-commit
-      # pytest hook and a bare `pytest --cov=...` all enforce the same number.
-      # It was duplicated in three places and had already drifted apart.
-      - name: Run tests
-        run: pytest -v --cov=custom_components/electrolux --cov-report=term-missing
-
-      # 🔟 Check for dirty files
-      - name: Check for dirty files
-        run: |
-          # Only check for modified tracked files, ignore untracked files
-          if [ -n "$(git diff --name-only)" ] || [ -n "$(git diff --cached --name-only)" ]; then
-            echo "Repository is dirty after running checks. Please run the checks locally and commit the changes."
-            git status
+          LOCKED_HA=$(grep -A1 '^name = "homeassistant"$' uv.lock \
+            | grep -o 'version = "[^"]*"' | head -1 | cut -d'"' -f2)
+          if [ -z "$LOCKED_HA" ]; then
+            echo "::error::Could not find homeassistant in uv.lock"
             exit 1
           fi
+          REQUIRES=$(curl -sSf "https://pypi.org/pypi/homeassistant/${LOCKED_HA}/json" \
+            | jq -r '.info.requires_python')
+          VERSION=$(echo "$REQUIRES" | grep -oP '\d+\.\d+' | head -1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not derive a Python version from '$REQUIRES'"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "homeassistant $LOCKED_HA requires Python $REQUIRES -> using $VERSION"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: "${{ steps.python.outputs.version }}"
+
+      - name: Verify uv.lock matches pyproject.toml
+        run: uv lock --check
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      # actionlint validates workflow syntax but cannot resolve action
+      # references, so a typo in a `uses:` or a `with:` key fails silently or
+      # only once the job is scheduled. This fetches each action's action.yml
+      # and checks the reference and inputs. Needs network access.
+      - name: Validate workflow action references and inputs
+        run: uv run --frozen python .github/scripts/validate_workflow_actions.py
+
+      # Everything Python in the repository is checked, not just the component.
+      # Tests, scripts and .github/scripts/ used to be invisible to CI while the
+      # editor checked them, so Pylance reported errors that no run ever caught.
+      #
+      # Formatting is enforced with ruff format, the successor to Black. Black
+      # is not used: ruff format is faster, already the configured formatter,
+      # and one tool is easier to keep consistent than two.
+      - name: Ruff - whole repository
+        run: uv run --frozen ruff check .
+
+      - name: Ruff format - whole repository
+        run: uv run --frozen ruff format --check .
+
+      # tests/ may be a namespace package, so the package-bases flags are
+      # required; without them mypy aborts with "Source file found twice under
+      # different module names" and checks nothing at all. Harmless where
+      # tests/ is a regular package, which keeps this identical everywhere.
+      #
+      # The target list is filtered so this file can be byte-identical across
+      # repositories: mypy errors out on a path that does not exist, and not
+      # every repository has a scripts/ directory.
+      - name: Mypy - whole repository
+        run: |
+          # A bash array rather than a joined string: the paths must reach mypy
+          # as separate arguments, and relying on an unquoted string to split
+          # them is what shellcheck flags as SC2086.
+          TARGETS=()
+          for dir in custom_components tests scripts .github/scripts; do
+            [ -d "$dir" ] && TARGETS+=("$dir")
+          done
+          echo "Type checking: ${TARGETS[*]}"
+          uv run --frozen mypy --namespace-packages --explicit-package-bases "${TARGETS[@]}"
+
+      # A lint step that silently rewrites tracked files would leave the
+      # checkout dirty and the next run would pass on formatted code that was
+      # never committed. Nothing here auto-fixes, so this should never fire;
+      # it is here to catch a step that starts doing so.
+      - name: Check for modified files
+        run: |
+          if [ -n "$(git diff --name-only)" ] || [ -n "$(git diff --cached --name-only)" ]; then
+            echo "::error::Tracked files were modified by the checks. Run them locally and commit the result."
+            git --no-pager diff --stat
+            exit 1
+          fi
+          echo "Working tree is clean."
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve the Python version the locked Home Assistant requires
+        id: python
+        run: |
+          LOCKED_HA=$(grep -A1 '^name = "homeassistant"$' uv.lock \
+            | grep -o 'version = "[^"]*"' | head -1 | cut -d'"' -f2)
+          REQUIRES=$(curl -sSf "https://pypi.org/pypi/homeassistant/${LOCKED_HA}/json" \
+            | jq -r '.info.requires_python')
+          VERSION=$(echo "$REQUIRES" | grep -oP '\d+\.\d+' | head -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: "${{ steps.python.outputs.version }}"
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Report resolved versions
+        run: |
+          uv run --frozen python --version
+          uv run --frozen python -c "from homeassistant.const import __version__ as v; print('homeassistant', v)"
+          uv run --frozen pytest --version
+
+      - name: Run tests
+        run: uv run --frozen pytest -q --junitxml=junit.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: pytest-report
+          path: junit.xml
+          retention-days: 7
+
+  dependencies:
+    name: Dependency freshness
+    # Only meaningful on the weekly schedule / manual dispatch: on pushes and
+    # PRs the lockfile is authoritative and this would only add noise.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Check that Home Assistant is pinned to the latest stable
+        # Exits non-zero when a newer stable release exists or the lock sits on
+        # a pre-release, so drift shows up as a red job instead of going
+        # unnoticed. `packaging` is an ephemeral overlay so the script does not
+        # need to become a declared dependency of the project.
+        run: uv run --frozen --with packaging python .github/scripts/check_dependency_freshness.py
+
+      - name: Summary
+        if: always()
+        run: echo "See the job log for Home Assistant / harness version drift."
+
+  python-floor:
+    name: Python floor
+    # Home Assistant raises its own Python floor over time, and uv refuses to
+    # resolve anything outside requires-python - so that one line is the single
+    # thing Dependabot cannot fix by itself. This opens the pull request for it
+    # instead, and that pull request then goes through CI like any other change,
+    # so the new range is proven before it lands.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Raise the Python range if Home Assistant needs it
+        id: bump
+        run: uv run --frozen python .github/scripts/bump_python_if_needed.py
+
+      - name: Propose the new Python range
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH="chore/raise-python-floor"
+          git checkout -B "$BRANCH"
+          git add pyproject.toml .python-version
+          git commit -m "chore: raise the Python floor for Home Assistant" \
+            -m "Home Assistant now requires a newer Python minor than requires-python allowed, so uv could not resolve its release at all. Raised the range and .python-version to match. Opened automatically by the CI Python floor job; merge this first so Dependabot can pull the update."
+          git push --force origin "$BRANCH"
+          gh pr create \
+            --title "chore: raise the Python floor for Home Assistant" \
+            --body "Opened automatically by the CI \`Python floor\` job.
+
+          Home Assistant requires a newer Python minor than \`requires-python\` allowed, so uv could not resolve that release and Dependabot had nothing to merge. Merge this first; the Dependabot pull request will then resolve." \
+            || echo "::warning::Could not open the pull request (one may already exist)."

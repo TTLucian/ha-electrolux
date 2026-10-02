@@ -106,12 +106,14 @@ Strengthened the `DANGEROUS_ENTITIES_BLACKLIST` regex patterns to be more defens
 **Before (v3.3.5):**
 ```python
 r"^networkInterface/startUpCommand$"  # Exact match only
+
 r"^networkInterface/command$"  # Exact match only
 ```
 
 **After (v3.3.6):**
 ```python
 r"^networkInterface/startUpCommand"  # Matches any path starting with this
+
 r"^networkInterface/command"  # Matches any path starting with this
 ```
 

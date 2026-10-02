@@ -13,6 +13,7 @@ test = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=4.0.0",
+    "types-PyYAML>=6.0",
     "aiohttp>=3.14.3,<4.0.0",
     "pyjwt>=2.12.1,<3.0.0",
     "electrolux-group-developer-sdk>=0.7.0",
@@ -25,6 +26,9 @@ dev = [
     "pydantic>=2.13.5,<3.0.0",
     "electrolux-group-developer-sdk>=0.7.0",
     "pre-commit",
+    # Ships the shellcheck binary inside the venv, so the workflow linter
+    # gets a pinned shellcheck without a system install or Docker.
+    "shellcheck-py>=0.11.0",
 ]
 
 # The coverage floor lives here and nowhere else. CI (ci.yml) and the
@@ -50,7 +54,15 @@ target-version = "py314"
 exclude = [".venv", "__pycache__", ".mypy_cache", ".pytest_cache"]
 
 [tool.ruff.lint]
+# E/F/UP matches the sibling repositories; I adds import sorting, without
+# which the same file formatted differently in each checkout.
+# The ignores below name rules that are deliberately NOT selected:
+# they record intent for when those rule sets are ever enabled.
+select = ["E", "F", "UP", "I"]
 ignore = [
+    # Line length is enforced by ruff format, not by the linter, matching
+    # the sibling repositories.
+    "E501",
     "BLE001",
     "G201",
     "S110",
@@ -59,6 +71,13 @@ ignore = [
     "TRY203",
     "TRY401",
 ]
+
+[[tool.mypy.overrides]]
+# deep_translator ships no type information at all (no py.typed, no stubs), so
+# importing it is always an "untyped import" error. It is only used by the
+# offline translation script, which is not part of the integration's runtime.
+module = ["deep_translator.*"]
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Unit tests replace bound methods with MagicMock()/closure doubles on purpose;

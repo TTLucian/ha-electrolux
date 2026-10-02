@@ -28,9 +28,7 @@ The `applianceType` and `modelName` are now extracted at the **very start** of `
 ```python
 # Extracted before any async calls — always available from list API
 _appliance_type_hint: str | None = appliance_json.get("applianceType")
-_model_hint: str = (
-    appliance_json.get("applianceData", {}).get("modelName") or "Unknown"
-)
+_model_hint: str = appliance_json.get("applianceData", {}).get("modelName") or "Unknown"
 ```
 
 All minimal appliance states now include:

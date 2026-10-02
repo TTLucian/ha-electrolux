@@ -46,7 +46,7 @@ This release introduces **comprehensive washer dryer support** with full integra
 #### **Catalog Architecture**
 ```python
 CATALOG_BY_TYPE = {
-    "WM": CATALOG_WASHER,        # Washing Machine (unchanged)
+    "WM": CATALOG_WASHER,  # Washing Machine (unchanged)
     "WD": CATALOG_WASHER_DRYER,  # Washer Dryer (new)
     # ... other appliance types
 }

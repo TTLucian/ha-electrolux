@@ -375,23 +375,24 @@ For users who want to run the scripts without cloning the entire repository, you
    Create a new file `electrolux_api_client.py` with this content:
    ```python
    """Standalone Electrolux API Client for testing scripts."""
-   
+
    import logging
    from typing import Any, Dict, List
-   
+
    from electrolux_group_developer_sdk.auth.token_manager import TokenManager
    from electrolux_group_developer_sdk.client.appliance_client import ApplianceClient
-   
+
    _LOGGER = logging.getLogger(__name__)
-   
+
+
    class ElectroluxApiClient:
        """Standalone wrapper for the Electrolux API client."""
-   
+
        def __init__(self, api_key: str, access_token: str, refresh_token: str):
            """Initialize the API client."""
            self._token_manager = TokenManager(access_token, refresh_token, api_key)
            self._client = ApplianceClient(self._token_manager)
-   
+
        async def get_appliances_list(self) -> List[Dict[str, Any]]:
            """Get list of appliances."""
            appliances = await self._client.get_appliances()
@@ -406,7 +407,7 @@ For users who want to run the scripts without cloning the entire repository, you
                        model_part = pnc_parts[0]
                        if model_part.isdigit() and len(model_part) >= 6:
                            model_name = model_part
-   
+
                appliance_data = {
                    "applianceId": appliance.applianceId,
                    "applianceName": appliance.applianceName,
@@ -420,15 +421,15 @@ For users who want to run the scripts without cloning the entire repository, you
                }
                result.append(appliance_data)
            return result
-   
+
        async def get_appliance_state(self, appliance_id: str) -> Dict[str, Any]:
            """Get appliance state."""
            return await self._client.get_appliance_state(appliance_id)
-   
+
        async def get_appliance_capabilities(self, appliance_id: str) -> Dict[str, Any]:
            """Get appliance capabilities."""
            return await self._client.get_appliance_capabilities(appliance_id)
-   
+
        async def execute_appliance_command(self, appliance_id: str, command: Dict[str, Any]) -> Dict[str, Any]:
            """Execute a command on the appliance."""
            return await self._client.execute_command(appliance_id, command)

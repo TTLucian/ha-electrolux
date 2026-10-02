@@ -189,15 +189,15 @@ This release consolidates and optimizes the appliance catalog system for better 
 #### **Catalog Architecture**
 ```python
 CATALOG_BY_TYPE = {
-    "WM": CATALOG_WASHER,        # Washing Machine
+    "WM": CATALOG_WASHER,  # Washing Machine
     "WD": CATALOG_WASHER_DRYER,  # Washer Dryer
-    "DW": CATALOG_DISHWASHER,    # Dishwasher (new)
-    "OV": CATALOG_OVEN,          # Oven
-    "FR": CATALOG_FRIDGE,        # Refrigerator
-    "DW": CATALOG_DISHWASHER,    # Dishwasher
-    "AC": CATALOG_AIR_CON,       # Air Conditioner
-    "HO": CATALOG_HOOD,          # Range Hood
-    "PT": CATALOG_PURIFIER,      # Air Purifier
+    "DW": CATALOG_DISHWASHER,  # Dishwasher (new)
+    "OV": CATALOG_OVEN,  # Oven
+    "FR": CATALOG_FRIDGE,  # Refrigerator
+    "DW": CATALOG_DISHWASHER,  # Dishwasher
+    "AC": CATALOG_AIR_CON,  # Air Conditioner
+    "HO": CATALOG_HOOD,  # Range Hood
+    "PT": CATALOG_PURIFIER,  # Air Purifier
 }
 ```
 

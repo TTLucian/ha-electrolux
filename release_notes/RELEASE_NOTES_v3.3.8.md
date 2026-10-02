@@ -68,7 +68,7 @@ Fixed critical issue with string-based ON/OFF switches (UVState) where boolean v
 
 **Before Fix:**
 ```python
-# Boolean True was converted to string "True" 
+# Boolean True was converted to string "True"
 # Command: {"UVState": "True"} ❌ Rejected by API
 ```
 
@@ -229,6 +229,7 @@ def fan_mode(self) -> str | None:
     value = self.get_state_attr("fanSpeedSetting")  # ✅ Correct
     return str(value).lower() if value else None
 
+
 async def async_set_fan_mode(self, fan_mode: str) -> None:
     """Set new target fan mode."""
     await self._send_command("fanMode", fan_mode.upper())  # ❌ Wrong attribute
@@ -241,6 +242,7 @@ def fan_mode(self) -> str | None:
     """Return the fan setting."""
     value = self.get_state_attr("fanSpeedSetting")  # ✅ Correct
     return str(value).lower() if value else None
+
 
 async def async_set_fan_mode(self, fan_mode: str) -> None:
     """Set new target fan mode."""

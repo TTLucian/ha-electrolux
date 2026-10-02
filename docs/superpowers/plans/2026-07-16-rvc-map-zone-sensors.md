@@ -200,32 +200,34 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 In `tests/test_sensor.py`, inside `class TestRvcMapZoneSensors`, add:
 
 ```python
-    def test_zone_count_returns_list_length(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zones",
-            entity_source="mapData/mapMatch",
-            reported={"mapData": {"mapMatch": {"zones": [{}, {}, {}, {}, {}]}}},
-        )
-        assert entity.native_value == 5
+def test_zone_count_returns_list_length(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zones",
+        entity_source="mapData/mapMatch",
+        reported={"mapData": {"mapMatch": {"zones": [{}, {}, {}, {}, {}]}}},
+    )
+    assert entity.native_value == 5
 
-    def test_zone_count_empty_list_is_none(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zones",
-            entity_source="mapData/mapMatch",
-            reported={"mapData": {"mapMatch": {"zones": []}}},
-        )
-        assert entity.native_value is None
 
-    def test_zone_count_missing_is_none(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zones",
-            entity_source="mapData/mapMatch",
-            reported={"mapData": {"mapMatch": {}}},
-        )
-        assert entity.native_value is None
+def test_zone_count_empty_list_is_none(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zones",
+        entity_source="mapData/mapMatch",
+        reported={"mapData": {"mapMatch": {"zones": []}}},
+    )
+    assert entity.native_value is None
+
+
+def test_zone_count_missing_is_none(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zones",
+        entity_source="mapData/mapMatch",
+        reported={"mapData": {"mapMatch": {}}},
+    )
+    assert entity.native_value is None
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -294,42 +296,45 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 In `tests/test_sensor.py`, inside `class TestRvcMapZoneSensors`, add:
 
 ```python
-    ZONE_STATUS = [
-        {"id": "z1", "status": "finished", "powerMode": 1},
-        {"id": "z2", "status": "finished", "powerMode": 1},
-        {"id": "z3", "status": "terminated", "powerMode": 1},
-    ]
+ZONE_STATUS = [
+    {"id": "z1", "status": "finished", "powerMode": 1},
+    {"id": "z2", "status": "finished", "powerMode": 1},
+    {"id": "z3", "status": "terminated", "powerMode": 1},
+]
 
-    def test_zone_status_summary(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zoneStatus",
-            entity_source="cleaningSession",
-            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
-        )
-        assert entity.native_value == "2/3 finished"
 
-    def test_zone_status_empty_is_none(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zoneStatus",
-            entity_source="cleaningSession",
-            reported={"cleaningSession": {"zoneStatus": []}},
-        )
-        assert entity.native_value is None
+def test_zone_status_summary(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zoneStatus",
+        entity_source="cleaningSession",
+        reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+    )
+    assert entity.native_value == "2/3 finished"
 
-    def test_zone_status_extra_attributes(self, mock_coordinator):
-        entity = self._sensor(
-            mock_coordinator,
-            entity_attr="zoneStatus",
-            entity_source="cleaningSession",
-            reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
-        )
-        assert entity.extra_state_attributes == {
-            "z1": "finished",
-            "z2": "finished",
-            "z3": "terminated",
-        }
+
+def test_zone_status_empty_is_none(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zoneStatus",
+        entity_source="cleaningSession",
+        reported={"cleaningSession": {"zoneStatus": []}},
+    )
+    assert entity.native_value is None
+
+
+def test_zone_status_extra_attributes(self, mock_coordinator):
+    entity = self._sensor(
+        mock_coordinator,
+        entity_attr="zoneStatus",
+        entity_source="cleaningSession",
+        reported={"cleaningSession": {"zoneStatus": self.ZONE_STATUS}},
+    )
+    assert entity.extra_state_attributes == {
+        "z1": "finished",
+        "z2": "finished",
+        "z3": "terminated",
+    }
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -359,16 +364,12 @@ In `catalog_rvc.py`, append inside `CATALOG_RVC` (after the Task 2 block):
 In `sensor.py` `native_value`, directly below the Task 2 zone-count block (still right after `value = self.extract_value()`), insert:
 
 ```python
-        # RVC (#130): summarise cleaning-session zone statuses as "<finished>/<total> finished"
-        if self.json_path == "cleaningSession/zoneStatus":
-            if not isinstance(value, list) or not value:
-                return None
-            finished = sum(
-                1
-                for zone in value
-                if isinstance(zone, dict) and zone.get("status") == "finished"
-            )
-            return f"{finished}/{len(value)} finished"
+# RVC (#130): summarise cleaning-session zone statuses as "<finished>/<total> finished"
+if self.json_path == "cleaningSession/zoneStatus":
+    if not isinstance(value, list) or not value:
+        return None
+    finished = sum(1 for zone in value if isinstance(zone, dict) and zone.get("status") == "finished")
+    return f"{finished}/{len(value)} finished"
 ```
 
 - [ ] **Step 5: Add the `extra_state_attributes` branch**
@@ -376,16 +377,12 @@ In `sensor.py` `native_value`, directly below the Task 2 zone-count block (still
 In `sensor.py`, in `ElectroluxSensor.extra_state_attributes`, insert at the very top of the method body (before `if self.entity_attr == "alerts":`):
 
 ```python
-        # RVC (#130): expose per-zone status detail
-        if self.json_path == "cleaningSession/zoneStatus":
-            value = self.extract_value()
-            if isinstance(value, list):
-                return {
-                    zone["id"]: zone.get("status")
-                    for zone in value
-                    if isinstance(zone, dict) and "id" in zone
-                }
-            return {}
+# RVC (#130): expose per-zone status detail
+if self.json_path == "cleaningSession/zoneStatus":
+    value = self.extract_value()
+    if isinstance(value, list):
+        return {zone["id"]: zone.get("status") for zone in value if isinstance(zone, dict) and "id" in zone}
+    return {}
 ```
 
 - [ ] **Step 6: Run tests to verify they pass**

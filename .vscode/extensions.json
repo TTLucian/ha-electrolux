@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.mypy-type-checker",
+    "github.copilot",
+    "redhat.vscode-yaml",
+    "charliermarsh.ruff"
+  ]
+}

@@ -1,4 +1,5 @@
 version: 2
+
 updates:
   # Split into groups rather than one "*" bucket. A single group puts a risky
   # transitive bump in the same PR as safe ones, and one blocked update stalls
@@ -15,12 +16,14 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      # The one dependency that ships to users and talks to the appliance cloud.
-      # Isolated so it gets reviewed and tested on its own - a change here can
-      # alter what commands the integration sends.
+      # The dependency that ships to users and talks to the appliance cloud,
+      # where one exists. Isolated so it gets reviewed and tested on its own -
+      # a change here can alter what commands the integration sends. The
+      # pattern matches nothing in repositories with no runtime SDK, which is
+      # harmless.
       runtime:
         patterns:
-          - "electrolux-group-developer-sdk"
+          - "*-developer-sdk"
       # Framework and async libraries: broad blast radius, but no behaviour of
       # our own, so they can move together.
       framework:
@@ -30,16 +33,22 @@ updates:
           - "pydantic"
           - "pyjwt"
           - "deep_translator"
+          - "pytest-homeassistant-custom-component"
       # Developer tooling only - nothing here reaches a user's install.
       tooling:
         patterns:
           - "pytest"
           - "pytest-asyncio"
           - "pytest-cov"
+          - "types-PyYAML"
           - "ruff"
           - "mypy"
           - "pre-commit"
 
+  # Actions are pinned by commit SHA in the workflows. Dependabot understands
+  # the trailing version comment and will open a PR with both the new SHA and
+  # the updated comment, so the pins do not silently go stale. This is what
+  # keeps the CI toolchain itself current.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
