@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API atslēga",
                     "access_token": "Piekļuves marķieris",
-                    "refresh_token": "Atsvaidzināt marķieri"
+                    "refresh_token": "Atsvaidzināt marķieri",
+                    "spin_speed_substitution": "Griešanās ātruma aizstāšana (eksperimentāla - skatīt #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Jauda"
+            },
+            "executecommand_on": {
+                "name": "Ieslēgt"
+            },
+            "executecommand_off": {
+                "name": "Izslēgt"
+            },
+            "executecommand_start": {
+                "name": "Sākt"
+            },
+            "executecommand_pause": {
+                "name": "Pauze"
+            },
+            "executecommand_resume": {
+                "name": "Atsākt"
+            },
+            "executecommand_stopreset": {
+                "name": "Apturēt / atiestatīt"
             },
             "waterfilterstatereset": {
                 "name": "Atiestatīt ūdens filtru"

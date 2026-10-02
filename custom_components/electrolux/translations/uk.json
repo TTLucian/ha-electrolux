@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "Ключ API",
                     "access_token": "Маркер доступу",
-                    "refresh_token": "Оновити маркер"
+                    "refresh_token": "Оновити маркер",
+                    "spin_speed_substitution": "Заміна швидкості віджиму (експериментальна - див. №257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "потужність"
+            },
+            "executecommand_on": {
+                "name": "Увімкнути"
+            },
+            "executecommand_off": {
+                "name": "Вимкнути"
+            },
+            "executecommand_start": {
+                "name": "Почати"
+            },
+            "executecommand_pause": {
+                "name": "Пауза"
+            },
+            "executecommand_resume": {
+                "name": "Відновити"
+            },
+            "executecommand_stopreset": {
+                "name": "Зупинка / скидання"
             },
             "waterfilterstatereset": {
                 "name": "Скинути водяний фільтр"
