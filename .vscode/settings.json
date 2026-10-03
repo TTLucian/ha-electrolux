@@ -73,12 +73,17 @@
   // watcher for Python sources, so edits made from outside the editor (a
   // formatter, sed, or an agent tool) leave stale diagnostics behind. Two
   // escape hatches, both here so every repository behaves the same way:
-  //   * Ctrl+Shift+Alt+M runs "Mypy: Restart Server"
-  //     (.vscode/keybindings.json). Ctrl+Shift+Y was tried first and is
-  //     already bound to the Debug Console.
   //   * "refresh editor types" in the task menu, or
-  //     python .github/scripts/refresh_editor_types.py, nudges a tracked
-  //     setting and restores it, which prompts the same re-check.
+  //     uv run python .github/scripts/refresh_editor_types.py, nudges a
+  //     tracked setting and restores it, which prompts the same re-check.
+  //     Prefer this: it needs no keybinding and no focus context.
+  //   * Ctrl+Shift+Alt+M runs "Mypy: Restart Server"
+  //     (.vscode/keybindings.json), registered with no "when" clause so it
+  //     fires from any focus context - including the Problems panel, which is
+  //     where you are when you need it. An earlier version gated it on
+  //     "editorTextFocus || terminalFocus", which silently disabled the chord
+  //     in precisely that situation. A false "when" clause looks perfectly
+  //     registered in Ctrl+K Ctrl+S while being completely dead.
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "mypy-type-checker.preferDaemon": false,
   // Declared explicitly so .github/scripts/refresh_editor_types.py can nudge it

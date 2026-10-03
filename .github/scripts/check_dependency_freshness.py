@@ -25,7 +25,7 @@ Two deliberate rules, both learned the hard way:
 Repositories that do not use the test harness are handled too: the harness
 checks are skipped and only the Home Assistant pin is verified.
 
-Usage: python .github/scripts/check_dependency_freshness.py
+Usage: uv run python .github/scripts/check_dependency_freshness.py
 """
 
 from __future__ import annotations
