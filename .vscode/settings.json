@@ -68,22 +68,27 @@
   // passing it here hid real import errors from the editor alone.
   //
   // There is no "run" setting in this extension (checked against
-  // ms-python.mypy-type-checker 2026.6.0's package.json). It re-checks on
-  // open and save, and when a tracked setting changes -- but it has no file
+  // ms-python.mypy-type-checker 2026.6.0's package.json). It re-checks when a
+  // document is OPENED and when a tracked setting changes -- but it has no file
   // watcher for Python sources, so edits made from outside the editor (a
-  // formatter, sed, or an agent tool) leave stale diagnostics behind. Two
-  // escape hatches, both here so every repository behaves the same way:
-  //   * "refresh editor types" in the task menu, or
-  //     uv run python .github/scripts/refresh_editor_types.py, nudges a
-  //     tracked setting and restores it, which prompts the same re-check.
-  //     Prefer this: it needs no keybinding and no focus context.
-  //   * Ctrl+Shift+Alt+M runs "Mypy: Restart Server"
-  //     (.vscode/keybindings.json), registered with no "when" clause so it
-  //     fires from any focus context - including the Problems panel, which is
-  //     where you are when you need it. An earlier version gated it on
-  //     "editorTextFocus || terminalFocus", which silently disabled the chord
-  //     in precisely that situation. A false "when" clause looks perfectly
-  //     registered in Ctrl+K Ctrl+S while being completely dead.
+  // formatter, sed, or an agent tool) leave stale diagnostics behind.
+  //
+  // The reliable refresh is therefore to CLOSE THE FILE AND OPEN IT AGAIN.
+  // That fires 'textDocument/didOpen', which re-runs mypy against the current
+  // bytes on disk. This is not a workaround: it is the mechanism the
+  // extension actually uses, visible throughout its own Mypy.log.
+  //
+  // There is deliberately NO keybinding for this. See .vscode/keybindings.json
+  // for why the "Mypy: Restart Server" chord was removed: it was gated behind a
+  // false "when" clause, and once that was fixed it still no-opped, because the
+  // extension's restart path returns early when no server session is live.
+  //
+  // From the repo root, the script nudges a tracked setting and restores it,
+  // which prompts the same re-check:
+  //
+  //     uv run python .github/scripts/refresh_editor_types.py
+  //
+  // The explicit `uv run` is required: there is no bare `python` on PATH here.
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "mypy-type-checker.preferDaemon": false,
   // Declared explicitly so .github/scripts/refresh_editor_types.py can nudge it

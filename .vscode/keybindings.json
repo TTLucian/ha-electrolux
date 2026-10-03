@@ -1,50 +1,41 @@
-// Keybindings shared by the repositories that use this tooling.
+// DO NOT add a mypy-restart keybinding to this file.
 //
-// Why this exists: the mypy editor extension re-checks when you type, when you
-// save, or when a tracked setting changes - but NOT when a file changes on
-// disk from outside the editor. Edits made by a formatter, sed or an agent tool
-// therefore leave stale diagnostics in the Problems panel.
+// A chord binding "mypy-type-checker.restart" was removed from all three
+// repositories. It shipped, it was "fixed" twice, and it never worked. The
+// reasons, in order of discovery:
 //
-// VERIFYING THIS CHORD ACTUALLY WORKS
-// ====================================
-// Do not assume a binding is live just because it is in this file. A `when`
-// clause that is false silently disables the chord - VS Code reports nothing,
-// and the key simply appears dead.
+//  1. It was gated on `"when": "editorTextFocus || terminalFocus"`, which is
+//     false whenever you are reading the PROBLEMS PANEL - the one place you
+//     are when stale diagnostics are what you need to clear. A false `when`
+//     clause disables a key silently: no error, and no conflict in Ctrl+K
+//     Ctrl+S. Removing it did not fix the problem.
 //
-// That is what happened here. This binding shipped with:
+//  2. With no `when` clause it became a valid, unconditional binding, and it
+//     STILL did nothing. The extension logs show it activates only on
+//     'onLanguage:python', and its own restart path short-circuits when it is
+//     not holding a live server session:
 //
-//     "when": "editorTextFocus || terminalFocus"
+//         if (S = [], y) return;
 //
-// which looks harmless but is exactly backwards for its purpose. Someone with
-// stale errors is reading the PROBLEMS PANEL, so focus is not in the editor
-// and not in the terminal, both clauses are false, and Ctrl+Shift+Alt+M does
-// nothing at all. The one situation this escape hatch exists for was the one
-// situation it could not be triggered from.
+//     It returns silently - no error, no notification - so the command runs
+//     and no-ops. Restarting is only meaningful when a server is already
+//     running for the file you have open.
 //
-// Hence: NO `when` clause below. An emergency recovery key must fire
-// unconditionally, from any focus context - editor, Problems panel, SCM,
-// terminal, Explorer. If a future key genuinely cannot be unconditional, give
-// it its own chord rather than narrowing this one.
+// The real trigger, from the extension's own log, is 'textDocument/didOpen':
 //
-// A keybinding only conflicts visibly in Ctrl+K Ctrl+S (search the chord); a
-// false `when` clause will NOT show up there as a conflict.
+//     textDocument/didOpen
+//     textDocument/didOpen
 //
-// Fallback when even this does not fire: Ctrl+Shift+P -> "restart" ->
-// the mypy entry. Or just run, from the repo root:
+// So the reliable refresh is to CLOSE THE FILE AND OPEN IT AGAIN. That fires
+// didOpen, which re-runs mypy against the current bytes on disk.
+//
+// If that is inconvenient, from the repo root:
 //
 //     uv run python .github/scripts/refresh_editor_types.py
 //
-// which nudges the tracked setting that prompts the re-check and needs no
-// keybinding at all. Note the explicit `uv run python`: this repository has
-// no bare `python` on PATH, so the script must be invoked through the venv.
-[
-  {
-    "key": "ctrl+shift+alt+m",
-    "command": "mypy-type-checker.restart"
-  },
-  {
-    "key": "cmd+shift+alt+m",
-    "command": "mypy-type-checker.restart",
-    "when": "isMac"
-  }
-]
+// which nudges a tracked setting to prompt the same re-check and needs no
+// keybinding. Note the explicit `uv run`: this repository has no bare
+// `python` on PATH, so a bare `python ...` fails with *command not found*.
+//
+// Do not re-add a keybinding here without reading this first.
+[]

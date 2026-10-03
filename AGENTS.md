@@ -135,42 +135,43 @@ the opposite.
 
 ## Editor type checking
 
-The mypy editor extension re-checks when you type, when you save, and when one
-of its tracked settings changes. It has **no file watcher for Python sources**,
-so a file edited from outside the editor - a formatter, `sed`, or an agent tool
-- leaves stale diagnostics in the Problems panel. A green panel can then be
+The mypy editor extension re-checks when a document is opened and when one of
+its tracked settings changes. It has **no file watcher for Python sources**, so
+a file edited from outside the editor - a formatter, `sed`, or an agent tool -
+leaves stale diagnostics in the Problems panel. A green panel can then be
 certifying code that no longer exists.
 
-Escape hatches, shared by every repository that uses this tooling:
+Escape hatch, shared by every repository that uses this tooling:
 
-- **Ctrl+Shift+Alt+M** runs `Mypy: Restart Server`
-  (`.vscode/keybindings.json`), and is registered **unconditionally** - no
-  `when` clause.
-
-  A `when` clause that evaluates false disables a chord *silently*: VS Code
-  reports nothing and the key simply appears dead. This binding originally
-  shipped with `"when": "editorTextFocus || terminalFocus"`, which is exactly
-  backwards. Someone with stale diagnostics is reading the **Problems panel**,
-  so focus is in neither the editor nor the terminal, both clauses are false,
-  and the key did nothing - the single situation the escape hatch exists for
-  was the one situation it could not be triggered from. Do not narrow it.
-
-  `Ctrl+K Ctrl+S` (search the chord) shows conflicts, but it will **not** show a
-  false `when` clause, so a binding can look perfectly registered and still be
-  dead. The chord's actual title is `Restart Server`.
+- **Close the file and open it again.** This is not a workaround, it is the
+  mechanism. The extension re-checks on `textDocument/didOpen`, visible
+  throughout its own `Mypy.log`. That is why stale diagnostics persist after a
+  file is edited from outside the editor: nothing ever sends a fresh `didOpen`.
 
 - **`uv run python .github/scripts/refresh_editor_types.py`** (also the
   "refresh editor types" task) nudges `mypy-type-checker.showNotifications`
   and restores it, which prompts the same re-check. It leaves the file
   byte-identical, so git stays clean, and it fails loudly rather than doing
-  nothing if the setting is missing.
+  nothing if the setting is missing. The `uv run` is required: there is no
+  bare `python` on PATH, so a bare `python .github/scripts/...` fails with
+  *command not found*.
 
-  The `uv run` is required: there is no bare `python` on PATH, so a bare
-  `python .github/scripts/...` fails with *command not found*. Prefer this
-  hatch over the keybinding - it needs no focus context and no keybinding, so
-  it cannot be the thing that is broken.
+There is deliberately **no keybinding**. `.vscode/keybindings.json` used to
+bind `Mypy: Restart Server` to Ctrl+Shift+Alt+M. That chord was "fixed" twice
+and never worked, for two separate reasons:
 
-If both somehow fail: `Ctrl+Shift+P` -> `Restart Server`.
+1. It shipped gated on `"when": "editorTextFocus || terminalFocus"`, which is
+   false whenever you are reading the **Problems panel** - the one place you
+   are when stale diagnostics are what you need to clear. A false `when`
+   clause disables a key silently: no error, and no conflict in `Ctrl+K
+   Ctrl+S`.
+2. With no `when` clause it became a valid unconditional binding and *still*
+   did nothing. The extension activates only on `onLanguage:python`, and its
+   restart path returns early when it holds no live server session
+   (`if (S = [], y) return;`). It returns silently - no error, no notification.
+
+Do not re-add it. Closing the file is both simpler and the thing that actually
+works.
 
 The extension's `package.json` has no setting for this, so there is no
 configuration that makes it watch `.py` files. Do not rely on the Problems
