@@ -77,6 +77,13 @@
       "type": "shell",
       "command": "uv run --with packaging python .github/scripts/check_dependency_freshness.py",
       "problemMatcher": []
+    },
+    {
+      "label": "refresh editor types",
+      "detail": "Force the editor's mypy to re-check after files changed on disk",
+      "type": "shell",
+      "command": "uv run python .github/scripts/refresh_editor_types.py",
+      "problemMatcher": []
     }
   ]
 }

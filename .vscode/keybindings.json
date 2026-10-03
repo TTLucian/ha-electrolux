@@ -1,0 +1,33 @@
+// Keybindings shared by the repositories that use this tooling.
+//
+// Why this exists: the mypy editor extension re-checks when you type, when you
+// save, or when a tracked setting changes - but NOT when a file changes on
+// disk from outside the editor. Edits made by a formatter, sed or an agent tool
+// therefore leave stale diagnostics in the Problems panel.
+//
+// Choosing this chord was hard to do reliably. VS Code's published shortcut
+// page lists only the COMMON defaults, so "not listed" does not mean "free":
+// Ctrl+Shift+Y was chosen once on that basis and turned out to be bound to
+// "Debug: Toggle Debug Console". The default set could not be enumerated from
+// a remote server, because the workbench bundle runs on the client.
+//
+// Ctrl+Shift+Alt+M is a four-key chord, which no VS Code default uses, so it
+// is very unlikely to collide. If it ever does, change it here (this file is
+// tracked, so the change is reviewable) and verify with:
+//
+//     Ctrl+K Ctrl+S   ->  search the chord
+//
+// A conflict shows up as a second entry bound to the same key.
+[
+  {
+    "key": "ctrl+shift+alt+m",
+    "command": "mypy-type-checker.restart",
+    "when": "editorTextFocus || terminalFocus"
+  },
+  {
+    "key": "cmd+shift+alt+m",
+    "command": "mypy-type-checker.restart",
+    "mac": "cmd+shift+alt+m",
+    "when": "editorTextFocus || terminalFocus"
+  }
+]

@@ -133,6 +133,33 @@ the correct use of the command - it is only wrong when applied to files that are
 already correct. Never override `core.autocrlf` for a single `git add` to force
 the opposite.
 
+## Editor type checking
+
+The mypy editor extension re-checks when you type, when you save, and when one
+of its tracked settings changes. It has **no file watcher for Python sources**,
+so a file edited from outside the editor - a formatter, `sed`, or an agent tool
+- leaves stale diagnostics in the Problems panel. A green panel can then be
+certifying code that no longer exists.
+
+Two escape hatches, shared by every repository that uses this tooling:
+
+- **Ctrl+Shift+Alt+M** runs `Mypy: Restart Server`
+  (`.vscode/keybindings.json`). A four-key chord, which no VS Code default uses.
+  `Ctrl+Shift+Y` was chosen first on the grounds that it was absent from the
+  published shortcuts page, and turned out to be bound to *Debug: Toggle Debug
+  Console* - that page lists only common defaults, so absence proved nothing,
+  and the full set could not be enumerated from a remote server because the
+  workbench bundle runs on the client. Verify a chord with `Ctrl+K Ctrl+S`.
+- **`python .github/scripts/refresh_editor_types.py`** (also the
+  "refresh editor types" task) nudges `mypy-type-checker.showNotifications`
+  and restores it, which prompts the same re-check. It leaves the file
+  byte-identical, so git stays clean, and it fails loudly rather than doing
+  nothing if the setting is missing.
+
+The extension's `package.json` has no setting for this, so there is no
+configuration that makes it watch `.py` files. Do not rely on the Problems
+panel as evidence that code is clean: run `mypy` (or the "typecheck" task).
+
 ## JSON files - edit, never re-serialize
 
 Do not read a repo JSON file with `json.load` and write it back with `json.dump`.

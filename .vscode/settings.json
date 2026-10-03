@@ -69,11 +69,21 @@
   //
   // There is no "run" setting in this extension (checked against
   // ms-python.mypy-type-checker 2026.6.0's package.json). It re-checks on
-  // open and save. Edits made from outside the editor -- a formatter, sed, or
-  // an agent tool -- can leave stale diagnostics in the Problems panel; run
-  // "Mypy: Restart Server" from the Command Palette to force a re-check.
+  // open and save, and when a tracked setting changes -- but it has no file
+  // watcher for Python sources, so edits made from outside the editor (a
+  // formatter, sed, or an agent tool) leave stale diagnostics behind. Two
+  // escape hatches, both here so every repository behaves the same way:
+  //   * Ctrl+Shift+Alt+M runs "Mypy: Restart Server"
+  //     (.vscode/keybindings.json). Ctrl+Shift+Y was tried first and is
+  //     already bound to the Debug Console.
+  //   * "refresh editor types" in the task menu, or
+  //     python .github/scripts/refresh_editor_types.py, nudges a tracked
+  //     setting and restores it, which prompts the same re-check.
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "mypy-type-checker.preferDaemon": false,
+  // Declared explicitly so .github/scripts/refresh_editor_types.py can nudge it
+  // to force a re-check; it is cosmetic and this script restores it.
+  "mypy-type-checker.showNotifications": "off",
   "mypy-type-checker.path": [
     "${workspaceFolder}/.venv/bin/mypy"
   ],
