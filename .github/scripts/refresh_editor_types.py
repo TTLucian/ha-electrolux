@@ -17,7 +17,10 @@ returns, so the repository is left exactly as it was found and git stays clean.
 
 Safe to run at any time; it never edits source.
 
-Usage: python .github/scripts/refresh_editor_types.py
+Usage: uv run python .github/scripts/refresh_editor_types.py
+
+Note the explicit `uv run`: this repository has no bare `python` on PATH, so a
+bare `python ...` fails with *command not found*.
 """
 
 from __future__ import annotations

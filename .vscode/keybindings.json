@@ -5,29 +5,46 @@
 // disk from outside the editor. Edits made by a formatter, sed or an agent tool
 // therefore leave stale diagnostics in the Problems panel.
 //
-// Choosing this chord was hard to do reliably. VS Code's published shortcut
-// page lists only the COMMON defaults, so "not listed" does not mean "free":
-// Ctrl+Shift+Y was chosen once on that basis and turned out to be bound to
-// "Debug: Toggle Debug Console". The default set could not be enumerated from
-// a remote server, because the workbench bundle runs on the client.
+// VERIFYING THIS CHORD ACTUALLY WORKS
+// ====================================
+// Do not assume a binding is live just because it is in this file. A `when`
+// clause that is false silently disables the chord - VS Code reports nothing,
+// and the key simply appears dead.
 //
-// Ctrl+Shift+Alt+M is a four-key chord, which no VS Code default uses, so it
-// is very unlikely to collide. If it ever does, change it here (this file is
-// tracked, so the change is reviewable) and verify with:
+// That is what happened here. This binding shipped with:
 //
-//     Ctrl+K Ctrl+S   ->  search the chord
+//     "when": "editorTextFocus || terminalFocus"
 //
-// A conflict shows up as a second entry bound to the same key.
+// which looks harmless but is exactly backwards for its purpose. Someone with
+// stale errors is reading the PROBLEMS PANEL, so focus is not in the editor
+// and not in the terminal, both clauses are false, and Ctrl+Shift+Alt+M does
+// nothing at all. The one situation this escape hatch exists for was the one
+// situation it could not be triggered from.
+//
+// Hence: NO `when` clause below. An emergency recovery key must fire
+// unconditionally, from any focus context - editor, Problems panel, SCM,
+// terminal, Explorer. If a future key genuinely cannot be unconditional, give
+// it its own chord rather than narrowing this one.
+//
+// A keybinding only conflicts visibly in Ctrl+K Ctrl+S (search the chord); a
+// false `when` clause will NOT show up there as a conflict.
+//
+// Fallback when even this does not fire: Ctrl+Shift+P -> "restart" ->
+// the mypy entry. Or just run, from the repo root:
+//
+//     uv run python .github/scripts/refresh_editor_types.py
+//
+// which nudges the tracked setting that prompts the re-check and needs no
+// keybinding at all. Note the explicit `uv run python`: this repository has
+// no bare `python` on PATH, so the script must be invoked through the venv.
 [
   {
     "key": "ctrl+shift+alt+m",
-    "command": "mypy-type-checker.restart",
-    "when": "editorTextFocus || terminalFocus"
+    "command": "mypy-type-checker.restart"
   },
   {
     "key": "cmd+shift+alt+m",
     "command": "mypy-type-checker.restart",
-    "mac": "cmd+shift+alt+m",
-    "when": "editorTextFocus || terminalFocus"
+    "when": "isMac"
   }
 ]

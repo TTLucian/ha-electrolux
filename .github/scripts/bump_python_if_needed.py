@@ -21,7 +21,7 @@ proven before it lands.
 Idempotent: exits 0 and changes nothing when the declaration is already
 correct, which is the normal case.
 
-Usage: python .github/scripts/bump_python_if_needed.py [--check]
+Usage: uv run python .github/scripts/bump_python_if_needed.py [--check]
 """
 
 from __future__ import annotations

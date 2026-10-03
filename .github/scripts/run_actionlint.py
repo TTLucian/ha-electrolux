@@ -18,7 +18,7 @@ than a weaker result.
 Used by CI, by the pre-commit hook and by the editor task, so a local run and a
 CI run check exactly the same thing.
 
-Usage: python .github/scripts/run_actionlint.py [workflow_dir]
+Usage: uv run python .github/scripts/run_actionlint.py [workflow_dir]
 """
 
 from __future__ import annotations

@@ -141,20 +141,36 @@ so a file edited from outside the editor - a formatter, `sed`, or an agent tool
 - leaves stale diagnostics in the Problems panel. A green panel can then be
 certifying code that no longer exists.
 
-Two escape hatches, shared by every repository that uses this tooling:
+Escape hatches, shared by every repository that uses this tooling:
 
 - **Ctrl+Shift+Alt+M** runs `Mypy: Restart Server`
-  (`.vscode/keybindings.json`). A four-key chord, which no VS Code default uses.
-  `Ctrl+Shift+Y` was chosen first on the grounds that it was absent from the
-  published shortcuts page, and turned out to be bound to *Debug: Toggle Debug
-  Console* - that page lists only common defaults, so absence proved nothing,
-  and the full set could not be enumerated from a remote server because the
-  workbench bundle runs on the client. Verify a chord with `Ctrl+K Ctrl+S`.
-- **`python .github/scripts/refresh_editor_types.py`** (also the
+  (`.vscode/keybindings.json`), and is registered **unconditionally** - no
+  `when` clause.
+
+  A `when` clause that evaluates false disables a chord *silently*: VS Code
+  reports nothing and the key simply appears dead. This binding originally
+  shipped with `"when": "editorTextFocus || terminalFocus"`, which is exactly
+  backwards. Someone with stale diagnostics is reading the **Problems panel**,
+  so focus is in neither the editor nor the terminal, both clauses are false,
+  and the key did nothing - the single situation the escape hatch exists for
+  was the one situation it could not be triggered from. Do not narrow it.
+
+  `Ctrl+K Ctrl+S` (search the chord) shows conflicts, but it will **not** show a
+  false `when` clause, so a binding can look perfectly registered and still be
+  dead. The chord's actual title is `Restart Server`.
+
+- **`uv run python .github/scripts/refresh_editor_types.py`** (also the
   "refresh editor types" task) nudges `mypy-type-checker.showNotifications`
   and restores it, which prompts the same re-check. It leaves the file
   byte-identical, so git stays clean, and it fails loudly rather than doing
   nothing if the setting is missing.
+
+  The `uv run` is required: there is no bare `python` on PATH, so a bare
+  `python .github/scripts/...` fails with *command not found*. Prefer this
+  hatch over the keybinding - it needs no focus context and no keybinding, so
+  it cannot be the thing that is broken.
+
+If both somehow fail: `Ctrl+Shift+P` -> `Restart Server`.
 
 The extension's `package.json` has no setting for this, so there is no
 configuration that makes it watch `.py` files. Do not rely on the Problems

@@ -9,7 +9,7 @@ action's own `action.yml` to confirm:
   * the reference resolves (and, when pinned by SHA, that the SHA exists)
   * every key under `with:` is a declared input of that action
 
-Usage: python .github/scripts/validate_workflow_actions.py [workflow_dir]
+Usage: uv run python .github/scripts/validate_workflow_actions.py [workflow_dir]
 """
 
 from __future__ import annotations
