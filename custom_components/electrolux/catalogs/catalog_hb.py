@@ -6,6 +6,7 @@ The HB hob exposes two groups of capabilities:
    Accessed via the slash-path notation used throughout the integration.
 """
 
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.switch import SwitchDeviceClass
 from homeassistant.const import EntityCategory
 
@@ -91,5 +92,23 @@ CATALOG_HB: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:link-variant",
         friendly_name="Hood State",
+    ),
+    # ── hood filter indicator: a status, not a control ─────────────────────────
+    # The hood reports that its filter needs running a cleaning/characterisation
+    # cycle. It is read/write in the cloud's capability map, which made it a
+    # switch - a control that invites a press and silently does nothing. Same
+    # reasoning as #232's Auto Door Opener: expose what it reports, do not
+    # pretend the user can change it.
+    #
+    # The catalog's "access": "read" is not what does this. models.py lets the API
+    # capability win that merge and the API says readwrite; the device_class is
+    # what actually demotes the platform.
+    "hobHood/hoodFilterCharcIndication": ElectroluxDevice(
+        capability_info={"access": "read", "type": "boolean"},
+        device_class=BinarySensorDeviceClass.RUNNING,
+        unit=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_icon="mdi:air-filter",
+        friendly_name="Hood Filter Needs Cleaning",
     ),
 }
