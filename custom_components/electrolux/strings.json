@@ -1382,6 +1382,21 @@
       },
       "soundpackfile": {
         "name": "Sound Pack File"
+      },
+      "xposition": {
+        "name": "X Position"
+      },
+      "yposition": {
+        "name": "Y Position"
+      },
+      "xsize": {
+        "name": "X Size"
+      },
+      "ysize": {
+        "name": "Y Size"
+      },
+      "hobcoil": {
+        "name": "Coil"
       }
     },
     "switch": {
