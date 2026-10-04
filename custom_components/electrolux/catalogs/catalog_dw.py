@@ -274,14 +274,23 @@ CATALOG_DW: dict[str, ElectroluxDevice] = {
         friendly_name="Spray Zone (Legacy)",
         entity_registry_enabled_default=False,
     ),
+    # Read-only: this is an appliance-level key that no program lists (#232).
+    # A write to it succeeds at the cloud and is then silently discarded, so
+    # exposing it as a switch was a control that did nothing. The device
+    # reports whether the door opener is engaged, which is still worth showing,
+    # so it becomes a binary sensor instead of a dead switch.
+    #
+    # Note the device_class is what demotes the entity (models.py overrides
+    # entity_type from it); changing "access" alone would not, because the API
+    # capability wins the merge.
     "userSelections/autoDoorOpener": ElectroluxDevice(
         capability_info={
-            "access": "readwrite",
+            "access": "read",
             "type": "boolean",
         },
-        device_class=SwitchDeviceClass.SWITCH,
+        device_class=BinarySensorDeviceClass.DOOR,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:door-open",
         friendly_name="Auto Door Opener",
     ),

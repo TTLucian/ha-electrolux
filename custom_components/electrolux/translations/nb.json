@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-nøkkel",
                     "access_token": "Tilgangstoken",
-                    "refresh_token": "Oppdater token"
+                    "refresh_token": "Oppdater token",
+                    "spin_speed_substitution": "Sentrifugehastighetssubstitusjon (eksperimentell - se #257)"
                 }
             }
         },
@@ -175,12 +176,6 @@
             },
             "doorstate": {
                 "name": "Dør"
-            },
-            "dish_alarm_rinse_aid_low": {
-                "name": "Lite skyllemiddel"
-            },
-            "dish_alarm_salt_missing": {
-                "name": "Salt mangler"
             },
             "foodprobeinsertionstate": {
                 "name": "Matsonde"

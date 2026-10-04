@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-avain",
                     "access_token": "Käyttöoikeustunnus",
-                    "refresh_token": "Päivitä Token"
+                    "refresh_token": "Päivitä Token",
+                    "spin_speed_substitution": "Pyöräytysnopeuden korvaaminen (kokeellinen - katso #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Tehoa"
+            },
+            "executecommand_on": {
+                "name": "Kytke päälle"
+            },
+            "executecommand_off": {
+                "name": "Kytke pois päältä"
+            },
+            "executecommand_start": {
+                "name": "Aloita"
+            },
+            "executecommand_pause": {
+                "name": "Keskeytä"
+            },
+            "executecommand_resume": {
+                "name": "Ansioluettelo"
+            },
+            "executecommand_stopreset": {
+                "name": "Pysäytä / nollaa"
             },
             "waterfilterstatereset": {
                 "name": "Nollaa vedensuodatin"
