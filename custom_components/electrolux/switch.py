@@ -47,6 +47,36 @@ def _reported_path_exists(reported_data: dict[str, Any], path: str, attr: str) -
     return True
 
 
+def _has_live_state_mapping(entity: Any, reported_data: dict[str, Any]) -> bool:
+    """True when the entity's state comes from a different, reported capability.
+
+    The phantom filter below exists because an appliance advertises a
+    capability it cannot actually do - Pod wash, AutoDose (#55) - and that key
+    is absent from reported state. That absence is evidence of a phantom.
+
+    A command capability is the exception, and ``executeCommand`` is the case
+    that matters: no appliance in any collected sample reports it, because it is
+    never *state*, it is something you send. A dehumidifier reporter (#277) found
+    their unit had no power control at all, and the cause was here - the catalog
+    entry already carries ``state_mapping="applianceState"``, declaring where the
+    state really lives.
+
+    So when a catalog entry declares a ``state_mapping`` and that target *is*
+    present in reported state, absence of the entity's own key is by design, not
+    evidence of a phantom. The signal is general: it rescues every command
+    capability declared this way, without hardcoding a capability name.
+    """
+    entry = getattr(entity, "catalog_entry", None)
+    mapping = getattr(entry, "state_mapping", None) if entry is not None else None
+    # ``state_mapping`` is declared as a str on ElectroluxDevice. Require a real
+    # string rather than trusting truthiness: an unmatched catalog entry is None,
+    # and anything non-str here must not reach ``_reported_path_exists``, which
+    # splits the path on "/".
+    if not isinstance(mapping, str) or not mapping:
+        return False
+    return _reported_path_exists(reported_data, mapping, mapping)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -67,9 +97,14 @@ async def async_setup_entry(
                 # the appliance hardware does not support it (e.g., Pod wash, AutoDose).
                 # Write-only caps (access == "write") are exempt: they never appear in
                 # reported state by design, so absence is not evidence of non-support.
+                # So are command caps whose state comes from elsewhere via
+                # state_mapping: executeCommand is never reported by any appliance, and
+                # the cloud reports it "readwrite" rather than "write" on several
+                # models, which this filter would otherwise drop - leaving AC, Bogong,
+                # Telica and Husky units with no power control at all (#277).
                 if entity.json_path and not _reported_path_exists(reported_data, entity.json_path, entity.entity_attr):
                     cap_access = entity.capability.get("access") if entity.capability else None
-                    if cap_access != "write":
+                    if cap_access != "write" and not _has_live_state_mapping(entity, reported_data):
                         _LOGGER.debug(
                             "Skipping phantom switch entity %s for appliance %s (not present in reported state)",
                             entity.entity_attr,

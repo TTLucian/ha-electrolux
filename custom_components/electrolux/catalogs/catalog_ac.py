@@ -34,6 +34,13 @@ CATALOG_AC: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=None,
         entity_icon="mdi:power",
+        # No appliance reports executeCommand - it is a command, never state - so
+        # the power state has to come from applianceState. Without this mapping the
+        # entity has nothing to read, and the phantom filter in switch.py drops it
+        # outright on the models where the cloud reports the capability as
+        # "readwrite" rather than "write": AC, Bogong and Telica had no power
+        # control at all (#277).
+        state_mapping="applianceState",
     ),
     # Temperature controls
     "targetTemperatureC": ElectroluxDevice(
