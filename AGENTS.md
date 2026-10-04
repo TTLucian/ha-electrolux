@@ -195,9 +195,15 @@ The mechanism, because it is easy to work around by accident:
 - It is the **only** way to rename an entity that already exists in someone's
   registry. The name is stored at registration and is not refreshed, so a new key
   fixes existing installs and new ones alike.
-- Users **cannot** reliably fix a bad name themselves. Deleting the registry entry
-  returns it with the same stored name, so the practical answer is a manual rename
-  in the UI. **Do not suggest deletion as a workaround.**
+- A working entity **cannot be deleted** from Home Assistant. The registry entry
+  is recreated by the integration on every reload, and the only way to remove one
+  is to remove the whole integration. So there is nothing to suggest a user can
+  do about it, and nothing for us to tell them to do.
+
+  **Never suggest deleting an entity** - not as a fix, not as a workaround, not
+  as a troubleshooting step, and not in an issue reply. If an entity is wrong,
+  the fix is ours: correct the code or the translation key so the name is right
+  from the start.
 
 Do not reach for the shared splitter in `api.get_sensor_name` to fix one mangled
 name. Measured against every capability in every collected sample, a "fix" for the
