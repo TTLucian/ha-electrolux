@@ -61,3 +61,22 @@ repos:
         language: system
         pass_filenames: false
         files: ^\.github/workflows/
+
+      # The mypy editor extension has no file watcher for .py sources, so a file
+      # edited from outside the editor (a formatter, sed, or an agent tool) leaves
+      # the Problems panel showing diagnostics for text that no longer exists.
+      # This nudges the tracked setting that prompts a re-check, so committing a
+      # Python change also clears the stale panel.
+      #
+      # What this does NOT fix: staleness between edits and the commit. Only a
+      # close-and-reopen of the file (textDocument/didOpen) does that, or the
+      # same script run manually.
+      #
+      # Harmless in CI and in a headless checkout: it only toggles a setting and
+      # restores it, leaving no trace in the tree.
+      - id: refresh-editor-types
+        name: refresh editor types after Python changes
+        entry: uv run --frozen python .github/scripts/refresh_editor_types.py
+        language: system
+        pass_filenames: false
+        files: \.py$
