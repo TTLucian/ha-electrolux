@@ -10,10 +10,50 @@
 - Never commit directly to `main`
 - Branch prefixes: `fix/` bugfixes, `feat/` features, `analysis/` research,
   `chore/` tooling and CI, `release/` version prep
-- Rebase on latest `upstream/main` before pushing
 - Confirm the branch before editing - `git rev-parse --abbrev-ref HEAD`. A
   `git checkout <branch> -- <paths>` in a compound command can leave you
   somewhere you did not intend.
+
+### Always fetch first, and branch from `origin/main`
+
+An earlier version of this file pointed at the `upstream/main` remote-tracking
+ref as the thing to rebase onto. Follow that literally and it breaks the work
+silently. This repository has two remotes, `origin` and `upstream`, pointing at
+the **same URL**, and their remote-tracking refs drift apart - `upstream/main` sat
+eight commits behind `origin/main` while looking perfectly valid. Branching from
+it checked out a tree that predated #273/#274/#275, which meant git **deleted
+the tracked `.vscode/` directory from the working tree**, taking `settings.json`
+with it.
+
+That file is what pins `python.defaultInterpreterPath` to the project venv, so
+losing it made Pylance report `reportMissingImports` for `pytest` and
+`electrolux_group_developer_sdk` across the entire tree. The venv was fine, the
+code was fine, and the full test suite passed - the editor was simply pointed at
+an interpreter with no project dependencies, and the errors had nothing to do
+with the code under review.
+
+The same stale base also produced two false findings during triage: `ruff check .`
+appeared to fail on `scripts/`, and CI appeared to scope ruff to one directory
+against the drift guard. Both were already correct on real `main`; the stale tree
+simply predated the commits that fixed them. Fixing "drift" that was an artefact
+of a stale checkout is worse than not fixing it.
+
+```bash
+git fetch origin
+git checkout -b fix/short-description origin/main   # verify, do not assume
+```
+
+**Verify the base is current before committing anything to it:**
+
+```bash
+git fetch origin
+git rev-parse --short HEAD origin/main     # the commit you branched from
+git log --oneline origin/main..HEAD        # must list only YOUR commits
+```
+
+That second command is the check that matters. If it lists commits you did not
+write, you are on a stale base - stop, rebase onto `origin/main`, and re-verify
+before pushing.
 
 ## Pull Requests
 
@@ -176,6 +216,54 @@ works.
 The extension's `package.json` has no setting for this, so there is no
 configuration that makes it watch `.py` files. Do not rely on the Problems
 panel as evidence that code is clean: run `mypy` (or the "typecheck" task).
+
+## Entity names - always add a translation key
+
+**Any entity discovered in a diagnostic sample gets a `translation_key` entry in
+`strings.json` and `translations/en.json` in the same change that introduces the
+entity.** This is a standing rule, not a follow-up.
+
+The mechanism, because it is easy to work around by accident:
+
+- The **display name** resolves from `translation_key` → `strings.json`. A catalog
+  `friendly_name` does *not* set it: `catalog_entry` is read only for
+  `entity_icon`. Setting `friendly_name` and expecting a rename does nothing.
+- `translation_key` is the *leaf* attribute, lowercased and sanitised -
+  `hobZone1/hobCoil` → `hobcoil` - so one entry covers every zone or repeated
+  sub-key. Take it from the reporter's `device_info.entities[].translation_key`
+  rather than deriving it; that is the value HA actually looks up.
+- It is the **only** way to rename an entity that already exists in someone's
+  registry. The name is stored at registration and is not refreshed, so a new key
+  fixes existing installs and new ones alike.
+- A working entity **cannot be deleted** from Home Assistant. The registry entry
+  is recreated by the integration on every reload, and the only way to remove one
+  is to remove the whole integration. So there is nothing to suggest a user can
+  do about it, and nothing for us to tell them to do.
+
+  **Never suggest deleting an entity** - not as a fix, not as a workaround, not
+  as a troubleshooting step, and not in an issue reply. If an entity is wrong,
+  the fix is ours: correct the code or the translation key so the name is right
+  from the start.
+
+Do not reach for the shared splitter in `api.get_sensor_name` to fix one mangled
+name. Measured against every capability in every collected sample, a "fix" for the
+leading-acronym case changed **4,649 of 8,219 names**, mostly for the worse
+(`idaccess` → `i daccess`). Add a translation key instead.
+
+A diagnostic is where a mangled name first becomes visible. When a new sample
+arrives, diff its `translation_key` list against `strings.json` and fill the gaps
+while you are already looking at the file.
+
+## Entity changes - narrow the change, never hide what works
+
+- Do not set `entity_registry_enabled_default=False` to quiet an entity. Nothing
+  in this integration mutates the entity registry, so an already-registered
+  entity keeps its current state; the flag only affects *fresh* installs, which is
+  the opposite of what a fix for an existing user needs. **Rename instead.**
+- Changing an entity's platform (`switch` → `binary_sensor`) does change its
+  `entity_id`, and the old one goes unavailable. Sometimes unavoidable for a
+  control that silently does nothing - see #232 and #276 - but it is a deliberate
+  trade, not something to do quietly.
 
 ## JSON files - edit, never re-serialize
 

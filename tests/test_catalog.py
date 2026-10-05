@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from homeassistant.components.sensor import SensorDeviceClass
 
 from custom_components.electrolux.model import ElectroluxDevice
@@ -1166,3 +1167,86 @@ class TestAutoDoorOpenerIsReadOnly:
             f"{offenders} are marked access=read but still carry a Switch device_class, "
             "which models.py treats as authoritative - they would be created as dead switches"
         )
+
+
+class TestHobEntityQuality:
+    """#276: entity quality on the AEG induction hob (HB-949597943_00).
+
+    Read from the reporter's diagnostics, which create 84 entities from 6
+    advertised capabilities.
+
+    The guiding constraint, after a first attempt got it wrong: **no entity a
+    user already has is removed, disabled or hidden.** `entity_registry_enabled_
+    default=False` looks like it hides things but does not - nothing in this
+    integration mutates the entity registry, so an already-registered entity
+    keeps whatever state it has. It only affects fresh installs, which is the
+    opposite of what this fix needed. The working entities are renamed instead.
+    """
+
+    def test_hood_filter_indicator_is_not_a_switch(self):
+        """It is a status the hood reports, not something the user controls."""
+        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_hb import CATALOG_HB
+
+        entry = CATALOG_HB["hobHood/hoodFilterCharcIndication"]
+
+        assert entry.device_class == BinarySensorDeviceClass.RUNNING
+        # The cloud advertises this key as readwrite and the API capability wins
+        # the "access" merge in models.py, so the access flag is not what
+        # demotes the platform - device_class is. Same trap as #232.
+        assert entry.capability_info["access"] == "read"
+
+    def test_no_hb_entry_is_a_switch_unless_it_is_writable(self):
+        """A platform that invites a press and silently does nothing."""
+        from homeassistant.components.switch import SwitchDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_hb import CATALOG_HB
+
+        offenders = [
+            key
+            for key, entry in CATALOG_HB.items()
+            if entry.device_class == SwitchDeviceClass.SWITCH
+            and entry.capability_info.get("access") not in ("readwrite", "write")
+        ]
+        assert offenders == [], f"{offenders} are switches but not writable - they would be dead controls"
+
+    def test_no_hob_entity_is_disabled_by_default(self):
+        """Regression guard for the wrong fix.
+
+        Hiding entities that already exist is both ineffective here (the registry
+        is never mutated) and wrong on its own terms - a working entity should be
+        renamed, not switched off. If a future change really needs a hob entity
+        off by default, it has to say why in this test rather than sneak in.
+        """
+        from custom_components.electrolux.catalogs.catalog_hb import CATALOG_HB
+
+        offenders = [key for key, entry in CATALOG_HB.items() if not entry.entity_registry_enabled_default]
+        assert offenders == [], f"{offenders} would be hidden; #276 is fixed by renaming, not disabling"
+
+    @pytest.mark.parametrize(
+        ("translation_key", "expected"),
+        [
+            ("xposition", "X Position"),
+            ("yposition", "Y Position"),
+            ("xsize", "X Size"),
+            ("ysize", "Y Size"),
+            ("hobcoil", "Coil"),
+        ],
+    )
+    def test_mangled_names_are_renamed_in_both_catalogue_files(self, translation_key, expected):
+        """The display name comes from translation_key -> strings.json.
+
+        These keys are what the reporter's entities carry, so adding them here
+        renames entities that already exist on the next reload. The generic
+        splitter in api.get_sensor_name was not touched: measured against every
+        capability in every sample it changes 4649 of 8219 names, mostly for
+        the worse.
+        """
+        from pathlib import Path
+
+        repo = Path(__file__).resolve().parent.parent
+        for filename in ("strings.json", "translations/en.json"):
+            data = json.loads((repo / "custom_components/electrolux" / filename).read_text(encoding="utf-8"))
+            name = data["entity"]["sensor"][translation_key]["name"]
+            assert name == expected, f"{filename}: entity.sensor.{translation_key} is {name!r}, expected {expected!r}"

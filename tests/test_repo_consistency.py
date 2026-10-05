@@ -29,6 +29,7 @@ PYPROJECT = REPO_ROOT / "pyproject.toml"
 UV_LOCK = REPO_ROOT / "uv.lock"
 PRE_COMMIT = REPO_ROOT / ".pre-commit-config.yaml"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 
 def _load_toml(path: Path) -> dict:
@@ -63,6 +64,10 @@ def _ci_text() -> str:
     return CI_WORKFLOW.read_text(encoding="utf-8")
 
 
+def _agents_text() -> str:
+    return AGENTS_MD.read_text(encoding="utf-8")
+
+
 def _ci_mypy_dirs() -> set[str]:
     """Directories CI passes to mypy.
 
@@ -75,6 +80,39 @@ def _ci_mypy_dirs() -> set[str]:
     for match in re.finditer(r"for dir in ([a-zA-Z0-9_./ -]+); do", _ci_text()):
         dirs.update(match.group(1).split())
     return dirs
+
+
+class TestDocumentedBranchBaseIsUsable:
+    """AGENTS.md once said "rebase on latest upstream/main", and it was followed.
+
+    This repository has two remotes pointing at the same URL, and their
+    remote-tracking refs drift apart. An agent following that line branched from
+    an `upstream/main` that was eight commits behind, and checking it out
+    deleted the tracked `.vscode/` directory from the working tree - including
+    the settings file that pins the editor to the project venv.
+
+    The cost was not just a lost file. The resulting Pylance import errors, a
+    `ruff check .` failure in `scripts/`, and an apparent CI/drift-guard mismatch
+    all looked like real defects in the change under review. None were: they were
+    artefacts of the stale tree. Anyone reading that guidance again would repeat
+    it, so the guidance itself is now the thing under test.
+    """
+
+    def test_agents_md_does_not_recommend_an_unfetched_upstream_main(self) -> None:
+        offenders = re.findall(r"(?:rebase|branch)[^\n]*`upstream/main`", _agents_text(), re.IGNORECASE)
+        assert not offenders, (
+            "AGENTS.md recommends branching or rebasing from `upstream/main`, whose "
+            f"remote-tracking ref can lag `origin/main`: {offenders}. That stale base "
+            "checks out a tree missing recent commits and silently deletes tracked "
+            "files. Point the instruction at `origin/main` after an explicit fetch."
+        )
+
+    def test_agents_md_names_origin_main_as_the_base(self) -> None:
+        assert "origin/main" in _agents_text(), (
+            "AGENTS.md must state which ref to branch from. Without `origin/main` "
+            "named, nothing tells a reader (or an agent) where the base should come "
+            "from, and the stale-ref hazard returns."
+        )
 
 
 class TestCIRunsWholeRepository:
@@ -119,6 +157,30 @@ class TestPreCommitScopeMatchesCI:
         missing = [d for d in sorted(ci_dirs) if not re.search(pattern, d.rstrip("/") + "/")]
 
         assert not missing, "the pre-commit mypy hook is scoped narrower than CI and would skip: " + ", ".join(missing)
+
+    def test_editor_refresh_hook_covers_all_python(self) -> None:
+        """The post-edit refresh must fire for every .py file, not a subset.
+
+        This hook exists because the mypy editor extension has no file watcher
+        for Python sources, so external edits leave the Problems panel stale. If
+        its scope narrows, that staleness silently returns and nothing else in
+        the suite would notice: no test can see the editor's state.
+        """
+        hook = _hooks_by_id().get("refresh-editor-types")
+        assert hook is not None, (
+            "the refresh-editor-types hook was removed; external edits will leave "
+            "stale mypy diagnostics in the Problems panel with nothing to correct it"
+        )
+        assert hook.get("pass_filenames") is False, (
+            "refresh-editor-types must not receive filenames, it acts on the editor"
+        )
+        pattern = hook.get("files", "")
+        assert pattern, (
+            "refresh-editor-types has no files scope, so it runs on every commit instead of only when Python changes"
+        )
+        assert pattern.endswith(r"\.py$"), (
+            f"refresh-editor-types scope {pattern!r} does not end with a .py anchor, so it will miss Python files"
+        )
 
     @pytest.mark.parametrize("hook_id", ["ruff", "ruff-format", "mypy"])
     def test_hook_scope_includes_the_whole_repository_shape(self, hook_id: str) -> None:
