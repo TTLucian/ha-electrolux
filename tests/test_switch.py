@@ -9,6 +9,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import SWITCH
+from custom_components.electrolux.models import ElectroluxDevice
 from custom_components.electrolux.switch import ElectroluxSwitch, async_setup_entry
 
 # Real dishwasher capabilities (verbatim excerpt of samples/DW-911473025_00.json).
@@ -805,3 +806,115 @@ class TestElectroluxSwitchSetup:
         assert entity_valid_path in added_entities
         assert entity_valid_attr in added_entities
         assert entity_phantom not in added_entities
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_keeps_readwrite_command_with_live_state_mapping(self):
+        """A command cap that is never reported survives when its state_mapping is live.
+
+        #277: the cloud reports executeCommand as "readwrite", never in reported
+        state, so the phantom filter dropped the power switch entirely. It is kept
+        because the catalog declares state_mapping="applianceState" and that
+        target is reported - absence of the command key is by design.
+        """
+        hass = MagicMock()
+        entry = MagicMock()
+        async_add_entities = MagicMock()
+
+        coordinator = MagicMock()
+        entry.runtime_data = coordinator
+
+        mock_appliance = MagicMock()
+        mock_appliance.reported_state = {"applianceState": "running"}
+
+        command = MagicMock()
+        command.entity_type = SWITCH
+        command.json_path = "executeCommand"
+        command.entity_attr = "executeCommand"
+        command.capability = {"access": "readwrite"}
+        command.catalog_entry = ElectroluxDevice(
+            state_mapping="applianceState",
+            capability_info={"access": "readwrite", "type": "string", "values": {"ON": {}, "OFF": {}}},
+        )
+
+        mock_appliance.entities = [command]
+
+        appliances_container = MagicMock()
+        appliances_container.appliances = {"appliance_1": mock_appliance}
+        coordinator.data = {"appliances": appliances_container}
+
+        await async_setup_entry(hass, entry, async_add_entities)
+
+        async_add_entities.assert_called_once()
+        assert async_add_entities.call_args[0][0] == [command]
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_still_drops_readwrite_cap_without_state_mapping(self):
+        """A genuinely phantom "readwrite" cap with no mapping is still pruned.
+
+        Guards the fix from over-correcting into keeping every readwrite cap:
+        Pod wash (#55) advertises and is not reported, with nowhere else to read.
+        """
+        hass = MagicMock()
+        entry = MagicMock()
+        async_add_entities = MagicMock()
+
+        coordinator = MagicMock()
+        entry.runtime_data = coordinator
+
+        mock_appliance = MagicMock()
+        mock_appliance.reported_state = {"applianceState": "running"}
+
+        phantom = MagicMock()
+        phantom.entity_type = SWITCH
+        phantom.json_path = "EWX1493A_pod"
+        phantom.entity_attr = "EWX1493A_pod"
+        phantom.capability = {"access": "readwrite"}
+        phantom.catalog_entry = ElectroluxDevice(
+            state_mapping=None,
+            capability_info={"access": "readwrite", "type": "boolean"},
+        )
+
+        mock_appliance.entities = [phantom]
+
+        appliances_container = MagicMock()
+        appliances_container.appliances = {"appliance_1": mock_appliance}
+        coordinator.data = {"appliances": appliances_container}
+
+        await async_setup_entry(hass, entry, async_add_entities)
+
+        # A fully filtered appliance registers nothing, so the callback is skipped.
+        async_add_entities.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_setup_entry_drops_command_when_mapping_target_absent(self):
+        """A declared mapping whose target is not reported does not rescue the cap."""
+        hass = MagicMock()
+        entry = MagicMock()
+        async_add_entities = MagicMock()
+
+        coordinator = MagicMock()
+        entry.runtime_data = coordinator
+
+        mock_appliance = MagicMock()
+        mock_appliance.reported_state = {}  # applianceState missing too
+
+        command = MagicMock()
+        command.entity_type = SWITCH
+        command.json_path = "executeCommand"
+        command.entity_attr = "executeCommand"
+        command.capability = {"access": "readwrite"}
+        command.catalog_entry = ElectroluxDevice(
+            state_mapping="applianceState",
+            capability_info={"access": "readwrite", "type": "string", "values": {"ON": {}, "OFF": {}}},
+        )
+
+        mock_appliance.entities = [command]
+
+        appliances_container = MagicMock()
+        appliances_container.appliances = {"appliance_1": mock_appliance}
+        coordinator.data = {"appliances": appliances_container}
+
+        await async_setup_entry(hass, entry, async_add_entities)
+
+        # A fully filtered appliance registers nothing, so the callback is skipped.
+        async_add_entities.assert_not_called()
