@@ -10,10 +10,50 @@
 - Never commit directly to `main`
 - Branch prefixes: `fix/` bugfixes, `feat/` features, `analysis/` research,
   `chore/` tooling and CI, `release/` version prep
-- Rebase on latest `upstream/main` before pushing
 - Confirm the branch before editing - `git rev-parse --abbrev-ref HEAD`. A
   `git checkout <branch> -- <paths>` in a compound command can leave you
   somewhere you did not intend.
+
+### Always fetch first, and branch from `origin/main`
+
+An earlier version of this file pointed at the `upstream/main` remote-tracking
+ref as the thing to rebase onto. Follow that literally and it breaks the work
+silently. This repository has two remotes, `origin` and `upstream`, pointing at
+the **same URL**, and their remote-tracking refs drift apart - `upstream/main` sat
+eight commits behind `origin/main` while looking perfectly valid. Branching from
+it checked out a tree that predated #273/#274/#275, which meant git **deleted
+the tracked `.vscode/` directory from the working tree**, taking `settings.json`
+with it.
+
+That file is what pins `python.defaultInterpreterPath` to the project venv, so
+losing it made Pylance report `reportMissingImports` for `pytest` and
+`electrolux_group_developer_sdk` across the entire tree. The venv was fine, the
+code was fine, and the full test suite passed - the editor was simply pointed at
+an interpreter with no project dependencies, and the errors had nothing to do
+with the code under review.
+
+The same stale base also produced two false findings during triage: `ruff check .`
+appeared to fail on `scripts/`, and CI appeared to scope ruff to one directory
+against the drift guard. Both were already correct on real `main`; the stale tree
+simply predated the commits that fixed them. Fixing "drift" that was an artefact
+of a stale checkout is worse than not fixing it.
+
+```bash
+git fetch origin
+git checkout -b fix/short-description origin/main   # verify, do not assume
+```
+
+**Verify the base is current before committing anything to it:**
+
+```bash
+git fetch origin
+git rev-parse --short HEAD origin/main     # the commit you branched from
+git log --oneline origin/main..HEAD        # must list only YOUR commits
+```
+
+That second command is the check that matters. If it lists commits you did not
+write, you are on a stale base - stop, rebase onto `origin/main`, and re-verify
+before pushing.
 
 ## Pull Requests
 
