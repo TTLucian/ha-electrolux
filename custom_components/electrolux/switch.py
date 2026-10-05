@@ -54,17 +54,28 @@ def _has_live_state_mapping(entity: Any, reported_data: dict[str, Any]) -> bool:
     capability it cannot actually do - Pod wash, AutoDose (#55) - and that key
     is absent from reported state. That absence is evidence of a phantom.
 
-    A command capability is the exception, and ``executeCommand`` is the case
-    that matters: no appliance in any collected sample reports it, because it is
-    never *state*, it is something you send. A dehumidifier reporter (#277) found
-    their unit had no power control at all, and the cause was here - the catalog
-    entry already carries ``state_mapping="applianceState"``, declaring where the
-    state really lives.
+    A command capability is the exception, and ``executeCommand`` on a
+    dehumidifier is the case that matters: no appliance in any collected sample
+    reports it, because it is never *state*, it is something you send. A
+    dehumidifier reporter (#277) found their unit had no working power control,
+    and the cause was here - catalog_dh already carries
+    ``state_mapping="applianceState"``, declaring where the state really lives.
 
     So when a catalog entry declares a ``state_mapping`` and that target *is*
     present in reported state, absence of the entity's own key is by design, not
     evidence of a phantom. The signal is general: it rescues every command
     capability declared this way, without hardcoding a capability name.
+
+    Scope is deliberately narrow, and it is worth being precise about why.
+    Only catalog_dh declares that mapping, so only dehumidifiers (Husky, DH)
+    are affected - they have no climate entity and need this switch. Air
+    conditioners (catalog_ac: AC, Azul, Bogong, Telica) do **not** declare it,
+    so they keep dropping executeCommand, and that is correct: their climate
+    entity already owns power. ``climate.py`` lists ``HVACMode.OFF`` in
+    ``hvac_modes`` and powers the unit off with
+    ``_send_command("executeCommand", "OFF")``. Giving them a second power
+    switch would duplicate a control they already have, over the same
+    capability.
     """
     entry = getattr(entity, "catalog_entry", None)
     mapping = getattr(entry, "state_mapping", None) if entry is not None else None
@@ -100,8 +111,10 @@ async def async_setup_entry(
                 # So are command caps whose state comes from elsewhere via
                 # state_mapping: executeCommand is never reported by any appliance, and
                 # the cloud reports it "readwrite" rather than "write" on several
-                # models, which this filter would otherwise drop - leaving AC, Bogong,
-                # Telica and Husky units with no power control at all (#277).
+                # models, which this filter would otherwise drop. Only catalog_dh
+                # declares that mapping, so this restores dehumidifier power control
+                # only - air conditioners are deliberately left alone because their
+                # climate entity already provides it (#277).
                 if entity.json_path and not _reported_path_exists(reported_data, entity.json_path, entity.entity_attr):
                     cap_access = entity.capability.get("access") if entity.capability else None
                     if cap_access != "write" and not _has_live_state_mapping(entity, reported_data):
