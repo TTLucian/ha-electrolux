@@ -48,7 +48,8 @@
         "data": {
           "api_key": "API Key",
           "access_token": "Access Token",
-          "refresh_token": "Refresh Token"
+          "refresh_token": "Refresh Token",
+          "spin_speed_substitution": "Spin speed substitution (experimental - see #257)"
         }
       }
     },

@@ -1133,6 +1133,42 @@ class TestNoUnverifiedPowerEnergyKeys:
         )
 
 
+class TestAutoDoorOpenerIsReadOnly:
+    """#232: a control that silently does nothing must not be a switch.
+
+    ``userSelections/autoDoorOpener`` is an appliance-level key that no program
+    lists. A write is accepted by the cloud and then discarded, so the switch
+    accepted presses and changed nothing - a UI that lied. The reported value is
+    still useful, so it is exposed as a binary sensor.
+    """
+
+    def test_auto_door_opener_is_not_a_switch(self):
+        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        entry = CATALOG_DW["userSelections/autoDoorOpener"]
+
+        assert entry.capability_info["access"] == "read"
+        assert entry.device_class == BinarySensorDeviceClass.DOOR
+
+    def test_no_dishwasher_catalog_entry_claims_switch_device_class_for_a_read_only_key(self):
+        """Guards the general mistake: access=read on a SwitchDeviceClass."""
+        from homeassistant.components.switch import SwitchDeviceClass
+
+        from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
+
+        offenders = [
+            key
+            for key, entry in CATALOG_DW.items()
+            if entry.capability_info.get("access") == "read" and entry.device_class == SwitchDeviceClass.SWITCH
+        ]
+        assert offenders == [], (
+            f"{offenders} are marked access=read but still carry a Switch device_class, "
+            "which models.py treats as authoritative - they would be created as dead switches"
+        )
+
+
 class TestHobEntityQuality:
     """#276: entity quality on the AEG induction hob (HB-949597943_00).
 

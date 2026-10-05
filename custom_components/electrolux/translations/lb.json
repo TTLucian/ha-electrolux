@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API Schlëssel",
                     "access_token": "Zougang Token",
-                    "refresh_token": "Refresh Token"
+                    "refresh_token": "Refresh Token",
+                    "spin_speed_substitution": "Spinngeschwindegkeet Ersatz (experimentell - kuckt #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Muecht"
+            },
+            "executecommand_on": {
+                "name": "Ëmdréinen"
+            },
+            "executecommand_off": {
+                "name": "Auszeschalten"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Weidermaachen"
+            },
+            "executecommand_stopreset": {
+                "name": "Arrêt / Réinitialisation"
             },
             "waterfilterstatereset": {
                 "name": "Waasserfilter zrécksetzen"

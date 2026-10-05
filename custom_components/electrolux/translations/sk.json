@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API kľúč",
                     "access_token": "Prístupový token",
-                    "refresh_token": "Obnoviť token"
+                    "refresh_token": "Obnoviť token",
+                    "spin_speed_substitution": "Substitúcia rýchlosti odstreďovania (experimentálna - pozri #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Sila"
+            },
+            "executecommand_on": {
+                "name": "Zapnúť"
+            },
+            "executecommand_off": {
+                "name": "Vypnúť"
+            },
+            "executecommand_start": {
+                "name": "Spustiť"
+            },
+            "executecommand_pause": {
+                "name": "Pauza"
+            },
+            "executecommand_resume": {
+                "name": "Pokračovať"
+            },
+            "executecommand_stopreset": {
+                "name": "Zastaviť / resetovať"
             },
             "waterfilterstatereset": {
                 "name": "Resetujte vodný filter"
