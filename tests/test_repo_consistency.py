@@ -120,6 +120,30 @@ class TestPreCommitScopeMatchesCI:
 
         assert not missing, "the pre-commit mypy hook is scoped narrower than CI and would skip: " + ", ".join(missing)
 
+    def test_editor_refresh_hook_covers_all_python(self) -> None:
+        """The post-edit refresh must fire for every .py file, not a subset.
+
+        This hook exists because the mypy editor extension has no file watcher
+        for Python sources, so external edits leave the Problems panel stale. If
+        its scope narrows, that staleness silently returns and nothing else in
+        the suite would notice: no test can see the editor's state.
+        """
+        hook = _hooks_by_id().get("refresh-editor-types")
+        assert hook is not None, (
+            "the refresh-editor-types hook was removed; external edits will leave "
+            "stale mypy diagnostics in the Problems panel with nothing to correct it"
+        )
+        assert hook.get("pass_filenames") is False, (
+            "refresh-editor-types must not receive filenames, it acts on the editor"
+        )
+        pattern = hook.get("files", "")
+        assert pattern, (
+            "refresh-editor-types has no files scope, so it runs on every commit instead of only when Python changes"
+        )
+        assert pattern.endswith(r"\.py$"), (
+            f"refresh-editor-types scope {pattern!r} does not end with a .py anchor, so it will miss Python files"
+        )
+
     @pytest.mark.parametrize("hook_id", ["ruff", "ruff-format", "mypy"])
     def test_hook_scope_includes_the_whole_repository_shape(self, hook_id: str) -> None:
         pattern = _hooks_by_id()[hook_id].get("files", "")
