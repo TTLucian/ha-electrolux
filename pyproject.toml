@@ -17,8 +17,8 @@ test = [
     "aiohttp>=3.14.3,<4.0.0",
     "pyjwt>=2.12.1,<3.0.0",
     "electrolux-group-developer-sdk>=0.7.0",
-    "mypy>=2.3.1",
-    "ruff>=0.16.9",
+    "mypy>=2.4.0",
+    "ruff>=0.16.10",
 ]
 dev = [
     "aiohttp>=3.14.3,<4.0.0",
