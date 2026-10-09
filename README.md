@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/TTLucian/ha-electrolux/releases/latest"><img src="https://img.shields.io/github/v/release/TTLucian/ha-electrolux?style=for-the-badge" /></a>
-  <a href="https://raw.githubusercontent.com/TTLucian/ha-solar-ac-controller/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" /></a>
+  <a href="https://raw.githubusercontent.com/TTLucian/ha-electrolux/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" /></a>
   <img src="https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge" />
   <a href="https://github.com/TTLucian/ha-electrolux/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/TTLucian/ha-electrolux/ci.yml?style=for-the-badge" /></a>
   <a href="https://github.com/TTLucian/ha-electrolux#%E2%80%8D-status-update"><img src="https://img.shields.io/badge/Development-Slowed-yellow?style=for-the-badge" /></a>
@@ -48,29 +48,28 @@ This is not just a design choice of this integration — it mirrors how the offi
 
 As a concrete consequence: temperature (`Temp`) and humidity (`Humidity`) sensors on air purifiers, and values like measured load weight (`measuredLoadWeight`), optisense load weight (`fcOptisenseLoadWeight`), or UI/mainboard software versions (`applianceUiSwVersion`, `applianceMainBoardSwVersion`) on washing machines and many others, all appear **only** in the reported state — none of them are listed in that appliance's capabilities. Without a real diagnostics file to prove they exist and reveal their data type, the integration cannot create those entities at all.
 
-> 📎 **Help improve support for your appliance** — without your diagnostics, values present only in reported state stay invisible: the SDK itself only surfaces a property if it appears in capabilities, so there's no way to know those values exist without a real diagnostics file. Download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached.
+> 📎 **Help improve support for your appliance — but only when there's something to report.** Diagnostics are required **only if something is not working** (that is what the issue templates expect): entities missing, values wrong, or controls that do nothing. In that case, values present only in reported state stay invisible without a real diagnostics file — the SDK itself only surfaces a property if it appears in capabilities — so download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. The one exception: appliance types listed under [Diagnostics Wanted](#-diagnostics-wanted), where a sample is wanted even if everything works. **If everything works as expected, no diagnostics are needed and there is no issue to open.**
 
 ### ✅ Fully Catalog-Supported Models (verified from diagnostic samples)
 
-The table below lists all appliance types and the known-tested diagnostic samples that have shaped the catalog. All appliance types in the **Full** column receive entity enrichment (device class, unit, icon, entity category). Types marked **Partial** have a catalog but may be missing entries for some models — submit your diagnostics to help close the gaps. **Stub** means the type code is registered but the catalog has no entries yet (requires user diagnostic samples to build from).
+The table below lists all appliance types and the known-tested diagnostic samples that have shaped the catalog. All appliance types in the **Full** column receive entity enrichment (device class, unit, icon, entity category) and have been tested against real diagnostic data. Types marked **Catalog (unverified)** have a catalog built from the SDK's internal API mappings that has never been tested against real hardware — submit diagnostics to verify them.
 
 | Type | Appliance | Status | Known-Tested Samples / Models |
 |------|-----------|--------|-------------------------------|
-| `OV` | Oven | Full | `OV-944188304`, `OV-944188772` |
-| `SO` | Structured Oven | Full | `SO-944035035` |
-| `RF` | Refrigerator | Partial | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `CR` | Combi Refrigerator | Full | `CR-925060324`, `CR-925060677` |
+| `OV` | Oven | Full | `OV-944188304`, `OV-944188772`, `OV-944066813`, `OV-940321501` |
+| `SO` | Structured Oven | Full | `SO-944035035`, `SO-944005079` |
+| `CR` | Combi Refrigerator | Full | `CR-925060324`, `CR-925060677`, `CR-925061028` |
 | `WM` | Washing Machine | Full | `WM-914501009`, `WM-914501128`, `WM-914501308`, `WM-914505603`, `WM-914505614`, `WM-914550478`, `WM-914550687`, `WM-914550951`, `WM-914580416`, `WM-914915144`, `WM-914922134`, `WM-914922290`, `WM-914922311` |
 | `WD` | Washer Dryer | Full | `WD-914611000`, `WD-914611500`, `WD-914611703` |
 | `TD` | Tumble Dryer | Full | `TD-916002187`, `TD-916098401`, `TD-916098618`, `TD-916098759`, `TD-916099548`, `TD-916099949`, `TD-916099971`, `TD-916900511` |
-| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC` + `Bogong` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md) — `CA`/`Azul`/`Panther`/`Telica` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `AC` / `CA` / `Azul` / `Bogong` / `Panther` / `Telica` | Air Conditioner | Full (`AC`, `Bogong`, `Telica` verified) | `AC-910280820`; `Bogong` — `VM211_A_04.43.06_BOGONG` (3 units, AU) — see [Bogong device notes](docs/devices/bogong.md); `Telica` — `Telica-950011709`, `Telica-950011775` (#199) — `CA`/`Azul`/`Panther` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DAM_AC` | DAM Air Conditioner | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
 | `DW` | Dishwasher | Full | `DW-911434654`, `DW-911434834`, `DW-911438465`, `DW-911472038`, `DW-911473025` |
 | `Muju` / `Verbier` / `PUREA9` / `Fuji` / `WELLA5` / `WELLA7` | Air Purifier | Full (`Muju` / `Verbier` / `PUREA9` verified) | `Muju-956006959323006505087076`; `Verbier-950011588246002195087076`; `PUREA9-950011384027000695087076` — `Fuji`/`WELLA5`/`WELLA7` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `DH` / `Husky` | Dehumidifier | Full (`DH` verified) | `DH-950133061` (Frigidaire FGAC5044W1, SRAC); `Husky` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Full (`PUREi9` + `Cybele` verified) | `RVC - Pure i9`; `RVC - Purei9 2`; `Cybele-900402424543002761139298` — `Gordias`/`700series` unverified, [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `HB` | Induction Hob | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
-| `HD` | Hood / Extractor Fan | Catalog *(unverified)* | No samples — [submit yours](https://github.com/TTLucian/ha-electrolux/issues) |
+| `DH` / `Husky` | Dehumidifier | Full (`DH` + `Husky` verified) | `DH-950133061` (Frigidaire FGAC5044W1, SRAC); `Husky-950011736609073751119313` (Frigidaire FHDD5034Y1, #277) |
+| `PUREi9` / `Gordias` / `Cybele` / `700series` | Robot Vacuum | Full | `RVC - Pure i9`; `RVC - Purei9 2`; `Cybele-900402424543002761139298`; `Gordias`/`700series` verified from diagnostics in #149, #159, #228 |
+| `HB` | Induction Hob | Full | `HB-949597943` (AEG CCS84779CB, #276) |
+| `HD` | Hood / Extractor Fan | Full | `HD-942051563` (issue #211) |
 
 > Appliance types not listed above still have all their entities created dynamically from whatever the API reports in the device capabilities — no entities are suppressed. However, without a catalog entry they appear as generic sensors and controls with no device class, unit, icon, or friendly name. The base catalog (connectivity state, software version, network interface) applies to all appliance types regardless.
 
@@ -80,21 +79,17 @@ The following appliance types have catalog entries built from the Electrolux SDK
 
 > **⚠️ SDK stability note:** The integration uses `electrolux-group-developer-sdk` v0.7.0 or newer. Its API, key names, and appliance constants may change between releases without notice. If something stops working after a package update, the catalog or command logic may need adjusting to match the new SDK version.
 
-If you own one of these appliances, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. This is the single most impactful contribution you can make — a diagnostic file takes 30 seconds to generate and enables full verified support for your appliance type.
+If you own one of these appliances, please download your diagnostics from **Settings → Devices & Services → Electrolux → three-dot menu → Download diagnostics** and [open a GitHub issue](https://github.com/TTLucian/ha-electrolux/issues) with the file attached. This is the **one exception** to the rule that diagnostics are required only if something is not working: for the types below, a sample is wanted even if everything works, because it is the single most impactful contribution you can make — a diagnostic file takes 30 seconds to generate and enables full verified support for your appliance type.
 
 | Appliance | Issue title | Status |
 |-----------|-------------|--------|
-| 🌊 **Dehumidifier** (`Husky`) | `Husky diagnostics — [your model]` | `DH` verified with `DH-950133061`; `Husky` still unverified |
-| 🤖 **Robot Vacuum** (`Gordias`, `700series`) | `RVC diagnostics — [your model]` | `PUREi9` and `Cybele` verified from root `samples/`; `Gordias` / `700series` still unverified |
-| 🍳 **Induction Hob** (`HB`) | `HB diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
-| 💨 **Hood / Extractor Fan** (`HD`) | `HD diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
 | ❄️ **DAM Air Conditioner** (`DAM_AC`) | `DAM_AC diagnostics — [your model]` | Catalog added in v3.5.6, unverified |
-| ❄️ **AC variants** (`CA`, `Azul`, `Panther`, `Telica`) | `AC variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified (`Bogong` now verified — see above) |
+| ❄️ **AC variants** (`CA`, `Azul`, `Panther`) | `AC variant diagnostics — [your type/model]` | Registered in v3.5.6, unverified (`AC`, `Bogong`, `Telica` verified — see above) |
 | 💨 **AP variants** (`Fuji`, `WELLA5`, `WELLA7`) | `AP variant diagnostics — [your type/model]` | `Muju`, `Verbier`, and `PUREA9` verified from root `samples/`; `Fuji` / `WELLA5` / `WELLA7` still unverified |
 
-Washing machines, tumble dryers, dishwashers, washer dryers, ovens,  diagnostics are already covered by the current sample set, so no further `WM`, `TD`, `DW`, `WD`, `OV` samples are needed at this time. Upload them only if there are problems with their entities.
+Washing machines, tumble dryers, dishwashers, washer dryers and ovens are already covered by the current sample set, so no further `WM`, `TD`, `DW`, `WD`, `OV` samples are needed at this time. Upload them only if there are problems with their entities.
 
-### �🔍 Finding Your Model Number
+### 🔍 Finding Your Model Number
 
 The model number (PNC — Product Number Code) is the key used to identify your appliance in the catalog. It appears in the HA device info panel as **`Model: {type}-{PNC}_{suffix}`** (e.g. ` Model: TD-916099949_00`).
 
@@ -105,7 +100,7 @@ The model number (PNC — Product Number Code) is the key used to identify your 
 
 Alternatively, the PNC is visible on the appliance's rating plate (usually inside the door or on the back) and in the official Electrolux app under appliance details.
 
-If your model number appears in the table above, your appliance has been verified against real diagnostic data and will have full entity enrichment. If it does not appear, basic entities will still be created — [submit your diagnostics](https://github.com/TTLucian/ha-electrolux/issues) to add full support.
+If your appliance **type** is listed in the table above as **Full**, a new model number of that type already receives full entity enrichment — the catalog is selected by appliance type, not by individual PNC, so there is nothing to submit. **Diagnostics are required only if something is not working**: entities missing, values wrong, or controls that do nothing. In that case, [submit your diagnostics](https://github.com/TTLucian/ha-electrolux/issues) with the issue. If your appliance type is unverified or has no catalog, see [Diagnostics Wanted](#-diagnostics-wanted) — that is the one case where a sample helps even when everything works.
 
 ---
 
@@ -199,7 +194,7 @@ After setup, you may see many entities that:
 
 **This is intentional behavior.** The integration gives you full visibility into everything the API reports, allowing you to decide what's useful for your needs.
 
-### � Automatic Security Protection
+### 🔒 Automatic Security Protection
 
 **The integration automatically blocks dangerous entities that could damage your appliances.**
 
@@ -390,6 +385,32 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 - Ionizer control
 - *Verbier only:* Humidification toggle, target humidity, louver swing, quiet fan schedule, AQI light, water tray level alert, humidification filter tracking, dual filter NFC tag sensors
 
+**💧 Dehumidifiers** (`DH`, `Husky`)
+- Humidity monitoring and target humidity control
+- Running and stop time scheduling
+- Clean air mode, fan speed and operating mode selection
+- Water bucket level monitoring and filter state alerts
+- Display light control and power on/off
+
+**🤖 Robot Vacuums** (`PUREi9`, `Gordias`, `Cybele`, `700series`)
+- Battery, charging status and robot state (cleaning, docked, error, going home…)
+- Start/pause/stop and return-to-dock commands
+- Cleaning mode, vacuum mode, power/eco mode and mute
+- Brush, side brush and filter usage counters
+- Dustbin status and fault codes
+- *Mop-capable models:* water pump rate, water station action, mop route and dirt clean mode
+
+**🍳 Induction Hobs** (`HB`)
+- Appliance mode, child lock, key sound and window notification
+- Integrated hood control (fan speed, hood state, filter-cleaning indication) on models with a linked hood
+- Zone position and per-coil entities created dynamically from the reported capability map
+
+**💨 Range Hoods** (`HD`)
+- Fan level control
+- Light intensity, colour temperature and human-centric light
+- Charcoal and grease filter timers, enable flags and cleaning indications
+- Auto switch-off event, sound volume and target duration
+
 ## ⚡ Features
 
 ### 📊 Sensors
@@ -549,11 +570,11 @@ See the [Execute Command Button Availability](#️-execute-command-button-availa
 
 If you believe the button should be active but isn't, check the **Appliance State** sensor (and the **Cycle Phase** sensor, where present) for your device — they show the current values the API is reporting.
 
-### � Stale or Stuck Data
+### ⏳ Stale or Stuck Data
 If sensor values appear outdated or frozen:
 
 **First, check the basics:**
-- Check the documentation and the debug logs for any errors. It might helo to better understand the situation.
+- Check the documentation and the debug logs for any errors. It might help to better understand the situation.
 - Verify appliance is powered on and connected to Wi-Fi
 - Check if appliance shows as "connected" in the official Electrolux app
 - Wait 5-10 minutes - data updates automatically via real-time SSE stream
@@ -575,7 +596,7 @@ If sensor values appear outdated or frozen:
 - Immediate feedback after commands - controls state updates happen instantly and optimistically and are being validated within seconds via SSE
 - Regular data refreshes - integration polls every 6 hours automatically
 
-### �🔢 Model Shows as Numbers
+### 🔢 Model Shows as Numbers
 - The integration displays the actual product code (e.g., "944188772") used by Electrolux internally
 - This is the most specific identifier available through the API
 - Marketing model names (e.g., "BSE788380M") are not exposed by the API
@@ -636,15 +657,23 @@ Privacy Check: The integration automatically redacts any sensitive information l
 
 ### 📄 JSON Diagnostics for Device Issues
 
+> ✅ **Diagnostics are required only if something is not working.** If everything works as expected, you do not need to attach them — and there is no issue to open. The issue templates ask for them because a missing entity, wrong value, or failed command cannot be diagnosed without your appliance's capability map and reported-state snapshot.
+
 > ⚠️ **You only need to send the diagnostics JSON once.** It contains the same information every time you generate it.
 
-For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **essential** for troubleshooting — and for adding support for appliances that aren't in the catalog yet.
+**When diagnostics ARE required:**
+- **Missing or incorrect sensors/controls** — entities that should exist but don't, or entities showing wrong values
+- **Commands not working** or not responding
+- **Integration setup issues**
+- **Your appliance type is listed under [Diagnostics Wanted](#-diagnostics-wanted)** — the one case where a sample is wanted even though everything works
 
-**Why diagnostics are so important for missing sensors:**
+**When they are NOT needed:**
+- **Everything works as expected** — no diagnostics, no issue
+- **Your appliance type is already marked Full** in the table above and you have no missing entities — the catalog already covers it
+
+**Why diagnostics matter for missing sensors:**
 
 Electrolux appliances report two separate things to the cloud: their *capabilities* (what they can do — controls, modes, settings) and their *reported state* (current sensor readings, error flags, firmware version, internal counters…). The integration uses the capabilities to create entities automatically. But some sensors — like air quality readings on purifiers, or temperature sensors on certain models — only appear in the reported state, not in the capabilities. Without seeing a real diagnostics file the integration has no way to know those values exist, what unit they use, or what device class they should have. The diagnostics file contains both the full capabilities schema and a real reported state snapshot — everything needed to build a correct catalog entry for your appliance.
-
-For device-specific issues or when certain features aren't working as expected, a JSON diagnostics file is **very helpful** for troubleshooting:
 
 **How to get diagnostics:**
 1. Go to **Settings → Devices & Services → Electrolux**
@@ -659,15 +688,7 @@ For device-specific issues or when certain features aren't working as expected, 
 
 **🔒 Privacy & Security:** All sensitive information (API keys, tokens, personal data, emails, addresses, device identifiers, and other PII) is automatically redacted from diagnostics files. They are safe to share when reporting issues but check it yourselves before sending just to be sure
 
-**When to provide diagnostics:**
-- **Missing or incorrect sensors/controls**: If your appliance is missing expected sensors or controls, or if existing ones show wrong values or don't work properly
-- Appliance not showing expected controls or sensors
-- Commands not working or responding
-- New appliance models with unknown features
-- Integration setup issues
-- Feature requests for specific appliance capabilities
-
-Include this file when reporting issues - it helps identify device-specific problems quickly!
+Include this file when reporting an issue — it is what makes device-specific problems diagnosable.
 
 ## 🔧 Troubleshooting
 
@@ -759,18 +780,18 @@ This repository includes comprehensive testing scripts to help you verify applia
 1. Fork the repository
 2. Clone your fork
 3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it already
-4. Install all dependencies: `uv sync --group dev --group test`
+4. Install all dependencies: `uv sync --locked`
 5. Test scripts are available in the `scripts/` directory for API testing
 
-**Optional:** Install pre-commit hooks to run the same checks as CI (ruff, black, mypy, pytest) automatically before each commit/push:
+**Optional:** Install pre-commit hooks to run the same checks as CI (ruff, ruff format, mypy, workflow lint and pytest) automatically before each commit/push:
 ```bash
 uv run pre-commit install
 ```
 
 ### 🧪 Testing Your Appliances
 Use the provided test scripts to verify API connectivity:
-- `test_api_simple.py` - Basic appliance list test
-- `test_appliance_details.py` - Detailed appliance information
+- `script_appliance_details.py` - Detailed appliance information
+- `script_test_commands.py` - Send test commands to an appliance
 
 ## 📜 License
 

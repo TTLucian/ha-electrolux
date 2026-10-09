@@ -8,6 +8,8 @@ body:
       value: |
         ## Help add support for your appliance!
 
+        **Only open this issue if something is missing or not working** — or your appliance type is listed under [Diagnostics Wanted](https://github.com/TTLucian/ha-electrolux/blob/main/README.md#-diagnostics-wanted) in the README. If everything works as expected and your type is already listed as supported, there is nothing to add and no issue to open.
+
         The single most useful thing you can do is attach your **diagnostics JSON file**.
         It contains the full capability map of your appliance and takes 30 seconds to generate.
 
@@ -64,15 +66,15 @@ body:
   - type: textarea
     id: missing-entities
     attributes:
-      label: Missing or Broken Entities (Optional)
+      label: Missing or Broken Entities
       description: |
-        Are there any specific controls or sensors that are missing or not working correctly?
-        List them here — e.g. "Vacuum Mode shows wrong options", "Anti-crease timer missing".
+        Required. List specific controls or sensors that are missing or not working correctly — e.g. "Vacuum Mode shows QUIET/SMART/POWER but appliance has quiet/standard/powerful", "Anti-crease timer missing", or generic entities with no names/units.
+        **If nothing is missing or broken and your appliance type is already listed as supported in the README, please don't open this issue** — the integration is working as designed.
       placeholder: |
         - Vacuum Mode shows QUIET/SMART/POWER but appliance has quiet/standard/powerful
         - Anti-crease duration is not present
     validations:
-      required: false
+      required: true
 
   - type: input
     id: integration-version
@@ -100,5 +102,5 @@ body:
           required: true
         - label: The model field above matches the format `XX-XXXXXXXXX_XX` (e.g. `TD-916099971_01`).
           required: true
-        - label: I have checked that this appliance type is not already fully supported (see the Supported Appliances table in the release notes).
+        - label: I have checked that this appliance type is not already fully supported (see the [supported appliance types table](https://github.com/TTLucian/ha-electrolux/blob/main/README.md#-fully-catalog-supported-models-verified-from-diagnostic-samples) in the README).
           required: false
