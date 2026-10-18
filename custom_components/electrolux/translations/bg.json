@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API ключ",
                     "access_token": "Токен за достъп",
-                    "refresh_token": "Опресняване на токена"
+                    "refresh_token": "Опресняване на токена",
+                    "spin_speed_substitution": "Замяна на скоростта на центрофугиране (експериментално - вж. #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Мощност"
+            },
+            "executecommand_on": {
+                "name": "Включване"
+            },
+            "executecommand_off": {
+                "name": "&amp; Изключване"
+            },
+            "executecommand_start": {
+                "name": "Начало"
+            },
+            "executecommand_pause": {
+                "name": "Пауза"
+            },
+            "executecommand_resume": {
+                "name": "Резюме"
+            },
+            "executecommand_stopreset": {
+                "name": "СПИРАНЕ/ НУЛИРАНЕ"
             },
             "waterfilterstatereset": {
                 "name": "Нулирайте водния филтър"

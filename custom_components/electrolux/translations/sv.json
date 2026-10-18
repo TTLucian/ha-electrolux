@@ -48,7 +48,8 @@
                 "data": {
                     "api_key": "API-nyckel",
                     "access_token": "Access Token",
-                    "refresh_token": "Uppdatera token"
+                    "refresh_token": "Uppdatera token",
+                    "spin_speed_substitution": "Byte av centrifugeringshastighet (experimentell - se #257)"
                 }
             }
         },
@@ -339,6 +340,24 @@
             },
             "executecommand": {
                 "name": "Driva"
+            },
+            "executecommand_on": {
+                "name": "Sätt på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Starta"
+            },
+            "executecommand_pause": {
+                "name": "Pausa"
+            },
+            "executecommand_resume": {
+                "name": "Fortsätt"
+            },
+            "executecommand_stopreset": {
+                "name": "Stoppa återställning"
             },
             "waterfilterstatereset": {
                 "name": "Återställ vattenfiltret"

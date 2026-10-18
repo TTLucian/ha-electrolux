@@ -16,6 +16,7 @@ from homeassistant.util import slugify
 
 from .const import (
     CONF_API_KEY,
+    CONF_SPIN_SPEED_SUBSTITUTION,
     DOMAIN,
     FOOD_PROBE_STATE_NOT_INSERTED,
     REMOTE_CONTROL_DISABLED,
@@ -696,6 +697,24 @@ class ElectroluxEntity(CoordinatorEntity):
             # the panel followed by an unrelated option write left the laundry
             # unspun, with no error anywhere. A loud 406 is the lesser fault, so
             # the value goes through and the command is rejected.
+            #
+            # With the substitution option enabled, swap in a writable value
+            # instead. That is experimental and off by default - see
+            # CONF_SPIN_SPEED_SUBSTITUTION for why it needs field evidence.
+            user_cap_key = f"userSelections/{key}"
+            if self._substitution_enabled() and self._capability_value_disabled(caps, user_cap_key, val):
+                substitute = self._writable_substitute(caps, user_cap_key)
+                if substitute is not None:
+                    _LOGGER.info(
+                        "Substituting userSelections/%s=%s with %s: the capability marks the reported value "
+                        "disabled and carrying it is rejected with 406. Experimental - turn the "
+                        "'spin_speed_substitution' option back off to restore the safe behaviour.",
+                        key,
+                        val,
+                        substitute,
+                    )
+                    merged[key] = substitute
+                    continue
             merged[key] = val
 
         # Always override with the new value (and ensure programUID is present).
@@ -754,6 +773,69 @@ class ElectroluxEntity(CoordinatorEntity):
                         merged[leaf] = default
 
         return merged
+
+    def _substitution_enabled(self) -> bool:
+        """True when the experimental disabled-value substitution is switched on.
+
+        Default False. With it off, a reported value the API marks disabled is
+        carried into the command so the cloud rejects the write with a loud 406
+        rather than silently changing appliance behaviour (#257). With it on, a
+        writable value is substituted instead - that is the actual fix for #257,
+        but it has never been run against an appliance, which is why it is
+        opt-in and why every substitution is logged.
+        """
+        # ``is True`` rather than truthiness on purpose: this is an experimental
+        # path whose wrong guess changes the spin speed, so anything other than
+        # an explicit opt-in leaves it off.
+        try:
+            return self.config_entry.options.get(CONF_SPIN_SPEED_SUBSTITUTION, False) is True
+        except AttributeError:
+            return False
+
+    @staticmethod
+    def _writable_substitute(caps: dict[str, Any], cap_key: str) -> Any | None:
+        """Return a writable value for ``cap_key``, or None when there is none.
+
+        A capability's ``values`` map marks individual values ``"disabled": true``
+        - the ones the current program or cycle context forbids (a washer's
+        ``analogSpinSpeed: DISABLED`` once a night cycle is set, a microwave
+        program disabled in #193). Only those are unusable; the rest remain
+        writable, so one of them can stand in for the forbidden value.
+
+        Which writable value is correct depends on the appliance, so the pick is
+        ordered for determinism rather than chosen on intent. Picking wrongly
+        changes the spin speed instead of merely failing the command, which is
+        why the caller logs every substitution and the option defaults to off.
+        """
+        cap_def = caps.get(cap_key)
+        if not isinstance(cap_def, dict):
+            return None
+        values = cap_def.get("values")
+        if not isinstance(values, dict):
+            return None
+
+        writable = [
+            value
+            for value, entry in values.items()
+            if not (isinstance(entry, dict) and entry.get("disabled")) and not ElectroluxEntity._is_no_op_value(value)
+        ]
+        if not writable:
+            return None
+        return min(writable, key=str)
+
+    @staticmethod
+    def _is_no_op_value(value: Any) -> bool:
+        """True when a value means the appliance does nothing (0_RPM, 0, OFF).
+
+        These are writable as far as the capability is concerned, so a naive
+        "any enabled value" pick lands on them - and substituting ``0_RPM`` for
+        a disabled spin speed reproduces exactly the no-spin outcome #257 is
+        about, just spelled differently. They are never a useful stand-in.
+        """
+        text = str(value).strip().upper()
+        if text in {"0", "OFF", "NONE", "DISABLED"}:
+            return True
+        return text.startswith(("0_", "0."))
 
     @staticmethod
     def _capability_value_disabled(caps: dict[str, Any], cap_key: str, value: Any) -> bool:

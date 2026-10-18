@@ -17,6 +17,7 @@ from homeassistant.data_entry_flow import FlowHandler, FlowResult
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession  # noqa: F401
 from homeassistant.helpers.selector import (
+    BooleanSelector,
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
@@ -27,6 +28,7 @@ from .const import (
     CONF_ACCESS_TOKEN,
     CONF_API_KEY,
     CONF_REFRESH_TOKEN,
+    CONF_SPIN_SPEED_SUBSTITUTION,
     DOMAIN,
 )
 from .util import get_electrolux_session
@@ -415,6 +417,15 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
                 vol.Optional(CONF_REFRESH_TOKEN, default=current_refresh_token): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
                 ),
+                # Experimental (#257). Off by default: with it off, a reported value
+                # the API marks disabled is carried into the command so the cloud
+                # rejects the write with a loud 406 instead of silently changing
+                # what the appliance does. On, a writable value is substituted -
+                # the actual fix, but unverified against real hardware.
+                vol.Optional(
+                    CONF_SPIN_SPEED_SUBSTITUTION,
+                    default=self._config_entry.options.get(CONF_SPIN_SPEED_SUBSTITUTION, False),
+                ): BooleanSelector(),
             }
         )
 
@@ -457,6 +468,13 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         # API credentials go in data (require restart)
         if credential_data:
             new_data.update(credential_data)
+
+        # Non-credential options. Read back from the form rather than only setting
+        # them when truthy, so unticking the box actually turns the option off -
+        # an unchecked BooleanSelector is absent from user_input otherwise, and
+        # "if on: store True" would leave it stuck on forever.
+        if CONF_SPIN_SPEED_SUBSTITUTION in user_input:
+            new_options[CONF_SPIN_SPEED_SUBSTITUTION] = bool(user_input[CONF_SPIN_SPEED_SUBSTITUTION])
 
         self.hass.config_entries.async_update_entry(self._config_entry, data=new_data, options=new_options)
         return self.async_create_entry(title="", data={})

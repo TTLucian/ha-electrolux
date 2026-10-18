@@ -94,6 +94,14 @@ CONF_ACCESS_TOKEN = "access_token"
 CONF_REFRESH_TOKEN = "refresh_token"
 CONF_TOKEN_EXPIRES_AT = "token_expires_at"
 
+# Experimental opt-in (#257): when a reported userSelection is marked
+# "disabled": true by the API, substitute a writable value for it instead of
+# carrying the disabled value through (which the cloud rejects with 406) or
+# dropping the key (which makes some appliances fall back to "no spin").
+# Default False because the correct substitute is not known without field
+# evidence; enabling it is how that evidence is collected.
+CONF_SPIN_SPEED_SUBSTITUTION = "spin_speed_substitution"
+
 # Token validity
 ACCESS_TOKEN_VALIDITY_SECONDS = 43200  # 12 hours
 

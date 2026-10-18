@@ -30,6 +30,7 @@ Targets the following uncovered lines identified by coverage report:
 - 1112: _evaluate_operand cap_name == 'value' path
 """
 
+import logging
 from typing import cast
 from unittest.mock import MagicMock, patch
 
@@ -2262,6 +2263,89 @@ class TestDisabledReportedValueCarried:
 
         assert payload["analogSpinSpeed"] == "1200_RPM"
         assert payload["EWX1493A_rinseHold"] is False
+
+
+class TestDisabledValueSubstitutionOptIn:
+    """#257: the experimental substitution, off unless explicitly enabled.
+
+    Carrying the reported ``DISABLED`` value gets a loud 406, which is the safe
+    default. Substituting a writable value is the actual fix, but the right
+    substitute is appliance-specific and unverified, so it ships off and every
+    substitution is logged.
+    """
+
+    def _entity_with_option(self, reported_selections: dict, enabled: bool | None):
+        entity = _washing_entity("EWX1493A_preWashPhase", reported_selections)
+        if enabled is not None:
+            entity.config_entry.options = {"spin_speed_substitution": enabled}
+        return entity
+
+    def test_off_by_default_the_disabled_value_is_carried(self):
+        """No option set at all must behave exactly like v3.8.2."""
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=None)
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "DISABLED"
+
+    def test_explicitly_off_still_carries(self):
+        entity = self._entity_with_option(
+            {"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=False
+        )
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "DISABLED"
+
+    def test_enabled_substitutes_a_writable_speed(self):
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=True)
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "1000_RPM"
+        assert payload["EWX1493A_preWashPhase"] is True
+
+    def test_substitute_is_never_a_no_op_value(self):
+        """0_RPM is writable but reproduces the exact no-spin outcome (#257)."""
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=True)
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert not str(payload["analogSpinSpeed"]).startswith("0")
+
+    def test_enabled_leaves_writable_values_alone(self):
+        """Only the disabled value is touched; a real spin speed still passes."""
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "1200_RPM"}, enabled=True)
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+
+    def test_enabled_falls_back_to_carrying_when_nothing_is_writable(self):
+        """No usable substitute must not silently drop the key - that is the
+        3.8.1 behaviour that caused unspun laundry."""
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=True)
+        entity.get_appliance.data.capabilities = {
+            **entity.get_appliance.data.capabilities,
+            "userSelections/analogSpinSpeed": {
+                **_SPIN_SPEED_CAP,
+                "values": {"DISABLED": {"disabled": True}, "0_RPM": {}},
+            },
+        }
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "DISABLED"
+
+    def test_substitution_is_logged(self, caplog):
+        """A silent substitution would be the 3.8.1 mistake in a new outfit."""
+        entity = self._entity_with_option({"EWX1493A_preWashPhase": False, "analogSpinSpeed": "DISABLED"}, enabled=True)
+
+        with caplog.at_level(logging.INFO, logger="custom_components.electrolux"):
+            entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert "Substituting userSelections/analogSpinSpeed" in caplog.text
+        assert "Experimental" in caplog.text
 
 
 class TestCapabilityValueDisabledPredicate:

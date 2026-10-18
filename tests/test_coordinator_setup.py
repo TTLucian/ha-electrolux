@@ -35,6 +35,10 @@ def make_coordinator():
     coord.hass = mock_hass
     coord.config_entry = MagicMock()
     coord.config_entry.data = {"api_key": "fake-key-1234567890"}
+    # Real dict, not a Mock: ConfigEntry.options is a plain mapping in
+    # production, and a MagicMock makes any .get() return a truthy object,
+    # which silently enables boolean options that default to off.
+    coord.config_entry.options = {}
 
     # Coordinator internals
     coord.data = {"appliances": Appliances({})}
