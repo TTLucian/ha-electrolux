@@ -5,7 +5,7 @@ import time
 from typing import Any, cast
 
 import jwt
-import voluptuous as vol
+import probatio
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -340,20 +340,20 @@ class ElectroluxStatusFlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore[ca
         """Present the configuration options dialog."""
         return ElectroluxStatusOptionsFlowHandler(config_entry)
 
-    def _get_config_schema(self, defaults: dict[str, Any]) -> vol.Schema:
+    def _get_config_schema(self, defaults: dict[str, Any]) -> probatio.Schema:
         """Get the config schema with defaults."""
         data_schema: dict[Any, Any] = {
-            vol.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
+            probatio.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
                 TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
             ),
-            vol.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
+            probatio.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
                 TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
             ),
-            vol.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
+            probatio.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
                 TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
             ),
         }
-        return vol.Schema(data_schema)
+        return probatio.Schema(data_schema)
 
     async def _show_config_form(self, user_input, step_id="user") -> ConfigFlowResult:
         """Show the configuration form to edit location data."""
@@ -392,7 +392,7 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         """Manage the options."""
         return await self.async_step_user()
 
-    async def _get_options_schema(self) -> vol.Schema:
+    async def _get_options_schema(self) -> probatio.Schema:
         """Get the options schema with current values, checking credential validity."""
         # Get current values from config entry data and options
         current_api_key = self._config_entry.data.get(CONF_API_KEY, "")
@@ -404,15 +404,15 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         current_access_token = ""
         current_refresh_token = ""
 
-        return vol.Schema(
+        return probatio.Schema(
             {
-                vol.Optional(CONF_API_KEY, default=current_api_key): TextSelector(
+                probatio.Optional(CONF_API_KEY, default=current_api_key): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
                 ),
-                vol.Optional(CONF_ACCESS_TOKEN, default=current_access_token): TextSelector(
+                probatio.Optional(CONF_ACCESS_TOKEN, default=current_access_token): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
                 ),
-                vol.Optional(CONF_REFRESH_TOKEN, default=current_refresh_token): TextSelector(
+                probatio.Optional(CONF_REFRESH_TOKEN, default=current_refresh_token): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
                 ),
             }
@@ -574,15 +574,15 @@ class ElectroluxRepairFlow(FlowHandler):
                 CONF_REFRESH_TOKEN: "",
             }
 
-        data_schema = vol.Schema(
+        data_schema = probatio.Schema(
             {
-                vol.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
+                probatio.Required(CONF_API_KEY, default=defaults.get(CONF_API_KEY, "")): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="api-key")
                 ),
-                vol.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
+                probatio.Required(CONF_ACCESS_TOKEN, default=defaults.get(CONF_ACCESS_TOKEN, "")): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="access-token")
                 ),
-                vol.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
+                probatio.Required(CONF_REFRESH_TOKEN, default=defaults.get(CONF_REFRESH_TOKEN, "")): TextSelector(
                     TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="refresh-token")
                 ),
             }
