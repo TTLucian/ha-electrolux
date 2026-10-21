@@ -177,7 +177,7 @@ class TestCatalogRefrigerator:
 
     def test_refrigerator_has_external_child_lock_binary_sensor(self):
         """CR catalog exposes the external child lock as a binary sensor."""
-        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+        from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 
         from custom_components.electrolux.catalogs.catalog_cr import (
             CATALOG_CR,
@@ -221,8 +221,8 @@ class TestCatalogDehumidifier:
 
     def test_dehumidifier_explicit_metadata_entries(self):
         """DH catalog provides explicit metadata for the broadened sample surface."""
-        from homeassistant.components.number import NumberDeviceClass
-        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.components.number.const import NumberDeviceClass
+        from homeassistant.components.switch.const import SwitchDeviceClass
         from homeassistant.const import EntityCategory, Platform, UnitOfTime
 
         from custom_components.electrolux.catalogs.catalog_dh import CATALOG_DH
@@ -413,7 +413,7 @@ class TestCatalogDishwasher:
 
     def test_verified_dishwasher_alert_entities(self):
         """The live dishwasher alert codes are represented as binary sensors."""
-        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+        from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
 
@@ -442,7 +442,7 @@ class TestCatalogDishwasher:
 
     def test_maintenance_entries_map_to_reported_item_one(self):
         """Maintenance entries use the numeric reported-state structure (item 1, not maint1)."""
-        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+        from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
         from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalogs.catalog_dw import CATALOG_DW
@@ -494,7 +494,7 @@ class TestCatalogDishwasher:
 
     def test_dishwasher_network_always_on_is_configuration(self):
         """Persistent network behavior is presented as a configuration switch."""
-        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.components.switch.const import SwitchDeviceClass
         from homeassistant.const import EntityCategory
 
         from custom_components.electrolux.catalog_core import CATALOG_BASE
@@ -607,7 +607,7 @@ class TestCatalogAirConditioner:
 
     def test_new_switch_entities(self):
         """New switch entities exist with correct device_class and icon."""
-        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.components.switch.const import SwitchDeviceClass
 
         from custom_components.electrolux.catalogs.catalog_ac import CATALOG_AC
 
@@ -1149,7 +1149,7 @@ class TestHobEntityQuality:
 
     def test_hood_filter_indicator_is_not_a_switch(self):
         """It is a status the hood reports, not something the user controls."""
-        from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+        from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 
         from custom_components.electrolux.catalogs.catalog_hb import CATALOG_HB
 
@@ -1163,7 +1163,7 @@ class TestHobEntityQuality:
 
     def test_no_hb_entry_is_a_switch_unless_it_is_writable(self):
         """A platform that invites a press and silently does nothing."""
-        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.components.switch.const import SwitchDeviceClass
 
         from custom_components.electrolux.catalogs.catalog_hb import CATALOG_HB
 

@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.const import EntityCategory
 
 from custom_components.electrolux.binary_sensor import (

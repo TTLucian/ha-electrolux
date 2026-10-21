@@ -13,7 +13,7 @@ Reported-state-only keys (no advertised capability) still need
 """
 
 from homeassistant.components.number import NumberDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory, Platform, UnitOfTime
 
 from ..model import ElectroluxDevice

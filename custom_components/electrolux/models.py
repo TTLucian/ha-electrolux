@@ -11,11 +11,11 @@ from typing import TYPE_CHECKING, Any, TypedDict, cast
 if TYPE_CHECKING:
     from .entity import ElectroluxEntity
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
+from homeassistant.components.button.const import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import EntityCategory, Platform, UnitOfTime
 
 from .const import (

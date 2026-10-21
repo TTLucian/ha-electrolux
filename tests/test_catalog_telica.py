@@ -66,7 +66,7 @@ class TestTelicaEntityTypes:
 
     def test_sound_volume_catalog_entry_is_switch(self):
         """Catalog soundVolume entry uses SWITCH device_class (#199)."""
-        from homeassistant.components.switch import SwitchDeviceClass
+        from homeassistant.components.switch.const import SwitchDeviceClass
 
         entry = CATALOG_AC["soundVolume"]
         assert entry.device_class == SwitchDeviceClass.SWITCH

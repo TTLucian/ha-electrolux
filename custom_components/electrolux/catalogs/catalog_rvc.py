@@ -10,7 +10,7 @@ keys in one catalog is safe — each device will only expose its own subset.
 """
 
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory
 
 from ..const import BINARY_SENSOR, BUTTON, SWITCH

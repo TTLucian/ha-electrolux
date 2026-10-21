@@ -6,7 +6,7 @@ from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.components.fan import FanEntityFeature
+from homeassistant.components.fan.const import FanEntityFeature
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.electrolux.const import FAN

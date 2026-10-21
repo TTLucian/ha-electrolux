@@ -6,8 +6,8 @@ The HB hob exposes two groups of capabilities:
    Accessed via the slash-path notation used throughout the integration.
 """
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import EntityCategory
 
 from ..model import ElectroluxDevice

@@ -1,10 +1,10 @@
 """Defined catalog of entities for tumble dryer type devices."""
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
+from homeassistant.components.button.const import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime
 
 from ..const import CAPABILITY_READ_STRING

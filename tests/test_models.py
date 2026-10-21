@@ -1317,7 +1317,7 @@ class TestGetEntityExtended:
 
     def test_button_device_class_override(self):
         """Line 411: catalog ButtonDeviceClass → entity_type forced to BUTTON."""
-        from homeassistant.components.button import ButtonDeviceClass
+        from homeassistant.components.button.const import ButtonDeviceClass
 
         from custom_components.electrolux.button import ElectroluxButton
         from custom_components.electrolux.model import ElectroluxDevice

@@ -5,10 +5,10 @@ SO (Structured Oven) appliances have their oven control capabilities nested unde
 This catalog provides the correct entity_source paths for structured oven capabilities.
 """
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.components.switch import SwitchDeviceClass
+from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import EntityCategory, UnitOfPower, UnitOfTemperature, UnitOfTime
 
 from ..execute_command_states import STRUCTURED_OVEN_EXECUTE_STATES

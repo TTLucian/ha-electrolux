@@ -276,7 +276,7 @@ class TestElectroluxButton:
 
     def test_device_class_from_catalog(self, mock_coordinator, mock_capability):
         """Test device class from catalog entry."""
-        from homeassistant.components.button import ButtonDeviceClass
+        from homeassistant.components.button.const import ButtonDeviceClass
 
         from custom_components.electrolux.model import ElectroluxDevice
 
@@ -1638,7 +1638,7 @@ class TestButtonMissingCoverage:
 
     def test_device_class_returns_button_device_class_from_catalog(self, mock_coordinator, mock_capability):
         """Line 100: device_class returns ButtonDeviceClass when catalog has ButtonDeviceClass."""
-        from homeassistant.components.button import ButtonDeviceClass
+        from homeassistant.components.button.const import ButtonDeviceClass
 
         entity = self._make_button(mock_coordinator, mock_capability)
         mock_catalog = MagicMock()
@@ -1649,7 +1649,7 @@ class TestButtonMissingCoverage:
 
     def test_device_class_returns_button_device_class_identify(self, mock_coordinator, mock_capability):
         """Line 100: device_class returns ButtonDeviceClass.IDENTIFY from catalog."""
-        from homeassistant.components.button import ButtonDeviceClass
+        from homeassistant.components.button.const import ButtonDeviceClass
 
         entity = self._make_button(mock_coordinator, mock_capability)
         mock_catalog = MagicMock()
