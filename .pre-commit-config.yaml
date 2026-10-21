@@ -5,7 +5,7 @@ repos:
   # passing check. Dependabot does not edit this file, so re-check the revs
   # after merging its "uv" pull requests.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.9
+    rev: v0.17.0
     hooks:
       - id: ruff
         args: [--fix]
@@ -16,7 +16,7 @@ repos:
         files: ^(custom_components/|tests/|scripts/|\.github/scripts/)
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.1
+    rev: v2.4.0
     hooks:
       - id: mypy
         args:
