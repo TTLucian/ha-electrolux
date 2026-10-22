@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import TEXT
+from .const import DOMAIN, TEXT
 from .coordinator import ElectroluxCoordinator
 from .entity import ElectroluxEntity
 from .model import ElectroluxDevice
@@ -151,10 +151,12 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Always bundle programUID, for appliance-level keys too (#232).
-                # Dropping it was tried in v3.8.0 and reset the selected program
-                # on hardware; see switch.py for the full evidence.
-                if program_uid:
+                # Appliance-level keys (e.g. autoDoorOpener) are not listed by any
+                # program's constraint dict and are silently rejected by the cloud
+                # when bundled into a program-targeted payload, so they must be
+                # written on their own (fixes #232). Program-level keys keep the
+                # programUID bundle.
+                if self._is_program_level_key():
                     self._warn_if_appliance_level_write(self.entity_attr)
                     command = {
                         "userSelections": {
@@ -175,17 +177,32 @@ class ElectroluxText(ElectroluxEntity, TextEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Always bundle programUID, for appliance-level keys too (#232).
-                # Dropping it was tried in v3.8.0 and reset the selected program
-                # on hardware; see switch.py for the full evidence.
-                if program_uid:
+
+                # Appliance-level keys (e.g. autoDoorOpener) are not listed by any
+                # program's constraint dict and are silently rejected by the cloud
+                # when bundled into a program-targeted payload, so they must be
+                # written on their own (fixes #232). Program-level keys keep the
+                # programUID bundle.
+                if self._is_program_level_key():
                     self._warn_if_appliance_level_write(self.entity_attr)
-                    command = {
-                        self.entity_source: {
-                            "programUID": program_uid,
-                            self.entity_attr: value,
-                        },
-                    }
+                    if program_uid:
+                        command = {
+                            self.entity_source: {
+                                "programUID": program_uid,
+                                self.entity_attr: value,
+                            },
+                        }
+                    else:
+                        _LOGGER.error(
+                            "Cannot send command: programUID missing for appliance %s",
+                            self.pnc_id,
+                        )
+                        raise HomeAssistantError(
+                            "Cannot change setting: appliance state is incomplete. "
+                            "Please wait for the appliance to initialize.",
+                            translation_domain=DOMAIN,
+                            translation_key="appliance_state_incomplete",
+                        )
                 else:
                     command = {self.entity_source: {self.entity_attr: value}}
             else:
