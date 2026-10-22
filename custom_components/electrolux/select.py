@@ -421,11 +421,12 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                     self.appliance_status.get("properties", {}).get("reported", {}) if self.appliance_status else {}
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
-                # Always bundle programUID, for appliance-level keys too (#232).
-                # Dropping it was tried in v3.8.0 and reset the selected program
-                # on hardware; see switch.py for the full evidence.
-                if program_uid:
-                    self._warn_if_appliance_level_write(self.entity_attr)
+                # Appliance-level keys (e.g. autoDoorOpener) are not listed by any
+                # program's constraint dict and are silently rejected by the cloud
+                # when bundled into a program-targeted payload, so they must be
+                # written on their own (fixes #232). Program-level keys keep the
+                # programUID bundle.
+                if self._is_program_level_key():
                     command = {
                         "userSelections": {
                             "programUID": program_uid,
@@ -433,6 +434,7 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                         }
                     }
                 else:
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {self.entity_source: {self.entity_attr: formatted_value}}
             elif self.entity_source:
                 command = {self.entity_source: {self.entity_attr: formatted_value}}
@@ -446,28 +448,33 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
                 )
                 program_uid = reported.get("userSelections", {}).get("programUID")
 
-                # Always bundle programUID, for appliance-level keys too (#232).
-                # Dropping it was tried in v3.8.0 and reset the selected program
-                # on hardware; see switch.py for the full evidence.
-                self._warn_if_appliance_level_write(self.entity_attr)
-                if not program_uid:
-                    _LOGGER.error(
-                        "Cannot send command: programUID missing for appliance %s",
-                        self.pnc_id,
-                    )
-                    raise HomeAssistantError(
-                        "Cannot change setting: appliance state is incomplete. "
-                        "Please wait for the appliance to initialize.",
-                        translation_domain=DOMAIN,
-                        translation_key="appliance_state_incomplete",
-                    )
+                # Appliance-level keys (e.g. autoDoorOpener) are not listed by any
+                # program's constraint dict and are silently rejected by the cloud
+                # when bundled into a program-targeted payload, so they must be
+                # written on their own (fixes #232). Program-level keys keep the
+                # programUID bundle.
+                if self._is_program_level_key():
+                    if not program_uid:
+                        _LOGGER.error(
+                            "Cannot send command: programUID missing for appliance %s",
+                            self.pnc_id,
+                        )
+                        raise HomeAssistantError(
+                            "Cannot change setting: appliance state is incomplete. "
+                            "Please wait for the appliance to initialize.",
+                            translation_domain=DOMAIN,
+                            translation_key="appliance_state_incomplete",
+                        )
 
-                command = {
-                    self.entity_source: {
-                        "programUID": program_uid,
-                        self.entity_attr: formatted_value,
-                    },
-                }
+                    command = {
+                        self.entity_source: {
+                            "programUID": program_uid,
+                            self.entity_attr: formatted_value,
+                        },
+                    }
+                else:
+                    self._warn_if_appliance_level_write(self.entity_attr)
+                    command = {self.entity_source: {self.entity_attr: formatted_value}}
             else:
                 command = {self.entity_source: {self.entity_attr: formatted_value}}
         else:

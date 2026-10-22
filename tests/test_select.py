@@ -2000,12 +2000,8 @@ class TestDiscoveredPrograms:
             assert command == {"userSelections": {"programUID": "ECO", "xtraDryOption": "A"}}
 
     @pytest.mark.asyncio
-    async def test_dam_appliance_level_key_keeps_program_uid(self, mock_coordinator):
-        """DAM appliance-level key keeps programUID too (#232 regression).
-
-        Dropping it was the v3.8.0 behaviour and it reset the selected program
-        on hardware, so the DAM branch is held to the same rule as the legacy one.
-        """
+    async def test_dam_appliance_level_key_omits_program_uid(self, mock_coordinator):
+        """DAM appliance-level key omits programUID (fixes #232)."""
         _set_appliance_capabilities(mock_coordinator)
         entity = ElectroluxSelect(
             coordinator=mock_coordinator,
@@ -2036,11 +2032,11 @@ class TestDiscoveredPrograms:
 
         call_args = api.execute_appliance_command.call_args
         _, command = call_args[0]
-        assert command == {"commands": [{"userSelections": {"programUID": "ECO", "autoDoorOpener": "A"}}]}
+        assert command == {"commands": [{"userSelections": {"autoDoorOpener": "A"}}]}
 
     @pytest.mark.asyncio
-    async def test_select_option_appliance_level_key_keeps_program_uid(self, mock_coordinator):
-        """Select option for an appliance-level key keeps programUID (#232 regression).
+    async def test_select_option_appliance_level_key_omits_program_uid(self, mock_coordinator):
+        """Select option for an appliance-level key omits programUID (fixes #232).
 
         Real dishwasher capabilities: its programs list the options but never
         autoDoorOpener. Bundling programUID is still required - omitting it reset
@@ -2087,5 +2083,5 @@ class TestDiscoveredPrograms:
             call_args = entity.api.execute_appliance_command.call_args
             pnc_id, command = call_args[0]
             assert pnc_id == "TEST_PNC"
-            # Appliance-level key: programUID is still bundled (#232)
-            assert command == {"userSelections": {"programUID": "TEST_PROGRAM", "autoDoorOpener": "OPT1"}}
+            # Appliance-level key: programUID is omitted (fixes #232)
+            assert command == {"userSelections": {"autoDoorOpener": "OPT1"}}

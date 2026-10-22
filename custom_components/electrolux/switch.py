@@ -210,19 +210,19 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             # Legacy appliances: send as top-level property, but respect entity_source
             # when the capability key has a slash.
             if self.entity_source == "userSelections":
-                # Build the full current userSelections payload so that appliances
-                # which treat partial writes as full replacements (resetting omitted
-                # options to defaults) keep their sibling options intact.
-                full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                # Always bundle programUID, for appliance-level keys too (#232).
-                # Dropping it was tried in v3.8.0 and reset the selected program
-                # on hardware: timeToEnd 16200 -> 780, ecoScore 7 -> 1, display
-                # 4:30 -> 0:13. The key may still be ignored by the cloud, which
-                # is what the warning is for; the program must not be damaged.
-                if full_selections.get("programUID"):
-                    self._warn_if_appliance_level_write(self.entity_attr)
+                # Appliance-level keys (e.g. autoDoorOpener) are not listed by any
+                # program's constraint dict and are silently rejected by the cloud
+                # when bundled into a program-targeted payload, so they must be
+                # written on their own (fixes #232). Program-level keys keep the
+                # programUID bundle.
+                if self._is_program_level_key():
+                    # Build the full current userSelections payload so that appliances
+                    # which treat partial writes as full replacements (resetting omitted
+                    # options to defaults) keep their sibling options intact.
+                    full_selections = self._build_full_user_selections(self.entity_attr, command_value)
                     command = {"userSelections": full_selections}
                 else:
+                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {self.entity_source: {self.entity_attr: command_value}}
             elif self.entity_source:
                 command = {self.entity_source: {self.entity_attr: command_value}}
@@ -230,11 +230,10 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                 command = {self.entity_attr: command_value}
         elif self.entity_source:
             if self.entity_source == "userSelections":
-                # Build the full current userSelections payload (DAM path).
+                # DAM appliances: the payload must carry programUID for every
+                # userSelections sub-property.
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
-                # See the legacy branch above: programUID is always bundled.
                 if full_selections.get("programUID"):
-                    self._warn_if_appliance_level_write(self.entity_attr)
                     command = {self.entity_source: full_selections}
                 else:
                     command = {self.entity_source: {self.entity_attr: command_value}}
