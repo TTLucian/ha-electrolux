@@ -506,6 +506,7 @@ class ElectroluxEntity(CoordinatorEntity):
             # The common form is {operand_1: "value", operand_2: expected, operator: "eq"},
             # where "value" is a placeholder for the new value being set.
             condition = trigger.get("condition", {})
+            operator = "eq"
             if condition:
                 operator = condition.get("operator", "eq")
                 op1 = condition.get("operand_1")
@@ -558,6 +559,17 @@ class ElectroluxEntity(CoordinatorEntity):
                 # for this appliance) and keep the per-entity cache consistent.
                 if "/" in affected_key:
                     source, leaf = affected_key.split("/", 1)
+                    # Cross-attribute triggers with a "ne" (not-equal) condition are
+                    # advisory: the appliance may not honour them on a write to a
+                    # different attribute, so don't apply optimistically (#267).
+                    # Same-attribute and "eq" triggers still apply optimistically.
+                    if leaf != attr and operator == "ne":
+                        _LOGGER.debug(
+                            "Skipping optimistic apply of cross-attribute 'ne' trigger %s -> %s (#267)",
+                            attr,
+                            leaf,
+                        )
+                        continue
                     if not isinstance(reported.get(source), dict):
                         reported[source] = {}
                     reported[source][leaf] = triggered_value
@@ -566,6 +578,13 @@ class ElectroluxEntity(CoordinatorEntity):
                         cache[source] = {}
                     cache[source][leaf] = triggered_value
                 else:
+                    if affected_key != attr and operator == "ne":
+                        _LOGGER.debug(
+                            "Skipping optimistic apply of cross-attribute 'ne' trigger %s -> %s (#267)",
+                            attr,
+                            affected_key,
+                        )
+                        continue
                     reported[affected_key] = triggered_value
                     self._reported_state_cache[affected_key] = triggered_value
 
