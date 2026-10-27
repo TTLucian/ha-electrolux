@@ -13,6 +13,7 @@ Reported-state-only keys (no advertised capability) still need
 """
 
 from homeassistant.components.number import NumberDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory, Platform, UnitOfTime
 
@@ -81,7 +82,7 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
     # minutes (3000 h). Unit is an educated guess; verify on live data.
     "hoodCharcFilterTimer": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
+        device_class=SensorDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -91,7 +92,7 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
     # Grease filter service timer — same scale caveat as the charcoal timer.
     "hoodGreaseFilterTimer": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
+        device_class=SensorDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -102,7 +103,7 @@ CATALOG_HD: dict[str, ElectroluxDevice] = {
     # capability); reported 918000, same scale caveat as the filter timers.
     "tvocFilterTime": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
+        device_class=SensorDeviceClass.DURATION,
         unit=UnitOfTime.MINUTES,
         suggested_unit=UnitOfTime.HOURS,
         entity_category=EntityCategory.DIAGNOSTIC,
