@@ -95,6 +95,9 @@ SSE_ORDERED_PROPERTIES = frozenset(
         # fast-toggling property this one holds its value between selections,
         # so the bounded delay costs nothing.
         ApplianceDesyncAttribute.ANALOG_SPIN_SPEED.value,
+        # Connectivity state. A stale REST poll can put back a "disconnected"
+        # that SSE has already replaced, blanking every entity (#266).
+        ApplianceDesyncAttribute.CONNECTIVITY_STATE.value,
     }
 )
 # Upper bound on remembered SSE values per property, so a chatty appliance cannot

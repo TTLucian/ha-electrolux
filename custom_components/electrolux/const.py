@@ -82,6 +82,11 @@ class ApplianceDesyncAttribute(StrEnum):
     # state - so a wrong spin speed silently propagates into the next write.
     ANALOG_SPIN_SPEED = "analogSpinSpeed"
 
+    # Connectivity state. Reported as connectivityState. Guarded because a stale
+    # REST poll can put back a "disconnected" that SSE has already replaced,
+    # blanking every entity on the appliance for minutes (#266).
+    CONNECTIVITY_STATE = "connectivityState"
+
     # Cavity illumination & physical alerts
     CAVITY_LIGHT = "cavityLight"
     WATER_TANK_EMPTY = "waterTankEmpty"
