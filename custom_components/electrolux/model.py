@@ -34,6 +34,10 @@ class ElectroluxDevice:
     # native unit of measurement (matches what the API reports)
     unit: str | None = None
 
+    # state class for sensor entities (e.g. total_increasing for cumulative counters)
+    # None lets Home Assistant apply its default (usually no state class)
+    state_class: Any | None = None
+
     # Optional reported-state path when the API capability name and reported
     # state shape differ (for example dishwasher maintenance item 1).
     state_path: str | None = None
