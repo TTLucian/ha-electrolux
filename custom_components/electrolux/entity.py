@@ -135,6 +135,7 @@ class ElectroluxEntity(CoordinatorEntity):
         device_class: Any,
         entity_category: EntityCategory | None,
         icon: str | None,
+        state_class: Any | None = None,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
         """Initialize the entity."""
@@ -166,6 +167,7 @@ class ElectroluxEntity(CoordinatorEntity):
         self.config_entry = config_entry
         self.pnc_id = pnc_id
         self.unit = unit
+        self._state_class = state_class
         self.capability = capability
 
         # Performance cache: reported_state updated by coordinator
