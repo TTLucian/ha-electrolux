@@ -688,6 +688,16 @@ class ElectroluxEntity(CoordinatorEntity):
                 continue
             if cap.get("access") == "read":
                 continue
+            # Out-of-range number = "not applicable" sentinel (dryingTime 65535).
+            # Such a value is not a real setting and the cloud rejects the whole
+            # payload with 406 "Number out of range" when it is carried along
+            # (#297). Skip it so sibling options can still be written.
+            if (
+                isinstance(val, (int, float))
+                and not isinstance(val, bool)
+                and not cap.get("min", val) <= val <= cap.get("max", val)
+            ):
+                continue
             # A reported value the API marks disabled is carried as-is. An earlier
             # version dropped it, reasoning that the alternative was a 406 taking
             # down the whole payload; that was measured on hardware and is worse
