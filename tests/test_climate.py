@@ -173,14 +173,14 @@ class TestElectroluxClimate:
     def test_temperature_unit_celsius(self, climate_entity):
         """Test temperature unit is Celsius when targetTemperatureC is in capabilities."""
         # The climate_entity fixture has targetTemperatureC in capabilities
-        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
-        assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity.native_temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity._attr_native_temperature_unit == UnitOfTemperature.CELSIUS
 
     def test_temperature_unit_fahrenheit(self, climate_entity_f):
         """Test temperature unit is Fahrenheit for F-only capabilities (e.g. US market)."""
         # climate_entity_f has only targetTemperatureF in capabilities
-        assert climate_entity_f.temperature_unit == UnitOfTemperature.FAHRENHEIT
-        assert climate_entity_f._attr_temperature_unit == UnitOfTemperature.FAHRENHEIT
+        assert climate_entity_f.native_temperature_unit == UnitOfTemperature.FAHRENHEIT
+        assert climate_entity_f._attr_native_temperature_unit == UnitOfTemperature.FAHRENHEIT
 
     def test_temperature_unit_default_empty_capabilities(self, mock_coordinator):
         """Test temperature unit defaults to Celsius when capabilities have no temperature entry."""
@@ -200,7 +200,7 @@ class TestElectroluxClimate:
             icon="mdi:air-conditioner",
             catalog_entry=None,
         )
-        assert entity.temperature_unit == UnitOfTemperature.CELSIUS
+        assert entity.native_temperature_unit == UnitOfTemperature.CELSIUS
 
     def test_temperature_unit_stable_at_runtime(self, climate_entity):
         """Test that temperature unit does not change when temperatureRepresentation state changes.
@@ -209,43 +209,53 @@ class TestElectroluxClimate:
         display preference (temperatureRepresentation) does not affect the climate entity.
         """
         # Unit was set to CELSIUS at init from capabilities
-        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity.native_temperature_unit == UnitOfTemperature.CELSIUS
         # Changing the state attribute has no effect
-        assert climate_entity._attr_temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity._attr_native_temperature_unit == UnitOfTemperature.CELSIUS
         assert climate_entity._temp_suffix == "C"
 
     def test_current_temperature_celsius(self, climate_entity, mock_appliance):
         """Test current temperature from Celsius value."""
         mock_appliance.reported_state["ambientTemperatureC"] = 25.0
-        assert climate_entity.current_temperature == 25.0
+        assert climate_entity.native_current_temperature == 25.0
 
     def test_current_temperature_fahrenheit(self, climate_entity_f, mock_appliance):
         """Test current temperature from Fahrenheit value on an F-only entity."""
         mock_appliance.reported_state["ambientTemperatureF"] = 77.0
-        assert climate_entity_f.current_temperature == 77.0
+        assert climate_entity_f.native_current_temperature == 77.0
 
     def test_current_temperature_none(self, climate_entity, mock_appliance):
         """Test current temperature returns None when missing."""
         mock_appliance.reported_state.pop("ambientTemperatureC", None)
         mock_appliance.reported_state.pop("ambientTemperatureF", None)
-        assert climate_entity.current_temperature is None
+        assert climate_entity.native_current_temperature is None
 
     def test_target_temperature_celsius(self, climate_entity, mock_appliance):
         """Test target temperature from Celsius value."""
         mock_appliance.reported_state["targetTemperatureC"] = 22.0
-        assert climate_entity.target_temperature == 22.0
+        assert climate_entity.native_target_temperature == 22.0
 
     def test_target_temperature_fahrenheit(self, climate_entity_f, mock_appliance):
         """Test target temperature from Fahrenheit value on an F-only entity."""
         mock_appliance.reported_state["targetTemperatureF"] = 71.6
         # Temperature should be rounded to nearest integer for display
-        assert climate_entity_f.target_temperature == 72
+        assert climate_entity_f.native_target_temperature == 72
 
     def test_target_temperature_none(self, climate_entity, mock_appliance):
         """Test target temperature returns None when missing."""
         mock_appliance.reported_state.pop("targetTemperatureC", None)
         mock_appliance.reported_state.pop("targetTemperatureF", None)
-        assert climate_entity.target_temperature is None
+        assert climate_entity.native_target_temperature is None
+
+    def test_pre_native_aliases(self, climate_entity, mock_appliance):
+        """Home Assistant before 2026.11 reads the names without the native_ prefix."""
+        mock_appliance.reported_state["ambientTemperatureC"] = 25.0
+        mock_appliance.reported_state["targetTemperatureC"] = 22.0
+        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
+        assert climate_entity.current_temperature == 25.0
+        assert climate_entity.target_temperature == 22.0
+        assert climate_entity.target_temperature_high is None
+        assert climate_entity.target_temperature_low is None
 
     def test_hvac_mode_off(self, climate_entity, mock_appliance):
         """Test HVAC mode returns OFF when appliance is off."""
@@ -907,12 +917,12 @@ class TestElectroluxClimateMissingCoverage:
     def test_target_temperature_high_is_none(self, mock_coordinator):
         """Line 191 — target_temperature_high always returns None."""
         entity = self._make_entity(mock_coordinator)
-        assert entity.target_temperature_high is None
+        assert entity.native_target_temperature_high is None
 
     def test_target_temperature_low_is_none(self, mock_coordinator):
         """Line 196 — target_temperature_low always returns None."""
         entity = self._make_entity(mock_coordinator)
-        assert entity.target_temperature_low is None
+        assert entity.native_target_temperature_low is None
 
     def test_hvac_mode_auto_fallback_when_no_mode(self, mock_coordinator):
         """Line 218 — hvac_mode returns AUTO when applianceState is not OFF and mode is absent."""

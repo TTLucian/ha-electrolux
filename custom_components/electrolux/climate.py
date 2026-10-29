@@ -135,14 +135,14 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         # Determine temperature unit once from capabilities (static — never changes at runtime).
         # Prefer Celsius; fall back to Fahrenheit if only F is in capabilities.
         if "targetTemperatureC" in capability:
-            self._attr_temperature_unit = UnitOfTemperature.CELSIUS
+            self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
             self._temp_suffix = "C"
         elif "targetTemperatureF" in capability:
-            self._attr_temperature_unit = UnitOfTemperature.FAHRENHEIT
+            self._attr_native_temperature_unit = UnitOfTemperature.FAHRENHEIT
             self._temp_suffix = "F"
         else:
             # No explicit temperature capability found — default to Celsius
-            self._attr_temperature_unit = UnitOfTemperature.CELSIUS
+            self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
             self._temp_suffix = "C"
 
     async def async_added_to_hass(self) -> None:
@@ -209,7 +209,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         await self._send_command("horizontalSwing", swing_mode.upper())
 
     @property
-    def temperature_unit(self) -> str:
+    def native_temperature_unit(self) -> str:
         """Return the unit of measurement.
 
         Determined once at init from capabilities — C if targetTemperatureC is
@@ -217,10 +217,10 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         so HA conversion is always clean and correct regardless of the
         temperatureRepresentation select entity value.
         """
-        return self._attr_temperature_unit
+        return self._attr_native_temperature_unit
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         value = self.get_state_attr(f"ambientTemperature{self._temp_suffix}")
         if value is not None:
@@ -228,7 +228,7 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         return None
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
         value = self.get_state_attr(f"targetTemperature{self._temp_suffix}")
         if value is not None:
@@ -236,14 +236,24 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         return None
 
     @property
-    def target_temperature_high(self) -> float | None:
+    def native_target_temperature_high(self) -> float | None:
         """Return the highbound target temperature we try to reach."""
         return None
 
     @property
-    def target_temperature_low(self) -> float | None:
+    def native_target_temperature_low(self) -> float | None:
         """Return the lowbound target temperature we try to reach."""
         return None
+
+    # Home Assistant before 2026.11 only reads the names without the native_
+    # prefix. 2026.11+ prefers the native_ members when a class provides both,
+    # so these aliases do not trigger its deprecation warning. Drop them once
+    # the minimum supported Home Assistant is 2026.11.
+    temperature_unit = native_temperature_unit
+    current_temperature = native_current_temperature
+    target_temperature = native_target_temperature
+    target_temperature_high = native_target_temperature_high
+    target_temperature_low = native_target_temperature_low
 
     @property
     def hvac_mode(self) -> HVACMode:
