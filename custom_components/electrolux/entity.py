@@ -480,6 +480,21 @@ class ElectroluxEntity(CoordinatorEntity):
         if not self.appliance_status:
             return
 
+        # tDEconomy switches are mutually exclusive: when one is toggled ON, the
+        # others must be off in HA's state as well (#309).
+        if attr.startswith("tDEconomy_") and new_value:
+            reported = cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
+            if isinstance(reported, dict):
+                us = reported.get("userSelections")
+                if isinstance(us, dict):
+                    for sibling in ("tDEconomy_Eco", "tDEconomy_Quick", "tDEconomy_Night"):
+                        if sibling != attr:
+                            us[sibling] = False
+                            cache = self._reported_state_cache
+                            if isinstance(cache.get("userSelections"), dict):
+                                cache["userSelections"][sibling] = False
+            self.coordinator.async_set_updated_data(self.coordinator.data)
+
         appliance = self.get_appliance
         if not (hasattr(appliance, "data") and appliance.data):
             return
@@ -731,6 +746,15 @@ class ElectroluxEntity(CoordinatorEntity):
 
         # Always override with the new value (and ensure programUID is present).
         merged[changed_attr] = new_value
+
+        # tDEconomy switches (Eco/Quick/Night) are mutually exclusive: only one
+        # can be on at a time. When writing one ON, force the others off so the
+        # payload doesn't carry conflicting values that the cloud rejects with
+        # "Capability disabled" (#309).
+        if changed_attr.startswith("tDEconomy_") and new_value:
+            for sibling in ("tDEconomy_Eco", "tDEconomy_Quick", "tDEconomy_Night"):
+                if sibling != changed_attr and sibling in merged:
+                    merged[sibling] = False
 
         # Apply the capability triggers for the changed attribute so that
         # mutually-exclusive options are resolved in the command payload itself.
