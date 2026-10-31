@@ -34,4 +34,6 @@ If you own an appliance type that hasn't been tested, your feedback is especiall
 
 BIG thank-yous to all contributors and to all supporters!
 
+Special thanks to **@thecode (Shay Levy)** for contributing the native climate temperature API migration (PR #308), ensuring compatibility with Home Assistant 2026.11.
+
 Without you, this project would not have been possible.
