@@ -2559,13 +2559,13 @@ class TestUserSelectionsProgramUidGate:
         return entity, api
 
     @pytest.mark.asyncio
-    async def test_appliance_level_key_keeps_program_uid(self):
-        """A key no program lists must still carry programUID.
+    async def test_appliance_level_key_omits_program_uid(self):
+        """An appliance-level key is written without programUID (#232).
 
-        Dropping it was tried in v3.8.0 and reset the selected program on
-        hardware: timeToEnd 16200 -> 780, ecoScore 7 -> 1, and the appliance
-        display went 4:30 -> 0:13 (#232). The program must never be collateral
-        damage of an option write.
+        Appliance-level keys are not listed by any program's constraint dict and
+        are silently rejected by the cloud when bundled into a program-targeted
+        payload. The legacy branch is held to the same rule as the DAM one:
+        omit programUID for these keys.
         """
         coordinator = self._coordinator_with(DW_CAPS)
         entity, api = self._entity(coordinator, "autoDoorOpener")
@@ -2579,7 +2579,7 @@ class TestUserSelectionsProgramUidGate:
             await entity.async_set_native_value(20.0)
 
         _, command = api.execute_appliance_command.call_args[0]
-        assert command == {"userSelections": {"programUID": "ECO", "autoDoorOpener": 20}}
+        assert command == {"userSelections": {"autoDoorOpener": 20}}
 
     @pytest.mark.asyncio
     async def test_appliance_level_key_warns_that_the_cloud_may_ignore_it(self, caplog):

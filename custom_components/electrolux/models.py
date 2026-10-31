@@ -589,11 +589,14 @@ class Appliance:
                 if "values" in capability_info:
                     catalog_capability.pop("values", None)
                 if "min" in capability_info:
-                    # Don't override catalog min with 0 — 0 means "not set" for
-                    # some appliances (e.g. air purifier fanspeed 1-9, where the
-                    # API reports min=0 but 0 is not a valid speed). (#311)
-                    if not (capability_info.get("min") == 0 and catalog_capability.get("min", 0) > 0):
-                        catalog_capability.pop("min", None)
+                    catalog_capability.pop("min", None)
+                # Override API min=0 with catalog min>0 (0 means "not set") (#311)
+                if (
+                    capability_info.get("min") == 0
+                    and catalog_item
+                    and getattr(catalog_item, "capability_info", {}).get("min", 0) > 0
+                ):
+                    capability_info["min"] = catalog_item.capability_info["min"]
                 if "max" in capability_info:
                     catalog_capability.pop("max", None)
                 if "step" in capability_info:
