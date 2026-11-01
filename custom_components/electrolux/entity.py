@@ -546,6 +546,11 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(action_def, dict) or "default" not in action_def:
                     continue
                 triggered_value = action_def["default"]
+                # "$default" is a sentinel meaning "restore the program default" or
+                # "keep as-is" — not a literal value to write. Skip it to avoid
+                # sending the string "$default" to the cloud (#309 follow-up).
+                if triggered_value == "$default":
+                    continue
                 # Only apply scalar defaults; dict/list values are capability-level
                 # metadata (e.g. Workmode triggers that describe Fanspeed constraints)
                 # — writing them directly to reported state would corrupt select
@@ -743,6 +748,39 @@ class ElectroluxEntity(CoordinatorEntity):
             # unspun, with no error anywhere. A loud 406 is the lesser fault, so
             # the value goes through and the command is rejected.
             merged[key] = val
+
+        # Program-level filtering: skip fields that are disabled or not listed
+        # for the current program. Carrying them causes "Capability disabled"
+        # rejections (#309 follow-up).
+        current_program = current.get("programUID")
+        if current_program:
+            program_caps = self._get_program_capabilities(str(current_program))
+            if program_caps:
+                to_remove = []
+                for key in merged:
+                    if key == "programUID" or key == changed_attr:
+                        continue
+                    prog_cap = program_caps.get(key)
+                    if not isinstance(prog_cap, dict):
+                        # Field not listed for this program — skip it
+                        to_remove.append(key)
+                        continue
+                    # Check if the program marks this field as disabled
+                    if prog_cap.get("disabled") is True:
+                        to_remove.append(key)
+                        continue
+                    # Check if the current value is disabled for this program
+                    values = prog_cap.get("values")
+                    current_val = merged.get(key)
+                    if isinstance(values, dict) and current_val is not None:
+                        entry = values.get(current_val)
+                        if entry is None and isinstance(current_val, str):
+                            entry = values.get(current_val.upper()) or values.get(current_val.lower())
+                        if isinstance(entry, dict) and entry.get("disabled") is True:
+                            to_remove.append(key)
+                            continue
+                for key in to_remove:
+                    del merged[key]
 
         # Always override with the new value (and ensure programUID is present).
         merged[changed_attr] = new_value
