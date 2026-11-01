@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
@@ -260,6 +260,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             value = str(value)
 
         return value
+
+    @property
+    def state_class(self) -> SensorStateClass | None:
+        """Return the state class of the sensor."""
+        return self._state_class
 
     @property
     def native_unit_of_measurement(self) -> str | None:

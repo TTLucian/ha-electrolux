@@ -506,6 +506,7 @@ class Appliance:
         entity_category = None
         entity_icon = None
         unit = self.data.get_entity_unit(capability)
+        state_class = None
         display_name = self.data.get_sensor_name(capability)
 
         # get the item definition from the catalog
@@ -589,6 +590,13 @@ class Appliance:
                     catalog_capability.pop("values", None)
                 if "min" in capability_info:
                     catalog_capability.pop("min", None)
+                # Override API min=0 with catalog min>0 (0 means "not set") (#311)
+                if (
+                    capability_info.get("min") == 0
+                    and catalog_item
+                    and getattr(catalog_item, "capability_info", {}).get("min", 0) > 0
+                ):
+                    capability_info["min"] = catalog_item.capability_info["min"]
                 if "max" in capability_info:
                     catalog_capability.pop("max", None)
                 if "step" in capability_info:
@@ -600,6 +608,7 @@ class Appliance:
 
             device_class = catalog_item.device_class
             unit = catalog_item.unit
+            state_class = catalog_item.state_class
             entity_category = catalog_item.entity_category
             entity_icon = catalog_item.entity_icon
 
@@ -667,6 +676,7 @@ class Appliance:
             device_class: str | None,
             icon: str | None,
             catalog_entry: ElectroluxDevice | None,
+            state_class: Any | None = None,
             commands: dict[str, Any] | None = None,
         ):
             from .binary_sensor import ElectroluxBinarySensor
@@ -713,6 +723,8 @@ class Appliance:
                 "icon": icon,
                 "catalog_entry": catalog_entry,
             }
+            if state_class is not None:
+                entity_params["state_class"] = state_class
 
             if commands is None:
                 return [entity_class(**entity_params)]
@@ -751,6 +763,7 @@ class Appliance:
                 entity_category=entity_category,
                 device_class=device_class,
                 icon=entity_icon,
+                state_class=state_class,
                 catalog_entry=catalog_item,
                 commands=commands,
             )

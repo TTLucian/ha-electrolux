@@ -1,6 +1,6 @@
 {
   "name": "Electrolux",
-  "homeassistant": "2026.7.1",
+  "homeassistant": "2026.10.0",
   "content_in_root": false,
   "render_readme": true
 }

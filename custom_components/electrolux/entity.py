@@ -135,6 +135,7 @@ class ElectroluxEntity(CoordinatorEntity):
         device_class: Any,
         entity_category: EntityCategory | None,
         icon: str | None,
+        state_class: Any | None = None,
         catalog_entry: ElectroluxDevice | None = None,
     ) -> None:
         """Initialize the entity."""
@@ -166,6 +167,7 @@ class ElectroluxEntity(CoordinatorEntity):
         self.config_entry = config_entry
         self.pnc_id = pnc_id
         self.unit = unit
+        self._state_class = state_class
         self.capability = capability
 
         # Performance cache: reported_state updated by coordinator
@@ -478,6 +480,21 @@ class ElectroluxEntity(CoordinatorEntity):
         if not self.appliance_status:
             return
 
+        # tDEconomy switches are mutually exclusive: when one is toggled ON, the
+        # others must be off in HA's state as well (#309).
+        if attr.startswith("tDEconomy_") and new_value:
+            reported = cast(dict, self.appliance_status).get("properties", {}).get("reported", {})
+            if isinstance(reported, dict):
+                us = reported.get("userSelections")
+                if isinstance(us, dict):
+                    for sibling in ("tDEconomy_Eco", "tDEconomy_Quick", "tDEconomy_Night"):
+                        if sibling != attr:
+                            us[sibling] = False
+                            cache = self._reported_state_cache
+                            if isinstance(cache.get("userSelections"), dict):
+                                cache["userSelections"][sibling] = False
+            self.coordinator.async_set_updated_data(self.coordinator.data)
+
         appliance = self.get_appliance
         if not (hasattr(appliance, "data") and appliance.data):
             return
@@ -529,6 +546,11 @@ class ElectroluxEntity(CoordinatorEntity):
                 if not isinstance(action_def, dict) or "default" not in action_def:
                     continue
                 triggered_value = action_def["default"]
+                # "$default" is a sentinel meaning "restore the program default" or
+                # "keep as-is" — not a literal value to write. Skip it to avoid
+                # sending the string "$default" to the cloud (#309 follow-up).
+                if triggered_value == "$default":
+                    continue
                 # Only apply scalar defaults; dict/list values are capability-level
                 # metadata (e.g. Workmode triggers that describe Fanspeed constraints)
                 # — writing them directly to reported state would corrupt select
@@ -727,8 +749,50 @@ class ElectroluxEntity(CoordinatorEntity):
             # the value goes through and the command is rejected.
             merged[key] = val
 
+        # Program-level filtering: skip fields that are disabled or not listed
+        # for the current program. Carrying them causes "Capability disabled"
+        # rejections (#309 follow-up).
+        current_program = current.get("programUID")
+        if current_program:
+            program_caps = self._get_program_capabilities(str(current_program))
+            if program_caps:
+                to_remove = []
+                for key in merged:
+                    if key == "programUID" or key == changed_attr:
+                        continue
+                    prog_cap = program_caps.get(key)
+                    if not isinstance(prog_cap, dict):
+                        # Field not listed for this program — skip it
+                        to_remove.append(key)
+                        continue
+                    # Check if the program marks this field as disabled
+                    if prog_cap.get("disabled") is True:
+                        to_remove.append(key)
+                        continue
+                    # Check if the current value is disabled for this program
+                    values = prog_cap.get("values")
+                    current_val = merged.get(key)
+                    if isinstance(values, dict) and current_val is not None:
+                        entry = values.get(current_val)
+                        if entry is None and isinstance(current_val, str):
+                            entry = values.get(current_val.upper()) or values.get(current_val.lower())
+                        if isinstance(entry, dict) and entry.get("disabled") is True:
+                            to_remove.append(key)
+                            continue
+                for key in to_remove:
+                    del merged[key]
+
         # Always override with the new value (and ensure programUID is present).
         merged[changed_attr] = new_value
+
+        # tDEconomy switches (Eco/Quick/Night) are mutually exclusive: only one
+        # can be on at a time. When writing one ON, force the others off so the
+        # payload doesn't carry conflicting values that the cloud rejects with
+        # "Capability disabled" (#309).
+        if changed_attr.startswith("tDEconomy_") and new_value:
+            for sibling in ("tDEconomy_Eco", "tDEconomy_Quick", "tDEconomy_Night"):
+                if sibling != changed_attr and sibling in merged:
+                    merged[sibling] = False
 
         # Apply the capability triggers for the changed attribute so that
         # mutually-exclusive options are resolved in the command payload itself.

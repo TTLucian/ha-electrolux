@@ -3,9 +3,9 @@
 from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.components.button.const import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.components.switch.const import SwitchDeviceClass
-from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime
+from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime, UnitOfVolume
 
 from ..const import (
     AUTODOSE_DETERGENT_DUAL_OFF,
@@ -473,8 +473,9 @@ CATALOG_WD: dict[str, ElectroluxDevice] = {
     ),
     "fCMiscellaneousState/waterUsage": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
-        device_class=None,
-        unit=None,
+        device_class=SensorDeviceClass.WATER,
+        unit=UnitOfVolume.LITERS,
+        state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:water",
         friendly_name="Water Usage",

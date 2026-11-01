@@ -5,7 +5,7 @@ repos:
   # passing check. Dependabot does not edit this file, so re-check the revs
   # after merging its "uv" pull requests.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.1
+    rev: v0.17.2
     hooks:
       - id: ruff
         args: [--fix]
