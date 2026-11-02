@@ -538,6 +538,9 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Trocknungsgrad"
+            },
             "watersoftenermode": {
                 "name": "Wasserenthärter-Modus"
             },

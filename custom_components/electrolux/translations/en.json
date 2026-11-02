@@ -544,6 +544,9 @@
       }
     },
     "select": {
+      "humiditytarget": {
+        "name": "Humidity target"
+      },
       "watersoftenermode": {
         "name": "Water softener mode"
       },
