@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Tank B reserve"
+            },
+            "tankareserve": {
+                "name": "Tank A reserve"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -538,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Fuktighetsmål"
+            },
+            "watersoftenermode": {
+                "name": "Vannmyknermodus"
+            },
+            "waterhardness": {
+                "name": "Vannhardhet"
+            },
+            "language": {
+                "name": "Språk"
+            },
+            "endofcyclesound": {
+                "name": "Slutt på sykluslyd"
+            },
+            "defaultextrarinse": {
+                "name": "Standard ekstra skylling"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank B konfigurasjon"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank A konfigurasjon"
+            },
             "displaylight": {
                 "name": "Displaylys"
             },
@@ -555,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Displaylys"
+            },
             "alerts": {
                 "name": "Varsler"
             },
@@ -1388,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Lydpakkefil"
+            },
+            "xposition": {
+                "name": "X Posisjon"
+            },
+            "yposition": {
+                "name": "Y Posisjon"
+            },
+            "xsize": {
+                "name": "X-storleik:"
+            },
+            "ysize": {
+                "name": "y-storleik:"
+            },
+            "hobcoil": {
+                "name": "Spole"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Ekstern varsling venter"
+            },
             "uilockmode": {
                 "name": "Barnelås innvendig"
             },

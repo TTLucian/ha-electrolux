@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Mahuti B reserv"
+            },
+            "tankareserve": {
+                "name": "Mahuti A reserv"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Ukse olek"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Loputusvahend"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sool puudub"
             },
             "foodprobeinsertionstate": {
                 "name": "Toidusond"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Võimsus"
+            },
+            "executecommand_on": {
+                "name": "Lülitage sisse"
+            },
+            "executecommand_off": {
+                "name": "Lülitatakse välja"
+            },
+            "executecommand_start": {
+                "name": "Alusta"
+            },
+            "executecommand_pause": {
+                "name": "Paus"
+            },
+            "executecommand_resume": {
+                "name": "Jätkamine"
+            },
+            "executecommand_stopreset": {
+                "name": "Peata / lähtesta"
             },
             "waterfilterstatereset": {
                 "name": "Lähtestage veefilter"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Niiskuse sihtväärtus"
+            },
+            "watersoftenermode": {
+                "name": "VEEPEHMENDAJA"
+            },
+            "waterhardness": {
+                "name": "Vee karedus"
+            },
+            "language": {
+                "name": "Keel"
+            },
+            "endofcyclesound": {
+                "name": "Tsükli lõpu heli"
+            },
+            "defaultextrarinse": {
+                "name": "Vaikimisi lisaloputus"
+            },
+            "adtankbconfiguration": {
+                "name": "Mahuti B konfiguratsioon"
+            },
+            "adtankaconfiguration": {
+                "name": "Mahuti A konfiguratsioon"
+            },
             "displaylight": {
                 "name": "Ekraani valgus"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Ekraanivalgusti"
+            },
             "alerts": {
                 "name": "Märguanded"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Helipaketi fail"
+            },
+            "xposition": {
+                "name": "X-positsioon"
+            },
+            "yposition": {
+                "name": "Y-positsioon"
+            },
+            "xsize": {
+                "name": "X suurus"
+            },
+            "ysize": {
+                "name": "Y suurus"
+            },
+            "hobcoil": {
+                "name": "Küttepool?"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Kaugteavitus on ootel"
+            },
             "uilockmode": {
                 "name": "Sisemine lapselukk"
             },

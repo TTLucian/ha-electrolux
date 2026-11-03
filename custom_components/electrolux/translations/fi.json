@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Säiliön B varaus"
+            },
+            "tankareserve": {
+                "name": "Säiliö A reservi"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Oven tila"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Huutelukirkaste"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Suolaa puuttuu"
             },
             "foodprobeinsertionstate": {
                 "name": "Ruoka-anturi"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Tehoa"
+            },
+            "executecommand_on": {
+                "name": "Kytke päälle"
+            },
+            "executecommand_off": {
+                "name": "Kytke pois päältä"
+            },
+            "executecommand_start": {
+                "name": "Aloita"
+            },
+            "executecommand_pause": {
+                "name": "Keskeytä"
+            },
+            "executecommand_resume": {
+                "name": "Ansioluettelo"
+            },
+            "executecommand_stopreset": {
+                "name": "Pysäytä / nollaa"
             },
             "waterfilterstatereset": {
                 "name": "Nollaa vedensuodatin"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Kosteustavoite"
+            },
+            "watersoftenermode": {
+                "name": "vedenpehmennysaine"
+            },
+            "waterhardness": {
+                "name": "veden kovuus"
+            },
+            "language": {
+                "name": "Kieli"
+            },
+            "endofcyclesound": {
+                "name": "Jakson lopun ääni"
+            },
+            "defaultextrarinse": {
+                "name": "Oletusarvoinen ylimääräinen huuhtelu"
+            },
+            "adtankbconfiguration": {
+                "name": "Säiliön B kokoonpano"
+            },
+            "adtankaconfiguration": {
+                "name": "Säiliön A konfiguraatio"
+            },
             "displaylight": {
                 "name": "Näytön valo"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Näyttövalo"
+            },
             "alerts": {
                 "name": "Hälytykset"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Äänipakettitiedosto"
+            },
+            "xposition": {
+                "name": "X-sijainti"
+            },
+            "yposition": {
+                "name": "Y-sijainti"
+            },
+            "xsize": {
+                "name": "X-koko"
+            },
+            "ysize": {
+                "name": "Y-koko"
+            },
+            "hobcoil": {
+                "name": "Kela (Coil)"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Etäilmoitus odottaa"
+            },
             "uilockmode": {
                 "name": "Sisäinen lapsilukko"
             },

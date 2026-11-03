@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Rezervni spremnik B"
+            },
+            "tankareserve": {
+                "name": "Rezervni spremnik A"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Stanje vrata"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Sredstvo za ispiranje nisko"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Nedostaje sol"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda za hranu"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Vlast"
+            },
+            "executecommand_on": {
+                "name": "Uključite"
+            },
+            "executecommand_off": {
+                "name": "Isključi"
+            },
+            "executecommand_start": {
+                "name": "Početak"
+            },
+            "executecommand_pause": {
+                "name": "Pauza"
+            },
+            "executecommand_resume": {
+                "name": "Nastavi"
+            },
+            "executecommand_stopreset": {
+                "name": "Zaustavi / resetiraj"
             },
             "waterfilterstatereset": {
                 "name": "Resetirajte filtar za vodu"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Ciljna vlažnost"
+            },
+            "watersoftenermode": {
+                "name": "Omekšivač vode"
+            },
+            "waterhardness": {
+                "name": "Tvrdoća vode"
+            },
+            "language": {
+                "name": "Jezik"
+            },
+            "endofcyclesound": {
+                "name": "Zvuk na kraju ciklusa"
+            },
+            "defaultextrarinse": {
+                "name": "Zadano dodatno ispiranje"
+            },
+            "adtankbconfiguration": {
+                "name": "Konfiguracija spremnika B"
+            },
+            "adtankaconfiguration": {
+                "name": "Konfiguracija spremnika A"
+            },
             "displaylight": {
                 "name": "Svjetlo zaslona"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Gornje svjetlo"
+            },
             "alerts": {
                 "name": "upozorenja"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Datoteka paketa zvukova"
+            },
+            "xposition": {
+                "name": "Položaj"
+            },
+            "yposition": {
+                "name": "Položaj"
+            },
+            "xsize": {
+                "name": "X Veličina:"
+            },
+            "ysize": {
+                "name": "Y Veličina:"
+            },
+            "hobcoil": {
+                "name": "Zavojnica"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Daljinska obavijest na čekanju"
+            },
             "uilockmode": {
                 "name": "Unutarnja brava za djecu"
             },

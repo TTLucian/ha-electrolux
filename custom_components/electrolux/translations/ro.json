@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Rezervor B rezervă"
+            },
+            "tankareserve": {
+                "name": "Rezervor A rezervă"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Starea ușii"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "AGENT DE CLĂTIRE"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Lipsă sare"
             },
             "foodprobeinsertionstate": {
                 "name": "Sondă alimentară"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Putere"
+            },
+            "executecommand_on": {
+                "name": "Pornire"
+            },
+            "executecommand_off": {
+                "name": "Opriți"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pauză"
+            },
+            "executecommand_resume": {
+                "name": "Continuă"
+            },
+            "executecommand_stopreset": {
+                "name": "Oprire / resetare"
             },
             "waterfilterstatereset": {
                 "name": "Resetați filtrul de apă"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Țintă umiditate"
+            },
+            "watersoftenermode": {
+                "name": "Sistemul de dedurizare a apei"
+            },
+            "waterhardness": {
+                "name": "Duritatea apei"
+            },
+            "language": {
+                "name": "Limba"
+            },
+            "endofcyclesound": {
+                "name": "Sunetul sfârșitului ciclului"
+            },
+            "defaultextrarinse": {
+                "name": "Clătire suplimentară implicită"
+            },
+            "adtankbconfiguration": {
+                "name": "Configurația rezervorului B"
+            },
+            "adtankaconfiguration": {
+                "name": "Configurația rezervorului A"
+            },
             "displaylight": {
                 "name": "Lumină de afișare"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Indicator luminos"
+            },
             "alerts": {
                 "name": "Alerte"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Fișier pachet de sunet"
+            },
+            "xposition": {
+                "name": "Poziția X"
+            },
+            "yposition": {
+                "name": "Poziția Y"
+            },
+            "xsize": {
+                "name": "Dimensiune X"
+            },
+            "ysize": {
+                "name": "Dimensiune Y"
+            },
+            "hobcoil": {
+                "name": "bobină"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Notificare la distanță în așteptare"
+            },
             "uilockmode": {
                 "name": "Blocare pentru copii intern"
             },

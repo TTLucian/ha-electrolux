@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Tank B reserve"
+            },
+            "tankareserve": {
+                "name": "Tank A reserve"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Dørtilstand"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Skyllemiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salt mangler"
             },
             "foodprobeinsertionstate": {
                 "name": "Fødevaresonde"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Magt"
+            },
+            "executecommand_on": {
+                "name": "Slå til"
+            },
+            "executecommand_off": {
+                "name": "Slå fra"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Resume"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/nulstil"
             },
             "waterfilterstatereset": {
                 "name": "Nulstil vandfilteret"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Fugtighedsmål"
+            },
+            "watersoftenermode": {
+                "name": "Middel til blødgøring af vand"
+            },
+            "waterhardness": {
+                "name": "hårdhed (vand)"
+            },
+            "language": {
+                "name": "Sprog"
+            },
+            "endofcyclesound": {
+                "name": "Slut på cykluslyd"
+            },
+            "defaultextrarinse": {
+                "name": "Standard ekstra skylning"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank B konfiguration"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank A konfiguration"
+            },
             "displaylight": {
                 "name": "Display lys"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Displaylampe"
+            },
             "alerts": {
                 "name": "Advarsler"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Lydpakkefil"
+            },
+            "xposition": {
+                "name": "X-Position"
+            },
+            "yposition": {
+                "name": "Y-position"
+            },
+            "xsize": {
+                "name": "X-størrelse"
+            },
+            "ysize": {
+                "name": "Y-størrelse"
+            },
+            "hobcoil": {
+                "name": "Spole"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Fjernunderretning afventer"
+            },
             "uilockmode": {
                 "name": "Børnelås indvendig"
             },

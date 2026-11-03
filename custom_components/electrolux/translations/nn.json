@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Tank B reserve"
+            },
+            "tankareserve": {
+                "name": "Tank A reserve"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -346,6 +352,24 @@
             "executecommand": {
                 "name": "Effekt"
             },
+            "executecommand_on": {
+                "name": "Slå & på"
+            },
+            "executecommand_off": {
+                "name": "Slå av"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Hald fram"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / tilbakestill"
+            },
             "waterfilterstatereset": {
                 "name": "Tilbakestill Vann Filter"
             },
@@ -520,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Fuktighetsmål"
+            },
+            "watersoftenermode": {
+                "name": "Tøymyknermodus"
+            },
+            "waterhardness": {
+                "name": "Vannhardhet"
+            },
+            "language": {
+                "name": "Språk"
+            },
+            "endofcyclesound": {
+                "name": "Slutt på sykluslyd"
+            },
+            "defaultextrarinse": {
+                "name": "Standard ekstra skylling"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank B-konfigurasjon"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank A-konfigurasjon"
+            },
             "displaylight": {
                 "name": "Displaylys"
             },
@@ -537,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Displaylys"
+            },
             "alerts": {
                 "name": "Varsel"
             },
@@ -1370,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Lydpakkefil"
+            },
+            "xposition": {
+                "name": "X Posisjon"
+            },
+            "yposition": {
+                "name": "Y Posisjon"
+            },
+            "xsize": {
+                "name": "X-storleik:"
+            },
+            "ysize": {
+                "name": "y-storleik:"
+            },
+            "hobcoil": {
+                "name": "Spole"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Ekstern varsling i påvente"
+            },
             "uilockmode": {
                 "name": "Barnelås innvendig"
             },

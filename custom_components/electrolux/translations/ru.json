@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Резерв резервуара B"
+            },
+            "tankareserve": {
+                "name": "Резерв резервуара А"
+            },
             "cloud_api": {
                 "name": "АФС"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Состояние двери"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Посудомоечная машина"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Соль отсутствует"
             },
             "foodprobeinsertionstate": {
                 "name": "Пищевой зонд"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Власть"
+            },
+            "executecommand_on": {
+                "name": "Включение"
+            },
+            "executecommand_off": {
+                "name": "Выключить"
+            },
+            "executecommand_start": {
+                "name": "Запуск"
+            },
+            "executecommand_pause": {
+                "name": "пауза"
+            },
+            "executecommand_resume": {
+                "name": "Описание"
+            },
+            "executecommand_stopreset": {
+                "name": "Останов / сброс"
             },
             "waterfilterstatereset": {
                 "name": "Сброс фильтра воды"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Целевая влажность"
+            },
+            "watersoftenermode": {
+                "name": "Очистка воды"
+            },
+            "waterhardness": {
+                "name": "Жесткость воды"
+            },
+            "language": {
+                "name": "Язык"
+            },
+            "endofcyclesound": {
+                "name": "Звук конца цикла"
+            },
+            "defaultextrarinse": {
+                "name": "Дополнительное ополаскивание по умолчанию"
+            },
+            "adtankbconfiguration": {
+                "name": "Конфигурация резервуара B"
+            },
+            "adtankaconfiguration": {
+                "name": "Конфигурация бака A"
+            },
             "displaylight": {
                 "name": "Подсветка дисплея"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Подсветка дисплея;"
+            },
             "alerts": {
                 "name": "Оповещения"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Файл звукового пакета"
+            },
+            "xposition": {
+                "name": "Х позиция"
+            },
+            "yposition": {
+                "name": "Y позиция"
+            },
+            "xsize": {
+                "name": "Размер X"
+            },
+            "ysize": {
+                "name": "Размер Y"
+            },
+            "hobcoil": {
+                "name": "Катушка"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Удаленное уведомление на рассмотрении"
+            },
             "uilockmode": {
                 "name": "Замок от детей внутренний"
             },
