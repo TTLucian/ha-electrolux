@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Tank B-reserve"
+            },
+            "tankareserve": {
+                "name": "Tank A-reserve"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Deur staat"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Spoelmiddel"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Zout ontbreekt"
             },
             "foodprobeinsertionstate": {
                 "name": "Voedsel sonde"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Stroom"
+            },
+            "executecommand_on": {
+                "name": "Inschakelen"
+            },
+            "executecommand_off": {
+                "name": "Uitschakelen"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pauze"
+            },
+            "executecommand_resume": {
+                "name": "Hervatten"
+            },
+            "executecommand_stopreset": {
+                "name": "Stoppen / resetten"
             },
             "waterfilterstatereset": {
                 "name": "Waterfilter resetten"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Vochtigheidsdoel"
+            },
+            "watersoftenermode": {
+                "name": "waterverzachter"
+            },
+            "waterhardness": {
+                "name": "Waterhardheid"
+            },
+            "language": {
+                "name": "Taal"
+            },
+            "endofcyclesound": {
+                "name": "Geluid aan het einde van de cyclus"
+            },
+            "defaultextrarinse": {
+                "name": "Standaard extra spoeling"
+            },
+            "adtankbconfiguration": {
+                "name": "Configuratie tank B"
+            },
+            "adtankaconfiguration": {
+                "name": "Configuratie tank A"
+            },
             "displaylight": {
                 "name": "Display licht"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "displaylamp"
+            },
             "alerts": {
                 "name": "Waarschuwingen"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Geluidspakketbestand"
+            },
+            "xposition": {
+                "name": "X-positie"
+            },
+            "yposition": {
+                "name": "Y-positie"
+            },
+            "xsize": {
+                "name": "X Grootte:"
+            },
+            "ysize": {
+                "name": "Y Grootte:"
+            },
+            "hobcoil": {
+                "name": "Coil"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Externe melding in behandeling"
+            },
             "uilockmode": {
                 "name": "Kinderslot intern"
             },

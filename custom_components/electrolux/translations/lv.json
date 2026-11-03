@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "B tvertnes rezerve"
+            },
+            "tankareserve": {
+                "name": "Rezerves tvertne A"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Durvju stāvoklis"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Skalošanas līdzeklis"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Trūkst sāls"
             },
             "foodprobeinsertionstate": {
                 "name": "Pārtikas zonde"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Jauda"
+            },
+            "executecommand_on": {
+                "name": "Ieslēgt"
+            },
+            "executecommand_off": {
+                "name": "Izslēgt"
+            },
+            "executecommand_start": {
+                "name": "Sākt"
+            },
+            "executecommand_pause": {
+                "name": "Pauze"
+            },
+            "executecommand_resume": {
+                "name": "Atsākt"
+            },
+            "executecommand_stopreset": {
+                "name": "Apturēt / atiestatīt"
             },
             "waterfilterstatereset": {
                 "name": "Atiestatīt ūdens filtru"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Mitruma mērķis"
+            },
+            "watersoftenermode": {
+                "name": "Ūdens mīkstinātāja režīms"
+            },
+            "waterhardness": {
+                "name": "Ūdens cietība"
+            },
+            "language": {
+                "name": "Language"
+            },
+            "endofcyclesound": {
+                "name": "Cikla beigu skaņa"
+            },
+            "defaultextrarinse": {
+                "name": "Noklusējuma papildu skalošana"
+            },
+            "adtankbconfiguration": {
+                "name": "B tvertnes konfigurācija"
+            },
+            "adtankaconfiguration": {
+                "name": "Tvertnes A konfigurācija"
+            },
             "displaylight": {
                 "name": "Displeja gaisma"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Displeja gaisma"
+            },
             "alerts": {
                 "name": "Brīdinājumi"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Skaņas pakotnes fails"
+            },
+            "xposition": {
+                "name": "& KvalitÄte:"
+            },
+            "yposition": {
+                "name": "KvalitÄte Ne visi faila formÄti Å¡o lieto. Bet tiem kas to dara, tas maina eksportÄjamÄs bildes kvalitÄti. 100 ir maksimÄlÄ kvalitÄte. Jo augstÄks skaitlis, jo labÄk bilde izskatÄs. Uz leju ir lielÄks skaitlis un lielÄks faila izmÄrs."
+            },
+            "xsize": {
+                "name": "X izmērs"
+            },
+            "ysize": {
+                "name": "Y izmērs"
+            },
+            "hobcoil": {
+                "name": "Ritulis"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Gaida attālo paziņojumu"
+            },
             "uilockmode": {
                 "name": "Iekšējā bērnu slēdzene"
             },

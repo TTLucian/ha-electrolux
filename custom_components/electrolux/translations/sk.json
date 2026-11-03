@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Rezerva nádrže B"
+            },
+            "tankareserve": {
+                "name": "Záloha nádrže A"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Stav dverí"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Oplachovací prostriedok"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Chýba soľ"
             },
             "foodprobeinsertionstate": {
                 "name": "Potravinová sonda"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Sila"
+            },
+            "executecommand_on": {
+                "name": "Zapnúť"
+            },
+            "executecommand_off": {
+                "name": "Vypnúť"
+            },
+            "executecommand_start": {
+                "name": "Spustiť"
+            },
+            "executecommand_pause": {
+                "name": "Pauza"
+            },
+            "executecommand_resume": {
+                "name": "Pokračovať"
+            },
+            "executecommand_stopreset": {
+                "name": "Zastaviť / resetovať"
             },
             "waterfilterstatereset": {
                 "name": "Resetujte vodný filter"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Cieľová vlhkosť"
+            },
+            "watersoftenermode": {
+                "name": "Režim zmäkčovača vody"
+            },
+            "waterhardness": {
+                "name": "Tvrdosť vody"
+            },
+            "language": {
+                "name": "Jazyk"
+            },
+            "endofcyclesound": {
+                "name": "Zvuk konca cyklu"
+            },
+            "defaultextrarinse": {
+                "name": "Predvolené dodatočné oplachovanie"
+            },
+            "adtankbconfiguration": {
+                "name": "Konfigurácia nádrže B"
+            },
+            "adtankaconfiguration": {
+                "name": "Konfigurácia nádrže A"
+            },
             "displaylight": {
                 "name": "Svetlo displeja"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Kontrolka displeja"
+            },
             "alerts": {
                 "name": "Upozornenia"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Súbor zvukového balíka"
+            },
+            "xposition": {
+                "name": "X Pozícia"
+            },
+            "yposition": {
+                "name": "Y Pozícia"
+            },
+            "xsize": {
+                "name": "Veľkosť X"
+            },
+            "ysize": {
+                "name": "Veľkosť Y"
+            },
+            "hobcoil": {
+                "name": "Zvitok"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Čaká sa na oznámenie na diaľku"
+            },
             "uilockmode": {
                 "name": "Vnútorná detská poistka"
             },

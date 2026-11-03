@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Bako B rezervas"
+            },
+            "tankareserve": {
+                "name": "A bako rezervas"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Durų būklė"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Skalavimo priemonė"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Trūksta druskos"
             },
             "foodprobeinsertionstate": {
                 "name": "Maisto zondas"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Galia"
+            },
+            "executecommand_on": {
+                "name": "Įjungti"
+            },
+            "executecommand_off": {
+                "name": "Išjungti"
+            },
+            "executecommand_start": {
+                "name": "Startas"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Tęsti"
+            },
+            "executecommand_stopreset": {
+                "name": "Sustabdyti / nustatyti IŠ naujo"
             },
             "waterfilterstatereset": {
                 "name": "Iš naujo nustatykite vandens filtrą"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Tikslinė drėgmė"
+            },
+            "watersoftenermode": {
+                "name": "Vandens minkštiklis"
+            },
+            "waterhardness": {
+                "name": "Vandens kietumas"
+            },
+            "language": {
+                "name": "Kalba"
+            },
+            "endofcyclesound": {
+                "name": "Ciklo pabaigos garsas"
+            },
+            "defaultextrarinse": {
+                "name": "Numatytasis papildomas skalavimas"
+            },
+            "adtankbconfiguration": {
+                "name": "Bako B konfigūracija"
+            },
+            "adtankaconfiguration": {
+                "name": "A bako konfigūracija"
+            },
             "displaylight": {
                 "name": "Ekrano šviesa"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Ekrano lemputė"
+            },
             "alerts": {
                 "name": "Perspėjimai"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Garso paketo failas"
+            },
+            "xposition": {
+                "name": "X koordinatė"
+            },
+            "yposition": {
+                "name": "Y koordinatė"
+            },
+            "xsize": {
+                "name": "X dydis:"
+            },
+            "ysize": {
+                "name": "Y dydis:"
+            },
+            "hobcoil": {
+                "name": "Ritė"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Laukiama nuotolinio pranešimo"
+            },
             "uilockmode": {
                 "name": "Vidinis užraktas nuo vaikų"
             },

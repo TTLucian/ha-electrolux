@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "B tartály tartalék"
+            },
+            "tankareserve": {
+                "name": "Tartály A tartalék"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Ajtó állapota"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Öblítőszerek"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Hiányzó só"
             },
             "foodprobeinsertionstate": {
                 "name": "Élelmiszer-szonda"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Hatalom"
+            },
+            "executecommand_on": {
+                "name": "Bekapcsol"
+            },
+            "executecommand_off": {
+                "name": "Kapcsold ki"
+            },
+            "executecommand_start": {
+                "name": "Indítás"
+            },
+            "executecommand_pause": {
+                "name": "Szünet"
+            },
+            "executecommand_resume": {
+                "name": "Folytatás"
+            },
+            "executecommand_stopreset": {
+                "name": "STOP visszaállítás"
             },
             "waterfilterstatereset": {
                 "name": "Állítsa vissza a vízszűrőt"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Páratartalom célérték"
+            },
+            "watersoftenermode": {
+                "name": "Vízlágyító"
+            },
+            "waterhardness": {
+                "name": "vízkeménység"
+            },
+            "language": {
+                "name": "Nyelv"
+            },
+            "endofcyclesound": {
+                "name": "Ciklus végi hang"
+            },
+            "defaultextrarinse": {
+                "name": "Alapértelmezett extra öblítés"
+            },
+            "adtankbconfiguration": {
+                "name": "B tartály konfiguráció"
+            },
+            "adtankaconfiguration": {
+                "name": "A tartály konfigurációja"
+            },
             "displaylight": {
                 "name": "Kijelző lámpa"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Kijelző fény"
+            },
             "alerts": {
                 "name": "Figyelmeztetések"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Hangcsomag fájl"
+            },
+            "xposition": {
+                "name": "X pozíció"
+            },
+            "yposition": {
+                "name": "Y pozíció"
+            },
+            "xsize": {
+                "name": "X méret:"
+            },
+            "ysize": {
+                "name": "Y méret:"
+            },
+            "hobcoil": {
+                "name": "Tekercs"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Távoli értesítés függőben"
+            },
             "uilockmode": {
                 "name": "Gyerekzár belső"
             },

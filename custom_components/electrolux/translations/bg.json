@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Резерв на резервоар Б"
+            },
+            "tankareserve": {
+                "name": "Резерв на резервоар А"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Състояние на вратата"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "подобрители на изплакването"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Липсва сол"
             },
             "foodprobeinsertionstate": {
                 "name": "Хранителна сонда"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Мощност"
+            },
+            "executecommand_on": {
+                "name": "Включване"
+            },
+            "executecommand_off": {
+                "name": "&amp; Изключване"
+            },
+            "executecommand_start": {
+                "name": "Начало"
+            },
+            "executecommand_pause": {
+                "name": "Пауза"
+            },
+            "executecommand_resume": {
+                "name": "Резюме"
+            },
+            "executecommand_stopreset": {
+                "name": "СПИРАНЕ/ НУЛИРАНЕ"
             },
             "waterfilterstatereset": {
                 "name": "Нулирайте водния филтър"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Цел за влажност"
+            },
+            "watersoftenermode": {
+                "name": "Режим на омекотяване на водата"
+            },
+            "waterhardness": {
+                "name": "Твърдост на водата"
+            },
+            "language": {
+                "name": "Език"
+            },
+            "endofcyclesound": {
+                "name": "Звук в края на цикъла"
+            },
+            "defaultextrarinse": {
+                "name": "Допълнително изплакване ПО подразбиране"
+            },
+            "adtankbconfiguration": {
+                "name": "Конфигурация на резервоар В"
+            },
+            "adtankaconfiguration": {
+                "name": "Конфигурация на резервоар А"
+            },
             "displaylight": {
                 "name": "Светлина на дисплея"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Светлина на дисплея"
+            },
             "alerts": {
                 "name": "Сигнали"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Файл със звуков пакет"
+            },
+            "xposition": {
+                "name": "X Позиция"
+            },
+            "yposition": {
+                "name": "Y позиция"
+            },
+            "xsize": {
+                "name": "X Размер"
+            },
+            "ysize": {
+                "name": "Y Размер"
+            },
+            "hobcoil": {
+                "name": "Намотка, бобина"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Изчаква се отдалечено известие"
+            },
             "uilockmode": {
                 "name": "Вътрешно заключване за деца"
             },

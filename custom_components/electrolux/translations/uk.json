@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Резерв резервуара B"
+            },
+            "tankareserve": {
+                "name": "Резерв танка А"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Стан дверей"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Низький рівень ополіскувача"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Відсутня сіль"
             },
             "foodprobeinsertionstate": {
                 "name": "Харчовий зонд"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "потужність"
+            },
+            "executecommand_on": {
+                "name": "Увімкнути"
+            },
+            "executecommand_off": {
+                "name": "Вимкнути"
+            },
+            "executecommand_start": {
+                "name": "Почати"
+            },
+            "executecommand_pause": {
+                "name": "Пауза"
+            },
+            "executecommand_resume": {
+                "name": "Відновити"
+            },
+            "executecommand_stopreset": {
+                "name": "Зупинка / скидання"
             },
             "waterfilterstatereset": {
                 "name": "Скинути водяний фільтр"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Цільова вологість"
+            },
+            "watersoftenermode": {
+                "name": "Пом'якшувач води"
+            },
+            "waterhardness": {
+                "name": "Жорсткість води"
+            },
+            "language": {
+                "name": "Мова"
+            },
+            "endofcyclesound": {
+                "name": "Звук завершення циклу"
+            },
+            "defaultextrarinse": {
+                "name": "Додаткове промивання за замовчуванням"
+            },
+            "adtankbconfiguration": {
+                "name": "Конфігурація резервуара B"
+            },
+            "adtankaconfiguration": {
+                "name": "Конфігурація бака A"
+            },
             "displaylight": {
                 "name": "Світло дисплея"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Індикатор дисплея"
+            },
             "alerts": {
                 "name": "Оповіщення"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Файл звукового пакета"
+            },
+            "xposition": {
+                "name": "Положення X"
+            },
+            "yposition": {
+                "name": "Положення Y"
+            },
+            "xsize": {
+                "name": "X Розмір"
+            },
+            "ysize": {
+                "name": "Розмір Y"
+            },
+            "hobcoil": {
+                "name": "Котушка"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Віддалене сповіщення очікує"
+            },
             "uilockmode": {
                 "name": "Внутрішній замок від дітей"
             },

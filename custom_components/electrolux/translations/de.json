@@ -182,6 +182,12 @@
             "doorstate": {
                 "name": "Türzustand"
             },
+            "dish_alarm_rinse_aid_low": {
+                "name": "KLARSPÜLER"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Salz fehlt"
+            },
             "foodprobeinsertionstate": {
                 "name": "Lebensmittelsonde"
             },
@@ -334,24 +340,6 @@
             }
         },
         "button": {
-            "executecommand_stopreset": {
-                "name": "Stopp / Zurücksetzen"
-            },
-            "executecommand_start": {
-                "name": "Start"
-            },
-            "executecommand_resume": {
-                "name": "Fortsetzen"
-            },
-            "executecommand_pause": {
-                "name": "Pause"
-            },
-            "executecommand_on": {
-                "name": "Einschalten"
-            },
-            "executecommand_off": {
-                "name": "Ausschalten"
-            },
             "command": {
                 "name": "Netzwerkbefehl"
             },
@@ -363,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Leistung"
+            },
+            "executecommand_on": {
+                "name": "Einschalten"
+            },
+            "executecommand_off": {
+                "name": "Ausschalten"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Fortsetzen"
+            },
+            "executecommand_stopreset": {
+                "name": "Stopp / Zurücksetzen"
             },
             "waterfilterstatereset": {
                 "name": "Wasserfilter zurücksetzen"
@@ -1415,6 +1421,21 @@
             },
             "soundpackfile": {
                 "name": "Sound-Pack-Datei"
+            },
+            "xposition": {
+                "name": "Position X-Achse"
+            },
+            "yposition": {
+                "name": "Position Y-Achse"
+            },
+            "xsize": {
+                "name": "X-Größe"
+            },
+            "ysize": {
+                "name": "Y-Größe"
+            },
+            "hobcoil": {
+                "name": "Spule"
             }
         },
         "switch": {

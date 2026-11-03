@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Réserve du réservoir B"
+            },
+            "tankareserve": {
+                "name": "une réservation"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "État de la porte"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Produit de Rinçage"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sel manquant"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonde alimentaire"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Pouvoir"
+            },
+            "executecommand_on": {
+                "name": "Allumer"
+            },
+            "executecommand_off": {
+                "name": "Éteindre"
+            },
+            "executecommand_start": {
+                "name": "Début"
+            },
+            "executecommand_pause": {
+                "name": "Mettre en pause"
+            },
+            "executecommand_resume": {
+                "name": "Reprendre"
+            },
+            "executecommand_stopreset": {
+                "name": "ARRÊT / RÉINITIALISATION"
             },
             "waterfilterstatereset": {
                 "name": "Réinitialiser le filtre à eau"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Cible d'humidité"
+            },
+            "watersoftenermode": {
+                "name": "ADOUCISSANT"
+            },
+            "waterhardness": {
+                "name": "Dureté de l'eau"
+            },
+            "language": {
+                "name": "Langue"
+            },
+            "endofcyclesound": {
+                "name": "Son de fin de cycle"
+            },
+            "defaultextrarinse": {
+                "name": "Rinçage supplémentaire par défaut"
+            },
+            "adtankbconfiguration": {
+                "name": "Configuration du réservoir B"
+            },
+            "adtankaconfiguration": {
+                "name": "Configuration du réservoir A"
+            },
             "displaylight": {
                 "name": "Lumière d'affichage"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Lumière d'affichage"
+            },
             "alerts": {
                 "name": "Alertes"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Fichier Sound Pack"
+            },
+            "xposition": {
+                "name": "Position X"
+            },
+            "yposition": {
+                "name": "Position Y"
+            },
+            "xsize": {
+                "name": "Largeur du pas :"
+            },
+            "ysize": {
+                "name": "Hauteur du pas :"
+            },
+            "hobcoil": {
+                "name": "bobine"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Notification à distance en attente"
+            },
             "uilockmode": {
                 "name": "Sécurité enfants interne"
             },

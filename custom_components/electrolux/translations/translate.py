@@ -355,7 +355,7 @@ def main():
     if "--delay" in sys.argv:
         try:
             RATE_LIMIT_DELAY = max(0.0, float(sys.argv[sys.argv.index("--delay") + 1]))
-        except ValueError, IndexError:
+        except (ValueError, IndexError):
             pass
 
     # Optional --backend {google|mymemory}: which free provider to use.
@@ -462,7 +462,7 @@ def main():
             try:
                 with open(output_path, encoding="utf-8") as file:
                     existing_data = json.load(file)
-            except OSError, json.JSONDecodeError:
+            except (OSError, json.JSONDecodeError):
                 existing_data = {}
 
         # Skip languages that are already fully translated — no network / translator

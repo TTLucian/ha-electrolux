@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "BHKR BHKT"
+            },
+            "tankareserve": {
+                "name": "BHKR BHKT"
+            },
             "cloud_api": {
                 "name": "CAA -"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Dier Staat"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Spülen Hëllefe profitéieren Low"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "SALT DAMAGE"
             },
             "foodprobeinsertionstate": {
                 "name": "Liewensmëttel Sonde"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Muecht"
+            },
+            "executecommand_on": {
+                "name": "Ëmdréinen"
+            },
+            "executecommand_off": {
+                "name": "Auszeschalten"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_resume": {
+                "name": "Weidermaachen"
+            },
+            "executecommand_stopreset": {
+                "name": "Arrêt / Réinitialisation"
             },
             "waterfilterstatereset": {
                 "name": "Waasserfilter zrécksetzen"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Fiichtegkeet Ziel"
+            },
+            "watersoftenermode": {
+                "name": "Waasserdichtmodus"
+            },
+            "waterhardness": {
+                "name": "Waasserdicht"
+            },
+            "language": {
+                "name": "Sprooch"
+            },
+            "endofcyclesound": {
+                "name": "Enn vum Zyklusschall"
+            },
+            "defaultextrarinse": {
+                "name": "Standard- Extra Spull"
+            },
+            "adtankbconfiguration": {
+                "name": "Panzer B-Konfiguratioun"
+            },
+            "adtankaconfiguration": {
+                "name": "Panzer Eng Konfiguratioun"
+            },
             "displaylight": {
                 "name": "Display Luucht"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Luucht uweisen"
+            },
             "alerts": {
                 "name": "Alarmer"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Tounpakdatei"
+            },
+            "xposition": {
+                "name": "X Positioun"
+            },
+            "yposition": {
+                "name": "Y Positioun"
+            },
+            "xsize": {
+                "name": "X- Gréisst"
+            },
+            "ysize": {
+                "name": "Y- Gréisst"
+            },
+            "hobcoil": {
+                "name": "CAA -"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Remote Notifikatioun hänke bliwwen"
+            },
             "uilockmode": {
                 "name": "Kannerslot intern"
             },

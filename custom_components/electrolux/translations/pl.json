@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Rezerwa zbiornika B"
+            },
+            "tankareserve": {
+                "name": "Rezerwa zbiornika A"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Stan drzwi"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Dodatek do płukania"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Brak soli"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda żywnościowa"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Moc"
+            },
+            "executecommand_on": {
+                "name": "Włącz"
+            },
+            "executecommand_off": {
+                "name": "Wyłącz"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_pause": {
+                "name": "Wstrzymaj"
+            },
+            "executecommand_resume": {
+                "name": "Resume"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/reset"
             },
             "waterfilterstatereset": {
                 "name": "Zresetuj filtr wody"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Docelowa wilgotność"
+            },
+            "watersoftenermode": {
+                "name": "Zmiękczacz wody"
+            },
+            "waterhardness": {
+                "name": "Twardość wody"
+            },
+            "language": {
+                "name": "Język"
+            },
+            "endofcyclesound": {
+                "name": "Dźwięk końca cyklu"
+            },
+            "defaultextrarinse": {
+                "name": "Domyślne dodatkowe płukanie"
+            },
+            "adtankbconfiguration": {
+                "name": "Konfiguracja zbiornika B"
+            },
+            "adtankaconfiguration": {
+                "name": "Konfiguracja zbiornika A"
+            },
             "displaylight": {
                 "name": "Światło wyświetlacza"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Podświetlenie wyświetlacza"
+            },
             "alerts": {
                 "name": "Alerty"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Plik pakietu dźwiękowego"
+            },
+            "xposition": {
+                "name": "Pozycja X"
+            },
+            "yposition": {
+                "name": "Pozycja Y"
+            },
+            "xsize": {
+                "name": "Rozmiar X"
+            },
+            "ysize": {
+                "name": "#Y $SIZE$#!  "
+            },
+            "hobcoil": {
+                "name": "Cewka"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Oczekiwanie na zdalne powiadomienie"
+            },
             "uilockmode": {
                 "name": "Wewnętrzne zabezpieczenie przed dziećmi"
             },

@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Serbatoio B riserva"
+            },
+            "tankareserve": {
+                "name": "Serbatoio A riserva"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Stato della porta"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Brillantanti"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Sale mancante"
             },
             "foodprobeinsertionstate": {
                 "name": "Sonda alimentare"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Energia"
+            },
+            "executecommand_on": {
+                "name": "Attiva"
+            },
+            "executecommand_off": {
+                "name": "Spegnere"
+            },
+            "executecommand_start": {
+                "name": "Inizio"
+            },
+            "executecommand_pause": {
+                "name": "Metti in pausa"
+            },
+            "executecommand_resume": {
+                "name": "Riprendi"
+            },
+            "executecommand_stopreset": {
+                "name": "Stop/Reset"
             },
             "waterfilterstatereset": {
                 "name": "Reimpostare il filtro dell'acqua"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Obiettivo umidità"
+            },
+            "watersoftenermode": {
+                "name": "addolcitore d'acqua"
+            },
+            "waterhardness": {
+                "name": "Durezza acqua"
+            },
+            "language": {
+                "name": "Lingua"
+            },
+            "endofcyclesound": {
+                "name": "Suono di fine ciclo"
+            },
+            "defaultextrarinse": {
+                "name": "Risciacquo extra predefinito"
+            },
+            "adtankbconfiguration": {
+                "name": "Configurazione serbatoio B"
+            },
+            "adtankaconfiguration": {
+                "name": "Configurazione serbatoio A"
+            },
             "displaylight": {
                 "name": "Luce di visualizzazione"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Mostra Luce"
+            },
             "alerts": {
                 "name": "Avvisi"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "File Sound Pack"
+            },
+            "xposition": {
+                "name": "Posizione X"
+            },
+            "yposition": {
+                "name": "Posizione Y"
+            },
+            "xsize": {
+                "name": "Taglia X"
+            },
+            "ysize": {
+                "name": "Dimensione Y"
+            },
+            "hobcoil": {
+                "name": "Batteria"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Notifica remota in sospeso"
+            },
             "uilockmode": {
                 "name": "Blocco bambini interno"
             },

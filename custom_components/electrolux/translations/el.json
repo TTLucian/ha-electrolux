@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Αποθεματικό δεξαμενής Β"
+            },
+            "tankareserve": {
+                "name": "Δεξαμενή Α ρεζέρβα"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -175,6 +181,12 @@
             },
             "doorstate": {
                 "name": "Κατάσταση πόρτας"
+            },
+            "dish_alarm_rinse_aid_low": {
+                "name": "Χαμηλή υποβοήθηση ξεβγάλματος"
+            },
+            "dish_alarm_salt_missing": {
+                "name": "Λείπει το αλάτι"
             },
             "foodprobeinsertionstate": {
                 "name": "Food Probe"
@@ -339,6 +351,24 @@
             },
             "executecommand": {
                 "name": "Εξουσία"
+            },
+            "executecommand_on": {
+                "name": "Ανοιχτά"
+            },
+            "executecommand_off": {
+                "name": " Απενεργοποίηση"
+            },
+            "executecommand_start": {
+                "name": "Έναρξη"
+            },
+            "executecommand_pause": {
+                "name": "Παύση"
+            },
+            "executecommand_resume": {
+                "name": "Επιστροφή"
+            },
+            "executecommand_stopreset": {
+                "name": "Διακοπή / επαναφορά"
             },
             "waterfilterstatereset": {
                 "name": "Επαναφέρετε το φίλτρο νερού"
@@ -514,6 +544,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Στόχος υγρασίας"
+            },
+            "watersoftenermode": {
+                "name": "αποσκληρυντής νερού"
+            },
+            "waterhardness": {
+                "name": "σκληρότητα του ύδατος"
+            },
+            "language": {
+                "name": "Γλώσσα"
+            },
+            "endofcyclesound": {
+                "name": "Ήχος τέλους κύκλου"
+            },
+            "defaultextrarinse": {
+                "name": "Προεπιλεγμένο επιπλέον ξέβγαλμα"
+            },
+            "adtankbconfiguration": {
+                "name": "Διαμόρφωση δεξαμενής Β"
+            },
+            "adtankaconfiguration": {
+                "name": "ΔΙΑΜΟΡΦΩΣΗ ΔΕΞΑΜΕΝΗΣ Α"
+            },
             "displaylight": {
                 "name": "Εμφάνιση φωτός"
             },
@@ -531,6 +585,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Φως οθόνης"
+            },
             "alerts": {
                 "name": "Ειδοποιήσεις"
             },
@@ -1364,9 +1421,27 @@
             },
             "soundpackfile": {
                 "name": "Αρχείο πακέτου ήχου"
+            },
+            "xposition": {
+                "name": "Θέση X"
+            },
+            "yposition": {
+                "name": "Θέση Y"
+            },
+            "xsize": {
+                "name": "Μέγεθος Χ"
+            },
+            "ysize": {
+                "name": "Μέγεθος Υ"
+            },
+            "hobcoil": {
+                "name": "Δεξαμενή"
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Εκκρεμεί απομακρυσμένη ειδοποίηση"
+            },
             "uilockmode": {
                 "name": "Παιδική κλειδαριά εσωτερική"
             },
