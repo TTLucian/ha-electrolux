@@ -340,6 +340,24 @@
             }
         },
         "button": {
+            "executecommand_stopreset": {
+                "name": "Stopp / Zurücksetzen"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_resume": {
+                "name": "Fortsetzen"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_on": {
+                "name": "Einschalten"
+            },
+            "executecommand_off": {
+                "name": "Ausschalten"
+            },
             "command": {
                 "name": "Netzwerkbefehl"
             },
@@ -351,24 +369,6 @@
             },
             "executecommand": {
                 "name": "Leistung"
-            },
-            "executecommand_on": {
-                "name": "Einschalten"
-            },
-            "executecommand_off": {
-                "name": "Ausschalten"
-            },
-            "executecommand_start": {
-                "name": "Start"
-            },
-            "executecommand_pause": {
-                "name": "Pause"
-            },
-            "executecommand_resume": {
-                "name": "Fortsetzen"
-            },
-            "executecommand_stopreset": {
-                "name": "Stopp / Zurücksetzen"
             },
             "waterfilterstatereset": {
                 "name": "Wasserfilter zurücksetzen"
