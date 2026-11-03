@@ -164,6 +164,12 @@
     },
     "entity": {
         "binary_sensor": {
+            "tankbreserve": {
+                "name": "Tank B: Reserve"
+            },
+            "tankareserve": {
+                "name": "Tank A: Reserve"
+            },
             "cloud_api": {
                 "name": "API"
             },
@@ -328,6 +334,24 @@
             }
         },
         "button": {
+            "executecommand_stopreset": {
+                "name": "Stopp / Zurücksetzen"
+            },
+            "executecommand_start": {
+                "name": "Start"
+            },
+            "executecommand_resume": {
+                "name": "Fortsetzen"
+            },
+            "executecommand_pause": {
+                "name": "Pause"
+            },
+            "executecommand_on": {
+                "name": "Einschalten"
+            },
+            "executecommand_off": {
+                "name": "Ausschalten"
+            },
             "command": {
                 "name": "Netzwerkbefehl"
             },
@@ -369,7 +393,7 @@
         },
         "number": {
             "starttime": {
-                "name": "Startzeit"
+                "name": "Startvorwahl"
             },
             "targetduration": {
                 "name": "Zieldauer"
@@ -399,16 +423,16 @@
                 "name": "Lichtfarbtemperatur"
             },
             "stoptime": {
-                "name": "Stoppen Sie die Zeit"
+                "name": "Endzeit"
             },
             "adtankadetstandarddose": {
-                "name": "Tanken Sie eine Standarddosis Waschmittel"
+                "name": "Tank A: Waschmittel-Standarddosis"
             },
             "adtankbdetstandarddose": {
-                "name": "Tank b Reinigungsmittel-Standarddosierung"
+                "name": "Tank B: Waschmittel-Standarddosis"
             },
             "adtankbsoftstandarddose": {
-                "name": "Tank B-Enthärter-Standarddosis"
+                "name": "Tank B: Weichspüler-Standarddosis"
             },
             "adfinetunedetlevel": {
                 "name": "Waschmittelmenge fein einstellen"
@@ -514,6 +538,30 @@
             }
         },
         "select": {
+            "humiditytarget": {
+                "name": "Trocknungsgrad"
+            },
+            "watersoftenermode": {
+                "name": "Wasserenthärter-Modus"
+            },
+            "waterhardness": {
+                "name": "Wasserhärte"
+            },
+            "language": {
+                "name": "Sprache"
+            },
+            "endofcyclesound": {
+                "name": "Signalton bei Programmende"
+            },
+            "defaultextrarinse": {
+                "name": "Standard-Extraspülung"
+            },
+            "adtankbconfiguration": {
+                "name": "Tank B: Konfiguration"
+            },
+            "adtankaconfiguration": {
+                "name": "Tank A: Konfiguration"
+            },
             "displaylight": {
                 "name": "Displaybeleuchtung"
             },
@@ -531,6 +579,9 @@
             }
         },
         "sensor": {
+            "displaylight": {
+                "name": "Displaybeleuchtung"
+            },
             "alerts": {
                 "name": "Warnungen"
             },
@@ -541,16 +592,16 @@
                 "name": "Temperaturdarstellung"
             },
             "linkqualityindicator": {
-                "name": "Indikator für die Verbindungsqualität der Netzwerkschnittstelle"
+                "name": "Verbindungsqualität der Netzwerkschnittstelle"
             },
             "niuswupdatecurrentdescription": {
-                "name": "Beschreibung des Niu SW-Updates"
+                "name": "Beschreibung des NIU-SW-Updates"
             },
             "otastate": {
-                "name": "Zustand der Netzwerkschnittstelle"
+                "name": "OTA-Status der Netzwerkschnittstelle"
             },
             "swancandrevision": {
-                "name": "Änderung und Überarbeitung"
+                "name": "SW-ANC und Revision"
             },
             "swversion": {
                 "name": "SW-Version der Netzwerkschnittstelle"
@@ -571,7 +622,7 @@
                 "name": "Cpv"
             },
             "remotecontrol": {
-                "name": "Fernbedienung"
+                "name": "Fernsteuerung"
             },
             "totalcyclecounter": {
                 "name": "Gesamtzykluszähler"
@@ -580,7 +631,7 @@
                 "name": "Gesamtarbeitszeit des Geräts"
             },
             "timetoend": {
-                "name": "Zeit zu Ende"
+                "name": "Restlaufzeit"
             },
             "displayfoodprobetemperature": {
                 "name": "Temperatur des Lebensmittelfühlers anzeigen"
@@ -784,10 +835,10 @@
                 "name": "Gesamtwaschzeit"
             },
             "fcoptisenseloadweight": {
-                "name": "Gewicht laden"
+                "name": "Ladungsgewicht (Optisense)"
             },
             "washingnominalloadweight": {
-                "name": "Gewicht der Wäscheladung"
+                "name": "Nennbeladung"
             },
             "adtankaconfiguration": {
                 "name": "Tanken Sie eine Konfiguration"
@@ -823,19 +874,19 @@
                 "name": "Waschmittel-Extradosierung"
             },
             "optisenseresult": {
-                "name": "Gewicht laden"
+                "name": "Ladungsgewicht"
             },
             "softenerextradosage": {
                 "name": "Weichspüler extra dosiert"
             },
             "tankadetloadfornominalweight": {
-                "name": "Tanken Sie eine Det-Ladung für das Nenngewicht"
+                "name": "Tank A: Waschmittelmenge für Nennbeladung"
             },
             "tankareserve": {
                 "name": "Tanken Sie eine Reserve"
             },
             "tankbdetloadfornominalweight": {
-                "name": "Tankfüllung für Nenngewicht"
+                "name": "Tank B: Waschmittelmenge für Nennbeladung"
             },
             "tankbreserve": {
                 "name": "Tank B-Reserve"
@@ -844,13 +895,13 @@
                 "name": "Wasserverbrauch"
             },
             "adtankadetloaded": {
-                "name": "Tank mit Reinigungsmittel beladen"
+                "name": "Tank A: Waschmittel eingefüllt"
             },
             "adtankbdetloaded": {
-                "name": "Tank b mit Reinigungsmittel gefüllt"
+                "name": "Tank B: Waschmittel eingefüllt"
             },
             "adtankbsoftloaded": {
-                "name": "Enthärter in Tank B geladen"
+                "name": "Tank B: Weichspüler eingefüllt"
             },
             "ecolevel": {
                 "name": "Öko-Niveau"
@@ -862,7 +913,7 @@
                 "name": "Fernbenachrichtigung steht aus"
             },
             "minfinishintime": {
-                "name": "Mindestens rechtzeitig fertig"
+                "name": "Minimale „Fertig in“-Zeit"
             },
             "ewx1493a_wmeconomy": {
                 "name": "Sparmodus"
@@ -889,7 +940,7 @@
                 "name": "Vorwaschphase"
             },
             "dryingnominalloadweight": {
-                "name": "Nennlastgewicht"
+                "name": "Nennbeladung"
             },
             "humiditytarget": {
                 "name": "Feuchteziel (aktiv)"
@@ -928,10 +979,10 @@
                 "name": "Dwyw: geschätzte Trocknungszeit"
             },
             "tdecpoverload": {
-                "name": "Dwyw: Überlastungsflag laden"
+                "name": "Dwyw: Überlastungs-Flag"
             },
             "wmloaderror": {
-                "name": "Dwyw: Fehler beim Laden der Wäsche"
+                "name": "Dwyw: Ladungsfehler"
             },
             "wmsn": {
                 "name": "Dwyw: gepaarte Unterlegscheiben-Seriennummer"
@@ -1367,6 +1418,9 @@
             }
         },
         "switch": {
+            "remotenotificationpending": {
+                "name": "Fernbenachrichtigung ausstehend"
+            },
             "uilockmode": {
                 "name": "Interne Kindersicherung"
             },

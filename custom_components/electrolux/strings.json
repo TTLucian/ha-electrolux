@@ -164,6 +164,12 @@
   },
   "entity": {
     "binary_sensor": {
+      "tankbreserve": {
+        "name": "Tank B reserve"
+      },
+      "tankareserve": {
+        "name": "Tank A reserve"
+      },
       "cloud_api": {
         "name": "API"
       },
@@ -538,6 +544,30 @@
       }
     },
     "select": {
+      "humiditytarget": {
+        "name": "Humidity target"
+      },
+      "watersoftenermode": {
+        "name": "Water softener mode"
+      },
+      "waterhardness": {
+        "name": "Water hardness"
+      },
+      "language": {
+        "name": "Language"
+      },
+      "endofcyclesound": {
+        "name": "End of cycle sound"
+      },
+      "defaultextrarinse": {
+        "name": "Default extra rinse"
+      },
+      "adtankbconfiguration": {
+        "name": "Tank B configuration"
+      },
+      "adtankaconfiguration": {
+        "name": "Tank A configuration"
+      },
       "displaylight": {
         "name": "Display light"
       },
@@ -555,6 +585,9 @@
       }
     },
     "sensor": {
+      "displaylight": {
+        "name": "Display light"
+      },
       "alerts": {
         "name": "Alerts"
       },
@@ -811,7 +844,7 @@
         "name": "Load weight"
       },
       "washingnominalloadweight": {
-        "name": "Washing load weight"
+        "name": "Nominal load weight"
       },
       "adtankaconfiguration": {
         "name": "Tank a configuration"
@@ -1400,6 +1433,9 @@
       }
     },
     "switch": {
+      "remotenotificationpending": {
+        "name": "Remote notification pending"
+      },
       "uilockmode": {
         "name": "Child lock internal"
       },
