@@ -1214,3 +1214,34 @@ class TestHobEntityQuality:
             data = json.loads((repo / "custom_components/electrolux" / filename).read_text(encoding="utf-8"))
             name = data["entity"]["sensor"][translation_key]["name"]
             assert name == expected, f"{filename}: entity.sensor.{translation_key} is {name!r}, expected {expected!r}"
+
+
+class TestDryerEntityNames:
+    """Tumble dryer entities whose names fell back to the mangled attribute name."""
+
+    @pytest.mark.parametrize(
+        ("platform", "translation_key", "expected"),
+        [
+            ("select", "drynessvalue", "Dryness level"),
+            ("select", "steamvalue", "Steam level"),
+            ("sensor", "appliancefeaturefinishin", "Finish in feature"),
+            ("sensor", "appliancefeaturememoryposition", "Memory position feature"),
+            ("sensor", "categorymycare", "My Care category"),
+            ("sensor", "categorymyhome", "My Home category"),
+            ("sensor", "categorymysport", "My Sport category"),
+            ("sensor", "cycledefaultnotoverwritable", "Default program not overwritable"),
+            ("sensor", "cyclesoncontrolpanel", "Programs on control panel"),
+            ("sensor", "pntdanticreaseextension", "Anti-crease extension"),
+        ],
+    )
+    def test_dryer_names_are_in_both_catalogue_files(self, platform, translation_key, expected):
+        """Keys taken from a TD-916900487 dryer; the select keys existed only under sensor."""
+        from pathlib import Path
+
+        repo = Path(__file__).resolve().parent.parent
+        for filename in ("strings.json", "translations/en.json"):
+            data = json.loads((repo / "custom_components/electrolux" / filename).read_text(encoding="utf-8"))
+            name = data["entity"][platform][translation_key]["name"]
+            assert name == expected, (
+                f"{filename}: entity.{platform}.{translation_key} is {name!r}, expected {expected!r}"
+            )
