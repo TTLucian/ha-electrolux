@@ -107,19 +107,6 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             finished = sum(1 for zone in value if isinstance(zone, dict) and zone.get("status") == "finished")
             return f"{finished}/{len(value)} finished"
 
-        # Debug logging for water tank sensor
-        if self.entity_key == "watertankempty":
-            live_value = self.reported_state.get("waterTankEmpty")
-            _LOGGER.warning(
-                "DEBUG Water tank sensor: entity_attr=%s, entity_key=%s, extract_value=%s, waterTankEmpty in reported=%s, waterTankEmpty value=%s, capability_type=%s",
-                self.entity_attr,
-                self.entity_key,
-                value,
-                "waterTankEmpty" in self.reported_state,
-                live_value,
-                get_capability(self.capability, "type"),
-            )
-
         # Special handling for load weight sensors: filter out error/sentinel codes.
         # 65535 (0xFFFF) = "not measured", 65408-65532 = error/status codes.
         if self.entity_attr in ("fcOptisenseLoadWeight", "measuredLoadWeight"):

@@ -1,5 +1,6 @@
 """Tests for the Electrolux sensor platform."""
 
+import logging
 from typing import Any, ClassVar
 from unittest.mock import MagicMock, patch
 
@@ -737,6 +738,16 @@ class TestSensorMissingCoverage:
         basic_sensor_entity.capability = {"access": "read", "type": "boolean"}
         result = basic_sensor_entity.native_value
         assert result is False  # "STEAM_TANK_FULL" == "STEAM_TANK_FULL"
+
+    def test_watertankempty_does_not_log_warning(self, basic_sensor_entity, caplog):
+        """Reading the water tank sensor must not emit a WARNING on every update."""
+        basic_sensor_entity.entity_key = "watertankempty"
+        basic_sensor_entity.entity_attr = "waterTankEmpty"
+        basic_sensor_entity.reported_state = {"waterTankEmpty": "STEAM_TANK_FULL"}
+        basic_sensor_entity.capability = {"access": "read", "type": "boolean"}
+        with caplog.at_level(logging.WARNING, logger="custom_components.electrolux"):
+            _ = basic_sensor_entity.native_value
+        assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
 
     # ── display_food_probe_temperature_c ──────────────────────────────────────
 
