@@ -23,7 +23,7 @@ test = [
 dev = [
     "aiohttp>=3.14.3,<4.0.0",
     "deep_translator",
-    "pydantic>=2.14.1,<3.0.0",
+    "pydantic>=2.14.2,<3.0.0",
     "electrolux-group-developer-sdk>=0.7.0",
     "pre-commit",
     # Ships the shellcheck binary inside the venv, so the workflow linter
