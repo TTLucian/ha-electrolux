@@ -718,6 +718,20 @@ class TestSensorMissingCoverage:
         basic_sensor_entity.reported_state = {"measuredLoadWeight": 3200}
         assert basic_sensor_entity.native_value == 3200
 
+    @pytest.mark.parametrize("attr", ["dryingNominalLoadWeight", "washingNominalLoadWeight"])
+    def test_nominal_load_weight_filters_65535_sentinel(self, basic_sensor_entity, attr):
+        """Nominal load weight 65535 = no program selected — return None."""
+        basic_sensor_entity.entity_attr = attr
+        basic_sensor_entity.reported_state = {attr: 65535}
+        assert basic_sensor_entity.native_value is None
+
+    @pytest.mark.parametrize("attr", ["dryingNominalLoadWeight", "washingNominalLoadWeight"])
+    def test_nominal_load_weight_passes_valid_value(self, basic_sensor_entity, attr):
+        """Nominal load weight valid reading passes through."""
+        basic_sensor_entity.entity_attr = attr
+        basic_sensor_entity.reported_state = {attr: 9000}
+        assert basic_sensor_entity.native_value == 9000
+
     # ── watertankempty boolean type ───────────────────────────────────────────
 
     def test_watertankempty_boolean_capability_type_not_full(self, basic_sensor_entity):
