@@ -544,6 +544,12 @@
             }
         },
         "select": {
+            "drynessvalue": {
+                "name": "Livello di asciugatura"
+            },
+            "steamvalue": {
+                "name": "Livello del vapore"
+            },
             "humiditytarget": {
                 "name": "Umidità desiderata"
             },
@@ -585,6 +591,30 @@
             }
         },
         "sensor": {
+            "appliancefeaturefinishin": {
+                "name": "Funzione Termina tra"
+            },
+            "appliancefeaturememoryposition": {
+                "name": "Funzione posizione di memoria"
+            },
+            "categorymycare": {
+                "name": "Categoria My Care"
+            },
+            "categorymyhome": {
+                "name": "Categoria My Home"
+            },
+            "categorymysport": {
+                "name": "Categoria My Sport"
+            },
+            "cycledefaultnotoverwritable": {
+                "name": "Programma predefinito non sovrascrivibile"
+            },
+            "cyclesoncontrolpanel": {
+                "name": "Programmi sul pannello di controllo"
+            },
+            "pntdanticreaseextension": {
+                "name": "Estensione antipiega"
+            },
             "displaylight": {
                 "name": "Luce del display"
             },
