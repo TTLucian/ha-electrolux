@@ -199,7 +199,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:translate",
     ),
-    # End of cycle sound
+    # End of cycle sound. An appliance-level setting: no program lists it, so it
+    # must be CONFIG to bypass the program gate, as in catalog_core (#218).
     "endOfCycleSound": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -213,7 +214,7 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         },
         device_class=None,
         unit=None,
-        entity_category=None,
+        entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:volume-high",
         friendly_name="End of Cycle Sound",
     ),
