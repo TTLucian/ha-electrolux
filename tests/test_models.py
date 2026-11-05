@@ -1161,6 +1161,86 @@ class TestApplianceSetup:
         assert len(preselect_entities) == 1
         assert isinstance(preselect_entities[0], ElectroluxBinarySensor)
 
+    # A TD-916900487 dryer reports these keys in reported state, but its
+    # capabilities list none of them, and writing ``language`` fails with
+    # 406 "Capability not found".
+    _TD_UNADVERTISED_REPORTED = {
+        "applianceInfo": {"applianceType": "TD"},
+        "language": "ENGLISH",
+        "userSelections": {
+            "programUID": "COTTON_PR_ECO",
+            "steamValue": "STEAM_OFF",
+            "reversePlus": False,
+            "refresh": False,
+        },
+    }
+
+    @staticmethod
+    def _td_entity(app, source, attr):
+        matches = [e for e in app.entities if e.entity_attr == attr and (e.entity_source or None) == source]
+        assert len(matches) == 1, f"expected one {source}/{attr} entity, got {matches}"
+        return matches[0]
+
+    def test_setup_td_unadvertised_keys_fall_back_to_read_only(self):
+        """TD keys the appliance reports but does not advertise become read-only entities."""
+        import copy
+
+        from homeassistant.components.sensor import SensorDeviceClass
+
+        from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._TD_UNADVERTISED_REPORTED)}},
+            model="916900487",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        language = self._td_entity(app, None, "language")
+        assert isinstance(language, ElectroluxSensor)
+        assert language.device_class == SensorDeviceClass.ENUM
+
+        steam = self._td_entity(app, "userSelections", "steamValue")
+        assert isinstance(steam, ElectroluxSensor)
+        assert steam.device_class == SensorDeviceClass.ENUM
+
+        for attr in ("reversePlus", "refresh"):
+            assert isinstance(self._td_entity(app, "userSelections", attr), ElectroluxBinarySensor)
+
+    def test_setup_td_advertised_keys_stay_controls(self):
+        """A TD model that advertises the keys keeps the select and switch entities."""
+        import copy
+
+        from custom_components.electrolux.select import ElectroluxSelect
+        from custom_components.electrolux.switch import ElectroluxSwitch
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._TD_UNADVERTISED_REPORTED)}},
+            model="916900487",
+        )
+        capabilities = {
+            "language": {
+                "access": "readwrite",
+                "type": "string",
+                "values": {"ENGLISH": {}, "ITALIAN": {}},
+            },
+            "userSelections/steamValue": {
+                "access": "readwrite",
+                "type": "string",
+                "values": {"STEAM_OFF": {}, "STEAM_MAX": {}},
+            },
+            "userSelections/reversePlus": {"access": "readwrite", "type": "boolean"},
+            "userSelections/refresh": {"access": "readwrite", "type": "boolean"},
+        }
+        data = self._make_data(capabilities=capabilities, reported=app.reported_state)
+        app.setup(data)
+
+        assert isinstance(self._td_entity(app, None, "language"), ElectroluxSelect)
+        assert isinstance(self._td_entity(app, "userSelections", "steamValue"), ElectroluxSelect)
+        for attr in ("reversePlus", "refresh"):
+            assert isinstance(self._td_entity(app, "userSelections", attr), ElectroluxSwitch)
+
     def test_setup_creates_reported_only_display_light_sensor_for_wm(self):
         """WM displayLight should fall back to a read-only sensor when capability is missing."""
         from custom_components.electrolux.sensor import ElectroluxSensor

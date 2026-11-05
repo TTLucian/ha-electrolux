@@ -5,7 +5,7 @@ from homeassistant.components.button.const import ButtonDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.switch.const import SwitchDeviceClass
-from homeassistant.const import EntityCategory, UnitOfMass, UnitOfTime
+from homeassistant.const import EntityCategory, Platform, UnitOfMass, UnitOfTime
 
 from ..const import CAPABILITY_READ_STRING
 from ..execute_command_states import DRYER_EXECUTE_STATES
@@ -160,7 +160,9 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:cog",
     ),
-    # Language setting
+    # Language setting. TD-916900487 reports it without advertising it, and the
+    # cloud rejects a write with 406 "Capability not found". A model that does not
+    # advertise it gets a read-only sensor; one that does keeps the select.
     "language": ElectroluxDevice(
         capability_info={
             "access": "readwrite",
@@ -198,6 +200,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         unit=None,
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:translate",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     # End of cycle sound
     "endOfCycleSound": ElectroluxDevice(
@@ -448,6 +452,8 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:weather-partly-cloudy",
         friendly_name="Steam Level",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     # User Selections - Boolean switches/options
     "userSelections/reversePlus": ElectroluxDevice(
@@ -461,6 +467,7 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:rotate-3d-variant",
         friendly_name="Reverse Plus",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/tDEconomy_Eco": ElectroluxDevice(
         capability_info={
@@ -509,6 +516,7 @@ CATALOG_TD: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:refresh",
         friendly_name="Refresh Program",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     # Cycle personalization (for cycleMemory)
     "cyclePersonalization/programUID": ElectroluxDevice(
