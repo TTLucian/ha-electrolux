@@ -1245,3 +1245,20 @@ class TestDryerEntityNames:
             assert name == expected, (
                 f"{filename}: entity.{platform}.{translation_key} is {name!r}, expected {expected!r}"
             )
+
+
+class TestDryerReportedOnlyFallbacks:
+    """TD keys a TD-916900487 reports without advertising them as capabilities."""
+
+    def test_unadvertised_keys_have_read_only_fallbacks(self):
+        """These keys fall back to read-only entities when the capability is missing."""
+        from homeassistant.components.sensor import SensorDeviceClass
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_td import CATALOG_TD
+
+        for key in ("language", "userSelections/steamValue"):
+            assert CATALOG_TD[key].reported_only_entity_platform == Platform.SENSOR
+            assert CATALOG_TD[key].reported_only_device_class == SensorDeviceClass.ENUM
+        for key in ("userSelections/reversePlus", "userSelections/refresh"):
+            assert CATALOG_TD[key].reported_only_entity_platform == Platform.BINARY_SENSOR
