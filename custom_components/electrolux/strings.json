@@ -544,6 +544,12 @@
       }
     },
     "select": {
+      "drynessvalue": {
+        "name": "Dryness level"
+      },
+      "steamvalue": {
+        "name": "Steam level"
+      },
       "humiditytarget": {
         "name": "Humidity target"
       },
@@ -585,6 +591,30 @@
       }
     },
     "sensor": {
+      "appliancefeaturefinishin": {
+        "name": "Finish in feature"
+      },
+      "appliancefeaturememoryposition": {
+        "name": "Memory position feature"
+      },
+      "categorymycare": {
+        "name": "My Care category"
+      },
+      "categorymyhome": {
+        "name": "My Home category"
+      },
+      "categorymysport": {
+        "name": "My Sport category"
+      },
+      "cycledefaultnotoverwritable": {
+        "name": "Default program not overwritable"
+      },
+      "cyclesoncontrolpanel": {
+        "name": "Programs on control panel"
+      },
+      "pntdanticreaseextension": {
+        "name": "Anti-crease extension"
+      },
       "displaylight": {
         "name": "Display light"
       },
