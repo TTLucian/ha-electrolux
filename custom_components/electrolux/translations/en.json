@@ -588,6 +588,9 @@
       },
       "hoodfiltergreaseindication": {
         "name": "Grease Filter Indication"
+      },
+      "command": {
+        "name": "Dwyw: command"
       }
     },
     "sensor": {
@@ -1466,6 +1469,9 @@
       },
       "hobcoil": {
         "name": "Coil"
+      },
+      "appliancefeatureeudwywstep2": {
+        "name": "EU Dwyw step 2 feature"
       }
     },
     "switch": {
