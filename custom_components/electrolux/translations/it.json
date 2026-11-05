@@ -588,6 +588,9 @@
             },
             "hoodfiltergreaseindication": {
                 "name": "Indicazione del filtro antigrasso"
+            },
+            "command": {
+                "name": "Dwyw: comando"
             }
         },
         "sensor": {
@@ -1466,6 +1469,9 @@
             },
             "hobcoil": {
                 "name": "Bobina"
+            },
+            "appliancefeatureeudwywstep2": {
+                "name": "Funzione Dwyw passo 2 (UE)"
             }
         },
         "switch": {
