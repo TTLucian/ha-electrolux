@@ -1152,10 +1152,18 @@ class ElectroluxEntity(CoordinatorEntity):
         # 3. Standard Data Extraction
         value: Any | None = None
         if self.entity_source == "applianceInfo":
-            if self.appliance_status and isinstance(self.appliance_status, dict):
-                appliance_info = self.appliance_status.get("applianceInfo", {})
-                if isinstance(appliance_info, dict):
-                    value = appliance_info.get(self.entity_attr)
+            # ``applianceInfo`` is part of the reported properties
+            # (``properties.reported.applianceInfo``); the top level of
+            # ``appliance_status`` only carries ``properties`` and the connection
+            # state, so reading it there always gave None. The top-level lookup is
+            # kept as a fallback for callers that still pass it there.
+            info_sources: list[Any] = [self.reported_state.get("applianceInfo")]
+            if isinstance(self.appliance_status, dict):
+                info_sources.append(self.appliance_status.get("applianceInfo"))
+            for appliance_info in info_sources:
+                if isinstance(appliance_info, dict) and appliance_info.get(self.entity_attr) is not None:
+                    value = appliance_info[self.entity_attr]
+                    break
         else:
             # Look in reported_state (where most live oven data is)
             state_path = self.catalog_entry.state_path if self.catalog_entry else None
