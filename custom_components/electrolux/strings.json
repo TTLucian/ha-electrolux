@@ -337,6 +337,12 @@
       },
       "ovfood_probe_end_of_cooking": {
         "name": "Probe End of Cooking"
+      },
+      "reverseplus": {
+        "name": "Reverse plus"
+      },
+      "refresh": {
+        "name": "Refresh program"
       }
     },
     "button": {

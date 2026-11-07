@@ -337,6 +337,12 @@
             },
             "ovfood_probe_end_of_cooking": {
                 "name": "Termosonda: fine cottura"
+            },
+            "reverseplus": {
+                "name": "Reverse Plus"
+            },
+            "refresh": {
+                "name": "Rinfresco"
             }
         },
         "button": {
