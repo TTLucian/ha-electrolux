@@ -865,6 +865,47 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
         if self.is_dam_appliance:
             command = {"commands": [command]}  # type: ignore[dict-item]
 
+        appliance = self.get_appliance
+        appliance_data = getattr(appliance, "data", None)
+        live_capabilities = getattr(appliance_data, "capabilities", None) or {}
+        capability_key = f"{self.entity_source}/{self.entity_attr}" if self.entity_source else self.entity_attr
+        live_capability = live_capabilities.get(capability_key) or live_capabilities.get(self.entity_attr)
+        if not isinstance(live_capability, dict):
+            live_capability = self.capability
+
+        trigger_context = []
+        for driver_attr, driver_capability in live_capabilities.items():
+            if "/" in driver_attr or not isinstance(driver_capability, dict):
+                continue
+            for trigger in driver_capability.get("triggers", []):
+                if not isinstance(trigger, dict):
+                    continue
+                action = trigger.get("action")
+                if not isinstance(action, dict) or self.entity_attr not in action:
+                    continue
+                trigger_context.append(
+                    {
+                        "driver": driver_attr,
+                        "reported_value": self.reported_state.get(driver_attr),
+                        "condition": trigger.get("condition"),
+                        "action": {self.entity_attr: action[self.entity_attr]},
+                    }
+                )
+
+        _LOGGER.debug(
+            "Electrolux number write context for %s on appliance %s: requested_value=%s, "
+            "command_value=%s, command=%s, capability_key=%s, live_capability=%s, "
+            "entity_capability=%s, trigger_context=%s",
+            self.entity_attr,
+            self.pnc_id,
+            value,
+            command_value,
+            command,
+            capability_key,
+            live_capability,
+            self.capability,
+            trigger_context,
+        )
         _LOGGER.debug("Electrolux set value %s", command)
         _LOGGER.debug("Electrolux sending command to appliance %s: %s", self.pnc_id, command)
         try:

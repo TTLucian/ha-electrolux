@@ -910,6 +910,56 @@ class TestNumberAsyncSetNativeValueAdvanced:
         assert call_args[1] == {"oven": {"targetTemperatureC": 180.0}}
 
     @pytest.mark.asyncio
+    async def test_set_native_value_logs_live_capability_and_trigger_context(self, mock_coordinator, caplog):
+        """A rejected number write can be diagnosed from the live capability and mode."""
+        entity = self._make_entity(
+            mock_coordinator,
+            entity_attr="HumidityTarget",
+            capability={"access": "readwrite", "type": "number", "min": 40, "max": 60, "step": 10},
+        )
+        entity._is_locked_by_program = MagicMock(return_value=False)
+        entity._is_supported_by_program = MagicMock(return_value=True)
+        entity.reported_state = {"Workmode": "Manual"}
+
+        appliance = MagicMock()
+        appliance.data.capabilities = {
+            "HumidityTarget": {
+                "access": "readwrite",
+                "type": "number",
+                "min": 40,
+                "max": 60,
+                "step": 10,
+            },
+            "Workmode": {
+                "triggers": [
+                    {
+                        "condition": {"operand_1": "value", "operand_2": "AUTO", "operator": "eq"},
+                        "action": {"HumidityTarget": {"disabled": True}},
+                    }
+                ]
+            },
+        }
+        mock_coordinator.data = {
+            "appliances": MagicMock(get_appliance=MagicMock(return_value=appliance)),
+        }
+
+        with (
+            caplog.at_level("DEBUG", logger="custom_components.electrolux"),
+            patch(
+                "custom_components.electrolux.number.format_command_for_appliance",
+                return_value=50,
+            ),
+        ):
+            await entity.async_set_native_value(50.0)
+
+        context = next(record.message for record in caplog.records if "number write context" in record.message)
+        assert "reported_value': 'Manual'" in context
+        assert "HumidityTarget" in context
+        assert "'min': 40" in context
+        assert "AUTO" in context
+        assert "50" in context
+
+    @pytest.mark.asyncio
     async def test_set_native_value_dam_target_duration(self, mock_coordinator):
         """DAM appliance with targetDuration wraps command under appliance type."""
         from unittest.mock import PropertyMock
