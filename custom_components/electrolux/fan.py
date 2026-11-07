@@ -24,7 +24,7 @@ catalog. This ensures correct behavior for each model:
 - Percentage conversion uses Home Assistant's ordered_list_item helpers
 
 Features:
-- TURN_ON/TURN_OFF: Controls PowerOff mode vs active modes
+- TURN_ON/TURN_OFF: Uses Workmode=PowerOff or executeCommand on/off as advertised
 - SET_SPEED: Percentage-based speed control (0-100%)
 - PRESET_MODE: Quick access to operation modes (Manual, Auto, Quiet)
 """
@@ -115,10 +115,15 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         # Get speed range from Fanspeed capability
         self._speed_range = (1, 9)  # Default (A9 range; Muju/Verbier use 1-5 from API)
         has_fanspeed_cap = False
-        if fanspeed_cap := self.get_capability("Fanspeed"):
+        if fanspeed_cap := self.get_capability("Fanspeed") or self.get_capability("FanSpeed"):
             has_fanspeed_cap = True
-            min_speed = fanspeed_cap.get("min", 1)
-            max_speed = fanspeed_cap.get("max", 9)
+            raw_min_speed = fanspeed_cap.get("min")
+            raw_max_speed = fanspeed_cap.get("max")
+            min_speed = max(
+                int(raw_min_speed) if isinstance(raw_min_speed, (int, float)) else 1,
+                1,
+            )
+            max_speed = int(raw_max_speed) if isinstance(raw_max_speed, (int, float)) else 9
             self._speed_range = (min_speed, max_speed)
 
         # Get available preset modes from Workmode capability
@@ -164,9 +169,20 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                 condition.get("operator") == "eq"
                 and condition.get("operand_1") == "value"
                 and condition.get("operand_2") == current_mode
-            ) and trigger.get("action", {}).get("Fanspeed", {}).get("disabled"):
+            ) and any(trigger.get("action", {}).get(key, {}).get("disabled") for key in ("Fanspeed", "FanSpeed")):
                 return True
         return False
+
+    def _uses_execute_command_power_control(self) -> bool:
+        """Return whether on/off is advertised through executeCommand, not Workmode."""
+        workmode_cap = self.get_capability("Workmode")
+        workmode_values = workmode_cap.get("values", {}) if workmode_cap else {}
+        if any(str(value).casefold() == "poweroff" for value in workmode_values):
+            return False
+
+        execute_cap = self.get_capability("executeCommand")
+        execute_values = execute_cap.get("values", {}) if execute_cap else {}
+        return all(any(str(value).casefold() == supported for value in execute_values) for supported in ("on", "off"))
 
     @property
     def supported_features(self) -> FanEntityFeature:
@@ -218,11 +234,17 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
         offline guard of ``extract_value`` and would happily return the last
         reported value of a disconnected appliance. Reporting ``False`` here
         would claim the fan is off while the appliance is unreachable, so an
-        offline appliance (or a missing Workmode) reports None — the same
+        offline appliance (or a missing power-state property) reports None — the same
         "unknown" convention used by sensor/number/binary_sensor/switch (#231).
         """
         if not self.is_connected():
             return None
+
+        if self._uses_execute_command_power_control():
+            appliance_state = self.get_state_attr("applianceState")
+            if appliance_state is None:
+                return None
+            return str(appliance_state).casefold() != "off"
 
         workmode = self.get_state_attr("Workmode")
         if workmode is None:
@@ -311,6 +333,26 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                 translation_placeholders={"state": str(connectivity_state)},
             )
 
+        if self._uses_execute_command_power_control():
+            execute_cap = self.get_capability("executeCommand")
+            if execute_cap is None:
+                _LOGGER.error("executeCommand capability not found for appliance %s", self.pnc_id)
+                return
+
+            await self._send_command("executeCommand", "on", execute_cap)
+            self._apply_appliance_state("running")
+
+            current_mode = self.get_state_attr("Workmode")
+            execute_target_mode = preset_mode or (
+                str(current_mode) if current_mode and str(current_mode).casefold() != "poweroff" else "Manual"
+            )
+            if preset_mode or not current_mode or str(current_mode).casefold() == "poweroff":
+                await self._send_workmode_command(execute_target_mode)
+
+            if percentage is not None and not self._is_fanspeed_disabled():
+                await self._set_percentage(percentage)
+            return
+
         # Determine target mode
         target_mode = None
         if preset_mode:
@@ -351,6 +393,16 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
                 translation_key="appliance_offline",
                 translation_placeholders={"state": str(connectivity_state)},
             )
+
+        if self._uses_execute_command_power_control():
+            execute_cap = self.get_capability("executeCommand")
+            if execute_cap is None:
+                _LOGGER.error("executeCommand capability not found for appliance %s", self.pnc_id)
+                return
+
+            await self._send_command("executeCommand", "off", execute_cap)
+            self._apply_appliance_state("off")
+            return
 
         # Set Workmode to PowerOff
         await self._send_workmode_command("PowerOff")
@@ -397,9 +449,16 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
 
         # Turn on if currently off
         if not self.is_on:
-            # First turn on to Manual mode (or preserve last mode)
             current_workmode = self.get_state_attr("Workmode")
-            if not current_workmode or str(current_workmode).lower() == "poweroff":
+            if self._uses_execute_command_power_control():
+                execute_cap = self.get_capability("executeCommand")
+                if execute_cap is None:
+                    _LOGGER.error("executeCommand capability not found for appliance %s", self.pnc_id)
+                    return
+
+                await self._send_command("executeCommand", "on", execute_cap)
+                self._apply_appliance_state("running")
+            if not current_workmode or str(current_workmode).casefold() == "poweroff":
                 await self._send_workmode_command("Manual")
 
         await self._set_percentage(percentage)
@@ -417,13 +476,14 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             return
 
         # Get the Fanspeed capability for the appliance
-        fanspeed_cap = self.get_capability("Fanspeed")
+        fanspeed_attr = "FanSpeed" if self.get_capability("FanSpeed") else "Fanspeed"
+        fanspeed_cap = self.get_capability(fanspeed_attr)
         if not fanspeed_cap:
             _LOGGER.error("Fanspeed capability not found for appliance %s", self.pnc_id)
             return
 
         # Send command to set fan speed
-        await self._send_command("Fanspeed", speed_value, fanspeed_cap)
+        await self._send_command(fanspeed_attr, speed_value, fanspeed_cap)
         self._apply_fanspeed_state(speed_value)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
@@ -493,6 +553,20 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             reported = self.appliance_status["properties"]["reported"]
             reported["Fanspeed"] = speed
             self._reported_state_cache["Fanspeed"] = speed
+            if self.entity_id:
+                self.async_write_ha_state()
+
+    def _apply_appliance_state(self, state: str) -> None:
+        """Optimistically update the reported appliance power state."""
+        if (
+            self.appliance_status
+            and isinstance(self.appliance_status, dict)
+            and "properties" in self.appliance_status
+            and "reported" in self.appliance_status["properties"]
+        ):
+            reported = self.appliance_status["properties"]["reported"]
+            reported["applianceState"] = state
+            self._reported_state_cache["applianceState"] = state
             if self.entity_id:
                 self.async_write_ha_state()
 
