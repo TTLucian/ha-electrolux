@@ -247,16 +247,6 @@ class TestElectroluxClimate:
         mock_appliance.reported_state.pop("targetTemperatureF", None)
         assert climate_entity.native_target_temperature is None
 
-    def test_pre_native_aliases(self, climate_entity, mock_appliance):
-        """Home Assistant before 2026.11 reads the names without the native_ prefix."""
-        mock_appliance.reported_state["ambientTemperatureC"] = 25.0
-        mock_appliance.reported_state["targetTemperatureC"] = 22.0
-        assert climate_entity.temperature_unit == UnitOfTemperature.CELSIUS
-        assert climate_entity.current_temperature == 25.0
-        assert climate_entity.target_temperature == 22.0
-        assert climate_entity.target_temperature_high is None
-        assert climate_entity.target_temperature_low is None
-
     def test_hvac_mode_off(self, climate_entity, mock_appliance):
         """Test HVAC mode returns OFF when appliance is off."""
         mock_appliance.reported_state["mode"] = "OFF"

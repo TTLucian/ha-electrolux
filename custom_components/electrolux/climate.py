@@ -245,16 +245,6 @@ class ElectroluxClimate(ElectroluxEntity, ClimateEntity, RestoreEntity):
         """Return the lowbound target temperature we try to reach."""
         return None
 
-    # Home Assistant before 2026.11 only reads the names without the native_
-    # prefix. 2026.11+ prefers the native_ members when a class provides both,
-    # so these aliases do not trigger its deprecation warning. Drop them once
-    # the minimum supported Home Assistant is 2026.11.
-    temperature_unit = native_temperature_unit
-    current_temperature = native_current_temperature
-    target_temperature = native_target_temperature
-    target_temperature_high = native_target_temperature_high
-    target_temperature_low = native_target_temperature_low
-
     @property
     def hvac_mode(self) -> HVACMode:
         """Return current HVAC mode.
