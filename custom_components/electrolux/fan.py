@@ -168,7 +168,7 @@ class ElectroluxFan(ElectroluxEntity, FanEntity):
             if (
                 condition.get("operator") == "eq"
                 and condition.get("operand_1") == "value"
-                and condition.get("operand_2") == current_mode
+                and str(condition.get("operand_2")).casefold() == str(current_mode).casefold()
             ) and any(trigger.get("action", {}).get(key, {}).get("disabled") for key in ("Fanspeed", "FanSpeed")):
                 return True
         return False
