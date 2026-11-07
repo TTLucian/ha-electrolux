@@ -128,6 +128,23 @@ CATALOG_AP = {
         entity_icon="mdi:fan",
         friendly_name="Fan Speed",
     ),
+    # Fuji accepts the command as FanSpeed but reports the state as Fanspeed.
+    # Prefer the advertised command key when both API spellings are present.
+    "FanSpeed": ElectroluxDevice(
+        capability_info={
+            "access": "readwrite",
+            "type": "number",
+            "min": 1,
+            "max": 9,
+            "step": 1,
+        },
+        state_path="Fanspeed",
+        device_class=None,
+        unit=None,
+        entity_category=None,
+        entity_icon="mdi:fan",
+        friendly_name="Fan Speed",
+    ),
     "Workmode": ElectroluxDevice(
         capability_info={
             "access": "readwrite",

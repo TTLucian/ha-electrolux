@@ -39,12 +39,19 @@ def _make_capability_workmode(modes=("Auto", "Manual", "Quiet", "PowerOff")):
     }
 
 
+def _make_capability_execute_command():
+    return {"access": "readwrite", "type": "string", "values": {"on": {}, "off": {}}}
+
+
 def _make_fan(
     workmode="Manual",
     fanspeed=5,
     connected=True,
     fanspeed_cap=None,
+    fan_speed_cap=None,
     workmode_cap=None,
+    execute_command_cap=None,
+    appliance_state=None,
     entity_source=None,
     is_dam=False,
     speed_range=(1, 9),
@@ -58,10 +65,15 @@ def _make_fan(
     # Set up coordinator.data so get_capability() finds capabilities via the
     # correct path: coordinator.data["appliances"].appliances[pnc_id].data.capabilities
     mock_appliance_data = MagicMock()
-    mock_appliance_data.capabilities = {
+    capabilities = {
         "Fanspeed": fanspeed_cap,
         "Workmode": workmode_cap,
     }
+    if fan_speed_cap is not None:
+        capabilities["FanSpeed"] = fan_speed_cap
+    if execute_command_cap is not None:
+        capabilities["executeCommand"] = execute_command_cap
+    mock_appliance_data.capabilities = capabilities
     mock_appliance_obj = MagicMock()
     mock_appliance_obj.data = mock_appliance_data
     mock_appliances_obj = MagicMock()
@@ -74,6 +86,7 @@ def _make_fan(
                 "connectivityState": "connected" if connected else "disconnected",
                 "Workmode": workmode,
                 "Fanspeed": fanspeed,
+                **({"applianceState": appliance_state} if appliance_state is not None else {}),
             }
         },
     }
@@ -306,6 +319,17 @@ class TestIsOn:
         fan.get_state_attr = MagicMock(return_value="poweroff")
         assert fan.is_on is False
 
+    def test_fuji_power_uses_appliance_state(self):
+        fan = _make_fan(
+            workmode="manual",
+            workmode_cap=_make_capability_workmode(("manual", "auto")),
+            execute_command_cap=_make_capability_execute_command(),
+            appliance_state="off",
+        )
+        assert fan.is_on is False
+        fan.reported_state["applianceState"] = "running"
+        assert fan.is_on is True
+
 
 # ---------------------------------------------------------------------------
 # percentage
@@ -423,6 +447,36 @@ class TestAsyncTurnOn:
         await fan.async_turn_on(percentage=50)
         fan._set_percentage.assert_awaited_once_with(50)
 
+    @pytest.mark.asyncio
+    async def test_fuji_turn_on_uses_execute_command_and_preserves_mode(self):
+        execute_cap = _make_capability_execute_command()
+        fan = _make_fan(
+            workmode="manual",
+            workmode_cap=_make_capability_workmode(("manual", "auto")),
+            execute_command_cap=execute_cap,
+            appliance_state="off",
+        )
+        fan._send_command = AsyncMock()
+        fan._send_workmode_command = AsyncMock()
+        await fan.async_turn_on()
+        fan._send_command.assert_awaited_once_with("executeCommand", "on", execute_cap)
+        fan._send_workmode_command.assert_not_awaited()
+        assert fan.reported_state["applianceState"] == "running"
+
+    @pytest.mark.asyncio
+    async def test_fuji_turn_on_applies_requested_preset(self):
+        fan = _make_fan(
+            workmode="manual",
+            workmode_cap=_make_capability_workmode(("manual", "auto")),
+            execute_command_cap=_make_capability_execute_command(),
+            appliance_state="off",
+        )
+        fan._send_command = AsyncMock()
+        fan._send_workmode_command = AsyncMock()
+        await fan.async_turn_on(preset_mode="auto")
+        fan._send_command.assert_awaited_once()
+        fan._send_workmode_command.assert_awaited_once_with("auto")
+
 
 # ---------------------------------------------------------------------------
 # async_turn_off
@@ -445,6 +499,22 @@ class TestAsyncTurnOff:
         await fan.async_turn_off()
         fan._send_workmode_command.assert_awaited_once_with("PowerOff")
 
+    @pytest.mark.asyncio
+    async def test_fuji_turn_off_uses_execute_command(self):
+        execute_cap = _make_capability_execute_command()
+        fan = _make_fan(
+            workmode="manual",
+            workmode_cap=_make_capability_workmode(("manual", "auto")),
+            execute_command_cap=execute_cap,
+            appliance_state="running",
+        )
+        fan._send_command = AsyncMock()
+        fan._send_workmode_command = AsyncMock()
+        await fan.async_turn_off()
+        fan._send_command.assert_awaited_once_with("executeCommand", "off", execute_cap)
+        fan._send_workmode_command.assert_not_awaited()
+        assert fan.reported_state["applianceState"] == "off"
+
 
 # ---------------------------------------------------------------------------
 # async_set_percentage
@@ -466,6 +536,22 @@ class TestAsyncSetPercentage:
         fan.async_turn_off = AsyncMock()
         await fan.async_set_percentage(0)
         fan.async_turn_off.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_set_percentage_turns_fuji_on_before_setting_speed(self):
+        execute_cap = _make_capability_execute_command()
+        fan = _make_fan(
+            workmode="manual",
+            workmode_cap=_make_capability_workmode(("manual", "auto")),
+            execute_command_cap=execute_cap,
+            appliance_state="off",
+        )
+        fan._send_command = AsyncMock()
+        fan._set_percentage = AsyncMock()
+        await fan.async_set_percentage(50)
+        fan._send_command.assert_awaited_once_with("executeCommand", "on", execute_cap)
+        fan._set_percentage.assert_awaited_once_with(50)
+        assert fan.reported_state["applianceState"] == "running"
 
     @pytest.mark.asyncio
     async def test_set_percentage_while_off_turns_on_manual_first(self):
@@ -569,6 +655,17 @@ class TestSetPercentageInternal:
         # Should return without sending command
         await fan._set_percentage(50)
         fan._send_command.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_set_percentage_uses_advertised_fanspeed_case(self):
+        fan = _make_fan(
+            fanspeed_cap=None,
+            fan_speed_cap=_make_capability_fanspeed(0, 9),
+        )
+        fan._send_command = AsyncMock()
+        await fan._set_percentage(100)
+        assert fan._send_command.call_args[0][0] == "FanSpeed"
+        assert fan._send_command.call_args[0][1] == 9
 
 
 # ---------------------------------------------------------------------------

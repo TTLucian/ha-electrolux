@@ -988,6 +988,43 @@ class TestApplianceSetup:
         app.setup(data)
         assert isinstance(app.entities, list)
 
+    def test_setup_prefers_advertised_fanspeed_command_alias(self):
+        """Fuji exposes FanSpeed as the command key and Fanspeed as reported state."""
+        state = {
+            "properties": {
+                "reported": {
+                    "applianceInfo": {"applianceType": "Fuji"},
+                    "applianceState": "running",
+                    "connectivityState": "connected",
+                    "Fanspeed": 3,
+                }
+            }
+        }
+        app = Appliance(
+            coordinator=_make_coordinator(),
+            name="Test Purifier",
+            pnc_id="FAN_PNC",
+            brand="Electrolux",
+            model="Fuji",
+            state=state,
+            appliance_type="Fuji",
+        )
+        data = self._make_data(
+            {
+                "FanSpeed": {"access": "readwrite", "type": "number", "min": 0, "max": 9, "step": 1},
+                "Fanspeed": {"access": "readwrite", "type": "number", "min": 0, "max": 9, "step": 1},
+            },
+            reported=state["properties"]["reported"],
+        )
+
+        app.setup(data)
+
+        speed_entities = [entity for entity in app.entities if entity.entity_attr.lower() == "fanspeed"]
+        assert len(speed_entities) == 1
+        assert speed_entities[0].entity_attr == "FanSpeed"
+        assert speed_entities[0].capability["min"] == 1
+        assert speed_entities[0].catalog_entry.state_path == "Fanspeed"
+
     def test_setup_deduplicates_entities(self):
         """Duplicate unique_ids result in only one entity kept."""
         app = _make_app_full()

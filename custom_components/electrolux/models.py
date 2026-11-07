@@ -778,6 +778,9 @@ class Appliance:
         # Extraction of the appliance capabilities & mapping to the known entities of the component
         # [ "applianceState", "autoDosing",..., "userSelections/analogTemperature",...]
         capabilities_names = self.data.sources_list()
+        has_fan_speed_alias = bool(
+            capabilities_names and "FanSpeed" in self.catalog and "FanSpeed" in capabilities_names
+        )
 
         if capabilities_names is None and self.state:
             # No capabilities returned (unstable API)
@@ -841,6 +844,9 @@ class Appliance:
         )
 
         for catalog_key, catalog_item in self.catalog.items():
+            if has_fan_speed_alias and catalog_key == "Fanspeed":
+                continue
+
             # SECURITY: Skip dangerous entities that could damage appliance functionality
             # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
             is_dangerous = any(re.match(pattern, catalog_key) for pattern in DANGEROUS_ENTITIES_BLACKLIST)
@@ -932,6 +938,9 @@ class Appliance:
         # For each capability src
         if capabilities_names:
             for capability in capabilities_names:
+                if has_fan_speed_alias and capability == "Fanspeed":
+                    continue
+
                 # SECURITY: Skip dangerous entities that could damage appliance functionality
                 # Check against DANGEROUS_ENTITIES_BLACKLIST (e.g., networkInterface/command, networkInterface/startUpCommand)
                 is_dangerous = any(re.match(pattern, capability) for pattern in DANGEROUS_ENTITIES_BLACKLIST)
