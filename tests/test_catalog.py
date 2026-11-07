@@ -1247,6 +1247,8 @@ class TestDryerEntityNames:
             ("sensor", "cycledefaultnotoverwritable", "Default program not overwritable"),
             ("sensor", "cyclesoncontrolpanel", "Programs on control panel"),
             ("sensor", "pntdanticreaseextension", "Anti-crease extension"),
+            ("select", "command", "Dwyw: command"),
+            ("sensor", "appliancefeatureeudwywstep2", "EU Dwyw step 2 feature"),
         ],
     )
     def test_dryer_names_are_in_both_catalogue_files(self, platform, translation_key, expected):
