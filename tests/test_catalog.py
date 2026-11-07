@@ -144,6 +144,21 @@ class TestCatalogDryer:
         assert isinstance(CATALOG_TD, dict)
         assert len(CATALOG_TD) > 0
 
+    def test_end_of_cycle_sound_is_config(self):
+        """endOfCycleSound is appliance-level: no TD program lists it.
+
+        The type catalog replaces the catalog_core entry, so the CONFIG category
+        that #218 gave the core entry has to be repeated here, or the select stays
+        unknown and cannot be changed whatever program is selected.
+        """
+        from homeassistant.const import EntityCategory
+
+        from custom_components.electrolux.catalog_core import CATALOG_BASE
+        from custom_components.electrolux.catalogs.catalog_td import CATALOG_TD
+
+        assert CATALOG_BASE()["endOfCycleSound"].entity_category == EntityCategory.CONFIG
+        assert CATALOG_TD["endOfCycleSound"].entity_category == EntityCategory.CONFIG
+
 
 class TestCatalogRefrigerator:
     """Tests for catalog_cr.py."""
