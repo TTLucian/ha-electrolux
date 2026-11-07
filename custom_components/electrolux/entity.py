@@ -1089,15 +1089,15 @@ class ElectroluxEntity(CoordinatorEntity):
             type_part = f"{type_display}-" if type_display else ""
             display_model = f"Model: {type_part}{short_id}"
 
-        device_info: DeviceInfo = {
-            "identifiers": {(DOMAIN, self.pnc_id)},
-            "name": name or model,
-            "model": display_model,
-            "manufacturer": brand,
-            "serial_number": real_serial,
-        }
+        device_info = DeviceInfo(
+            identifiers={(DOMAIN, self.pnc_id)},
+            name=name or model,
+            model=display_model,
+            manufacturer=brand,
+            serial_number=real_serial,
+        )
         if mac_address:
-            device_info["connections"] = {(CONNECTION_NETWORK_MAC, mac_address)}
+            device_info.connections = {(CONNECTION_NETWORK_MAC, mac_address)}
 
         return device_info
 
