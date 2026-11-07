@@ -588,6 +588,30 @@ class TestExtractValue:
         result = entity.extract_value()
         assert result == "SN-ABC123"
 
+    def test_applianceinfo_source_reads_reported_properties(self):
+        """applianceInfo lives in properties.reported, not at the top of the state.
+
+        applianceType and capabilityHash read unknown on every appliance while the
+        value was only looked up at the top level of appliance_status.
+        """
+        entity = make_entity(
+            entity_attr="applianceType",
+            entity_source="applianceInfo",
+            reported={"applianceInfo": {"applianceType": "WM", "capabilityHash": "af06"}},
+        )
+        entity.is_connected = MagicMock(return_value=True)
+        assert entity.extract_value() == "WM"
+
+    def test_applianceinfo_source_missing_attr_is_none(self):
+        """An applianceInfo block without the attribute reads as unknown."""
+        entity = make_entity(
+            entity_attr="capabilityHash",
+            entity_source="applianceInfo",
+            reported={"applianceInfo": {"applianceType": "WM"}},
+        )
+        entity.is_connected = MagicMock(return_value=True)
+        assert entity.extract_value() is None
+
     def test_returns_none_when_attr_missing(self):
         """Returns None when attr not found in reported state."""
         entity = make_entity(
