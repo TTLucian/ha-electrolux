@@ -1239,6 +1239,29 @@ class TestIsFanspeedDisabled:
         fan = self._make_fan_with_triggers("Auto")
         assert fan._is_fanspeed_disabled() is True
 
+    def test_fuji_lowercase_auto_matches_uppercase_trigger(self):
+        """Fuji reports lowercase modes while its capability triggers use uppercase."""
+        fan = _make_fan(workmode="auto")
+        capability = {
+            "triggers": [
+                {
+                    "action": {
+                        "FanSpeed": {"disabled": True},
+                        "Fanspeed": {"disabled": True},
+                    },
+                    "condition": {
+                        "operand_1": "value",
+                        "operand_2": "AUTO",
+                        "operator": "eq",
+                    },
+                }
+            ]
+        }
+        fan.get_capability = MagicMock(return_value=capability)
+        fan.get_state_attr = MagicMock(return_value="auto")
+
+        assert fan._is_fanspeed_disabled() is True
+
     def test_returns_true_for_quiet_mode(self):
         """Fanspeed is disabled when Workmode == Quiet."""
         fan = self._make_fan_with_triggers("Quiet")
