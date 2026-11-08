@@ -1278,6 +1278,71 @@ class TestApplianceSetup:
         for attr in ("reversePlus", "refresh"):
             assert isinstance(self._td_entity(app, "userSelections", attr), ElectroluxSwitch)
 
+    _WM_UNADVERTISED_REPORTED = {
+        "applianceInfo": {"applianceType": "WM"},
+        "language": "ENGLISH",
+        "miscellaneous": {"defaultSoftPlus": False},
+        "autoDosing": {
+            "adTankAConfiguration": "DISABLED",
+            "adTankADetStandardDose": 110,
+            "adLocalFineTuning": False,
+        },
+        "userSelections": {"adTankASel": "AUTODOSE_OFF", "EWX1493A_ultraMix": False},
+    }
+
+    def test_setup_wm_unadvertised_keys_fall_back_to_read_only(self):
+        """WM keys the appliance reports but does not advertise become read-only entities."""
+        import copy
+
+        from homeassistant.components.sensor import SensorDeviceClass
+
+        from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._WM_UNADVERTISED_REPORTED)}},
+            model="914505412",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        for source, attr in (
+            (None, "language"),
+            ("autoDosing", "adTankAConfiguration"),
+            ("userSelections", "adTankASel"),
+        ):
+            entity = self._td_entity(app, source, attr)
+            assert isinstance(entity, ElectroluxSensor), attr
+            assert entity.device_class == SensorDeviceClass.ENUM, attr
+        assert isinstance(self._td_entity(app, "autoDosing", "adTankADetStandardDose"), ElectroluxSensor)
+        for source, attr in (
+            ("miscellaneous", "defaultSoftPlus"),
+            ("autoDosing", "adLocalFineTuning"),
+            ("userSelections", "EWX1493A_ultraMix"),
+        ):
+            assert isinstance(self._td_entity(app, source, attr), ElectroluxBinarySensor), attr
+
+    def test_setup_wm_advertised_keys_stay_controls(self):
+        """A WM model that advertises the keys keeps the select and switch entities."""
+        import copy
+
+        from custom_components.electrolux.select import ElectroluxSelect
+        from custom_components.electrolux.switch import ElectroluxSwitch
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._WM_UNADVERTISED_REPORTED)}},
+            model="914505412",
+        )
+        capabilities = {
+            "language": {"access": "readwrite", "type": "string", "values": {"ENGLISH": {}, "ITALIAN": {}}},
+            "userSelections/EWX1493A_ultraMix": {"access": "readwrite", "type": "boolean"},
+        }
+        data = self._make_data(capabilities=capabilities, reported=app.reported_state)
+        app.setup(data)
+
+        assert isinstance(self._td_entity(app, None, "language"), ElectroluxSelect)
+        assert isinstance(self._td_entity(app, "userSelections", "EWX1493A_ultraMix"), ElectroluxSwitch)
+
     def test_setup_creates_reported_only_display_light_sensor_for_wm(self):
         """WM displayLight should fall back to a read-only sensor when capability is missing."""
         from custom_components.electrolux.sensor import ElectroluxSensor

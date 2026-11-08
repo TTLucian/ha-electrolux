@@ -343,6 +343,30 @@
             },
             "refresh": {
                 "name": "Rinfresco"
+            },
+            "ewx1493a_intensive": {
+                "name": "Lavaggio intensivo"
+            },
+            "ewx1493a_drymode": {
+                "name": "Modalità asciugatura"
+            },
+            "ewx1493a_easyiron": {
+                "name": "Stiro facile"
+            },
+            "ewx1493a_steammode": {
+                "name": "Modalità vapore"
+            },
+            "ewx1493a_ultramix": {
+                "name": "UltraMix"
+            },
+            "ewx1493a_wetmode": {
+                "name": "Modalità lavaggio"
+            },
+            "adlocalfinetuning": {
+                "name": "Regolazione fine locale del dosaggio automatico"
+            },
+            "defaultsoftplus": {
+                "name": "SoftPlus predefinito"
             }
         },
         "button": {
@@ -1478,6 +1502,15 @@
             },
             "appliancefeatureeudwywstep2": {
                 "name": "Funzione Dwyw passo 2 (UE)"
+            },
+            "adtankadetstandarddose": {
+                "name": "Serbatoio A: dose standard di detersivo"
+            },
+            "adtankbdetstandarddose": {
+                "name": "Serbatoio B: dose standard di detersivo"
+            },
+            "adtankbsoftstandarddose": {
+                "name": "Serbatoio B: dose standard di ammorbidente"
             }
         },
         "switch": {

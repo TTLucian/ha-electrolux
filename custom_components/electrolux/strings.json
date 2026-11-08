@@ -343,6 +343,30 @@
       },
       "refresh": {
         "name": "Refresh program"
+      },
+      "ewx1493a_intensive": {
+        "name": "Intensive wash"
+      },
+      "ewx1493a_drymode": {
+        "name": "Dry mode"
+      },
+      "ewx1493a_easyiron": {
+        "name": "Easy iron"
+      },
+      "ewx1493a_steammode": {
+        "name": "Steam mode"
+      },
+      "ewx1493a_ultramix": {
+        "name": "Ultra mix"
+      },
+      "ewx1493a_wetmode": {
+        "name": "Wet mode"
+      },
+      "adlocalfinetuning": {
+        "name": "Auto dose local fine tuning"
+      },
+      "defaultsoftplus": {
+        "name": "Default soft plus"
       }
     },
     "button": {
@@ -1472,6 +1496,15 @@
       },
       "appliancefeatureeudwywstep2": {
         "name": "EU Dwyw step 2 feature"
+      },
+      "adtankadetstandarddose": {
+        "name": "Tank a detergent standard dose"
+      },
+      "adtankbdetstandarddose": {
+        "name": "Tank b detergent standard dose"
+      },
+      "adtankbsoftstandarddose": {
+        "name": "Tank b softener standard dose"
       }
     },
     "switch": {

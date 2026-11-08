@@ -1279,3 +1279,75 @@ class TestDryerReportedOnlyFallbacks:
             assert CATALOG_TD[key].reported_only_device_class == SensorDeviceClass.ENUM
         for key in ("userSelections/reversePlus", "userSelections/refresh"):
             assert CATALOG_TD[key].reported_only_entity_platform == Platform.BINARY_SENSOR
+
+
+class TestWasherReportedOnlyFallbacks:
+    """WM keys a WM-914505412 reports without advertising them as capabilities.
+
+    ``waterHardness`` and ``waterSoftenerMode`` are left out on purpose: they are
+    kept as selects for issue #192 (see ``TestCatalogOnlyStringSelect``).
+    """
+
+    ENUM_KEYS = (
+        "language",
+        "autoDosing/adTankAConfiguration",
+        "autoDosing/adTankBConfiguration",
+        "userSelections/adTankASel",
+        "userSelections/adTankBSel",
+    )
+    NUMBER_KEYS = (
+        "autoDosing/adTankADetStandardDose",
+        "autoDosing/adTankBDetStandardDose",
+        "autoDosing/adTankBSoftStandardDose",
+    )
+    BOOLEAN_KEYS = (
+        "userSelections/EWX1493A_intensive",
+        "userSelections/EWX1493A_dryMode",
+        "userSelections/EWX1493A_easyIron",
+        "userSelections/EWX1493A_steamMode",
+        "userSelections/EWX1493A_ultraMix",
+        "userSelections/EWX1493A_wetMode",
+        "autoDosing/adLocalFineTuning",
+        "miscellaneous/defaultSoftPlus",
+    )
+
+    def test_unadvertised_keys_have_read_only_fallbacks(self):
+        """These keys fall back to read-only entities when the capability is missing."""
+        from homeassistant.components.sensor import SensorDeviceClass
+        from homeassistant.const import Platform
+
+        from custom_components.electrolux.catalogs.catalog_wm import CATALOG_WM
+
+        for key in self.ENUM_KEYS:
+            assert CATALOG_WM[key].reported_only_entity_platform == Platform.SENSOR
+            assert CATALOG_WM[key].reported_only_device_class == SensorDeviceClass.ENUM
+        for key in self.NUMBER_KEYS:
+            assert CATALOG_WM[key].reported_only_entity_platform == Platform.SENSOR
+        for key in self.BOOLEAN_KEYS:
+            assert CATALOG_WM[key].reported_only_entity_platform == Platform.BINARY_SENSOR
+
+    @pytest.mark.parametrize(
+        ("platform", "translation_key"),
+        [("sensor", k) for k in ("adtankadetstandarddose", "adtankbdetstandarddose", "adtankbsoftstandarddose")]
+        + [
+            ("binary_sensor", k)
+            for k in (
+                "ewx1493a_intensive",
+                "ewx1493a_drymode",
+                "ewx1493a_easyiron",
+                "ewx1493a_steammode",
+                "ewx1493a_ultramix",
+                "ewx1493a_wetmode",
+                "adlocalfinetuning",
+                "defaultsoftplus",
+            )
+        ],
+    )
+    def test_fallback_entities_have_names(self, platform, translation_key):
+        """The new sensor and binary sensor platforms need a name in every catalogue file."""
+        from pathlib import Path
+
+        repo = Path(__file__).resolve().parent.parent
+        for filename in ("strings.json", "translations/en.json", "translations/it.json"):
+            data = json.loads((repo / "custom_components/electrolux" / filename).read_text(encoding="utf-8"))
+            assert data["entity"][platform][translation_key]["name"], f"{filename}: entity.{platform}.{translation_key}"
