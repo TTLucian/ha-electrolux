@@ -1,7 +1,7 @@
 {
-    "config": {
-        "step": {
-            "user": {
+  "config": {
+    "step": {
+      "user": {
                 "title": "Nastavenie Electrolux",
                 "description": "Pripojte svoje spotrebiče Electrolux pomocou poverení API z portálu Electrolux Developer Portal.\n\n**Ak chcete získať poverenia API:**\n1. Navštívte stránku {url}\n2. Zaregistrujte sa a vytvorte aplikáciu\n3. Získajte kľúč API, prístupový token a obnovovací token\n\nAk potrebujete pomoc, navštívte integračnú dokumentáciu.",
                 "data": {
@@ -26,13 +26,13 @@
                     "api_key": "API kľúč",
                     "access_token": "Prístupový token",
                     "refresh_token": "Obnoviť token"
-                }
-            }
-        },
-        "error": {
-            "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
-        },
-        "abort": {
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Neplatné poverenia API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token z portálu Electrolux Developer Portal."
+    },
+    "abort": {
             "single_instance_allowed": "Je povolená iba jedna konfigurácia Electrolux.",
             "already_configured": "Toto zariadenie je už nakonfigurované.",
             "already_configured_account": "Tento kľúč API je už nakonfigurovaný.",
@@ -41,22 +41,22 @@
         }
     },
     "options": {
-        "step": {
-            "user": {
-                "title": "Možnosti Electrolux",
-                "description": "Aktualizujte svoje poverenia Electrolux API, ak ich platnosť vypršala.\n\n**Vygenerovanie nových poverení:**\n1. Navštívte stránku {url}\n2. Vygenerujte nový kľúč API, prístupový token a obnovovací token\n3. Aktualizujte polia nižšie\n\n**Bezpečnostná poznámka:** Polia Access Token a Refresh Token sú zámerne ponechané prázdne. Vždy generujte nové tokeny z portálu – nikdy nepoužívajte ani nezdieľajte existujúce tokeny.",
+      "step": {
+        "user": {
+          "title": "Možnosti Electrolux",
+          "description": "Aktualizujte svoje poverenia Electrolux API, ak ich platnosť vypršala.\n\n**Vygenerovanie nových poverení:**\n1. Navštívte stránku {url}\n2. Vygenerujte nový kľúč API, prístupový token a obnovovací token\n3. Aktualizujte polia nižšie\n\n**Bezpečnostná poznámka:** Polia Access Token a Refresh Token sú zámerne ponechané prázdne. Vždy generujte nové tokeny z portálu – nikdy nepoužívajte ani nezdieľajte existujúce tokeny.",
                 "data": {
                     "api_key": "API kľúč",
                     "access_token": "Prístupový token",
                     "refresh_token": "Obnoviť token"
-                }
-            }
-        },
-        "error": {
-            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
         }
+      }
     },
-    "issues": {
+    "error": {
+            "invalid_auth": "Neplatné poverenia rozhrania API. Skontrolujte svoj kľúč API, prístupový token a obnovovací token."
+    }
+  },
+  "issues": {
         "invalid_refresh_token": {
             "title": "Problém s autentifikáciou Electrolux",
             "fix_flow": {
@@ -337,30 +337,36 @@
             },
             "ovfood_probe_end_of_cooking": {
                 "name": "Sonda Koniec varenia"
-            }
-        },
-        "button": {
-            "command": {
+      },
+      "reverseplus": {
+        "name": "Reverzný plus"
+      },
+      "refresh": {
+        "name": "Program obnovy"
+      }
+    },
+    "button": {
+      "command": {
                 "name": "Sieťový príkaz"
-            },
-            "startupcommand": {
+      },
+      "startupcommand": {
                 "name": "Príkaz na spustenie"
-            },
-            "manualsync": {
+      },
+      "manualsync": {
                 "name": "Manuálna synchronizácia"
-            },
+      },
             "executecommand": {
                 "name": "Sila"
-            },
+      },
             "executecommand_on": {
                 "name": "Zapnúť"
-            },
+      },
             "executecommand_off": {
                 "name": "Vypnúť"
-            },
+      },
             "executecommand_start": {
                 "name": "Spustiť"
-            },
+      },
             "executecommand_pause": {
                 "name": "Pauza"
             },
@@ -544,6 +550,12 @@
             }
         },
         "select": {
+      "drynessvalue": {
+        "name": "Úroveň suchosti"
+      },
+      "steamvalue": {
+        "name": "Úroveň na Steame"
+      },
             "humiditytarget": {
                 "name": "Cieľová vlhkosť"
             },
@@ -582,9 +594,36 @@
             },
             "hoodfiltergreaseindication": {
                 "name": "Indikácia mazacieho filtra"
-            }
-        },
+            },
+      "command": {
+        "name": "Dwyw: príkaz"
+      }
+    },
         "sensor": {
+      "appliancefeaturefinishin": {
+        "name": "Dokončenie vo funkcii"
+      },
+      "appliancefeaturememoryposition": {
+        "name": "Funkcia pamäťových pozícií"
+      },
+      "categorymycare": {
+        "name": "Kategória Moja starostlivosť"
+      },
+      "categorymyhome": {
+        "name": "Kategória Môj domov"
+      },
+      "categorymysport": {
+        "name": "Kategória Môj šport"
+      },
+      "cycledefaultnotoverwritable": {
+        "name": "Predvolený program nie je možné prepísať"
+      },
+      "cyclesoncontrolpanel": {
+        "name": "Programy na ovládacom paneli"
+      },
+      "pntdanticreaseextension": {
+        "name": "Funkcia proti pokrčeniu"
+      },
             "displaylight": {
                 "name": "Kontrolka displeja"
             },
@@ -1436,6 +1475,9 @@
             },
             "hobcoil": {
                 "name": "Zvitok"
+      },
+      "appliancefeatureeudwywstep2": {
+        "name": "Funkcia EU Dwyw, krok 2"
             }
         },
         "switch": {
