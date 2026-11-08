@@ -260,36 +260,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _close_coordinator))
     _LOGGER.debug("async_setup_entry shutdown cleanup listener registered")
 
-    entry.async_on_unload(entry.add_update_listener(update_listener))
-    _LOGGER.debug("Update listener registered")
+    # No update listener: every flow that changes credentials reloads the entry
+    # itself (async_update_reload_and_abort in reauth/reconfigure, an explicit
+    # reload in the options and repair flows). Token refreshes
+    # persist via async_update_entry and must not reload, which is now the
+    # default rather than something a timestamp check has to prevent.
 
     _LOGGER.info(f"Electrolux integration setup completed for '{entry.title}'")
     return True
-
-
-async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
-    """Update listener.
-
-    Only reload when options change, not when tokens are auto-refreshed.
-    Token updates call async_update_entry, which triggers this listener.
-    We detect token-only changes by checking the timestamp and skip reload.
-    """
-    coordinator: ElectroluxCoordinator | None = config_entry.runtime_data
-
-    if coordinator and hasattr(coordinator, "_last_token_update"):
-        # Check if this update happened very recently (within last 2 seconds)
-        # If so, it's likely the token refresh callback that just updated the config
-        time_since_token_update = time.time() - coordinator._last_token_update
-
-        if time_since_token_update < 2.0:
-            _LOGGER.debug(
-                f"[AUTH-DEBUG] Update listener: Recent token update detected ({time_since_token_update:.1f}s ago), skipping reload"
-            )
-            return
-
-    # Options changed or first load - reload is needed
-    _LOGGER.info("Update listener: Options or settings changed, reloading integration")
-    await hass.config_entries.async_reload(config_entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -428,12 +428,11 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             new_data["token_expires_at"] = expires_at
 
             try:
-                # Mark timestamp BEFORE async_update_entry to prevent reload
-                # The update_listener is triggered synchronously by async_update_entry,
-                # so it needs to see this timestamp immediately
+                # Kept for diagnostics; nothing reloads on a token-only update any more
                 self._last_token_update = time.time()
 
-                # Update config entry data - update_listener will check timestamp to prevent reload
+                # Persist the rotated tokens. No update listener is registered, so this
+                # does not reload the entry.
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
                 issue_registry.async_delete_issue(
                     self.hass,
