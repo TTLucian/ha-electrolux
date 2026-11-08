@@ -252,7 +252,7 @@
                 "name": "Se produjo el elemento de mantenimiento 10"
             },
             "occured": {
-                "name": "Se produjo el mantenimiento 1"
+                "name": "Se produjo el mantenimiento {index}"
             },
             "ecomode": {
                 "name": "Modo ecológico"
@@ -934,7 +934,7 @@
                 "name": "enjuague adicional"
             },
             "threshold": {
-                "name": "Umbral de mantenimiento 1"
+                "name": "Umbral de mantenimiento {index}"
             },
             "timezonedatabasename": {
                 "name": "Base de datos de zona horaria"

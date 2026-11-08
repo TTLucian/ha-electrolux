@@ -252,7 +252,7 @@
                 "name": "Vedligeholdelsespunkt 10 fandt sted"
             },
             "occured": {
-                "name": "Vedligeholdelse 1 fandt sted"
+                "name": "Vedligeholdelse {index} fandt sted"
             },
             "ecomode": {
                 "name": "Øko-tilstand"
@@ -934,7 +934,7 @@
                 "name": "Ekstra skylning"
             },
             "threshold": {
-                "name": "Vedligeholdelse 1 tærskel"
+                "name": "Vedligeholdelse {index} tærskel"
             },
             "timezonedatabasename": {
                 "name": "Tidszonedatabase"

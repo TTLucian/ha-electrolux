@@ -252,7 +252,7 @@
                 "name": "L'élément de maintenance 10 s'est produit"
             },
             "occured": {
-                "name": "La maintenance 1 a eu lieu"
+                "name": "La maintenance {index} a eu lieu"
             },
             "ecomode": {
                 "name": "Mode éco"
@@ -934,7 +934,7 @@
                 "name": "Rinçage supplémentaire"
             },
             "threshold": {
-                "name": "Seuil de maintien 1"
+                "name": "Seuil de maintien {index}"
             },
             "timezonedatabasename": {
                 "name": "Base de données des fuseaux horaires"

@@ -252,7 +252,7 @@
                 "name": "Ënnerhalt Punkt 10 geschitt"
             },
             "occured": {
-                "name": "Ënnerhalt 1 geschitt"
+                "name": "Ënnerhalt {index} geschitt"
             },
             "ecomode": {
                 "name": "Eco-Modus"
@@ -934,7 +934,7 @@
                 "name": "Extra Spülen"
             },
             "threshold": {
-                "name": "Ënnerhalt 1 Schwell"
+                "name": "Ënnerhalt {index} Schwell"
             },
             "timezonedatabasename": {
                 "name": "Zäitzone Datebank"

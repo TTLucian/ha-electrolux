@@ -252,7 +252,7 @@
                 "name": "Vyskytla sa položka údržby 10"
             },
             "occured": {
-                "name": "Nastala údržba 1"
+                "name": "Nastala údržba {index}"
             },
             "ecomode": {
                 "name": "Eco režim"
@@ -934,7 +934,7 @@
                 "name": "Extra plákanie"
             },
             "threshold": {
-                "name": "Prah údržby 1"
+                "name": "Prah údržby {index}"
             },
             "timezonedatabasename": {
                 "name": "Databáza časových pásiem"

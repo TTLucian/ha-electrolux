@@ -252,7 +252,7 @@
         "name": "Maintenance item 10 occurred"
       },
       "occured": {
-        "name": "Maintenance 1 occurred"
+        "name": "Maintenance {index} occurred"
       },
       "ecomode": {
         "name": "Eco mode"
@@ -973,7 +973,7 @@
         "name": "Extra rinse"
       },
       "threshold": {
-        "name": "Maintenance 1 threshold"
+        "name": "Maintenance {index} threshold"
       },
       "timezonedatabasename": {
         "name": "Time zone database"

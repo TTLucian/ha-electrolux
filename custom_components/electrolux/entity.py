@@ -211,6 +211,11 @@ class ElectroluxEntity(CoordinatorEntity):
             _tk = _tk.replace("__", "_")
         self._attr_translation_key = _tk.strip("_")
 
+        # The care and maintenance entries are numbered ("applianceCareAndMaintenance0/3"):
+        # pass the number so one translation key names all of them ("Maintenance {index} ...").
+        if self.entity_source and self.entity_source.startswith("applianceCareAndMaintenance"):
+            self._attr_translation_placeholders = {"index": self.entity_source.rpartition("/")[-1]}
+
         # Do not force `entity_id` here. Home Assistant's entity registry
         # manages stable `entity_id` values based on `unique_id`.
         # Preserving or migrating existing entity_ids should be done

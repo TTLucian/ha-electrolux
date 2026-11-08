@@ -252,7 +252,7 @@
                 "name": "Prišlo je do postavke vzdrževanja 10"
             },
             "occured": {
-                "name": "Prišlo je do vzdrževanja 1"
+                "name": "Prišlo je do vzdrževanja {index}"
             },
             "ecomode": {
                 "name": "Eco način"
@@ -934,7 +934,7 @@
                 "name": "Dodatno izpiranje"
             },
             "threshold": {
-                "name": "Prag vzdrževanja 1"
+                "name": "Prag vzdrževanja {index}"
             },
             "timezonedatabasename": {
                 "name": "Baza časovnih pasov"
