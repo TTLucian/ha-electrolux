@@ -11,6 +11,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 
 from custom_components.electrolux.api_client import (
     ElectroluxApiClient,
+    _SseStreamDropFilter,
     _TokenRefreshHandler,
     get_electrolux_session,
     retry_with_backoff,
@@ -1411,3 +1412,139 @@ class TestReportTokenRefreshErrorNoHass:
         client.hass = None
         # Should not raise
         await client._report_token_refresh_error("test refresh failure")
+
+
+# ---------------------------------------------------------------------------
+# _SseStreamDropFilter — #343: expected SSE stream drops are not errors
+# ---------------------------------------------------------------------------
+
+SDK_LOGGER_NAME = "electrolux_group_developer_sdk.client.appliance_client"
+
+
+class TestSseStreamDropFilter:
+    def _make_record(self, message: str, level: int = logging.ERROR) -> logging.LogRecord:
+        return logging.LogRecord(
+            name=SDK_LOGGER_NAME,
+            level=level,
+            pathname="",
+            lineno=0,
+            msg=message,
+            args=(),
+            exc_info=None,
+        )
+
+    def _filter(self, record: logging.LogRecord) -> logging.LogRecord:
+        _SseStreamDropFilter().filter(record)
+        return record
+
+    def test_reported_payload_truncation_is_downgraded(self):
+        """The exact record reported in #343 lands as a warning, not an error."""
+        record = self._make_record(
+            "Unexpected SSE error: Response payload is not completed: "
+            "<TransferEncodingError: 400, message='Not enough data to satisfy transfer length header.'>"
+        )
+        self._filter(record)
+        assert record.levelno == logging.WARNING
+        assert record.levelname == "WARNING"
+
+    def test_server_closed_connection_is_downgraded(self):
+        record = self._filter(self._make_record("Unexpected SSE error: Server disconnected"))
+        assert record.levelno == logging.WARNING
+
+    def test_sdk_connection_error_is_downgraded(self):
+        """The SDK's ConnectionError branch for a clean server-side close is downgraded too."""
+        record = self._filter(self._make_record("SSE connection error: SSE connection closed by server"))
+        assert record.levelno == logging.WARNING
+
+    def test_read_timeout_is_downgraded(self):
+        record = self._filter(self._make_record("SSE connection error: SSE stream read timed out"))
+        assert record.levelno == logging.WARNING
+
+    def test_lazily_formatted_message_is_downgraded(self):
+        """The SDK logs with %s placeholders; matching happens after formatting."""
+        record = logging.LogRecord(
+            name=SDK_LOGGER_NAME,
+            level=logging.ERROR,
+            pathname="",
+            lineno=0,
+            msg="Unexpected SSE error: %s",
+            args=("Response payload is not completed",),
+            exc_info=None,
+        )
+        self._filter(record)
+        assert record.levelno == logging.WARNING
+
+    def test_token_refresh_failure_keeps_error_level(self):
+        """Auth failures on the same logger are real errors (#343 release note case)."""
+        record = self._filter(self._make_record("Unexpected SSE error: Token expired and refresh failed"))
+        assert record.levelno == logging.ERROR
+
+    def test_http_status_error_keeps_error_level(self):
+        record = self._filter(self._make_record("SSE HTTP error: 401 - unauthorized"))
+        assert record.levelno == logging.ERROR
+
+    def test_json_decode_failure_keeps_error_level(self):
+        record = self._filter(self._make_record("Failed to decode SSE JSON: {not json"))
+        assert record.levelno == logging.ERROR
+
+    def test_benign_drop_below_error_level_is_left_alone(self):
+        record = self._filter(self._make_record("Unexpected SSE error: Server disconnected", level=logging.DEBUG))
+        assert record.levelno == logging.DEBUG
+
+    def test_unformattable_record_does_not_break_logging(self):
+        record = logging.LogRecord(
+            name=SDK_LOGGER_NAME,
+            level=logging.ERROR,
+            pathname="",
+            lineno=0,
+            msg="%d",
+            args=("not-a-number",),
+            exc_info=None,
+        )
+        # getMessage() raises TypeError on the bad placeholder; the filter swallows it
+        assert _SseStreamDropFilter().filter(record) is True
+        assert record.levelno == logging.ERROR
+
+
+# ---------------------------------------------------------------------------
+# ElectroluxApiClient — SSE log filter attachment (#343)
+# ---------------------------------------------------------------------------
+
+
+class TestApiClientSseLogFilter:
+    def test_client_attaches_filter_to_sdk_logger(self):
+        client = _make_client()
+        sdk_logger = logging.getLogger(SDK_LOGGER_NAME)
+        assert client._sse_log_filter in sdk_logger.filters
+        assert client._sse_log_logger is sdk_logger
+
+    @pytest.mark.asyncio
+    async def test_close_removes_filter_from_sdk_logger(self):
+        client = _make_client()
+        sdk_logger = logging.getLogger(SDK_LOGGER_NAME)
+        log_filter = client._sse_log_filter
+        client.disconnect_websocket = AsyncMock()
+
+        await client.close()
+
+        assert log_filter not in sdk_logger.filters
+        assert client._sse_log_filter is None
+        assert client._sse_log_logger is None
+
+    @pytest.mark.asyncio
+    async def test_sdk_error_reaches_handlers_as_warning(self, caplog):
+        """End to end: the SDK's ERROR for a dropped stream is captured as a WARNING."""
+        client = _make_client()
+        sdk_logger = logging.getLogger(SDK_LOGGER_NAME)
+        try:
+            with caplog.at_level(logging.DEBUG):
+                sdk_logger.error(
+                    "Unexpected SSE error: Response payload is not completed: %s",
+                    "<TransferEncodingError: 400, message='Not enough data to satisfy transfer length header.'>",
+                )
+            captured = [record for record in caplog.records if record.name == SDK_LOGGER_NAME]
+            assert captured, "expected the SDK record to reach the log handlers"
+            assert captured[-1].levelno == logging.WARNING
+        finally:
+            client.disconnect_websocket = AsyncMock()
+            await client.close()

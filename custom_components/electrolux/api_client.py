@@ -186,6 +186,59 @@ class _TokenRefreshHandler(logging.Handler):
             _LOGGER.exception("TokenRefreshHandler emit failed")
 
 
+class _SseStreamDropFilter(logging.Filter):
+    """Downgrade expected SSE stream drops reported by the SDK from ERROR to WARNING (#343).
+
+    The Electrolux cloud occasionally closes the long-lived SSE response in the
+    middle of a message. The SDK treats that as an unexpected failure, logs it
+    at ERROR, and then reconnects with backoff - so the entry describes an event
+    the stream already recovered from on its own, and a handful of them a day
+    only tells the user something broke when nothing did.
+
+    Only the reconnect loop's transport-drop reports match. HTTP status errors,
+    JSON decode failures and auth failures are real problems and keep their
+    level, as does every record that is not already at ERROR or above.
+    """
+
+    # The two reconnect-loop messages that report a dropped stream. Anything
+    # else on the SDK's client logger (``SSE HTTP error: ...``, ``Failed to
+    # decode SSE JSON: ...``) is a genuine failure and passes through untouched.
+    _DROP_PREFIXES = ("unexpected sse error:", "sse connection error:")
+
+    # Transport-level truncation or close of an otherwise healthy stream,
+    # matched case-insensitively against the formatted message.
+    _DROP_MARKERS = (
+        "response payload is not completed",  # aiohttp.ClientPayloadError mid-read (#343)
+        "not enough data to satisfy transfer length header",  # the TransferEncodingError it wraps
+        "transferencodingerror",
+        "server disconnected",  # aiohttp.ServerDisconnectedError
+        "connection reset",
+        "broken pipe",
+        "connection closed by server",  # clean EOF the SDK raises as ConnectionError
+        "connection ended by server",
+        "response stream closed unexpectedly",
+        "read timed out",  # sock_read expiry on an idle stream
+    )
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            message = record.getMessage().lower()
+        except Exception:
+            # Never let a malformed record break the SDK's own logging.
+            return True
+
+        if not message.startswith(self._DROP_PREFIXES):
+            return True
+
+        if record.levelno >= logging.ERROR and any(marker in message for marker in self._DROP_MARKERS):
+            record.levelno = logging.WARNING
+            record.levelname = "WARNING"
+        return True
+
+
+_SSE_SDK_LOGGER_NAME = "electrolux_group_developer_sdk.client.appliance_client"
+
+
 class ElectroluxApiClient:
     """Wrapper for the new Electrolux API client to maintain compatibility."""
 
@@ -209,6 +262,8 @@ class ElectroluxApiClient:
         self._client = ApplianceClient(self._token_manager)
         self._token_handler = None  # Track handler
         self._token_logger = None  # Track logger
+        self._sse_log_filter = None  # Track SSE log level filter
+        self._sse_log_logger = None  # Track logger the SSE filter is attached to
         self._sse_task: asyncio.Task[Any] | None = None  # Track SSE background task
         # Serialize SSE start/disconnect so concurrent listen_websocket calls cannot
         # leave two live SSE streams: the first (and only) stream wins; a later caller
@@ -225,6 +280,17 @@ class ElectroluxApiClient:
                 self._token_logger.addHandler(self._token_handler)
             except Exception:
                 _LOGGER.exception("Failed to attach token refresh logger handler")
+
+        # Downgrade the SDK's expected SSE stream-drop reports from ERROR to
+        # WARNING so a server-side disconnect does not read as a failure (#343).
+        # The filter does not need hass - the SDK writes those records wherever
+        # the client runs - so every client attaches it.
+        try:
+            self._sse_log_filter = _SseStreamDropFilter()
+            self._sse_log_logger = logging.getLogger(_SSE_SDK_LOGGER_NAME)
+            self._sse_log_logger.addFilter(self._sse_log_filter)
+        except Exception:
+            _LOGGER.exception("Failed to attach SSE log level filter")
 
     def set_token_update_callback(self, callback):
         """Set the callback for token updates."""
@@ -593,3 +659,9 @@ class ElectroluxApiClient:
             self._token_logger.removeHandler(self._token_handler)
             self._token_handler = None
             self._token_logger = None
+
+        # 3. Remove the SSE log level filter (#343)
+        if self._sse_log_filter and self._sse_log_logger:
+            self._sse_log_logger.removeFilter(self._sse_log_filter)
+            self._sse_log_filter = None
+            self._sse_log_logger = None
