@@ -181,6 +181,7 @@ class TestAsyncSetupEntry:
             result = await async_setup_entry(mock_hass, mock_entry)
 
         assert result is True
+        mock_entry.add_update_listener.assert_not_called()
         mock_coordinator.async_login.assert_awaited_once()
         mock_coordinator.setup_entities.assert_awaited_once()
         mock_hass.config_entries.async_forward_entry_setups.assert_awaited_once()
