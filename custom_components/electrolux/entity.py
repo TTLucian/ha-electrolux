@@ -33,6 +33,13 @@ _MAINTENANCE_SOURCE = re.compile(r"applianceCareAndMaintenance\d+/(\d+)")
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
+# Selects that several sources share by leaf name (userSelections, cyclePersonalization,
+# dwywDataToDryer). Outside userSelections they get a source-prefixed translation key.
+_SOURCE_SPECIFIC_SELECT_SOURCES = frozenset({"cyclePersonalization", "dwywDataToDryer"})
+_SOURCE_SPECIFIC_SELECT_KEYS = frozenset(
+    {"analogspinspeed", "analogtemperature", "extrarinsenumber", "programuid", "timemanagerlevel"}
+)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -214,6 +221,14 @@ class ElectroluxEntity(CoordinatorEntity):
         while "__" in _tk:
             _tk = _tk.replace("__", "_")
         self._attr_translation_key = _tk.strip("_")
+        # These selects exist under userSelections and under other sources with the
+        # same leaf name; give the others their own key so each can be named apart.
+        if (
+            entity_type == Platform.SELECT
+            and entity_source in _SOURCE_SPECIFIC_SELECT_SOURCES
+            and self._attr_translation_key in _SOURCE_SPECIFIC_SELECT_KEYS
+        ):
+            self._attr_translation_key = f"{entity_source.lower()}_{self._attr_translation_key}"
 
         # The care and maintenance entries are numbered ("applianceCareAndMaintenance0/3"):
         # pass the number so one translation key names all of them ("Maintenance {index} ...").

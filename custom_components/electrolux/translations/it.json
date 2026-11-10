@@ -621,6 +621,39 @@
             },
             "command": {
                 "name": "Dwyw: comando"
+            },
+            "analogspinspeed": {
+                "name": "Velocità di centrifuga"
+            },
+            "analogtemperature": {
+                "name": "Temperatura"
+            },
+            "extrarinsenumber": {
+                "name": "Risciacqui extra"
+            },
+            "programuid": {
+                "name": "UID del programma"
+            },
+            "timemanagerlevel": {
+                "name": "Gestione del tempo"
+            },
+            "cyclepersonalization_analogspinspeed": {
+                "name": "Personalizzazione ciclo: velocità di centrifuga"
+            },
+            "cyclepersonalization_analogtemperature": {
+                "name": "Personalizzazione ciclo: temperatura"
+            },
+            "cyclepersonalization_extrarinsenumber": {
+                "name": "Personalizzazione ciclo: risciacqui extra"
+            },
+            "cyclepersonalization_programuid": {
+                "name": "Personalizzazione ciclo: uid del programma"
+            },
+            "cyclepersonalization_timemanagerlevel": {
+                "name": "Personalizzazione ciclo: gestione del tempo"
+            },
+            "dwywdatatodryer_programuid": {
+                "name": "DWYW dati all'asciugatrice: UID del programma"
             }
         },
         "sensor": {

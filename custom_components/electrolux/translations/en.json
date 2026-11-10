@@ -621,6 +621,39 @@
       },
       "command": {
         "name": "Dwyw: command"
+      },
+      "analogspinspeed": {
+        "name": "Spin speed"
+      },
+      "analogtemperature": {
+        "name": "Temperature"
+      },
+      "extrarinsenumber": {
+        "name": "Extra rinses"
+      },
+      "programuid": {
+        "name": "Program UID"
+      },
+      "timemanagerlevel": {
+        "name": "Time manager"
+      },
+      "cyclepersonalization_analogspinspeed": {
+        "name": "Cycle personalization spin speed"
+      },
+      "cyclepersonalization_analogtemperature": {
+        "name": "Cycle personalization temperature"
+      },
+      "cyclepersonalization_extrarinsenumber": {
+        "name": "Cycle personalization extra rinses"
+      },
+      "cyclepersonalization_programuid": {
+        "name": "Cycle personalization program uid"
+      },
+      "cyclepersonalization_timemanagerlevel": {
+        "name": "Cycle personalization time manager"
+      },
+      "dwywdatatodryer_programuid": {
+        "name": "Dwyw data to dryer program UID"
       }
     },
     "sensor": {
