@@ -252,7 +252,7 @@
                 "name": "Došlo k bodu údržby 10"
             },
             "occured": {
-                "name": "Proběhla údržba 1"
+                "name": "Proběhla údržba {index}"
             },
             "ecomode": {
                 "name": "Eco režim"
@@ -934,7 +934,7 @@
                 "name": "Extra máchání"
             },
             "threshold": {
-                "name": "Prahová hodnota údržby 1"
+                "name": "Prahová hodnota údržby {index}"
             },
             "timezonedatabasename": {
                 "name": "Databáze časových pásem"

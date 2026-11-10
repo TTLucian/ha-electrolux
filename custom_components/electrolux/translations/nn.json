@@ -252,7 +252,7 @@
                 "name": "Vedlikeholdselement 10 oppstod"
             },
             "occured": {
-                "name": "Vedlikehold 1 oppstod"
+                "name": "Vedlikehold {index} oppstod"
             },
             "ecomode": {
                 "name": "Eco-modus"
@@ -934,7 +934,7 @@
                 "name": "Ekstra skylling"
             },
             "threshold": {
-                "name": "Vedlikehold 1 terskel"
+                "name": "Vedlikehold {index} terskel"
             },
             "timezonedatabasename": {
                 "name": "Tidssone-database"

@@ -252,7 +252,7 @@
                 "name": "Manutenzione 10 richiesta"
             },
             "occured": {
-                "name": "Manutenzione 1 richiesta"
+                "name": "Manutenzione {index} richiesta"
             },
             "ecomode": {
                 "name": "Modalità ecologica"
@@ -973,7 +973,7 @@
                 "name": "Risciacquo extra"
             },
             "threshold": {
-                "name": "Soglia manutenzione 1"
+                "name": "Soglia manutenzione {index}"
             },
             "timezonedatabasename": {
                 "name": "Database dei fusi orari"

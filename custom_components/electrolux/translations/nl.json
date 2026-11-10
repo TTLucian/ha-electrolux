@@ -252,7 +252,7 @@
                 "name": "Onderhoudsitem 10 is opgetreden"
             },
             "occured": {
-                "name": "Onderhoud 1 heeft plaatsgevonden"
+                "name": "Onderhoud {index} heeft plaatsgevonden"
             },
             "ecomode": {
                 "name": "Eco-modus"
@@ -934,7 +934,7 @@
                 "name": "Extra spoeling"
             },
             "threshold": {
-                "name": "Onderhoud 1 drempel"
+                "name": "Onderhoud {index} drempel"
             },
             "timezonedatabasename": {
                 "name": "Tijdzonedatabase"

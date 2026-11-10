@@ -252,7 +252,7 @@
                 "name": "10. karbantartási tétel történt"
             },
             "occured": {
-                "name": "Az 1. karbantartás megtörtént"
+                "name": "Az {index}. karbantartás megtörtént"
             },
             "ecomode": {
                 "name": "Eco mód"
@@ -934,7 +934,7 @@
                 "name": "Extra öblítés"
             },
             "threshold": {
-                "name": "Karbantartás 1 küszöb"
+                "name": "Karbantartás {index} küszöb"
             },
             "timezonedatabasename": {
                 "name": "Időzóna adatbázis"

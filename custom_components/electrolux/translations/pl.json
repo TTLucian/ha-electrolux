@@ -252,7 +252,7 @@
                 "name": "Wystąpił punkt konserwacji nr 10"
             },
             "occured": {
-                "name": "Wystąpiła konserwacja 1"
+                "name": "Wystąpiła konserwacja {index}"
             },
             "ecomode": {
                 "name": "Tryb ekologiczny"
@@ -934,7 +934,7 @@
                 "name": "Dodatkowe płukanie"
             },
             "threshold": {
-                "name": "Próg konserwacji 1"
+                "name": "Próg konserwacji {index}"
             },
             "timezonedatabasename": {
                 "name": "Baza danych stref czasowych"

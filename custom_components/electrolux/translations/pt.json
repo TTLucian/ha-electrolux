@@ -252,7 +252,7 @@
                 "name": "O item de manutenção 10 ocorreu"
             },
             "occured": {
-                "name": "Manutenção 1 ocorreu"
+                "name": "Manutenção {index} ocorreu"
             },
             "ecomode": {
                 "name": "Modo ecológico"
@@ -934,7 +934,7 @@
                 "name": "Enxágue extra"
             },
             "threshold": {
-                "name": "Limite de manutenção 1"
+                "name": "Limite de manutenção {index}"
             },
             "timezonedatabasename": {
                 "name": "Banco de dados de fuso horário"

@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import re
 import time
 from typing import Any, cast
 
@@ -26,6 +27,9 @@ from .coordinator import ElectroluxCoordinator
 from .model import ElectroluxDevice
 from .models import Appliance, Appliances, ApplianceState
 from .util import ElectroluxApiClient
+
+# Numbered care and maintenance entries, e.g. "applianceCareAndMaintenance0/3".
+_MAINTENANCE_SOURCE = re.compile(r"applianceCareAndMaintenance\d+/(\d+)")
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -210,6 +214,11 @@ class ElectroluxEntity(CoordinatorEntity):
         while "__" in _tk:
             _tk = _tk.replace("__", "_")
         self._attr_translation_key = _tk.strip("_")
+
+        # The care and maintenance entries are numbered ("applianceCareAndMaintenance0/3"):
+        # pass the number so one translation key names all of them ("Maintenance {index} ...").
+        if self.entity_source and (match := _MAINTENANCE_SOURCE.fullmatch(self.entity_source)):
+            self._attr_translation_placeholders = {"index": match.group(1)}
 
         # Do not force `entity_id` here. Home Assistant's entity registry
         # manages stable `entity_id` values based on `unique_id`.
