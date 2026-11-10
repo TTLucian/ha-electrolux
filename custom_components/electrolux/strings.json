@@ -624,6 +624,9 @@
       }
     },
     "sensor": {
+      "starttime": {
+        "name": "Delayed start"
+      },
       "appliancefeaturefinishin": {
         "name": "Finish in feature"
       },

@@ -624,6 +624,9 @@
             }
         },
         "sensor": {
+            "starttime": {
+                "name": "Avvio ritardato"
+            },
             "appliancefeaturefinishin": {
                 "name": "Funzione Termina tra"
             },

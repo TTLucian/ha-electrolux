@@ -147,6 +147,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         unit=UnitOfTime.SECONDS,
         entity_category=None,
         entity_icon="mdi:clock-start",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.DURATION,
     ),
     "stopTime": ElectroluxDevice(
         capability_info={
