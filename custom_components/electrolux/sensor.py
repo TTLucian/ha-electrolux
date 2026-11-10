@@ -242,9 +242,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             if value.lower().replace(" ", "") == "endofcycle":
                 value = "END_OF_CYCLE"
 
-            if "_" in value:
-                value = value.replace("_", " ")
-            value = value.title()
+            # applianceType and capabilityHash are identifiers: title-casing turns "WM"
+            # into "Wm" and mangles the hex digits of a hash.
+            if self.entity_source != "applianceInfo":
+                if "_" in value:
+                    value = value.replace("_", " ")
+                value = value.title()
 
         if value is None:
             return None

@@ -733,6 +733,19 @@ class TestSensorMissingCoverage:
         basic_sensor_entity.reported_state = {attr: 9000}
         assert basic_sensor_entity.native_value == 9000
 
+    # ── applianceInfo identifiers ─────────────────────────────────────────────
+
+    @pytest.mark.parametrize(
+        ("attr", "value"),
+        [("applianceType", "WM"), ("capabilityHash", "af065a28237cabc515a66f10bd3c66add69177b6")],
+    )
+    def test_appliance_info_identifiers_keep_their_case(self, basic_sensor_entity, attr, value):
+        """applianceType and capabilityHash are shown as reported, not title-cased."""
+        basic_sensor_entity.entity_attr = attr
+        basic_sensor_entity.entity_source = "applianceInfo"
+        basic_sensor_entity.reported_state = {"applianceInfo": {attr: value}}
+        assert basic_sensor_entity.native_value == value
+
     # ── watertankempty boolean type ───────────────────────────────────────────
 
     def test_watertankempty_boolean_capability_type_not_full(self, basic_sensor_entity):
