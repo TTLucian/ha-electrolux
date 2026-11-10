@@ -78,6 +78,70 @@ def make_entity(
     return entity
 
 
+class TestSourceSpecificSelectKeys:
+    """Selects shared by several sources get distinct translation keys (issue #342)."""
+
+    @staticmethod
+    def _key(attr, source, platform=Platform.SELECT):
+        coordinator, _ = make_coordinator()
+        entity = ElectroluxSensor(
+            coordinator=coordinator,
+            name="Test",
+            config_entry=coordinator.config_entry,
+            pnc_id="TEST_APPLIANCE_123",
+            entity_type=platform,
+            entity_name="test",
+            entity_attr=attr,
+            entity_source=source,
+            capability={"access": "readwrite", "type": "string"},
+            unit=None,
+            device_class=None,
+            entity_category=EntityCategory.CONFIG,
+            icon=None,
+        )
+        return entity.translation_key
+
+    @pytest.mark.parametrize(
+        ("attr", "source", "key"),
+        [
+            ("analogSpinSpeed", "userSelections", "analogspinspeed"),
+            ("analogSpinSpeed", "cyclePersonalization", "cyclepersonalization_analogspinspeed"),
+            ("programUID", "userSelections", "programuid"),
+            ("programUID", "cyclePersonalization", "cyclepersonalization_programuid"),
+            ("programUID", "dwywDataToDryer", "dwywdatatodryer_programuid"),
+            ("extraRinseNumber", "cyclePersonalization", "cyclepersonalization_extrarinsenumber"),
+            ("timeManagerLevel", "cyclePersonalization", "cyclepersonalization_timemanagerlevel"),
+        ],
+    )
+    def test_shared_selects_have_distinct_keys(self, attr, source, key):
+        assert self._key(attr, source) == key
+
+    @pytest.mark.parametrize(
+        ("attr", "source", "platform"),
+        [
+            ("steamValue", "cyclePersonalization", Platform.SELECT),
+            ("drynessValue", "cyclePersonalization", Platform.SELECT),
+            ("analogSpinSpeed", "cyclePersonalization", Platform.SENSOR),
+            ("programUID", "dwywDataToDryer", Platform.SENSOR),
+            ("analogSpinSpeed", None, Platform.SELECT),
+        ],
+    )
+    def test_other_entities_keep_the_leaf_key(self, attr, source, platform):
+        assert self._key(attr, source, platform) == attr.lower()
+
+    def test_every_new_key_has_a_name(self):
+        import json
+        from pathlib import Path
+
+        folder = Path(__file__).resolve().parent.parent / "custom_components" / "electrolux"
+        for name in ("strings.json", "translations/en.json", "translations/it.json"):
+            select = json.loads((folder / name).read_text(encoding="utf-8"))["entity"]["select"]
+            for leaf in ("analogspinspeed", "analogtemperature", "extrarinsenumber", "programuid", "timemanagerlevel"):
+                assert leaf in select, f"{name}: {leaf}"
+                assert f"cyclepersonalization_{leaf}" in select, f"{name}: cyclepersonalization_{leaf}"
+            assert "dwywdatatodryer_programuid" in select, name
+
+
 class TestCatalogStatePaths:
     """Test catalog mappings for reported-state paths."""
 
