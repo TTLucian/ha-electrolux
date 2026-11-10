@@ -93,6 +93,19 @@ class TestMaintenanceEntityIndex:
         entity = make_entity(entity_attr="threshold", entity_source=source, use_sensor=True)
         assert entity.translation_placeholders == {"index": index}
 
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "applianceCareAndMaintenance0",
+            "applianceCareAndMaintenance0/",
+            "applianceCareAndMaintenance/3",
+            "applianceCareAndMaintenance0/3/x",
+        ],
+    )
+    def test_legacy_or_malformed_sources_have_no_placeholders(self, source):
+        entity = make_entity(entity_attr="maint1_occured", entity_source=source, use_sensor=True)
+        assert not entity.translation_placeholders
+
     def test_other_entities_have_no_placeholders(self):
         entity = make_entity(entity_attr="threshold", entity_source="userSelections", use_sensor=True)
         assert not entity.translation_placeholders
