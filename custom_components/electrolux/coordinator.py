@@ -197,7 +197,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._time_to_end_monitor_task: asyncio.Task | None = None
         self._consecutive_auth_failures = 0  # Track consecutive auth failures before creating repair
         self._auth_failure_threshold = 3  # Number of consecutive auth failures before repair
-        self._last_token_update = 0.0  # Track last token refresh time to prevent reload
+        self._last_token_update = 0.0  # Time of the last token refresh (unused since the update listener was removed)
         # Annotated: without it mypy infers the attribute as None from this line and
         # then rejects the real Appliances assigned in _setup_entities.
         self._appliances_cache: Appliances | None = None  # Cache appliances reference for hot path lookups
@@ -428,12 +428,12 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             new_data["token_expires_at"] = expires_at
 
             try:
-                # Mark timestamp BEFORE async_update_entry to prevent reload
-                # The update_listener is triggered synchronously by async_update_entry,
-                # so it needs to see this timestamp immediately
+                # Time of the last token refresh. Nothing reads it since the update
+                # listener was removed; kept so this change stays narrow.
                 self._last_token_update = time.time()
 
-                # Update config entry data - update_listener will check timestamp to prevent reload
+                # Persist the rotated tokens. No update listener is registered, so this
+                # does not reload the entry.
                 self.hass.config_entries.async_update_entry(config_entry, data=new_data)
                 issue_registry.async_delete_issue(
                     self.hass,

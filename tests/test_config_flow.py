@@ -762,6 +762,46 @@ class TestOptionsFlowHandler:
         assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY  # type: ignore[typeddict-item]
 
     @pytest.mark.asyncio
+    async def test_options_new_credentials_schedule_one_reload_and_keep_options(self):
+        """With no update listener, the options flow must reload the entry itself."""
+        flow = self._make_options_flow(options={"keep": "me"})
+        flow._config_entry.entry_id = "entry_123"
+        flow.hass = Mock()
+        flow.hass.config_entries = Mock()
+        flow.hass.config_entries.async_update_entry = Mock(return_value=True)
+
+        user_input = {
+            "api_key": "new_api_key_1234567890",
+            "access_token": "new_access_token_1234567890",
+            "refresh_token": "new_refresh_token_1234567890",
+        }
+
+        with (
+            patch("custom_components.electrolux.config_flow.get_electrolux_session") as mock_session,
+            patch("custom_components.electrolux.config_flow.async_get_clientsession"),
+        ):
+            mock_session.return_value.get_appliances_list = AsyncMock(return_value=[])
+            result = await flow.async_step_user(user_input)
+
+        assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY  # type: ignore[typeddict-item]
+        assert result["data"] == {"keep": "me"}  # type: ignore[typeddict-item]
+        flow.hass.config_entries.async_schedule_reload.assert_called_once_with("entry_123")
+        flow.hass.config_entries.async_reload.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_options_unchanged_entry_does_not_reload(self):
+        """Submitting the options form without changing anything must not reload."""
+        flow = self._make_options_flow()
+        flow.hass = Mock()
+        flow.hass.config_entries = Mock()
+        flow.hass.config_entries.async_update_entry = Mock(return_value=False)
+
+        result = await flow.async_step_user({"api_key": "", "access_token": "", "refresh_token": ""})
+
+        assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY  # type: ignore[typeddict-item]
+        flow.hass.config_entries.async_schedule_reload.assert_not_called()
+
+    @pytest.mark.asyncio
     async def test_options_step_user_invalid_credentials_shows_error(self):
         flow = self._make_options_flow()
         flow.hass = Mock()

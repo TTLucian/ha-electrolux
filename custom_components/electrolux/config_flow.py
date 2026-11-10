@@ -454,12 +454,15 @@ class ElectroluxStatusOptionsFlowHandler(OptionsFlow):
         new_data = dict(self._config_entry.data)
         new_options = dict(self._config_entry.options)
 
-        # API credentials go in data (require restart)
+        # API credentials go in data (require reload)
         if credential_data:
             new_data.update(credential_data)
 
-        self.hass.config_entries.async_update_entry(self._config_entry, data=new_data, options=new_options)
-        return self.async_create_entry(title="", data={})
+        if self.hass.config_entries.async_update_entry(self._config_entry, data=new_data):
+            # There is no update listener any more, so reload explicitly.
+            self.hass.config_entries.async_schedule_reload(self._config_entry.entry_id)
+        # Return the existing options so the flow does not overwrite them with {}.
+        return self.async_create_entry(title="", data=new_options)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the user step."""

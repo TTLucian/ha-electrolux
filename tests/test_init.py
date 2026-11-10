@@ -181,6 +181,7 @@ class TestAsyncSetupEntry:
             result = await async_setup_entry(mock_hass, mock_entry)
 
         assert result is True
+        mock_entry.add_update_listener.assert_not_called()
         mock_coordinator.async_login.assert_awaited_once()
         mock_coordinator.setup_entities.assert_awaited_once()
         mock_hass.config_entries.async_forward_entry_setups.assert_awaited_once()
@@ -328,48 +329,20 @@ class TestAsyncUnloadEntry:
 
 
 # ---------------------------------------------------------------------------
-# update_listener
+# no update listener (HA 2026.12: flows must not combine one with a reload)
 # ---------------------------------------------------------------------------
 
 
-class TestUpdateListener:
-    @pytest.mark.asyncio
-    async def test_skips_reload_on_recent_token_update(self):
-        """update_listener should skip reload if tokens were just refreshed."""
-        import time
+class TestNoUpdateListener:
+    def test_module_has_no_update_listener(self):
+        """The integration must not register an update listener.
 
-        from custom_components.electrolux import update_listener
+        Reauth/reconfigure use async_update_reload_and_abort, which HA reports
+        as an error from 2026.12 when the entry has update listeners.
+        """
+        import custom_components.electrolux as integration
 
-        mock_hass = MagicMock()
-        mock_coordinator = MagicMock()
-        mock_coordinator._last_token_update = time.time()  # just now
-
-        mock_entry = _make_mock_entry()
-        mock_entry.runtime_data = mock_coordinator
-
-        await update_listener(mock_hass, mock_entry)
-
-        mock_hass.config_entries.async_reload.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_reloads_when_options_changed(self):
-        """update_listener should reload when last token update was long ago."""
-        from unittest.mock import AsyncMock
-
-        from custom_components.electrolux import update_listener
-
-        mock_hass = MagicMock()
-        mock_hass.config_entries.async_reload = AsyncMock()
-
-        mock_coordinator = MagicMock()
-        mock_coordinator._last_token_update = 0.0  # very old
-
-        mock_entry = _make_mock_entry()
-        mock_entry.runtime_data = mock_coordinator
-
-        await update_listener(mock_hass, mock_entry)
-
-        mock_hass.config_entries.async_reload.assert_awaited_once_with(mock_entry.entry_id)
+        assert not hasattr(integration, "update_listener")
 
 
 class TestAsyncSetupEntryAdditional:
