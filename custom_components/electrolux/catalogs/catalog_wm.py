@@ -209,6 +209,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:flask",
         friendly_name="Tank A Configuration",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "autoDosing/adTankBConfiguration": ElectroluxDevice(
         capability_info={
@@ -226,6 +228,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:flask",
         friendly_name="Tank B Configuration",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "autoDosing/adTankADetStandardDose": ElectroluxDevice(
         capability_info={
@@ -241,6 +245,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:cup-water",
         friendly_name="Tank A Detergent Dose",
+        reported_only_entity_platform=Platform.SENSOR,
     ),
     "autoDosing/adTankBDetStandardDose": ElectroluxDevice(
         capability_info={
@@ -256,6 +261,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:cup-water",
         friendly_name="Tank B Detergent Dose",
+        reported_only_entity_platform=Platform.SENSOR,
     ),
     "autoDosing/adTankBSoftStandardDose": ElectroluxDevice(
         capability_info={
@@ -271,6 +277,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:cup-water",
         friendly_name="Tank B Softener Dose",
+        reported_only_entity_platform=Platform.SENSOR,
     ),
     # User selections
     "userSelections/steamValue": ElectroluxDevice(
@@ -324,6 +331,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:flask",
         friendly_name="Auto-Dose Tank A",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "userSelections/adTankBSel": ElectroluxDevice(
         capability_info={
@@ -344,6 +353,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:flask",
         friendly_name="Auto-Dose Tank B",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "userSelections/adFineTuneDetLevel": ElectroluxDevice(
         capability_info={
@@ -479,6 +490,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:power-high",
         friendly_name="Intensive Wash",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/EWX1493A_tcSensor": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
@@ -503,6 +515,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:tumble-dryer",
         friendly_name="Dry Mode",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/EWX1493A_easyIron": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
@@ -511,6 +524,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:iron",
         friendly_name="Easy Iron",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/EWX1493A_pod": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
@@ -527,6 +541,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:weather-partly-cloudy",
         friendly_name="Steam Mode",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/EWX1493A_ultraMix": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
@@ -535,6 +550,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:rotate-3d-variant",
         friendly_name="Ultra Mix",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "userSelections/EWX1493A_wetMode": ElectroluxDevice(
         capability_info={"access": "readwrite", "type": "boolean"},
@@ -543,6 +559,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:water",
         friendly_name="Wet Mode",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     "waterHardness": ElectroluxDevice(
         capability_info={
@@ -566,6 +583,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:water",
         friendly_name="Water Hardness",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "waterSoftenerMode": ElectroluxDevice(
         capability_info={
@@ -583,6 +602,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:water-softener",
         friendly_name="Water Softener Mode",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "displayLight": ElectroluxDevice(
         capability_info={
@@ -1036,6 +1057,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:tune",
         friendly_name="Auto Dose Local Fine Tuning",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     # Clear cycle personalization command
     "clearCyclePersonalizationCmd": ElectroluxDevice(
@@ -1638,6 +1660,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:translate",
         friendly_name="Language",
         entity_registry_enabled_default=False,
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     # -----------------------------------------------------------------------
     # Miscellaneous user settings
@@ -1649,6 +1673,7 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:bottle-tonic-plus",
         friendly_name="Default Soft Plus",
+        reported_only_entity_platform=Platform.BINARY_SENSOR,
     ),
     # -----------------------------------------------------------------------
     # Appliance care and maintenance (diagnostic)

@@ -849,7 +849,9 @@ class TestCatalogOnlyStringSelect:
     waterSoftenerMode are present in reported state and defined in
     catalog_wm.py, but absent from the API capabilities list. The
     catalog-only fallback in get_entity() had no branch for
-    string + readwrite, so these entities were silently skipped.
+    string + readwrite, so these entities were silently skipped. They are
+    still created, but as read-only sensors while they are not advertised
+    (writes are not known to work then); advertised, they are selects.
     """
 
     def _wm_app_with_data(self, reported_extra: dict, capabilities: dict | None = None):
@@ -875,21 +877,51 @@ class TestCatalogOnlyStringSelect:
         )
         return app
 
-    def test_water_hardness_catalog_only_creates_select(self):
-        """waterHardness in reported state but not in capabilities → SELECT entity."""
+    def test_water_hardness_reported_only_creates_read_only_sensor(self):
+        """waterHardness reported but not advertised → read-only sensor, not a writable select."""
         from custom_components.electrolux.select import ElectroluxSelect
+        from custom_components.electrolux.sensor import ElectroluxSensor
 
         app = self._wm_app_with_data({"waterHardness": "STEP_4"})
         entities = app.get_entity("waterHardness")
         assert isinstance(entities, list)
         assert len(entities) == 1
-        assert isinstance(entities[0], ElectroluxSelect)
+        assert isinstance(entities[0], ElectroluxSensor)
+        assert not isinstance(entities[0], ElectroluxSelect)
 
-    def test_water_softener_mode_catalog_only_creates_select(self):
-        """waterSoftenerMode in reported state but not in capabilities → SELECT entity."""
+    def test_water_hardness_advertised_creates_select(self):
+        """waterHardness advertised in capabilities → SELECT entity."""
         from custom_components.electrolux.select import ElectroluxSelect
 
+        capabilities = {
+            "waterHardness": {"access": "readwrite", "type": "string", "values": {"STEP_4": {}, "HARD": {}}}
+        }
+        app = self._wm_app_with_data({"waterHardness": "STEP_4"}, capabilities=capabilities)
+        entities = app.get_entity("waterHardness")
+        assert isinstance(entities, list)
+        assert len(entities) == 1
+        assert isinstance(entities[0], ElectroluxSelect)
+
+    def test_water_softener_mode_reported_only_creates_read_only_sensor(self):
+        """waterSoftenerMode reported but not advertised → read-only sensor, not a writable select."""
+        from custom_components.electrolux.select import ElectroluxSelect
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
         app = self._wm_app_with_data({"waterSoftenerMode": "WASH_ONLY"})
+        entities = app.get_entity("waterSoftenerMode")
+        assert isinstance(entities, list)
+        assert len(entities) == 1
+        assert isinstance(entities[0], ElectroluxSensor)
+        assert not isinstance(entities[0], ElectroluxSelect)
+
+    def test_water_softener_mode_advertised_creates_select(self):
+        """waterSoftenerMode advertised in capabilities → SELECT entity."""
+        from custom_components.electrolux.select import ElectroluxSelect
+
+        capabilities = {
+            "waterSoftenerMode": {"access": "readwrite", "type": "string", "values": {"WASH_ONLY": {}, "ALWAYS": {}}}
+        }
+        app = self._wm_app_with_data({"waterSoftenerMode": "WASH_ONLY"}, capabilities=capabilities)
         entities = app.get_entity("waterSoftenerMode")
         assert isinstance(entities, list)
         assert len(entities) == 1
@@ -928,7 +960,7 @@ class TestCatalogOnlyStringSelect:
         select_attrs = [getattr(e, "entity_attr", getattr(e, "attr_name", "")) for e in app.entities]
         assert "waterHardness" in select_attrs
         assert "waterSoftenerMode" in select_attrs
-        assert any(isinstance(e, ElectroluxSelect) for e in app.entities)
+        assert not any(isinstance(e, ElectroluxSelect) for e in app.entities)
 
 
 # ---------------------------------------------------------------------------
@@ -1277,6 +1309,78 @@ class TestApplianceSetup:
         assert isinstance(self._td_entity(app, "userSelections", "steamValue"), ElectroluxSelect)
         for attr in ("reversePlus", "refresh"):
             assert isinstance(self._td_entity(app, "userSelections", attr), ElectroluxSwitch)
+
+    _WM_UNADVERTISED_REPORTED = {
+        "applianceInfo": {"applianceType": "WM"},
+        "language": "ENGLISH",
+        "waterHardness": "STEP_3",
+        "waterSoftenerMode": "WASH_ONLY",
+        "miscellaneous": {"defaultSoftPlus": False},
+        "autoDosing": {
+            "adTankAConfiguration": "DISABLED",
+            "adTankADetStandardDose": 110,
+            "adLocalFineTuning": False,
+        },
+        "userSelections": {"adTankASel": "AUTODOSE_OFF", "EWX1493A_ultraMix": False},
+    }
+
+    def test_setup_wm_unadvertised_keys_fall_back_to_read_only(self):
+        """WM keys the appliance reports but does not advertise become read-only entities."""
+        import copy
+
+        from homeassistant.components.sensor import SensorDeviceClass
+
+        from custom_components.electrolux.binary_sensor import ElectroluxBinarySensor
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._WM_UNADVERTISED_REPORTED)}},
+            model="914505412",
+        )
+        data = self._make_data(capabilities={}, reported=app.reported_state)
+        app.setup(data)
+
+        for source, attr in (
+            (None, "language"),
+            (None, "waterHardness"),
+            (None, "waterSoftenerMode"),
+            ("autoDosing", "adTankAConfiguration"),
+            ("userSelections", "adTankASel"),
+        ):
+            entity = self._td_entity(app, source, attr)
+            assert isinstance(entity, ElectroluxSensor), attr
+            assert entity.device_class == SensorDeviceClass.ENUM, attr
+        assert isinstance(self._td_entity(app, "autoDosing", "adTankADetStandardDose"), ElectroluxSensor)
+        for source, attr in (
+            ("miscellaneous", "defaultSoftPlus"),
+            ("autoDosing", "adLocalFineTuning"),
+            ("userSelections", "EWX1493A_ultraMix"),
+        ):
+            assert isinstance(self._td_entity(app, source, attr), ElectroluxBinarySensor), attr
+
+    def test_setup_wm_advertised_keys_stay_controls(self):
+        """A WM model that advertises the keys keeps the select and switch entities."""
+        import copy
+
+        from custom_components.electrolux.select import ElectroluxSelect
+        from custom_components.electrolux.switch import ElectroluxSwitch
+
+        app = _make_app_full(
+            state={"properties": {"reported": copy.deepcopy(self._WM_UNADVERTISED_REPORTED)}},
+            model="914505412",
+        )
+        capabilities = {
+            "language": {"access": "readwrite", "type": "string", "values": {"ENGLISH": {}, "ITALIAN": {}}},
+            "waterHardness": {"access": "readwrite", "type": "string", "values": {"STEP_3": {}, "HARD": {}}},
+            "waterSoftenerMode": {"access": "readwrite", "type": "string", "values": {"WASH_ONLY": {}, "ALWAYS": {}}},
+            "userSelections/EWX1493A_ultraMix": {"access": "readwrite", "type": "boolean"},
+        }
+        data = self._make_data(capabilities=capabilities, reported=app.reported_state)
+        app.setup(data)
+
+        for attr in ("language", "waterHardness", "waterSoftenerMode"):
+            assert isinstance(self._td_entity(app, None, attr), ElectroluxSelect), attr
+        assert isinstance(self._td_entity(app, "userSelections", "EWX1493A_ultraMix"), ElectroluxSwitch)
 
     def test_setup_creates_reported_only_display_light_sensor_for_wm(self):
         """WM displayLight should fall back to a read-only sensor when capability is missing."""
