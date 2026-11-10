@@ -365,7 +365,6 @@ class TestElectroluxSwitch:
                 }
             }
         }
-
         with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
@@ -418,7 +417,6 @@ class TestElectroluxSwitch:
                 }
             }
         }
-
         with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
             await entity.async_turn_on()
@@ -467,6 +465,7 @@ class TestElectroluxSwitch:
                 }
             }
         }
+        entity._reported_state_cache = {"userSelections": {"programUID": "ECO"}}
 
         with patch("custom_components.electrolux.switch.format_command_for_appliance") as mock_format:
             mock_format.return_value = "ON"
@@ -476,6 +475,11 @@ class TestElectroluxSwitch:
             _, command = call_args[0]
             # Program option: bundled with the active programUID
             assert command == {"userSelections": {"programUID": "ECO", "glassCareOption": "ON"}}
+            mock_coordinator._record_commanded_user_selections.assert_called_once_with(
+                "TEST_PNC",
+                {"programUID": "ECO"},
+                {"programUID": "ECO", "glassCareOption": "ON"},
+            )
 
     @pytest.mark.asyncio
     async def test_switch_with_appliance_source(self, mock_coordinator, mock_capability):

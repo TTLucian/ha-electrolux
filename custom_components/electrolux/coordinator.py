@@ -67,6 +67,11 @@ STATE_CHANGE_REFRESH_DELAY = 10  # seconds: delay after applianceState change be
 # and the measured SSE-write-to-snapshot-apply gap was 10.147s (issue #233), so
 # the window must exceed the delay itself; 10 exactly would still let it through.
 SSE_AUTHORITY_WINDOW = STATE_CHANGE_REFRESH_DELAY + 5
+# Reported option snapshots lagged successful writes by up to ~45s on the WM in
+# #257; keep the command value authoritative slightly longer than that interval.
+COMMAND_STATE_AUTHORITY_WINDOW = 60.0
+COMMAND_VALUE_HISTORY_MAX = 8
+PROGRAM_STATE_PATHS = ("userSelections/programUID", "cyclePersonalization/programUID", "program")
 # Lifecycle properties worth ordering. Deliberately narrow: a wrong state on
 # applianceState is a real false trigger, whereas suppressing a fast-toggling
 # property would be its own regression.
@@ -218,6 +223,8 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         # lifecycle values, used to tell a REST snapshot that is merely old apart
         # from one carrying a genuinely new value (#233).
         self._sse_value_history: dict[str, dict[str, list[tuple[float, Any]]]] = {}
+        # userSelections values sent successfully but not yet reflected by REST.
+        self._commanded_value_history: dict[str, dict[str, list[tuple[float, Any]]]] = {}
 
         # Real-time API & SSE stream diagnostic tracking
         self._api_connected: bool = True
@@ -709,6 +716,75 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                 )
         return retain
 
+    def _record_commanded_user_selections(
+        self,
+        appliance_id: str,
+        previous: dict[str, Any],
+        commanded: dict[str, Any],
+    ) -> None:
+        """Remember the values in successful full-selection writes until REST confirms them."""
+        now = self.hass.loop.time()
+        per_appliance = self._commanded_value_history.setdefault(appliance_id, {})
+        for key, value in commanded.items():
+            if key == "programUID":
+                continue
+            path = f"userSelections/{key}"
+            history = per_appliance.setdefault(path, [])
+            previous_value = previous.get(key)
+            if not history or history[-1][1] != previous_value:
+                history.append((now, previous_value))
+            history.append((now, value))
+            while len(history) > 1 and now - history[1][0] > COMMAND_STATE_AUTHORITY_WINDOW:
+                history.pop(0)
+            if len(history) > COMMAND_VALUE_HISTORY_MAX:
+                del history[: len(history) - COMMAND_VALUE_HISTORY_MAX]
+
+    def _clear_commanded_user_selections(self, appliance_id: str) -> None:
+        """Stop retaining selections from the program that was just changed."""
+        self._commanded_value_history.pop(appliance_id, None)
+
+    @staticmethod
+    def _active_program(
+        reported: dict[str, Any],
+        previous: dict[str, Any] | None = None,
+        retained_paths: set[str] | None = None,
+    ) -> Any:
+        """Return the program identifier, honoring a fresher retained value."""
+        for path in PROGRAM_STATE_PATHS:
+            if retained_paths and path in retained_paths and previous is not None and _has_nested_key(previous, path):
+                return _get_nested_value(previous, path)
+        for path in PROGRAM_STATE_PATHS:
+            if _has_nested_key(reported, path):
+                return _get_nested_value(reported, path)
+        return None
+
+    def _superseded_by_command(self, appliance_id: str, reported: dict[str, Any]) -> set[str]:
+        """Retain REST values that disagree with a recent full-selection write."""
+        per_appliance = self._commanded_value_history.get(appliance_id)
+        if not per_appliance or not isinstance(reported, dict):
+            return set()
+
+        now = self.hass.loop.time()
+        retain: set[str] = set()
+        for path, history in list(per_appliance.items()):
+            while len(history) > 1 and now - history[1][0] > COMMAND_STATE_AUTHORITY_WINDOW:
+                history.pop(0)
+            if len(history) < 2 or now - history[-1][0] > COMMAND_STATE_AUTHORITY_WINDOW:
+                del per_appliance[path]
+                continue
+            if not _has_nested_key(reported, path):
+                continue
+            polled = _get_nested_value(reported, path)
+            if polled == history[-1][1]:
+                # The REST snapshot confirms the command. Stop protecting this
+                # path so a subsequent appliance-side change is authoritative.
+                del per_appliance[path]
+                continue
+            retain.add(path)
+        if not per_appliance:
+            self._commanded_value_history.pop(appliance_id, None)
+        return retain
+
     def _apply_rest_status(self, appliance: Appliance, status: Any) -> None:
         """The single place a REST snapshot is applied, with the SSE ordering guard.
 
@@ -717,18 +793,29 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """
         retain: set[str] = set()
         reported = None
+        program_changed = False
         if isinstance(status, dict):
             candidate = status.get("properties", {})
             if isinstance(candidate, dict):
                 reported = candidate.get("reported")
         if isinstance(reported, dict):
+            previous = appliance.reported_state
             retain = self._superseded_by_sse(appliance.pnc_id, reported)
+            previous_program = self._active_program(previous)
+            incoming_program = self._active_program(reported, previous, retain)
+            program_changed = (
+                previous_program is not None and incoming_program is not None and previous_program != incoming_program
+            )
+            if not program_changed:
+                retain.update(self._superseded_by_command(appliance.pnc_id, reported))
         if retain:
             appliance.update(status, retain=retain)
         else:
             # Keep the plain call when there is nothing to guard, so the common
             # path is exactly what it was before this existed.
             appliance.update(status)
+        if program_changed:
+            self._clear_commanded_user_selections(appliance.pnc_id)
 
     def incoming_data(self, data: dict[str, Any]) -> None:
         """Process incoming data."""
@@ -880,6 +967,9 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         except Exception:
             _LOGGER.exception(f"Unexpected error updating incremental data for appliance {appliance_id}")
             return
+
+        if data[PROPERTY_KEY] in PROGRAM_STATE_PATHS:
+            self._clear_commanded_user_selections(appliance_id)
 
         # Notify entities of the update
         self.async_set_updated_data(self.data)
@@ -2701,6 +2791,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
                         self._last_remote_control.pop(appliance_id, None)
                         # Clean up SSE value history (#233) - same leak precedent as #180
                         self._sse_value_history.pop(appliance_id, None)
+                        self._commanded_value_history.pop(appliance_id, None)
                         # Cancel and clean up any deferred tasks
                         if appliance_id in self._deferred_tasks_by_appliance:
                             task = self._deferred_tasks_by_appliance.pop(appliance_id)

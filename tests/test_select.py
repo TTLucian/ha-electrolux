@@ -797,6 +797,35 @@ class TestSelectAsyncSelectOptionAdvanced:
         return entity
 
     @pytest.mark.asyncio
+    async def test_program_change_clears_pending_selection_state(self, mock_coordinator, mock_capability):
+        entity = self._make_select(
+            mock_coordinator,
+            mock_capability,
+            entity_source="userSelections",
+            entity_attr="programUID",
+        )
+        entity.appliance_status = {
+            "properties": {
+                "reported": {
+                    "connectivityState": "connected",
+                    "userSelections": {"programUID": "COTTON"},
+                }
+            }
+        }
+        entity._reported_state_cache = {
+            "connectivityState": "connected",
+            "userSelections": {"programUID": "COTTON"},
+        }
+
+        with (
+            patch("custom_components.electrolux.select.format_command_for_appliance", return_value="OPTION2"),
+            patch("custom_components.electrolux.select.execute_command_with_error_handling", return_value=None),
+        ):
+            await entity.async_select_option("Option 2")
+
+        mock_coordinator._clear_commanded_user_selections.assert_called_once_with("TEST_PNC")
+
+    @pytest.mark.asyncio
     async def test_not_supported_by_program_raises(self, mock_coordinator, mock_capability):
         """Test async_select_option raises when non-CONFIG entity is not supported by program."""
         entity = self._make_select(mock_coordinator, mock_capability, entity_category=EntityCategory.DIAGNOSTIC)

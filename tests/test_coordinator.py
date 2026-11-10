@@ -27,6 +27,7 @@ def mock_coordinator(mock_api_client):
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.api = mock_api_client
         coord.platforms = []
         coord.renew_interval = 7200
@@ -398,6 +399,7 @@ async def test_async_login_success():
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.api = MagicMock()
         coord.api.get_appliances_list = AsyncMock(return_value=[])
         coord.api._token_manager = MagicMock()
@@ -421,6 +423,7 @@ async def test_async_login_raises_config_entry_auth_failed_on_auth_error():
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.api = MagicMock()
         coord.api.get_appliances_list = AsyncMock(side_effect=AuthenticationError("bad creds"))
         coord.api._token_manager = MagicMock()
@@ -444,6 +447,7 @@ async def test_async_login_raises_config_entry_not_ready_on_network_error():
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.api = MagicMock()
         coord.api.get_appliances_list = AsyncMock(side_effect=NetworkError("timeout"))
         coord.api._token_manager = MagicMock()
@@ -466,6 +470,7 @@ async def test_async_login_raises_config_entry_not_ready_on_unexpected_error():
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.api = MagicMock()
         coord.api.get_appliances_list = AsyncMock(side_effect=RuntimeError("unexpected"))
         coord.api._token_manager = MagicMock()

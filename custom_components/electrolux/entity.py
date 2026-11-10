@@ -763,14 +763,10 @@ class ElectroluxEntity(CoordinatorEntity):
                 and not cap.get("min", val) <= val <= cap.get("max", val)
             ):
                 continue
-            # A reported value the API marks disabled is carried as-is. An earlier
-            # version dropped it, reasoning that the alternative was a 406 taking
-            # down the whole payload; that was measured on hardware and is worse
-            # than the 406 (#257): with the key omitted the appliance fell back to
-            # "no spin" rather than the program default, so a night cycle set on
-            # the panel followed by an unrelated option write left the laundry
-            # unspun, with no error anywhere. A loud 406 is the lesser fault, so
-            # the value goes through and the command is rejected.
+            # A reported value the API marks disabled is carried as-is. The
+            # program-level filter below may replace a disabled spin-speed value
+            # with that program's writable default; omitting it without a valid
+            # default made the washer silently fall back to no spin (#257).
             merged[key] = val
 
         # Program-level filtering: skip fields that are disabled or not listed
@@ -784,7 +780,9 @@ class ElectroluxEntity(CoordinatorEntity):
                 for key in merged:
                     if key == "programUID" or key == changed_attr:
                         continue
-                    prog_cap = program_caps.get(key)
+                    prog_cap = program_caps.get(f"userSelections/{key}")
+                    if not isinstance(prog_cap, dict):
+                        prog_cap = program_caps.get(key)
                     if not isinstance(prog_cap, dict):
                         # Field not listed for this program — skip it
                         to_remove.append(key)
@@ -801,6 +799,32 @@ class ElectroluxEntity(CoordinatorEntity):
                         if entry is None and isinstance(current_val, str):
                             entry = values.get(current_val.upper()) or values.get(current_val.lower())
                         if isinstance(entry, dict) and entry.get("disabled") is True:
+                            if key == "analogSpinSpeed":
+                                default = prog_cap.get("default")
+                                allowed_values = prog_cap.get("values")
+                                default_is_listed = not isinstance(allowed_values, dict) or (
+                                    default in allowed_values
+                                    or (
+                                        isinstance(default, str)
+                                        and any(
+                                            isinstance(allowed_value, str)
+                                            and allowed_value.casefold() == default.casefold()
+                                            for allowed_value in allowed_values
+                                        )
+                                    )
+                                )
+                                if (
+                                    default is not None
+                                    and default_is_listed
+                                    and not self._capability_value_disabled(caps, f"userSelections/{key}", default)
+                                    and not self._capability_value_disabled({key: prog_cap}, key, default)
+                                ):
+                                    merged[key] = default
+                                    continue
+                                # Keep the rejected value rather than omit it:
+                                # omission was observed to reset the washer to
+                                # no spin, while carrying it fails loudly.
+                                continue
                             to_remove.append(key)
                             continue
                 for key in to_remove:
