@@ -206,6 +206,8 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         command_value = format_command_for_appliance(self.capability, self.entity_attr, value)
 
         command: dict[str, Any]
+        commanded_selections: dict[str, Any] | None = None
+        previous_selections: dict[str, Any] | None = None
         if not self.is_dam_appliance:
             # Legacy appliances: send as top-level property, but respect entity_source
             # when the capability key has a slash.
@@ -219,7 +221,10 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
                     # Build the full current userSelections payload so that appliances
                     # which treat partial writes as full replacements (resetting omitted
                     # options to defaults) keep their sibling options intact.
+                    current_selections = self.reported_state.get("userSelections", {})
+                    previous_selections = dict(current_selections) if isinstance(current_selections, dict) else {}
                     full_selections = self._build_full_user_selections(self.entity_attr, command_value)
+                    commanded_selections = full_selections
                     command = {"userSelections": full_selections}
                 else:
                     self._warn_if_appliance_level_write(self.entity_attr)
@@ -232,10 +237,14 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
             if self.entity_source == "userSelections":
                 # DAM appliances: the payload must carry programUID for every
                 # userSelections sub-property.
+                current_selections = self.reported_state.get("userSelections", {})
+                previous_selections = dict(current_selections) if isinstance(current_selections, dict) else {}
                 full_selections = self._build_full_user_selections(self.entity_attr, command_value)
                 if full_selections.get("programUID"):
+                    commanded_selections = full_selections
                     command = {self.entity_source: full_selections}
                 else:
+                    commanded_selections = {self.entity_attr: command_value}
                     command = {self.entity_source: {self.entity_attr: command_value}}
             else:
                 command = {self.entity_source: {self.entity_attr: command_value}}
@@ -259,6 +268,11 @@ class ElectroluxSwitch(ElectroluxEntity, SwitchEntity):
         except Exception:
             # Re-raise any errors from execute_command_with_error_handling
             raise
+
+        if commanded_selections is not None and previous_selections is not None:
+            cast(ElectroluxCoordinator, self.coordinator)._record_commanded_user_selections(
+                self.pnc_id, previous_selections, commanded_selections
+            )
 
         # Optimistically update local state using base class helper method
         self._apply_optimistic_update(self.entity_attr, command_value)

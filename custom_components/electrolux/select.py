@@ -2,7 +2,7 @@
 
 import contextlib
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
@@ -515,6 +515,9 @@ class ElectroluxSelect(ElectroluxEntity, SelectEntity):
             raise
 
         _LOGGER.debug("Electrolux select option result %s", result)
+
+        if self.entity_attr in {"program", "programUID"}:
+            cast(ElectroluxCoordinator, self.coordinator)._clear_commanded_user_selections(self.pnc_id)
 
         # Optimistically update local state using base class helper method
         self._apply_optimistic_update(self.entity_attr, formatted_value)

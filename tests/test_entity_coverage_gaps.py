@@ -2157,7 +2157,7 @@ def _washing_entity(entity_attr: str, reported_selections: dict) -> ElectroluxNu
     )
     entity.hass = coordinator.hass
     mock_appliance.data = MagicMock()
-    mock_appliance.data.capabilities = _WASHING_CAPABILITIES
+    mock_appliance.data.capabilities = dict(_WASHING_CAPABILITIES)
     return entity
 
 
@@ -2217,6 +2217,115 @@ class TestDisabledTriggerDefaultSkipped:
         assert payload["analogSpinSpeed"] == "1200_RPM"
         assert payload["EWX1493A_nightCycle"] is False
         assert payload["EWX1493A_rinseHold"] is False
+
+
+class TestNamespacedProgramCapabilityFilter:
+    """Program constraints for WM and DW options use namespaced keys."""
+
+    def test_washer_namespaced_keys_keep_options_and_use_program_spin_default(self):
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {
+                "EWX1493A_nightCycle": True,
+                "EWX1493A_rinseHold": False,
+                "EWX1493A_anticreaseNoSteam": True,
+                "analogSpinSpeed": "DISABLED",
+            },
+        )
+        capabilities = entity.get_appliance.data.capabilities
+        capabilities["userSelections/programUID"] = {
+            "values": {
+                "ECO": {
+                    "userSelections/analogSpinSpeed": {
+                        "default": "1200_RPM",
+                        "values": {"DISABLED": {"disabled": True}, "1200_RPM": {}},
+                    },
+                    "userSelections/EWX1493A_nightCycle": {},
+                    "userSelections/EWX1493A_rinseHold": {},
+                }
+            }
+        }
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["programUID"] == "ECO"
+        assert payload["EWX1493A_preWashPhase"] is True
+        assert payload["EWX1493A_nightCycle"] is True
+        assert payload["EWX1493A_rinseHold"] is False
+        assert payload["analogSpinSpeed"] == "1200_RPM"
+        assert "EWX1493A_anticreaseNoSteam" not in payload
+
+    def test_disabled_spin_without_program_default_is_carried(self):
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {"EWX1493A_rinseHold": False, "analogSpinSpeed": "DISABLED"},
+        )
+        capabilities = entity.get_appliance.data.capabilities
+        capabilities["program"] = {
+            "values": {
+                "ECO": {
+                    "userSelections/analogSpinSpeed": {
+                        "values": {"DISABLED": {"disabled": True}},
+                    },
+                    "userSelections/EWX1493A_rinseHold": {},
+                }
+            }
+        }
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "DISABLED"
+        assert payload["EWX1493A_rinseHold"] is False
+
+    def test_disabled_spin_with_default_not_in_program_values_is_carried(self):
+        entity = _washing_entity(
+            "EWX1493A_preWashPhase",
+            {"EWX1493A_rinseHold": False, "analogSpinSpeed": "DISABLED"},
+        )
+        capabilities = entity.get_appliance.data.capabilities
+        capabilities["userSelections/programUID"] = {
+            "values": {
+                "ECO": {
+                    "userSelections/analogSpinSpeed": {
+                        "default": "1000_RPM",
+                        "values": {"DISABLED": {"disabled": True}, "1200_RPM": {}},
+                    },
+                    "userSelections/EWX1493A_rinseHold": {},
+                }
+            }
+        }
+
+        payload = entity._build_full_user_selections("EWX1493A_preWashPhase", True)
+
+        assert payload["analogSpinSpeed"] == "DISABLED"
+
+    def test_dishwasher_namespaced_keys_filter_only_unsupported_options(self):
+        entity = _washing_entity(
+            "glassCareOption",
+            {"glassCareOption": False, "extraPowerOption": False, "sanitizeOption": True},
+        )
+        capabilities = entity.get_appliance.data.capabilities
+        capabilities.update(
+            {
+                "userSelections/glassCareOption": {"access": "readwrite"},
+                "userSelections/extraPowerOption": {"access": "readwrite"},
+                "userSelections/sanitizeOption": {"access": "readwrite"},
+            }
+        )
+        capabilities["program"] = {
+            "values": {
+                "ECO": {
+                    "userSelections/glassCareOption": {},
+                    "userSelections/extraPowerOption": {},
+                }
+            }
+        }
+
+        payload = entity._build_full_user_selections("glassCareOption", True)
+
+        assert payload["glassCareOption"] is True
+        assert payload["extraPowerOption"] is False
+        assert "sanitizeOption" not in payload
 
 
 class TestDisabledReportedValueCarried:

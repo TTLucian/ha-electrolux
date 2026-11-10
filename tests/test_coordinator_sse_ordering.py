@@ -83,6 +83,7 @@ def _make_coordinator() -> tuple[ElectroluxCoordinator, _Clock]:
     coord._last_remote_control = {}
     coord._pending_state_refresh_tasks = {}
     coord._sse_value_history = {}
+    coord._commanded_value_history = {}
     coord._sse_retry_task = None
     return coord, clock
 
@@ -199,6 +200,89 @@ class TestNewValuesStillPass:
         coord._apply_rest_status(appliance, _rest_body({"applianceState": "RUNNING"}))
 
         assert appliance.reported_state["applianceState"] == "RUNNING"
+
+
+class TestCommandedSelectionOrdering:
+    def test_stale_rest_sibling_is_retained_when_payload_reasserts_its_value(self):
+        coord, clock = _make_coordinator()
+        appliance = _make_appliance({"userSelections": {"EWX1493A_nightCycle": True, "EWX1493A_preWashPhase": False}})
+        _wire(coord, appliance)
+        coord._record_commanded_user_selections(
+            PNC,
+            appliance.reported_state["userSelections"],
+            {"EWX1493A_nightCycle": True, "EWX1493A_preWashPhase": True},
+        )
+        appliance.reported_state["userSelections"]["EWX1493A_preWashPhase"] = True
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"EWX1493A_nightCycle": False, "EWX1493A_preWashPhase": False}}),
+        )
+
+        assert appliance.reported_state["userSelections"]["EWX1493A_nightCycle"] is True
+        assert appliance.reported_state["userSelections"]["EWX1493A_preWashPhase"] is True
+
+        clock.advance(coord_mod.COMMAND_STATE_AUTHORITY_WINDOW + 1)
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"EWX1493A_nightCycle": False, "EWX1493A_preWashPhase": False}}),
+        )
+
+        assert appliance.reported_state["userSelections"]["EWX1493A_nightCycle"] is False
+        assert appliance.reported_state["userSelections"]["EWX1493A_preWashPhase"] is False
+
+    def test_rest_confirmation_clears_history_for_later_appliance_change(self):
+        coord, _ = _make_coordinator()
+        appliance = _make_appliance({"userSelections": {"EWX1493A_nightCycle": False}})
+        _wire(coord, appliance)
+        coord._record_commanded_user_selections(
+            PNC,
+            appliance.reported_state["userSelections"],
+            {"EWX1493A_nightCycle": True},
+        )
+        appliance.reported_state["userSelections"]["EWX1493A_nightCycle"] = True
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"EWX1493A_nightCycle": True}}),
+        )
+        assert PNC not in coord._commanded_value_history
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"EWX1493A_nightCycle": False}}),
+        )
+
+        assert appliance.reported_state["userSelections"]["EWX1493A_nightCycle"] is False
+
+    def test_rest_program_change_clears_pending_option_history(self):
+        coord, _ = _make_coordinator()
+        appliance = _make_appliance({"userSelections": {"programUID": "COTTON", "EWX1493A_nightCycle": True}})
+        _wire(coord, appliance)
+        coord._commanded_value_history[PNC] = {"userSelections/EWX1493A_nightCycle": [(1000.0, False), (1000.0, True)]}
+
+        coord._apply_rest_status(
+            appliance,
+            _rest_body({"userSelections": {"programUID": "DELICATES", "EWX1493A_nightCycle": False}}),
+        )
+
+        assert PNC not in coord._commanded_value_history
+        assert appliance.reported_state["userSelections"]["EWX1493A_nightCycle"] is False
+
+    def test_sse_program_change_clears_pending_option_history(self):
+        coord, clock = _make_coordinator()
+        appliance = _make_appliance({"userSelections": {"programUID": "COTTON", "EWX1493A_nightCycle": True}})
+        _wire(coord, appliance)
+        coord.async_set_updated_data = MagicMock()
+        coord._commanded_value_history[PNC] = {"userSelections/EWX1493A_nightCycle": [(1000.0, False), (1000.0, True)]}
+
+        coord._process_incremental_update(
+            {"applianceId": PNC, "property": "userSelections/programUID", "value": "DELICATES"},
+            coord._appliances_cache,
+        )
+
+        assert PNC not in coord._commanded_value_history
+        assert appliance.reported_state["userSelections"]["programUID"] == "DELICATES"
 
 
 class TestWindow:

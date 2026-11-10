@@ -54,6 +54,7 @@ def coordinator(mock_hass, mock_api_client, mock_config_entry):
     ):
         coord = ElectroluxCoordinator.__new__(ElectroluxCoordinator)
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord.hass = mock_hass
         coord.api = mock_api_client
         coord.config_entry = mock_config_entry

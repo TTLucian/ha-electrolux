@@ -93,6 +93,7 @@ def coordinator(mock_hass, mock_api):
         coord._last_remote_control = {}
         coord._pending_state_refresh_tasks = {}
         coord._sse_value_history = {}  # SSE ordering guard (#233)
+        coord._commanded_value_history = {}
         coord._sse_retry_task = None
         return coord
 
