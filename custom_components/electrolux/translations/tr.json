@@ -252,7 +252,7 @@
                 "name": "Bakım öğesi 10 oluştu"
             },
             "occured": {
-                "name": "Bakım 1 gerçekleşti"
+                "name": "Bakım {index} gerçekleşti"
             },
             "ecomode": {
                 "name": "Eko modu"
@@ -934,7 +934,7 @@
                 "name": "Ekstra durulama"
             },
             "threshold": {
-                "name": "Bakım 1 eşiği"
+                "name": "Bakım {index} eşiği"
             },
             "timezonedatabasename": {
                 "name": "Saat dilimi veritabanı"

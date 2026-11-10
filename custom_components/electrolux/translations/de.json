@@ -252,7 +252,7 @@
                 "name": "Wartungspunkt 10 ist aufgetreten"
             },
             "occured": {
-                "name": "Wartung 1 ist aufgetreten"
+                "name": "Wartung {index} ist aufgetreten"
             },
             "ecomode": {
                 "name": "Eco-Modus"
@@ -934,7 +934,7 @@
                 "name": "Zusätzlicher Spülgang"
             },
             "threshold": {
-                "name": "Wartungsschwelle 1"
+                "name": "Wartungsschwelle {index}"
             },
             "timezonedatabasename": {
                 "name": "Zeitzonendatenbank"

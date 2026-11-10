@@ -78,6 +78,52 @@ def make_entity(
     return entity
 
 
+class TestMaintenanceEntityIndex:
+    """The numbered care and maintenance entries share one translation key."""
+
+    @pytest.mark.parametrize(
+        ("source", "index"),
+        [
+            ("applianceCareAndMaintenance0/1", "1"),
+            ("applianceCareAndMaintenance1/6", "6"),
+            ("applianceCareAndMaintenance3/16", "16"),
+        ],
+    )
+    def test_index_is_passed_as_translation_placeholder(self, source, index):
+        entity = make_entity(entity_attr="threshold", entity_source=source, use_sensor=True)
+        assert entity.translation_placeholders == {"index": index}
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "applianceCareAndMaintenance0",
+            "applianceCareAndMaintenance0/",
+            "applianceCareAndMaintenance/3",
+            "applianceCareAndMaintenance0/3/x",
+        ],
+    )
+    def test_legacy_or_malformed_sources_have_no_placeholders(self, source):
+        entity = make_entity(entity_attr="maint1_occured", entity_source=source, use_sensor=True)
+        assert not entity.translation_placeholders
+
+    def test_other_entities_have_no_placeholders(self):
+        entity = make_entity(entity_attr="threshold", entity_source="userSelections", use_sensor=True)
+        assert not entity.translation_placeholders
+
+    def test_every_language_names_them_with_the_index(self):
+        """No catalogue file keeps the literal 1 that named every entry alike."""
+        import json
+        from pathlib import Path
+
+        folder = Path(__file__).resolve().parent.parent / "custom_components" / "electrolux"
+        files = [folder / "strings.json", *sorted((folder / "translations").glob("*.json"))]
+        for path in files:
+            entity = json.loads(path.read_text(encoding="utf-8"))["entity"]
+            for platform, key in (("binary_sensor", "occured"), ("sensor", "threshold")):
+                name = entity[platform][key]["name"]
+                assert "{index}" in name, f"{path.name}: entity.{platform}.{key} is {name!r}"
+
+
 class TestSourceSpecificSelectKeys:
     """Selects shared by several sources get distinct translation keys (issue #342)."""
 

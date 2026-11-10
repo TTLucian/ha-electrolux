@@ -252,7 +252,7 @@
                 "name": "Huoltokohta 10 tapahtui"
             },
             "occured": {
-                "name": "Huolto 1 tapahtui"
+                "name": "Huolto {index} tapahtui"
             },
             "ecomode": {
                 "name": "Eco-tila"
@@ -934,7 +934,7 @@
                 "name": "Ylimääräinen huuhtelu"
             },
             "threshold": {
-                "name": "Ylläpito 1 kynnys"
+                "name": "Ylläpito {index} kynnys"
             },
             "timezonedatabasename": {
                 "name": "Aikavyöhyketietokanta"

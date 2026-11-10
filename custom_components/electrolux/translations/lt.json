@@ -252,7 +252,7 @@
                 "name": "Įvyko 10 techninės priežiūros punktas"
             },
             "occured": {
-                "name": "Atlikta 1 techninė priežiūra"
+                "name": "Atlikta {index} techninė priežiūra"
             },
             "ecomode": {
                 "name": "Ekologinis režimas"
@@ -934,7 +934,7 @@
                 "name": "Papildomas skalavimas"
             },
             "threshold": {
-                "name": "Priežiūra 1 slenkstis"
+                "name": "Priežiūra {index} slenkstis"
             },
             "timezonedatabasename": {
                 "name": "Laiko juostų duomenų bazė"

@@ -252,7 +252,7 @@
                 "name": "Tekkis hoolduspunkt 10"
             },
             "occured": {
-                "name": "Hooldus 1 toimus"
+                "name": "Hooldus {index} toimus"
             },
             "ecomode": {
                 "name": "Ökorežiim"
@@ -934,7 +934,7 @@
                 "name": "Lisaloputus"
             },
             "threshold": {
-                "name": "Hooldus 1 lävi"
+                "name": "Hooldus {index} lävi"
             },
             "timezonedatabasename": {
                 "name": "Ajavööndi andmebaas"

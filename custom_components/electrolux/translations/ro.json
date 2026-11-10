@@ -252,7 +252,7 @@
                 "name": "Elementul de întreținere 10 a avut loc"
             },
             "occured": {
-                "name": "A avut loc întreținerea 1"
+                "name": "A avut loc întreținerea {index}"
             },
             "ecomode": {
                 "name": "Modul Eco"
@@ -934,7 +934,7 @@
                 "name": "Clătire suplimentară"
             },
             "threshold": {
-                "name": "Întreținere 1 prag"
+                "name": "Întreținere {index} prag"
             },
             "timezonedatabasename": {
                 "name": "Baza de date fus orar"
