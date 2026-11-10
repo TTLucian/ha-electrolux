@@ -166,6 +166,14 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             # All other states (IDLE, OFF, STOPPED, ALARM) - don't show countdown
             return None
 
+        # startTime: -1 means "not set" (a washer reports it when no delayed start is chosen).
+        if self.entity_attr == "startTime":
+            if value is None or not isinstance(value, (int, float)):
+                return None
+            if value == TIME_INVALID_SENTINEL or value < 0:
+                return None
+            return value
+
         # Special handling for runningTime: elapsed time sensor (counts up from start)
         if self.entity_attr == "runningTime":
             if value is None or not isinstance(value, (int, float)):

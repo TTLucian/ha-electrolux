@@ -103,6 +103,13 @@ class TestElectroluxSensor:
         """Test basic native value extraction."""
         assert basic_sensor_entity.native_value == 25.0
 
+    @pytest.mark.parametrize(("reported", "expected"), [(-1, None), (-5, None), (0, 0), (3600, 3600)])
+    def test_start_time_hides_the_not_set_sentinel(self, basic_sensor_entity: ElectroluxSensor, reported, expected):
+        """startTime -1 means no delayed start is set and must not be shown."""
+        basic_sensor_entity.entity_attr = "startTime"
+        basic_sensor_entity.reported_state = {"startTime": reported}
+        assert basic_sensor_entity.native_value == expected
+
     def test_native_value_none_when_no_data(self, basic_sensor_entity: ElectroluxSensor):
         """Test native value returns None when no data available."""
         basic_sensor_entity.reported_state = {}

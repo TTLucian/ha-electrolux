@@ -1358,6 +1358,32 @@ class TestApplianceSetup:
         ):
             assert isinstance(self._td_entity(app, source, attr), ElectroluxBinarySensor), attr
 
+    def test_setup_wm_start_time_not_advertised_is_read_only(self):
+        """A washer that reports startTime without advertising it gets a sensor, not a number."""
+        import copy
+
+        from custom_components.electrolux.number import ElectroluxNumber
+        from custom_components.electrolux.sensor import ElectroluxSensor
+
+        reported = {**copy.deepcopy(self._WM_UNADVERTISED_REPORTED), "startTime": -1}
+        app = _make_app_full(state={"properties": {"reported": reported}}, model="914505412")
+        app.setup(self._make_data(capabilities={}, reported=app.reported_state))
+        entity = self._td_entity(app, None, "startTime")
+        assert isinstance(entity, ElectroluxSensor)
+        assert not isinstance(entity, ElectroluxNumber)
+
+    def test_setup_wm_start_time_advertised_stays_number(self):
+        """A washer that advertises startTime keeps the writable number."""
+        import copy
+
+        from custom_components.electrolux.number import ElectroluxNumber
+
+        reported = {**copy.deepcopy(self._WM_UNADVERTISED_REPORTED), "startTime": -1}
+        app = _make_app_full(state={"properties": {"reported": reported}}, model="914505412")
+        capabilities = {"startTime": {"access": "readwrite", "type": "number", "min": 0, "max": 72000, "step": 1800}}
+        app.setup(self._make_data(capabilities=capabilities, reported=app.reported_state))
+        assert isinstance(self._td_entity(app, None, "startTime"), ElectroluxNumber)
+
     def test_setup_wm_advertised_keys_stay_controls(self):
         """A WM model that advertises the keys keeps the select and switch entities."""
         import copy
