@@ -583,6 +583,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:water",
         friendly_name="Water Hardness",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "waterSoftenerMode": ElectroluxDevice(
         capability_info={
@@ -600,6 +602,8 @@ CATALOG_WM: dict[str, ElectroluxDevice] = {
         entity_category=EntityCategory.CONFIG,
         entity_icon="mdi:water-softener",
         friendly_name="Water Softener Mode",
+        reported_only_entity_platform=Platform.SENSOR,
+        reported_only_device_class=SensorDeviceClass.ENUM,
     ),
     "displayLight": ElectroluxDevice(
         capability_info={

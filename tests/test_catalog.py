@@ -1284,12 +1284,15 @@ class TestDryerReportedOnlyFallbacks:
 class TestWasherReportedOnlyFallbacks:
     """WM keys a WM-914505412 reports without advertising them as capabilities.
 
-    ``waterHardness`` and ``waterSoftenerMode`` are left out on purpose: they are
-    kept as selects for issue #192 (see ``TestCatalogOnlyStringSelect``).
+    ``waterHardness`` and ``waterSoftenerMode`` stay selects when advertised
+    (issue #192, see ``TestCatalogOnlyStringSelect``) and become read-only
+    sensors when they are only reported.
     """
 
     ENUM_KEYS = (
         "language",
+        "waterHardness",
+        "waterSoftenerMode",
         "autoDosing/adTankAConfiguration",
         "autoDosing/adTankBConfiguration",
         "userSelections/adTankASel",
