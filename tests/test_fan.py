@@ -967,7 +967,7 @@ class TestFanMissingCoverage:
             )
         assert fan._speed_range == (2, 7)
 
-    def test_init_reads_preset_modes_from_workmode_capability(self):
+    def test_init_reads_preset_modes_from_workmode_capability(self) -> None:
         """Lines 134-136 — __init__ builds _preset_modes from Workmode capability."""
         mock_caps: dict[str, Any] = {
             "Workmode": {"values": {"Auto": {}, "Manual": {}, "Quiet": {}, "PowerOff": {}}},
