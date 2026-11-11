@@ -18,6 +18,8 @@
 
 - __fix(init): remove the redundant config-entry update listener__ by @peetervalk Reconfigure and reauthentication continue to reload through their config-flow path without registering a second listener. This removes a Home Assistant 2026.11 warning and avoids relying on the listener behavior scheduled to stop working in Home Assistant 2026.12. (#345)
 
+- __fix(coordinator): refresh only diagnostic sensors after REST probes__ by @TTLucian API health checks and successful API calls now refresh cloud diagnostic sensors without waking every appliance entity. Diagnostic attributes remain current on each probe. (#352)
+
 ## ⬆️ Upgrade notes
 
 - This version requires Home Assistant 2026.11+.
