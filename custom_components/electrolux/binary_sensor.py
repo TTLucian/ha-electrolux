@@ -8,8 +8,9 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -209,6 +210,22 @@ class _ElectroluxCloudDiagnosticBinarySensor(CoordinatorEntity[ElectroluxCoordin
             entry_type=DeviceEntryType.SERVICE,
             configuration_url="https://developer.electrolux.one",
         )
+
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to API diagnostic updates separately from appliance updates."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass,
+                self.coordinator.diagnostics_signal,
+                self._handle_diagnostics_update,
+            )
+        )
+
+    @callback
+    def _handle_diagnostics_update(self) -> None:
+        """Write diagnostic state when REST API health details change."""
+        self.async_write_ha_state()
 
     @property
     def name(self) -> str:
