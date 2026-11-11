@@ -16,6 +16,7 @@ from homeassistant.exceptions import (
 )
 from homeassistant.helpers import issue_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ElectroluxLibraryEntity
@@ -276,6 +277,17 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         return self._consecutive_api_failures
 
     @property
+    def diagnostics_signal(self) -> str:
+        """Return the dispatcher signal for cloud diagnostic entities."""
+        config_entry = getattr(self, "config_entry", None)
+        entry_id = getattr(config_entry, "entry_id", None) or "default"
+        return f"{DOMAIN}_diagnostics_update_{entry_id}"
+
+    def _notify_diagnostics(self) -> None:
+        """Refresh cloud diagnostic entities without notifying appliance entities."""
+        async_dispatcher_send(self.hass, self.diagnostics_signal)
+
+    @property
     def sse_connected(self) -> bool:
         """Return whether the live SSE event stream is actively connected."""
         return self._sse_connected
@@ -314,8 +326,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         self._last_api_status_code = 200
         self._last_api_success_time = time.time()
         self._last_api_error = None
-        if hasattr(self, "_listeners"):
-            self.async_update_listeners()
+        self._notify_diagnostics()
 
     def record_api_failure(
         self,
@@ -333,8 +344,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             or (isinstance(status_code, int) and status_code >= 429)
         ):
             self._api_connected = False
-        if hasattr(self, "_listeners"):
-            self.async_update_listeners()
+        self._notify_diagnostics()
 
     def record_sse_disconnect(
         self,

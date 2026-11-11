@@ -3,13 +3,14 @@
 import asyncio
 import time
 from typing import Any, cast
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import aiohttp
 import pytest
 from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.const import EntityCategory
 from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.electrolux.api_client import ElectroluxApiClient
 from custom_components.electrolux.binary_sensor import (
@@ -245,9 +246,12 @@ class TestCoordinatorDiagnosticMethods:
         mock_session = MagicMock()
         mock_session.get.return_value.__aenter__.return_value = mock_response
 
-        with patch(
-            "custom_components.electrolux.coordinator.async_get_clientsession",
-            return_value=mock_session,
+        with (
+            patch(
+                "custom_components.electrolux.coordinator.async_get_clientsession",
+                return_value=mock_session,
+            ),
+            patch("custom_components.electrolux.coordinator.async_dispatcher_send") as dispatcher_send,
         ):
             coordinator = _make_coordinator()
             coordinator._consecutive_api_failures = 1
@@ -258,7 +262,66 @@ class TestCoordinatorDiagnosticMethods:
             assert coordinator.last_api_status_code == 200
             assert coordinator.last_api_error is None
             assert coordinator.last_api_success_time > 0
-            cast(MagicMock, coordinator.async_update_listeners).assert_called_once()
+            dispatcher_send.assert_called_once_with(coordinator.hass, coordinator.diagnostics_signal)
+            cast(MagicMock, coordinator.async_update_listeners).assert_not_called()
+
+    def test_api_recording_notifies_only_diagnostic_listeners(self):
+        coordinator = _make_coordinator()
+
+        with patch("custom_components.electrolux.coordinator.async_dispatcher_send") as dispatcher_send:
+            coordinator.record_api_success()
+            coordinator.record_api_success()
+            coordinator.record_api_failure(status_code=None, error="DNS timeout")
+            coordinator.record_api_failure(status_code=500, error="HTTP 500")
+
+        assert dispatcher_send.call_count == 4
+        assert dispatcher_send.call_args_list == [call(coordinator.hass, coordinator.diagnostics_signal)] * 4
+        cast(MagicMock, coordinator.async_update_listeners).assert_not_called()
+
+    def test_diagnostics_signal_is_entry_specific(self):
+        default = _make_coordinator()
+        first = _make_coordinator()
+        first.config_entry = MagicMock(entry_id="entry_one")
+        second = _make_coordinator()
+        second.config_entry = MagicMock(entry_id="entry_two")
+
+        assert default.diagnostics_signal == f"{DOMAIN}_diagnostics_update_default"
+        assert first.diagnostics_signal != second.diagnostics_signal
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "sensor_type",
+        [ElectroluxCloudApiBinarySensor, ElectroluxSseStreamBinarySensor],
+    )
+    async def test_diagnostic_sensor_subscribes_to_diagnostics_signal(self, sensor_type):
+        coordinator = _make_coordinator()
+        coordinator.config_entry = MagicMock(entry_id="test_entry")
+        config_entry = MagicMock()
+        sensor = sensor_type(coordinator, config_entry)
+        sensor.hass = coordinator.hass
+        unsubscribe = MagicMock()
+        sensor.async_on_remove = MagicMock()
+        sensor.async_write_ha_state = MagicMock()
+
+        with (
+            patch.object(CoordinatorEntity, "async_added_to_hass", new=AsyncMock()),
+            patch(
+                "custom_components.electrolux.binary_sensor.async_dispatcher_connect",
+                return_value=unsubscribe,
+            ) as dispatcher_connect,
+        ):
+            await sensor.async_added_to_hass()
+
+        dispatcher_connect.assert_called_once_with(
+            sensor.hass,
+            coordinator.diagnostics_signal,
+            sensor._handle_diagnostics_update,
+        )
+        sensor.async_on_remove.assert_called_once_with(unsubscribe)
+
+        sensor._handle_diagnostics_update()
+
+        sensor.async_write_ha_state.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_check_api_health_500_error(self):
