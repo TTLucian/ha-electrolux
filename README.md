@@ -579,6 +579,14 @@ If sensor values appear outdated or frozen:
 - Check if appliance shows as "connected" in the official Electrolux app
 - Wait 5-10 minutes - data updates automatically via real-time SSE stream
 
+**Missing state updates and SSE limitations:**
+
+The integration can update a state immediately only when Electrolux sends that property through its SSE stream. Some properties, such as `doorState` on certain appliances, have been observed in full state snapshots but not in SSE updates. Electrolux appears to be gradually omitting or removing some live state updates for some models or appliance types; the scope is not known, and behavior may vary between models. A stale Home Assistant value alone does not establish an integration bug.
+
+To reduce stale values without polling after every event, the integration schedules a one-time full state refresh about 10 seconds after certain recognized state or panel transitions. This is not a poll every 10 seconds and does not guarantee that every change omitted from SSE will be detected. If no recognized transition triggers a refresh, or a value changes and changes back before the request, that change may not appear in Home Assistant. Each refresh is an API request and returns a snapshot of the current state, not a history of changes.
+
+Before reporting a state that does not update, verify that it changed on the appliance or in the Electrolux app, then provide debug logs covering the change and any follow-up refresh, plus the appliance diagnostics. Include the model/PNC, property or entity, what action caused the change, and approximate timestamps. Without relevant logs, it is not possible to tell whether Electrolux omitted the SSE event or the integration failed to handle it; reports based only on a stale value may not be actionable.
+
 **If data is still stuck:**
 - Use the **Manual Sync** button (available on each appliance)
 - **⚠️ Important**: This button is rate-limited (60 seconds cooldown) and causes heavy API load
