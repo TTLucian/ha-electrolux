@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from custom_components.electrolux.const import REMOTE_CONTROL_TEMPORARY_LOCKED
 from custom_components.electrolux.coordinator import (
     APPLIANCE_ID_ALT_KEY,
     APPLIANCE_ID_KEY,
@@ -715,6 +716,84 @@ class TestProcessIncrementalUpdate:
         coordinator._process_incremental_update(self._make_data("app1", "upperOven/doorState", "CLOSED"), aps)
 
         ap.update_reported_data.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("previous_remote_control", "current_remote_control", "previous_door_state", "expected_door_state"),
+        [
+            ("ENABLED", REMOTE_CONTROL_TEMPORARY_LOCKED, "CLOSED", "OPEN"),
+            (REMOTE_CONTROL_TEMPORARY_LOCKED, "ENABLED", "OPEN", "CLOSED"),
+        ],
+    )
+    def test_remote_control_transition_updates_standalone_oven_door_state(
+        self,
+        coordinator,
+        previous_remote_control,
+        current_remote_control,
+        previous_door_state,
+        expected_door_state,
+    ):
+        appliance_id = "944188772_00:31862190-443E07363DAB"
+        ap = _make_appliance(appliance_id)
+        ap.appliance_type = "OV"
+        ap.reported_state = {
+            "remoteControl": previous_remote_control,
+            "doorState": previous_door_state,
+        }
+        ap.update_reported_data.side_effect = lambda update: ap.reported_state.update(
+            {update["property"]: update["value"]}
+        )
+        ap.data.get_capability.side_effect = lambda path: (
+            {"access": "read"} if path in ("remoteControl", "doorState") else None
+        )
+        aps = _make_appliances({appliance_id: ap})
+        coordinator.async_set_updated_data = MagicMock()
+        coordinator._last_remote_control[appliance_id] = previous_remote_control
+        coordinator._schedule_state_refresh = MagicMock()
+
+        coordinator._process_incremental_update(
+            self._make_data(appliance_id, "remoteControl", current_remote_control),
+            aps,
+        )
+
+        assert ap.get_state("doorState") == expected_door_state
+        assert coordinator.async_set_updated_data.call_count == 1
+        assert coordinator._sse_value_history[appliance_id]["doorState"][-1][1] == expected_door_state
+        assert coordinator._superseded_by_sse(appliance_id, {"doorState": previous_door_state}) == {"doorState"}
+        if previous_remote_control == REMOTE_CONTROL_TEMPORARY_LOCKED:
+            coordinator._schedule_state_refresh.assert_called_once_with(appliance_id)
+        else:
+            coordinator._schedule_state_refresh.assert_not_called()
+
+    @pytest.mark.parametrize(
+        ("appliance_type", "pnc_id", "door_capability"),
+        [
+            ("SO", "944188772_00:31862190-443E07363DAB", {"access": "read"}),
+            ("OV", "other_oven_00:12345678-ABCDEF012345", {"access": "read"}),
+            ("OV", "944188772_00:31862190-443E07363DAB", None),
+        ],
+    )
+    def test_remote_control_door_fallback_requires_standalone_oven_door_capability(
+        self,
+        coordinator,
+        appliance_type,
+        pnc_id,
+        door_capability,
+    ):
+        ap = _make_appliance("app1")
+        ap.appliance_type = appliance_type
+        ap.pnc_id = pnc_id
+        ap.reported_state = {"remoteControl": "ENABLED", "doorState": "CLOSED"}
+        ap.data.get_capability.side_effect = lambda path: door_capability if path == "doorState" else {"access": "read"}
+        aps = _make_appliances({"app1": ap})
+        coordinator.async_set_updated_data = MagicMock()
+
+        coordinator._process_incremental_update(
+            self._make_data("app1", "remoteControl", REMOTE_CONTROL_TEMPORARY_LOCKED),
+            aps,
+        )
+
+        assert ap.get_state("doorState") == "CLOSED"
+        assert "doorState" not in coordinator._sse_value_history.get("app1", {})
 
     def test_ignores_unknown_appliance(self, coordinator):
         aps = _make_appliances({})

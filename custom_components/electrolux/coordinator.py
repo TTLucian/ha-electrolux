@@ -21,7 +21,13 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .api import ElectroluxLibraryEntity
 from .auth_errors import is_auth_error, is_forbidden_resource_error
-from .const import DOMAIN, TIME_ENTITIES_TO_UPDATE, ApplianceDesyncAttribute
+from .const import (
+    DOMAIN,
+    REMOTE_CONTROL_DOOR_STATE_FALLBACK_PNCS,
+    REMOTE_CONTROL_TEMPORARY_LOCKED,
+    TIME_ENTITIES_TO_UPDATE,
+    ApplianceDesyncAttribute,
+)
 from .models import Appliance, Appliances, ApplianceState, _get_nested_value, _has_nested_key
 from .util import (
     AuthenticationError,
@@ -636,7 +642,7 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         return path.rsplit("/", 1)[-1] in SSE_ORDERED_PROPERTIES
 
     def _record_sse_values(self, appliance_id: str, values: dict[str, Any]) -> None:
-        """Remember recently SSE-delivered lifecycle values for this appliance.
+        """Remember recently SSE-delivered or SSE-derived lifecycle values.
 
         Only properties in SSE_ORDERED_PROPERTIES are tracked, and entries are
         pruned by age rather than a fixed depth: a poll can legitimately return a
@@ -879,6 +885,21 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
         """Return True if data contains incremental update fields."""
         return bool(data) and APPLIANCE_ID_KEY in data and PROPERTY_KEY in data and VALUE_KEY in data
 
+    @staticmethod
+    def _remote_control_door_state_path(appliance: Appliance) -> str | None:
+        """Return the door path for a standalone oven with verified remoteControl semantics."""
+        pnc = appliance.pnc_id.removeprefix("1:").split(":", 1)[0]
+        if appliance.appliance_type != "OV" or pnc not in REMOTE_CONTROL_DOOR_STATE_FALLBACK_PNCS:
+            return None
+
+        get_capability = getattr(appliance.data, "get_capability", None)
+        if not callable(get_capability) or not isinstance(
+            get_capability(ApplianceDesyncAttribute.DOOR_STATE.value), dict
+        ):
+            return None
+
+        return ApplianceDesyncAttribute.DOOR_STATE.value
+
     def _process_incremental_update(self, data: dict[str, Any], appliances: Any) -> None:
         """Process an incremental property update."""
         appliance_id = data[APPLIANCE_ID_KEY]
@@ -971,6 +992,35 @@ class ElectroluxCoordinator(DataUpdateCoordinator):
             # Use {"property": ..., "value": ...} format so update_reported_data correctly
             # handles nested paths like "upperOven/runningTime" via its nested-write logic
             appliance.update_reported_data({"property": data[PROPERTY_KEY], "value": data[VALUE_KEY]})
+
+            if data[PROPERTY_KEY] == "remoteControl":
+                door_state_path = self._remote_control_door_state_path(appliance)
+                previous_remote_control_value = self._last_remote_control.get(appliance_id, old_value)
+                previous_remote_control = (
+                    previous_remote_control_value if isinstance(previous_remote_control_value, str) else None
+                )
+                current_remote_control = new_value if isinstance(new_value, str) else None
+                if door_state_path is not None:
+                    door_state_value = None
+                    if current_remote_control == REMOTE_CONTROL_TEMPORARY_LOCKED:
+                        door_state_value = "OPEN"
+                    elif (
+                        previous_remote_control == REMOTE_CONTROL_TEMPORARY_LOCKED
+                        and current_remote_control is not None
+                    ):
+                        door_state_value = "CLOSED"
+
+                    if door_state_value is not None:
+                        previous_door_state = appliance.get_state(door_state_path)
+                        if previous_door_state is not None:
+                            self._record_sse_values(appliance_id, {door_state_path: previous_door_state})
+                        self._record_sse_values(appliance_id, {door_state_path: door_state_value})
+                        appliance.update_reported_data({"property": door_state_path, "value": door_state_value})
+                        _LOGGER.debug(
+                            "Updated %s from remoteControl transition for %s",
+                            door_state_path,
+                            appliance_id,
+                        )
         except (KeyError, ValueError, TypeError) as ex:
             _LOGGER.error(f"Data validation error updating incremental data for appliance {appliance_id}: {ex}")
             return
