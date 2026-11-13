@@ -244,8 +244,9 @@ class TestElectroluxNumber:
         entity.reported_state = {"startTime": 1800}
         assert entity.native_value == 30  # 30 minutes
 
-    def test_native_value_start_time_invalid(self, mock_coordinator, mock_capability):
-        """Test startTime returns None for invalid time (-1)."""
+    @pytest.mark.parametrize("attr", ["startTime", "stopTime"])
+    def test_native_value_start_time_invalid(self, mock_coordinator, mock_capability, attr):
+        """Test startTime/stopTime return None for invalid time (-1)."""
         entity = ElectroluxNumber(
             coordinator=mock_coordinator,
             name="Start Time",
@@ -253,7 +254,7 @@ class TestElectroluxNumber:
             pnc_id="TEST_PNC",
             entity_type=NUMBER,
             entity_name="start_time",
-            entity_attr="startTime",
+            entity_attr=attr,
             entity_source=None,
             capability=mock_capability,
             unit=UnitOfTime.SECONDS,  # Updated to SECONDS
@@ -262,8 +263,8 @@ class TestElectroluxNumber:
             icon="mdi:clock-start",
         )
         entity.hass = mock_coordinator.hass  # Set hass for the entity
-        entity.appliance_status = {"properties": {"reported": {"startTime": -1}}}
-        entity.reported_state = {"startTime": -1}
+        entity.appliance_status = {"properties": {"reported": {attr: -1}}}
+        entity.reported_state = {attr: -1}
         assert entity.native_value is None
 
     def test_native_value_food_probe_not_inserted(self, mock_coordinator):
