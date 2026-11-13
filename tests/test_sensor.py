@@ -740,6 +740,19 @@ class TestSensorMissingCoverage:
         basic_sensor_entity.reported_state = {attr: 9000}
         assert basic_sensor_entity.native_value == 9000
 
+    @pytest.mark.parametrize("attr", ["autoLocalTimeOffset", "networkInterface/autoLocalTimeOffset"])
+    def test_auto_local_time_offset_filters_int32_min_sentinel(self, basic_sensor_entity, attr):
+        """autoLocalTimeOffset -2**31 = no offset configured — return None."""
+        basic_sensor_entity.entity_attr = attr
+        basic_sensor_entity.reported_state = {attr: -2147483648}
+        assert basic_sensor_entity.native_value is None
+
+    def test_auto_local_time_offset_passes_valid_value(self, basic_sensor_entity):
+        """A real offset (seconds) passes through."""
+        basic_sensor_entity.entity_attr = "autoLocalTimeOffset"
+        basic_sensor_entity.reported_state = {"autoLocalTimeOffset": 3600}
+        assert basic_sensor_entity.native_value == 3600
+
     # ── applianceInfo identifiers ─────────────────────────────────────────────
 
     @pytest.mark.parametrize(
