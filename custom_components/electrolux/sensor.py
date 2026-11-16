@@ -131,6 +131,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             ]:
                 return None
 
+        # autoLocalTimeOffset reports the int32 minimum (-2147483648) when the
+        # appliance has no automatic local time offset: hide it instead of
+        # showing a -68 year offset.
+        if self.entity_attr.split("/")[-1] == "autoLocalTimeOffset" and value == -2147483648:
+            return None
+
         # Special handling for timeToEnd sensors: return seconds for countdown display
         if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
             if value is None or not isinstance(value, (int, float)):
