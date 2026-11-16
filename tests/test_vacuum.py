@@ -213,10 +213,22 @@ class TestElectroluxVacuumPurei9:
         vacuum = _make_purei9_vacuum(robot_status=11)
         assert vacuum.activity == VacuumActivity.ERROR
 
-    def test_activity_returns_returning_for_robot_status_13(self):
-        """PUREi9 status 13 = going home."""
-        vacuum = _make_purei9_vacuum(robot_status=13)
-        assert vacuum.activity == VacuumActivity.RETURNING
+    @pytest.mark.parametrize(
+        ("robot_status", "expected"),
+        [
+            (5, VacuumActivity.RETURNING),  # returning to the dock
+            (6, VacuumActivity.PAUSED),  # paused returning
+            (7, VacuumActivity.RETURNING),  # returning for pitstop
+            (8, VacuumActivity.PAUSED),  # paused returning for pitstop
+            (12, VacuumActivity.DOCKED),  # pitstop
+            (13, VacuumActivity.IDLE),  # manual steering
+            (14, VacuumActivity.IDLE),  # firmware upgrade
+        ],
+    )
+    def test_activity_for_return_and_service_statuses(self, robot_status, expected):
+        """PUREi9 status 5-8 are the return-to-dock states, 13/14 manual steering / firmware upgrade."""
+        vacuum = _make_purei9_vacuum(robot_status=robot_status)
+        assert vacuum.activity == expected
 
     def test_activity_returns_docked_for_robot_status_9(self):
         """PUREi9 status 9 = docked."""
