@@ -242,7 +242,9 @@ class ElectroluxNumber(ElectroluxEntity, NumberEntity):
 
         value = self.extract_value()
 
-        if self.entity_attr == "startTime" and value == TIME_INVALID_SENTINEL:
+        # startTime/stopTime report -1 when no delayed start/finish is set: show "unknown"
+        # instead of a 0 min slider that looks like an active setting.
+        if self.entity_attr in ("startTime", "stopTime") and value == TIME_INVALID_SENTINEL:
             return None
 
         if value is None:
