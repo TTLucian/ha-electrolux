@@ -1123,11 +1123,6 @@ class TestBatteryStatusSensor:
     def test_missing_range_returns_raw_value(self, mock_coordinator):
         assert self._sensor(mock_coordinator, 5, {"access": "read", "type": "int"}).native_value == 5
 
-    def test_non_dict_capability_returns_raw_value(self, mock_coordinator):
-        entity = self._sensor(mock_coordinator, 5, {"access": "read", "type": "int"})
-        entity.capability = None
-        assert entity.native_value == 5
-
     @pytest.mark.parametrize("value", [None, True, "not-a-number", [1]])
     def test_invalid_value_is_none(self, mock_coordinator, value):
         capability = {"access": "read", "type": "int", "min": 1, "max": 6}

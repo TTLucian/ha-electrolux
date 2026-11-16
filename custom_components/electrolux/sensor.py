@@ -280,10 +280,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         except TypeError, ValueError:
             return None
 
-        capability = self.capability if isinstance(self.capability, dict) else {}
         try:
-            battery_min = float(capability["min"])
-            battery_max = float(capability["max"])
+            battery_min = float(self.capability["min"])
+            battery_max = float(self.capability["max"])
         except KeyError, TypeError, ValueError:
             return round(battery_value)
 
