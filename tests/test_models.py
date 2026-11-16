@@ -1057,6 +1057,39 @@ class TestApplianceSetup:
         assert speed_entities[0].capability["min"] == 1
         assert speed_entities[0].catalog_entry.state_path == "Fanspeed"
 
+    def test_setup_uses_advertised_fanspeed_for_purea9(self):
+        """A9 advertises Fanspeed only and must not get Fuji's FanSpeed command alias."""
+        state = {
+            "properties": {
+                "reported": {
+                    "applianceInfo": {"applianceType": "PUREA9"},
+                    "applianceState": "running",
+                    "connectivityState": "connected",
+                    "Fanspeed": 3,
+                }
+            }
+        }
+        app = Appliance(
+            coordinator=_make_coordinator(),
+            name="Test A9 Purifier",
+            pnc_id="A9_PNC",
+            brand="Electrolux",
+            model="PUREA9",
+            state=state,
+            appliance_type="PUREA9",
+        )
+        data = self._make_data(
+            {"Fanspeed": {"access": "readwrite", "type": "number", "min": 1, "max": 9, "step": 1}},
+            reported=state["properties"]["reported"],
+        )
+
+        app.setup(data)
+
+        speed_entities = [entity for entity in app.entities if entity.entity_attr.lower() == "fanspeed"]
+        assert len(speed_entities) == 1
+        assert speed_entities[0].entity_attr == "Fanspeed"
+        assert speed_entities[0].capability == data.get_capability("Fanspeed")
+
     def test_setup_deduplicates_entities(self):
         """Duplicate unique_ids result in only one entity kept."""
         app = _make_app_full()
