@@ -928,6 +928,27 @@ class TestElectroluxVacuumZoneCleaning:
         }
 
     @pytest.mark.asyncio
+    async def test_clean_zones_accepts_flattened_custom_play_capability(self):
+        """The real API reports CustomPlay as flattened keys; the service must accept that."""
+        vacuum = _make_purei9_vacuum()
+        capabilities: dict[str, Any] = {
+            "CustomPlay/persistentMapId": {"access": "readwrite", "type": "custom"},
+            "CustomPlay/zones": {"access": "readwrite", "type": "custom"},
+        }
+        vacuum.get_appliance.data.get_capability = lambda key: capabilities.get(key)
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_clean_zones(
+                persistent_map_id="map-1",
+                zones=[{"zone_id": "zone-1", "power_mode": 2}],
+            )
+
+        mock_execute.assert_awaited_once()
+
+    @pytest.mark.asyncio
     async def test_clean_zones_raises_when_capability_absent(self):
         """async_clean_zones raises HomeAssistantError when CustomPlay not supported."""
         from homeassistant.exceptions import HomeAssistantError
