@@ -1073,3 +1073,48 @@ class TestNulPaddingSanitization:
         entity = self._make_entity(mock_coordinator, attr="oTA3State")
         entity.reported_state = {"oTA3State": "IDLE"}
         assert entity.native_value == "Idle"
+
+
+class TestValueMappingStringKeys:
+    """Catalog mappings keyed by strings must also match int values (PUREi9 robotStatus)."""
+
+    def _sensor(self, mock_coordinator, value) -> ElectroluxSensor:
+        catalog = MagicMock()
+        catalog.friendly_name = "Robot Status"
+        catalog.value_mapping = {"1": "Cleaning", "9": "Docked", "10": "Sleeping"}
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Robot Status",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="robotStatus",
+            entity_attr="robotStatus",
+            entity_source=None,
+            capability={"access": "read", "type": "string"},
+            unit=None,
+            device_class=SensorDeviceClass.ENUM,
+            entity_category=None,
+            icon="mdi:robot-vacuum",
+            catalog_entry=catalog,
+        )
+        entity.hass = mock_coordinator.hass
+        reported = {"robotStatus": value}
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {"reported": reported, "desired": {}, "metadata": {}},
+        }
+        entity.reported_state = reported
+        return entity
+
+    @pytest.mark.parametrize(("value", "expected"), [(1, "Cleaning"), ("1", "Cleaning"), (10, "Sleeping")])
+    def test_int_and_string_values_are_mapped(self, mock_coordinator, value, expected):
+        assert self._sensor(mock_coordinator, value).native_value == expected
+
+    def test_unmapped_value_is_unchanged(self, mock_coordinator):
+        assert self._sensor(mock_coordinator, 99).native_value == 99
+
+    def test_bool_is_not_mapped_through_str(self, mock_coordinator):
+        sensor = self._sensor(mock_coordinator, True)
+        sensor.catalog_entry.value_mapping = {"True": "Wrong"}
+        assert sensor.native_value is True

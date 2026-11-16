@@ -243,6 +243,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             _LOGGER.debug("Mapping %s: %s to %s", self.json_path, value, mapping)
             if value in mapping:
                 value = mapping.get(value, value)
+            elif not isinstance(value, bool) and str(value) in mapping:
+                # PUREi9 reports robotStatus as an int while the catalog keys are strings
+                value = mapping[str(value)]
 
         if isinstance(value, str):
             # Normalization fix for issue #55: Convert spaced variations like "End Of Cycle"
