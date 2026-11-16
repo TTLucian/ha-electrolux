@@ -673,7 +673,8 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             raise HomeAssistantError("Areas from different maps cannot be cleaned in one run.")
         map_id = map_ids.pop()
 
-        # Use each zone's own power mode from the map, else the robot's current one.
+        # Use each zone's own power mode from the map, else the robot's current one
+        # (gen 1 PUREi9: Eco/Power from ecoMode).
         zone_power_modes: dict[str, Any] = {}
         for api_map in await self.api.get_interactive_maps(self.pnc_id):
             if api_map.get("id") == map_id:
@@ -683,12 +684,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                     if isinstance(zone, dict) and zone.get("id")
                 }
                 break
-        current_power_mode = self.get_state_attr("powerMode")
-        fallback_power_mode = (
-            current_power_mode
-            if isinstance(current_power_mode, int) and not isinstance(current_power_mode, bool)
-            else _DEFAULT_ZONE_POWER_MODE
-        )
+        fallback_power_mode = self._zone_fallback_power_mode()
 
         command = {
             "CustomPlay": {
@@ -711,6 +707,19 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         await execute_command_with_error_handling(
             self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
         )
+
+    def _zone_fallback_power_mode(self) -> int:
+        """Return the power mode for a zone that has none stored on the map.
+
+        Gen 1 PUREi9 has only Eco (1) and Power (3) and reports a boolean ecoMode
+        in place of powerMode, so Standard (2) must never be sent to it.
+        """
+        if self._is_purei9_gen1:
+            return _PUREI9_GEN1_SPEED_TO_INT["Eco" if self.get_state_attr("ecoMode") else "Power"]
+        current_power_mode: Any = self.get_state_attr("powerMode")
+        if isinstance(current_power_mode, int) and not isinstance(current_power_mode, bool):
+            return current_power_mode
+        return _DEFAULT_ZONE_POWER_MODE
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 

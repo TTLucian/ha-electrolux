@@ -1198,6 +1198,27 @@ class TestElectroluxVacuumCleanArea:
         ]
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(("eco_mode", "expected"), [(True, 1), (False, 3)])
+    async def test_clean_segments_gen1_falls_back_to_eco_or_power(self, eco_mode, expected):
+        """Gen 1 PUREi9 has no Standard (2): a zone without a power mode gets Eco or Power."""
+        vacuum = _make_area_vacuum()
+        del vacuum.reported_state["powerMode"]
+        vacuum.reported_state["ecoMode"] = eco_mode
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_clean_segments(["map-ground:zone-kitchen", "map-ground:zone-hall"])
+
+        call = mock_execute.await_args
+        assert call is not None
+        assert call.args[2]["CustomPlay"]["zones"] == [
+            {"zoneId": "zone-kitchen", "powerMode": 3},  # the zone's own power mode is kept
+            {"zoneId": "zone-hall", "powerMode": expected},
+        ]
+
+    @pytest.mark.asyncio
     async def test_clean_segments_rejects_zones_from_different_maps(self):
         from homeassistant.exceptions import HomeAssistantError
 
