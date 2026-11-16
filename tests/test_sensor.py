@@ -1073,3 +1073,57 @@ class TestNulPaddingSanitization:
         entity = self._make_entity(mock_coordinator, attr="oTA3State")
         entity.reported_state = {"oTA3State": "IDLE"}
         assert entity.native_value == "Idle"
+
+
+class TestBatteryStatusSensor:
+    """batteryStatus is a 1-6 step on the PUREi9 and must be shown as a percentage."""
+
+    def _sensor(self, mock_coordinator, value, capability) -> ElectroluxSensor:
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Battery",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name="batteryStatus",
+            entity_attr="batteryStatus",
+            entity_source=None,
+            capability=capability,
+            unit="%",
+            device_class=SensorDeviceClass.BATTERY,
+            entity_category=None,
+            icon="mdi:battery",
+        )
+        entity.hass = mock_coordinator.hass
+        reported = {"batteryStatus": value}
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {"reported": reported, "desired": {}, "metadata": {}},
+        }
+        entity.reported_state = reported
+        return entity
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [(1, 0), (2, 20), (3, 40), (4, 60), (5, 80), (6, 100), ("5", 80)],
+    )
+    def test_purei9_step_is_scaled_to_percentage(self, mock_coordinator, value, expected):
+        capability = {"access": "read", "type": "int", "min": 1, "max": 6}
+        assert self._sensor(mock_coordinator, value, capability).native_value == expected
+
+    @pytest.mark.parametrize("value", [0, 5, 57, 100])
+    def test_percentage_range_is_unchanged(self, mock_coordinator, value):
+        capability = {"access": "read", "type": "int", "min": 0, "max": 100}
+        assert self._sensor(mock_coordinator, value, capability).native_value == value
+
+    def test_value_above_step_range_is_unchanged(self, mock_coordinator):
+        capability = {"access": "read", "type": "int", "min": 1, "max": 6}
+        assert self._sensor(mock_coordinator, 57, capability).native_value == 57
+
+    def test_missing_range_returns_raw_value(self, mock_coordinator):
+        assert self._sensor(mock_coordinator, 5, {"access": "read", "type": "int"}).native_value == 5
+
+    @pytest.mark.parametrize("value", [None, True, "not-a-number", [1]])
+    def test_invalid_value_is_none(self, mock_coordinator, value):
+        capability = {"access": "read", "type": "int", "min": 1, "max": 6}
+        assert self._sensor(mock_coordinator, value, capability).native_value is None
