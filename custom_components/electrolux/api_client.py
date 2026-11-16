@@ -487,6 +487,19 @@ class ElectroluxApiClient:
             "properties": {"reported": reported},
         }
 
+    async def get_interactive_maps(self, appliance_id: str) -> list[dict[str, Any]]:
+        """Get the interactive maps (with their zones) of a PUREi9 robot vacuum."""
+
+        async def _get_maps():
+            return await self._handle_api_call(self._client.get_interactive_maps(appliance_id))
+
+        result = await safe_api_call(
+            _get_maps,
+            f"get interactive maps for {appliance_id}",
+            logger=_LOGGER,
+        )
+        return [item for item in result if isinstance(item, dict)] if isinstance(result, list) else []
+
     async def get_appliance_capabilities(self, appliance_id):
         """Get appliance capabilities."""
 

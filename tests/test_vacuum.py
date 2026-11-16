@@ -1076,3 +1076,160 @@ class TestModernFanSpeedList:
         # StateVacuumEntity.capability_attributes is typed `dict | None`.
         assert attributes is not None
         assert list(attributes.values()) == [["quiet", "powerful"]]
+
+
+# ── Clean area (HA segments) ──────────────────────────────────────────────────
+
+_GROUND_FLOOR_MAP: dict[str, Any] = {
+    "id": "map-ground",
+    "name": "Ground floor",
+    "zones": [
+        {"id": "zone-kitchen", "name": "Kitchen", "zoneType": "clean", "powerMode": 3},
+        {"id": "zone-hall", "name": "Hall", "zoneType": "clean", "powerMode": None},
+        {"id": "zone-rug", "name": "Rug", "zoneType": "avoid", "powerMode": None},
+    ],
+}
+_BASEMENT_MAP: dict[str, Any] = {
+    "id": "map-basement",
+    "name": "Basement",
+    "zones": [{"id": "zone-laundry", "name": "Laundry", "zoneType": "clean", "powerMode": 1}],
+}
+
+
+def _make_area_vacuum(maps: list[dict[str, Any]] | None = None, flat_capability: bool = True) -> ElectroluxVacuum:
+    """PUREi9 vacuum whose API reports CustomPlay the way the real API does (flattened keys)."""
+    vacuum = _make_purei9_vacuum()
+    capabilities: dict[str, Any] = {}
+    if flat_capability:
+        capabilities = {
+            "CustomPlay/persistentMapId": {"access": "readwrite", "type": "custom"},
+            "CustomPlay/zones": {"access": "readwrite", "type": "custom"},
+        }
+    vacuum.get_appliance.data.get_capability = lambda key: capabilities.get(key)
+    vacuum.api.get_interactive_maps = AsyncMock(
+        return_value=maps if maps is not None else [_GROUND_FLOOR_MAP, _BASEMENT_MAP]
+    )
+    return vacuum
+
+
+class TestElectroluxVacuumCleanArea:
+    def test_clean_area_supported_with_flattened_custom_play_capability(self):
+        assert _make_area_vacuum().supported_features & VacuumEntityFeature.CLEAN_AREA
+
+    def test_clean_area_not_supported_without_custom_play(self):
+        vacuum = _make_area_vacuum(flat_capability=False)
+
+        assert not vacuum.supported_features & VacuumEntityFeature.CLEAN_AREA
+
+    def test_clean_area_not_supported_on_modern_vacuum(self):
+        vacuum = _make_modern_vacuum(appliance_type="Gordias")
+        vacuum.get_appliance.data.get_capability = lambda key: {"access": "readwrite"}
+
+        assert not vacuum.supported_features & VacuumEntityFeature.CLEAN_AREA
+
+    def test_clean_area_not_supported_when_appliance_lookup_fails(self):
+        vacuum = _make_area_vacuum()
+        vacuum.coordinator.data = {}
+
+        assert not vacuum.supported_features & VacuumEntityFeature.CLEAN_AREA
+
+    @pytest.mark.asyncio
+    async def test_get_segments_lists_clean_zones_of_all_maps(self):
+        segments = await _make_area_vacuum().async_get_segments()
+
+        assert [(s.id, s.name, s.group) for s in segments] == [
+            ("map-ground:zone-kitchen", "Kitchen", "Ground floor"),
+            ("map-ground:zone-hall", "Hall", "Ground floor"),
+            ("map-basement:zone-laundry", "Laundry", "Basement"),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_get_segments_skips_maps_without_zones_or_id(self):
+        maps: list[dict[str, Any]] = [
+            {"id": "map-empty", "name": None, "zones": None},
+            {"name": "No id", "zones": [{"id": "zone-x", "name": "X", "zoneType": "clean"}]},
+            {"id": "map-1", "name": None, "zones": [{"id": "zone-y", "name": "", "zoneType": "clean"}, "junk"]},
+        ]
+        segments = await _make_area_vacuum(maps).async_get_segments()
+
+        assert [(s.id, s.name, s.group) for s in segments] == [("map-1:zone-y", "zone-y", None)]
+
+    @pytest.mark.asyncio
+    async def test_clean_segments_sends_custom_play_with_zone_power_modes(self):
+        vacuum = _make_area_vacuum()
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_clean_segments(["map-ground:zone-kitchen", "map-ground:zone-hall"])
+
+        mock_execute.assert_awaited_once()
+        call = mock_execute.await_args
+        assert call is not None
+        assert call.args[3] == "CustomPlay"
+        # Kitchen keeps its own power mode, Hall falls back to the current powerMode (2)
+        assert call.args[2] == {
+            "CustomPlay": {
+                "persistentMapId": "map-ground",
+                "zones": [
+                    {"zoneId": "zone-kitchen", "powerMode": 3},
+                    {"zoneId": "zone-hall", "powerMode": 2},
+                ],
+            }
+        }
+
+    @pytest.mark.asyncio
+    async def test_clean_segments_uses_default_power_mode_without_reported_power_mode(self):
+        vacuum = _make_area_vacuum()
+        del vacuum.reported_state["powerMode"]
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_clean_segments(["map-ground:zone-hall", "map-ground:zone-unknown"])
+
+        call = mock_execute.await_args
+        assert call is not None
+        assert call.args[2]["CustomPlay"]["zones"] == [
+            {"zoneId": "zone-hall", "powerMode": 2},
+            {"zoneId": "zone-unknown", "powerMode": 2},
+        ]
+
+    @pytest.mark.asyncio
+    async def test_clean_segments_rejects_zones_from_different_maps(self):
+        from homeassistant.exceptions import HomeAssistantError
+
+        vacuum = _make_area_vacuum()
+        with pytest.raises(HomeAssistantError):
+            await vacuum.async_clean_segments(["map-ground:zone-kitchen", "map-basement:zone-laundry"])
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("segment_id", ["zone-kitchen", ":zone-kitchen", "map-ground:"])
+    async def test_clean_segments_rejects_malformed_segment_ids(self, segment_id):
+        from homeassistant.exceptions import HomeAssistantError
+
+        vacuum = _make_area_vacuum()
+        with pytest.raises(HomeAssistantError):
+            await vacuum.async_clean_segments([segment_id])
+
+    @pytest.mark.asyncio
+    async def test_clean_segments_without_segments_sends_nothing(self):
+        vacuum = _make_area_vacuum()
+
+        with patch(
+            "custom_components.electrolux.vacuum.execute_command_with_error_handling",
+            new=AsyncMock(),
+        ) as mock_execute:
+            await vacuum.async_clean_segments([])
+
+        mock_execute.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_clean_segments_raises_when_not_supported(self):
+        from homeassistant.exceptions import HomeAssistantError
+
+        vacuum = _make_area_vacuum(flat_capability=False)
+        with pytest.raises(HomeAssistantError):
+            await vacuum.async_clean_segments(["map-ground:zone-kitchen"])

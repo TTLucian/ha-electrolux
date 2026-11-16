@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.components.vacuum import StateVacuumEntity
+from homeassistant.components.vacuum import Segment, StateVacuumEntity
 from homeassistant.components.vacuum.const import (
     VacuumActivity,
     VacuumEntityFeature,
@@ -59,6 +59,11 @@ _RVC_TYPES = {"PUREi9", "Gordias", "Cybele", "700series"}
 # All other types (Gordias, Cybele, 700series) use the modern string state +
 # camelCase cleaningCommand + vacuumMode API.
 _PUREI9_TYPES = {"PUREi9"}
+
+# Segment ids combine the interactive map id and the zone id, so areas from
+# several maps (e.g. one per floor) can be offered at the same time.
+_SEGMENT_ID_SEPARATOR = ":"
+_DEFAULT_ZONE_POWER_MODE = 2
 
 # ── State → VacuumActivity mappings ──────────────────────────────────────────
 
@@ -259,7 +264,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     @property
     def supported_features(self) -> VacuumEntityFeature:
         """Return the list of supported features."""
-        return (
+        features = (
             VacuumEntityFeature.STATE
             | VacuumEntityFeature.START
             | VacuumEntityFeature.STOP
@@ -267,6 +272,24 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
             | VacuumEntityFeature.RETURN_HOME
             | VacuumEntityFeature.FAN_SPEED
         )
+        if self._supports_custom_play:
+            features |= VacuumEntityFeature.CLEAN_AREA
+        return features
+
+    @property
+    def _supports_custom_play(self) -> bool:
+        """Return True when the PUREi9 accepts CustomPlay (zone) commands.
+
+        The API reports the capability flattened as ``CustomPlay/persistentMapId``
+        and ``CustomPlay/zones``, so check the nested key as well.
+        """
+        if not self._is_purei9:
+            return False
+        try:
+            data = self.get_appliance.data
+            return bool(data.get_capability("CustomPlay") or data.get_capability("CustomPlay/zones"))
+        except AttributeError, KeyError, TypeError:
+            return False
 
     # ── State properties ──────────────────────────────────────────────────────
 
@@ -600,6 +623,90 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         }
 
         _LOGGER.debug("Electrolux zone cleaning command: %s", command)
+
+        await execute_command_with_error_handling(
+            self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
+        )
+
+    # ── Clean area (HA segments) ──────────────────────────────────────────────
+
+    async def async_get_segments(self) -> list[Segment]:
+        """Return the clean zones of every interactive map as HA segments.
+
+        Avoid zones are skipped. The map name is used as the segment group so
+        zones from several maps can be told apart in the area mapping dialog.
+        """
+        segments: list[Segment] = []
+        for api_map in await self.api.get_interactive_maps(self.pnc_id):
+            map_id = api_map.get("id")
+            if not map_id:
+                continue
+            for zone in api_map.get("zones") or []:
+                if not isinstance(zone, dict) or zone.get("zoneType") != "clean" or not zone.get("id"):
+                    continue
+                segments.append(
+                    Segment(
+                        id=f"{map_id}{_SEGMENT_ID_SEPARATOR}{zone['id']}",
+                        name=zone.get("name") or zone["id"],
+                        group=api_map.get("name") or None,
+                    )
+                )
+        return segments
+
+    async def async_clean_segments(self, segment_ids: list[str], **kwargs: Any) -> None:
+        """Clean the given segments (zones of one interactive map) with CustomPlay."""
+        if not self._supports_custom_play:
+            raise HomeAssistantError("Area cleaning is not supported on this device.")
+
+        map_ids: set[str] = set()
+        zone_ids: list[str] = []
+        for segment_id in segment_ids:
+            map_id, separator, zone_id = segment_id.partition(_SEGMENT_ID_SEPARATOR)
+            if not separator or not map_id or not zone_id:
+                raise HomeAssistantError(f"Unknown area segment '{segment_id}'.")
+            map_ids.add(map_id)
+            zone_ids.append(zone_id)
+
+        if not zone_ids:
+            return
+        if len(map_ids) > 1:
+            raise HomeAssistantError("Areas from different maps cannot be cleaned in one run.")
+        map_id = map_ids.pop()
+
+        # Use each zone's own power mode from the map, else the robot's current one.
+        zone_power_modes: dict[str, Any] = {}
+        for api_map in await self.api.get_interactive_maps(self.pnc_id):
+            if api_map.get("id") == map_id:
+                zone_power_modes = {
+                    zone["id"]: zone.get("powerMode")
+                    for zone in api_map.get("zones") or []
+                    if isinstance(zone, dict) and zone.get("id")
+                }
+                break
+        current_power_mode = self.get_state_attr("powerMode")
+        fallback_power_mode = (
+            current_power_mode
+            if isinstance(current_power_mode, int) and not isinstance(current_power_mode, bool)
+            else _DEFAULT_ZONE_POWER_MODE
+        )
+
+        command = {
+            "CustomPlay": {
+                "persistentMapId": map_id,
+                "zones": [
+                    {
+                        "zoneId": zone_id,
+                        "powerMode": power_mode
+                        if isinstance(power_mode := zone_power_modes.get(zone_id), int)
+                        and not isinstance(power_mode, bool)
+                        else fallback_power_mode,
+                    }
+                    for zone_id in zone_ids
+                ],
+            }
+        }
+
+        _LOGGER.debug("Electrolux area cleaning command: %s", command)
 
         await execute_command_with_error_handling(
             self.api, self.pnc_id, command, "CustomPlay", _LOGGER, self.capability
