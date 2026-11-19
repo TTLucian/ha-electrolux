@@ -49,7 +49,6 @@ def _make_image(maps: Any = None) -> ElectroluxMapImage:
             icon="mdi:map",
         )
     entity.hass = hass
-    entity.async_write_ha_state = MagicMock()  # type: ignore[method-assign]
     return entity
 
 
@@ -64,16 +63,17 @@ class TestMapImage:
     async def test_refresh_renders_svg_and_marks_update(self):
         entity = _make_image()
         entity.entity_id = "image.robot_map"
-        await entity._async_refresh_map()
-        image = await entity.async_image()
-        assert image is not None
-        assert image.startswith(b"<svg")
-        assert entity.image_last_updated is not None
-        entity.async_write_ha_state.assert_called_once()  # type: ignore[attr-defined]
+        with patch.object(ElectroluxMapImage, "async_write_ha_state") as write_state:
+            await entity._async_refresh_map()
+            image = await entity.async_image()
+            assert image is not None
+            assert image.startswith(b"<svg")
+            assert entity.image_last_updated is not None
+            write_state.assert_called_once()
 
-        # Same maps again: no new state written
-        await entity._async_refresh_map()
-        entity.async_write_ha_state.assert_called_once()  # type: ignore[attr-defined]
+            # Same maps again: no new state written
+            await entity._async_refresh_map()
+            write_state.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_no_zones_gives_no_image(self):
