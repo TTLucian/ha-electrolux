@@ -50,7 +50,87 @@ async def async_setup_entry(
                 len(entities),
                 appliance_id,
             )
+            if appliance.appliance_type in _PUREI9_TYPES:
+                entities.append(
+                    ElectroluxRvcModeSelect(
+                        coordinator=coordinator,
+                        name=appliance.name,
+                        config_entry=entry,
+                        pnc_id=appliance.pnc_id,
+                        entity_type=SELECT,
+                        entity_name="rvcMode",
+                        entity_attr="rvcMode",
+                        entity_source=None,
+                        capability={},
+                        unit=None,
+                        device_class=None,
+                        entity_category=None,
+                        icon="mdi:fan",
+                    )
+                )
             async_add_entities(entities)
+
+
+# PUREi9 cleaning mode, "Läge" in the Electrolux app. The PUREi9.2 reports
+# powerMode 1-3 (Quiet / Smart / Power); the original PUREi9 only has Eco and
+# Power and reports a boolean ecoMode in place of powerMode, while the API
+# rejects ecoMode writes, so both generations are set through powerMode.
+_PUREI9_TYPES = {"PUREi9"}
+_RVC_MODES_GEN2: dict[str, int] = {"quiet": 1, "smart": 2, "power": 3}
+_RVC_MODES_GEN1: dict[str, int] = {"eco": 1, "power": 3}
+
+
+class ElectroluxRvcModeSelect(ElectroluxEntity, SelectEntity):
+    """PUREi9 cleaning mode with the option names of the Electrolux app."""
+
+    @property
+    def entity_domain(self) -> str:
+        """Entity domain for the entry. Used for consistent entity_id."""
+        return SELECT
+
+    @property
+    def _is_gen1(self) -> bool:
+        """Gen 1 PUREi9 reports ecoMode but not powerMode."""
+        return self.get_state_attr("ecoMode") is not None and self.get_state_attr("powerMode") is None
+
+    @property
+    def _modes(self) -> dict[str, int]:
+        return _RVC_MODES_GEN1 if self._is_gen1 else _RVC_MODES_GEN2
+
+    @property
+    def options(self) -> list[str]:
+        """Return the modes this robot supports."""
+        return list(self._modes)
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current mode."""
+        if self._is_gen1:
+            eco: Any = self.get_state_attr("ecoMode")
+            return "eco" if eco else "power"
+        power_mode: Any = self.get_state_attr("powerMode")
+        if isinstance(power_mode, bool):
+            return None
+        try:
+            level = int(power_mode)
+        except TypeError, ValueError:
+            return None
+        return next((mode for mode, value in _RVC_MODES_GEN2.items() if value == level), None)
+
+    async def async_select_option(self, option: str) -> None:
+        """Set the cleaning mode."""
+        modes = self._modes
+        if option not in modes:
+            raise HomeAssistantError(f"Unsupported mode '{option}' for this robot.")
+        gen1 = self._is_gen1
+        value = modes[option]
+        await execute_command_with_error_handling(
+            self.api, self.pnc_id, {"powerMode": value}, "powerMode", _LOGGER, self.capability
+        )
+        if gen1:
+            self._apply_optimistic_update("ecoMode", option == "eco")
+        else:
+            self._apply_optimistic_update("powerMode", value)
 
 
 class ElectroluxSelect(ElectroluxEntity, SelectEntity):

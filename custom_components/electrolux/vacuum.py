@@ -39,7 +39,7 @@ SERVICE_START_ZONE_CLEANING_SCHEMA = cv.make_entity_service_schema(
                         vol.Required("zone_id"): vol.All(cv.string, vol.Length(min=1)),
                         vol.Optional("power_mode", default=1): vol.Any(
                             vol.All(vol.Coerce(int), vol.Range(min=1, max=3)),
-                            vol.In(["Eco", "Standard", "Power"]),
+                            vol.In(["Quiet", "Smart", "Power", "Eco", "Standard"]),
                         ),
                     }
                 )
@@ -114,9 +114,13 @@ _MODERN_FAN_SPEEDS: list[str] = [
 # PUREi9 uses integer powerMode (1-3) in the API but we expose human-readable
 # labels to the user.  The bidirectional mapping keeps the vacuum entity and
 # the command sender in sync.
-_PUREI9_FAN_SPEEDS: list[str] = ["Eco", "Standard", "Power"]
-_PUREI9_SPEED_TO_INT: dict[str, int] = {"Eco": 1, "Standard": 2, "Power": 3}
+_PUREI9_FAN_SPEEDS: list[str] = ["Quiet", "Smart", "Power"]
+# PUREi9.2 power levels with the names of the Electrolux app (Quiet / Smart /
+# Power). "Eco" and "Standard" were the names used before and are still accepted.
+_PUREI9_SPEED_TO_INT: dict[str, int] = {"Quiet": 1, "Smart": 2, "Power": 3}
 _PUREI9_INT_TO_SPEED: dict[int, str] = {v: k for k, v in _PUREI9_SPEED_TO_INT.items()}
+_PUREI9_LEGACY_SPEED_TO_INT: dict[str, int] = {"Eco": 1, "Standard": 2}
+_PUREI9_ANY_SPEED_TO_INT: dict[str, int] = {**_PUREI9_SPEED_TO_INT, **_PUREI9_LEGACY_SPEED_TO_INT}
 
 # PUREi9 gen 1 (original Pure i9) uses a boolean ecoMode in reported state
 # instead of the integer powerMode.  The device only has two modes: Eco and
@@ -381,7 +385,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         """Return the current fan speed / vacuum mode.
 
         PUREi9 gen 2 reports an integer powerMode (1-3); translate to the
-        human-readable label (Eco / Standard / Power).
+        app label (Quiet / Smart / Power, or the former Eco / Standard).
         PUREi9 gen 1 reports a boolean ecoMode; translate to Eco / Power.
         """
         if self._is_purei9_gen1:
@@ -514,7 +518,8 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
         """Set the vacuum mode / suction level.
 
-        PUREi9 gen 2 accepts the human-readable label (Eco / Standard / Power)
+        PUREi9 gen 2 accepts the app label (Quiet / Smart / Power; the former
+        Eco / Standard are still accepted)
         and translates it to the integer the API expects.
         PUREi9 gen 1 only has 2 modes (Eco / Power); the API rejects direct
         ecoMode writes, so we send powerMode integers (1 / 3) as a workaround
@@ -538,7 +543,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
 
         attr = "powerMode" if self._is_purei9 else "vacuumMode"
         if self._is_purei9:
-            value: Any = _PUREI9_SPEED_TO_INT.get(fan_speed)
+            value: Any = _PUREI9_ANY_SPEED_TO_INT.get(fan_speed)
             if value is None:
                 # Fall back to direct integer for backward compatibility
                 try:
@@ -573,7 +578,7 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         diagnostics (mapData/mapMatch/zones and persistentMapsCreated/mapId).
 
         The power_mode parameter accepts either the integer (1-3) or the
-        human-readable label (Eco / Standard / Power).
+        app label (Quiet / Smart / Power, or the former Eco / Standard).
         """
         if not self.get_appliance.data.get_capability("CustomPlay"):
             raise HomeAssistantError("Zone cleaning is not supported on this device.")
@@ -583,13 +588,13 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         for z in zones:
             pm = z["power_mode"]
             if isinstance(pm, str):
-                if pm not in _PUREI9_SPEED_TO_INT:
+                if pm not in _PUREI9_ANY_SPEED_TO_INT:
                     _LOGGER.warning(
-                        "Unknown power mode '%s' for zone %s — defaulting to Eco (1)",
+                        "Unknown power mode '%s' for zone %s — defaulting to Quiet (1)",
                         pm,
                         z["zone_id"],
                     )
-                pm = _PUREI9_SPEED_TO_INT.get(pm, 1)
+                pm = _PUREI9_ANY_SPEED_TO_INT.get(pm, 1)
             api_zones.append({"goZonesId": z["zone_id"], "powerMode": pm})
 
         command = {

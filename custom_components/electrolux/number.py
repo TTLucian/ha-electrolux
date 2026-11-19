@@ -108,7 +108,13 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     if appliances := coordinator.data.get("appliances", None):
         for appliance_id, appliance in appliances.appliances.items():
-            entities = [entity for entity in appliance.entities if entity.entity_type == NUMBER]
+            entities = [
+                entity
+                for entity in appliance.entities
+                if entity.entity_type == NUMBER
+                # PUREi9: powerMode is offered as the named "mode" select instead
+                and not (appliance.appliance_type == "PUREi9" and entity.entity_attr == "powerMode")
+            ]
             _LOGGER.debug(
                 "Electrolux add %d NUMBER entities to registry for appliance %s",
                 len(entities),
