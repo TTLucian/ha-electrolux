@@ -26,6 +26,7 @@ def test_platforms_defined():
         "text",
         "climate",
         "fan",
+        "image",
         "vacuum",
     ]
     # Convert Platform enums to strings for comparison

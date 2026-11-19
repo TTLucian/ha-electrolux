@@ -395,6 +395,7 @@ This integration works with Electrolux and Electrolux-owned brands (AEG, Frigida
 **🤖 Robot Vacuums** (`PUREi9`, `Gordias`, `Cybele`, `700series`)
 - Battery, charging status and robot state (cleaning, docked, error, going home…)
 - Start/pause/stop and return-to-dock commands
+- *PUREi9:* clean by area: the interactive map zones are offered as segments, so they can be mapped to Home Assistant areas
 - Cleaning mode, vacuum mode, power/eco mode and mute
 - Brush, side brush and filter usage counters
 - Dustbin status and fault codes
