@@ -654,6 +654,15 @@
       },
       "dwywdatatodryer_programuid": {
         "name": "Dwyw data to dryer program UID"
+      },
+      "rvcmode": {
+        "name": "Mode",
+        "state": {
+          "quiet": "Quiet",
+          "smart": "Smart",
+          "power": "Power",
+          "eco": "Eco"
+        }
       }
     },
     "sensor": {
