@@ -35,6 +35,37 @@ _PUREI9_ROBOT_STATUS_VALUES: dict[int | float | str, str] = {
     "14": "End of life",
 }
 
+# Translated PUREi9 robotStatus states (entity.sensor.robotstatus.state.*).
+# 5-8 are the return-to-dock states: after an area clean the robot reports 5
+# while it drives back (see #371). 10 is "Ready to clean" in the app.
+_PUREI9_ROBOT_STATUS_STATES: dict[str, str] = {
+    "1": "cleaning",
+    "2": "paused_cleaning",
+    "3": "spot_cleaning",
+    "4": "paused_spot_cleaning",
+    "5": "returning",
+    "6": "paused_returning",
+    "7": "returning_for_pitstop",
+    "8": "paused_returning_for_pitstop",
+    "9": "charging",
+    "10": "sleeping",
+    "11": "error",
+    "12": "pitstop",
+    "13": "manual_steering",
+    "14": "firmware_upgrade",
+}
+
+# dustbinStatus arrives in lowercase ("connected", "notConnected") while the
+# capability declares upper case; both are matched case-insensitively.
+# Named after the manual: the bin is inserted, taken out, full or just emptied
+# ("empty" is reported right after an emptied bin is put back).
+_DUSTBIN_STATES: dict[str, str] = {
+    "connected": "connected",
+    "notconnected": "not_connected",
+    "full": "full",
+    "empty": "empty",
+}
+
 CATALOG_RVC: dict[str, ElectroluxDevice] = {
     # ── Battery ────────────────────────────────────────────────────────────────
     "batteryStatus": ElectroluxDevice(
@@ -59,6 +90,7 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_icon="mdi:robot-vacuum",
         friendly_name="Robot Status",
         value_mapping=_PUREI9_ROBOT_STATUS_VALUES,
+        translated_states=_PUREI9_ROBOT_STATUS_STATES,
     ),
     # Cleaning command (read-write select)
     "CleaningCommand": ElectroluxDevice(
@@ -94,6 +126,7 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         entity_category=None,
         entity_icon="mdi:trash-can-outline",
         friendly_name="Dustbin Status",
+        translated_states=_DUSTBIN_STATES,
         value_mapping={
             "NOTCONNECTED": "Not connected",
             "CONNECTED": "Connected",
