@@ -1436,6 +1436,21 @@
             },
             "hobcoil": {
                 "name": "Spole"
+            },
+            "lastcleaningstart": {
+                "name": "Senaste städning, start"
+            },
+            "lastcleaningend": {
+                "name": "Senaste städning, slut"
+            },
+            "lastcleaningduration": {
+                "name": "Senaste städning, varaktighet"
+            },
+            "lastcleaningarea": {
+                "name": "Senaste städning, städat"
+            },
+            "lastcleaningrecharges": {
+                "name": "Senaste städning, laddningar"
             }
         },
         "switch": {
