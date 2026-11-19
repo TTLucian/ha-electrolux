@@ -1073,3 +1073,80 @@ class TestNulPaddingSanitization:
         entity = self._make_entity(mock_coordinator, attr="oTA3State")
         entity.reported_state = {"oTA3State": "IDLE"}
         assert entity.native_value == "Idle"
+
+
+class TestRvcTranslatedStates:
+    """robotStatus / dustbinStatus report translatable state keys."""
+
+    def _sensor(self, mock_coordinator, catalog_key, value) -> ElectroluxSensor:
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+
+        entry = CATALOG_RVC[catalog_key]
+        entity = ElectroluxSensor(
+            coordinator=mock_coordinator,
+            name="Robot",
+            config_entry=mock_coordinator.config_entry,
+            pnc_id="TEST_PNC",
+            entity_type=SENSOR,
+            entity_name=catalog_key,
+            entity_attr=catalog_key,
+            entity_source=None,
+            capability=dict(entry.capability_info),
+            unit=None,
+            device_class=SensorDeviceClass.ENUM,
+            entity_category=None,
+            icon="mdi:robot-vacuum",
+            catalog_entry=entry,
+        )
+        entity.hass = mock_coordinator.hass
+        reported = {catalog_key: value}
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {"reported": reported, "desired": {}, "metadata": {}},
+        }
+        entity.reported_state = reported
+        return entity
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [(1, "cleaning"), ("5", "returning"), (6, "paused_returning"), (10, "sleeping"), (14, "firmware_upgrade")],
+    )
+    def test_robot_status_state_keys(self, mock_coordinator, value, expected):
+        assert self._sensor(mock_coordinator, "robotStatus", value).native_value == expected
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [("connected", "connected"), ("notConnected", "not_connected"), ("FULL", "full"), ("empty", "empty")],
+    )
+    def test_dustbin_state_keys_are_case_insensitive(self, mock_coordinator, value, expected):
+        assert self._sensor(mock_coordinator, "dustbinStatus", value).native_value == expected
+
+    @pytest.mark.parametrize("value", [None, True, 99, "unknownState"])
+    def test_unknown_or_invalid_value_is_none(self, mock_coordinator, value):
+        assert self._sensor(mock_coordinator, "robotStatus", value).native_value is None
+        assert self._sensor(mock_coordinator, "dustbinStatus", value).native_value is None
+
+    def test_options_are_the_state_keys(self, mock_coordinator):
+        robot = self._sensor(mock_coordinator, "robotStatus", 10)
+        assert robot.options is not None
+        assert len(robot.options) == 14
+        assert "sleeping" in robot.options
+        dustbin = self._sensor(mock_coordinator, "dustbinStatus", "connected")
+        assert dustbin.options == ["connected", "not_connected", "full", "empty"]
+
+    def test_plain_sensor_has_no_options(self, basic_sensor_entity: ElectroluxSensor):
+        assert basic_sensor_entity.options is None
+
+    def test_every_state_key_is_translated(self):
+        import json
+        from pathlib import Path
+
+        from custom_components.electrolux.catalogs.catalog_rvc import CATALOG_RVC
+
+        base = Path(__file__).parent.parent / "custom_components" / "electrolux"
+        for filename in ("strings.json", "translations/en.json", "translations/sv.json"):
+            sensors = json.loads((base / filename).read_text(encoding="utf-8"))["entity"]["sensor"]
+            for catalog_key, translation_key in (("robotStatus", "robotstatus"), ("dustbinStatus", "dustbinstatus")):
+                states = CATALOG_RVC[catalog_key].translated_states
+                assert states is not None
+                assert set(states.values()) <= set(sensors[translation_key]["state"]), filename
