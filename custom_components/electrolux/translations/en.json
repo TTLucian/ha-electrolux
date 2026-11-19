@@ -1351,10 +1351,10 @@
       "dustbinstatus": {
         "name": "Dustbin status",
         "state": {
-          "connected": "Connected",
-          "not_connected": "Not connected",
+          "connected": "Inserted",
+          "not_connected": "Not inserted",
           "full": "Full",
-          "empty": "Empty"
+          "empty": "Emptied"
         }
       },
       "mainbrushsqm": {

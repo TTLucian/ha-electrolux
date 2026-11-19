@@ -1252,10 +1252,10 @@
             "dustbinstatus": {
                 "name": "Dammbehållare",
                 "state": {
-                    "connected": "Ansluten",
-                    "not_connected": "Ej ansluten",
+                    "connected": "Isatt",
+                    "not_connected": "Ej isatt",
                     "full": "Full",
-                    "empty": "Tom"
+                    "empty": "Tömd"
                 }
             },
             "mainbrushsqm": {

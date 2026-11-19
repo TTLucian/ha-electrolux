@@ -57,6 +57,8 @@ _PUREI9_ROBOT_STATUS_STATES: dict[str, str] = {
 
 # dustbinStatus arrives in lowercase ("connected", "notConnected") while the
 # capability declares upper case; both are matched case-insensitively.
+# Named after the manual: the bin is inserted, taken out, full or just emptied
+# ("empty" is reported right after an emptied bin is put back).
 _DUSTBIN_STATES: dict[str, str] = {
     "connected": "connected",
     "notconnected": "not_connected",
