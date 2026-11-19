@@ -9,7 +9,7 @@ Because the catalog is matched against the device's actual capabilities, placing
 keys in one catalog is safe — each device will only expose its own subset.
 """
 
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.components.switch.const import SwitchDeviceClass
 from homeassistant.const import PERCENTAGE, EntityCategory
 
@@ -147,10 +147,16 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Mute",
     ),
     # ── PUREi9 maintenance counters (reported in m²) ──────────────────────────
+    # The API reports snake_case keys (main_brush_sqm, side_brush_sqm, filter_sqm):
+    # the catalog keys stay camelCase for the existing translation keys and point
+    # at the real state through state_path. The counters restart when the part is
+    # replaced, hence TOTAL_INCREASING.
     "mainBrushSqM": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,
         unit="m²",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        state_path="main_brush_sqm",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:brush",
         friendly_name="Main Brush Usage",
@@ -159,6 +165,8 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         capability_info={"access": "read", "type": "number"},
         device_class=None,
         unit="m²",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        state_path="side_brush_sqm",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:brush",
         friendly_name="Side Brush Usage",
@@ -167,9 +175,47 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         capability_info={"access": "read", "type": "number"},
         device_class=None,
         unit="m²",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        state_path="filter_sqm",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_icon="mdi:air-filter",
         friendly_name="Filter Usage",
+    ),
+    # Remaining life as the Electrolux app shows it ("Rullborste 92 %").
+    # Rated life matches the app on a PUREi9.2: 229.5 m² gives 77 % for the side
+    # brush and particle filter (1000 m²) and 92 % for the brush roll (3000 m²).
+    "mainBrushRemaining": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        state_path="main_brush_sqm",
+        lifetime_sqm=3000,
+        entity_category=None,
+        entity_icon="mdi:brush",
+        friendly_name="Brush Roll",
+    ),
+    "sideBrushRemaining": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        state_path="side_brush_sqm",
+        lifetime_sqm=1000,
+        entity_category=None,
+        entity_icon="mdi:brush",
+        friendly_name="Side Brush",
+    ),
+    "filterRemaining": ElectroluxDevice(
+        capability_info={"access": "read", "type": "number"},
+        device_class=None,
+        unit=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        state_path="filter_sqm",
+        lifetime_sqm=1000,
+        entity_category=None,
+        entity_icon="mdi:air-filter",
+        friendly_name="Particle Filter",
     ),
     # ── Gordias / Cybele / 700series ────────────────────────────────────────────
     # String state (inProgress / goingHome / idle / paused / sleeping / …)
