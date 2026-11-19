@@ -96,6 +96,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if isinstance(value, str):
             value = sanitize_nul_string(value)
 
+        # RVC: wear counters (m² since the part was replaced) as remaining life in %
+        lifetime = getattr(self.catalog_entry, "lifetime_sqm", None) if self.catalog_entry else None
+        if isinstance(lifetime, (int, float)) and not isinstance(lifetime, bool) and lifetime > 0:
+            return self._remaining_life(value, float(lifetime))
+
         # RVC (#130): reduce the persistent-map zone list to a count
         if self.json_path == "mapData/mapMatch/zones":
             return len(value) if isinstance(value, list) and value else None
@@ -271,6 +276,19 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             value = str(value)
 
         return value
+
+    @staticmethod
+    def _remaining_life(value: Any, lifetime: float) -> int | None:
+        """Return the remaining life in % for a wear counter in m² (rounded, as wellbeing does)."""
+        if value is None or isinstance(value, bool):
+            return None
+        try:
+            used = float(value)
+        except TypeError, ValueError:
+            return None
+        if used < 0:
+            return None
+        return max(0, round(100 - used / lifetime * 100))
 
     @property
     def state_class(self) -> SensorStateClass | None:
