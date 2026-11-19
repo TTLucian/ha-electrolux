@@ -182,8 +182,9 @@ CATALOG_RVC: dict[str, ElectroluxDevice] = {
         friendly_name="Filter Usage",
     ),
     # Remaining life as the Electrolux app shows it ("Rullborste 92 %").
-    # Rated life matches the app on a PUREi9.2: 229.5 m² gives 77 % for the side
-    # brush and particle filter (1000 m²) and 92 % for the brush roll (3000 m²).
+    # Rated life matches the app on a PUREi9.2 (229.5 m² gives 77 % for the side
+    # brush and particle filter at 1000 m², 92 % for the brush roll at 3000 m²)
+    # and the rated life homeassistant-wellbeing uses.
     "mainBrushRemaining": ElectroluxDevice(
         capability_info={"access": "read", "type": "number"},
         device_class=None,

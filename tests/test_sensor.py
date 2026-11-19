@@ -1129,6 +1129,7 @@ class TestRvcMaintenanceCounters:
             ("filterRemaining", {"filter_sqm": 229.49999999999997}, 77),
             ("filterRemaining", {"filter_sqm": 0}, 100),
             ("filterRemaining", {"filter_sqm": 1500}, 0),
+            ("mainBrushRemaining", {"main_brush_sqm": 2072.14}, 31),  # rounded, not floored
         ],
     )
     def test_remaining_life_in_percent(self, mock_coordinator, catalog_key, reported, expected):
