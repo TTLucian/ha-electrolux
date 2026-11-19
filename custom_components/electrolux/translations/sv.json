@@ -1661,6 +1661,11 @@
             "hoodfiltercharcindication": {
                 "name": "Indikation för kolfilter"
             }
+        },
+        "image": {
+            "map": {
+                "name": "Karta"
+            }
         }
     }
 }

@@ -917,6 +917,11 @@
       "verticalswing": {
         "default": "mdi:arrow-up-down"
       }
+    },
+    "image": {
+      "map": {
+        "default": "mdi:map"
+      }
     }
   }
 }
