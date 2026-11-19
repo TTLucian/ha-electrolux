@@ -107,9 +107,7 @@ def render_maps_svg(maps: list[dict[str, Any]]) -> str | None:
             else:
                 fill = _ZONE_FILLS[fill_index % len(_ZONE_FILLS)]
                 fill_index += 1
-                body.append(
-                    f'<polygon points="{path}" class="clean" fill="{fill}"><title>{name}</title></polygon>'
-                )
+                body.append(f'<polygon points="{path}" class="clean" fill="{fill}"><title>{name}</title></polygon>')
                 if name:
                     cx, cy = to_svg(_centroid(pts))
                     labels.append(f'<text x="{cx:.1f}" y="{cy:.1f}" class="label">{name}</text>')
