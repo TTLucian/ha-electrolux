@@ -96,6 +96,11 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if isinstance(value, str):
             value = sanitize_nul_string(value)
 
+        # RVC: PUREi9 reports batteryStatus as a step (1-6), not a percentage.
+        # Scale it to 0-100 % the same way the vacuum entity's battery_level does.
+        if self.entity_attr == "batteryStatus":
+            return self._battery_percentage(value)
+
         # RVC (#130): reduce the persistent-map zone list to a count
         if self.json_path == "mapData/mapMatch/zones":
             return len(value) if isinstance(value, list) and value else None
@@ -271,6 +276,30 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             value = str(value)
 
         return value
+
+    def _battery_percentage(self, value: Any) -> int | None:
+        """Convert a ranged batteryStatus value to a 0-100 percentage."""
+        if value is None or isinstance(value, bool):
+            return None
+        try:
+            battery_value = float(value)
+        except TypeError, ValueError:
+            return None
+
+        try:
+            battery_min = float(self.capability["min"])
+            battery_max = float(self.capability["max"])
+        except KeyError, TypeError, ValueError:
+            return round(battery_value)
+
+        # Already a percentage (e.g. 700 series), or a value outside the declared
+        # step range: report it unchanged rather than clamping it to 100 %.
+        if battery_max <= battery_min or (battery_max == 100 and battery_min in (0, 1)) or battery_value > battery_max:
+            return round(battery_value)
+
+        battery_value = max(battery_min, battery_value)
+        percentage = (battery_value - battery_min) / (battery_max - battery_min) * 100
+        return round(max(0.0, min(100.0, percentage)))
 
     @property
     def state_class(self) -> SensorStateClass | None:
