@@ -186,8 +186,8 @@ class TestCreationGate:
         assert _microwave_entity_attrs(None) == set()
 
     def test_gate_is_narrow(self):
-        """Only the microwave power control is gated."""
-        assert CAPABILITY_REQUIRED_CATALOG_KEYS == frozenset({"targetMicrowavePower"})
+        """Only explicitly capability-required catalog keys are gated."""
+        assert CAPABILITY_REQUIRED_CATALOG_KEYS == frozenset({"targetMicrowavePower", "FanSpeed"})
 
     def test_undeclared_catalog_entities_are_still_created(self):
         """targetDuration-style undeclared keys keep the generic behaviour."""
