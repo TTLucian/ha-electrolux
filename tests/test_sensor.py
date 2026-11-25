@@ -1087,6 +1087,7 @@ class TestNulPaddingSanitization:
         entity.reported_state = {"oTA3State": "IDLE"}
         assert entity.native_value == "Idle"
 
+
 class TestValueMappingStringKeys:
     """Catalog mappings keyed by strings must also match int values (PUREi9 robotStatus)."""
 
