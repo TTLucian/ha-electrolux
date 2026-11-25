@@ -1548,3 +1548,32 @@ class TestApiClientSseLogFilter:
         finally:
             client.disconnect_websocket = AsyncMock()
             await client.close()
+
+
+# ---------------------------------------------------------------------------
+# get_interactive_maps
+# ---------------------------------------------------------------------------
+
+
+class TestGetInteractiveMaps:
+    @pytest.mark.asyncio
+    async def test_returns_map_dicts(self):
+        client = _make_client()
+        maps = [{"id": "map-1", "name": "Ground floor", "zones": []}]
+        client._handle_api_call = AsyncMock(return_value=maps)
+
+        assert await client.get_interactive_maps("rvc1") == maps
+
+    @pytest.mark.asyncio
+    async def test_drops_non_dict_items(self):
+        client = _make_client()
+        client._handle_api_call = AsyncMock(return_value=[{"id": "map-1"}, "junk", None])
+
+        assert await client.get_interactive_maps("rvc1") == [{"id": "map-1"}]
+
+    @pytest.mark.asyncio
+    async def test_non_list_response_is_empty(self):
+        client = _make_client()
+        client._handle_api_call = AsyncMock(return_value=None)
+
+        assert await client.get_interactive_maps("rvc1") == []
