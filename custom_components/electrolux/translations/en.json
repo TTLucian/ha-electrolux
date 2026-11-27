@@ -1562,6 +1562,15 @@
       },
       "adtankbsoftstandarddose": {
         "name": "Tank b softener standard dose"
+      },
+      "mainbrushremaining": {
+        "name": "Brush roll"
+      },
+      "sidebrushremaining": {
+        "name": "Side brush"
+      },
+      "filterremaining": {
+        "name": "Particle filter"
       }
     },
     "switch": {
