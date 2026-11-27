@@ -1129,7 +1129,7 @@ class TestValueMappingStringKeys:
 
     def test_bool_is_not_mapped_through_str(self, mock_coordinator):
         sensor = self._sensor(mock_coordinator, True)
-        sensor.catalog_entry.value_mapping = {"True": "Wrong"}
+        sensor.catalog_entry.value_mapping = {"True": "Wrong"}  # type: ignore[reportOptionalMemberAccess]
         assert sensor.native_value is True
 
 
