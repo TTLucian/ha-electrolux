@@ -95,16 +95,16 @@ _PUREI9_STATUS_TO_ACTIVITY: dict[int, VacuumActivity] = {
     2: VacuumActivity.PAUSED,  # Paused cleaning
     3: VacuumActivity.CLEANING,  # Spot cleaning
     4: VacuumActivity.PAUSED,  # Paused spot cleaning
-    5: VacuumActivity.CLEANING,  # Zone cleaning
-    6: VacuumActivity.PAUSED,  # Paused zone cleaning
-    7: VacuumActivity.CLEANING,  # Collecting (returning to dock mid-station)
-    8: VacuumActivity.PAUSED,  # Paused collecting
-    9: VacuumActivity.DOCKED,  # Docked
+    5: VacuumActivity.RETURNING,  # Returning to the dock
+    6: VacuumActivity.PAUSED,  # Paused returning
+    7: VacuumActivity.RETURNING,  # Returning for pitstop (recharge mid-clean)
+    8: VacuumActivity.PAUSED,  # Paused returning for pitstop
+    9: VacuumActivity.DOCKED,  # Charging
     10: VacuumActivity.DOCKED,  # Sleeping
     11: VacuumActivity.ERROR,  # Error
-    12: VacuumActivity.DOCKED,  # Fully charged
-    13: VacuumActivity.RETURNING,  # Going home
-    14: VacuumActivity.ERROR,  # End of life (needs service)
+    12: VacuumActivity.DOCKED,  # Pitstop (charging mid-clean)
+    13: VacuumActivity.IDLE,  # Manual steering
+    14: VacuumActivity.IDLE,  # Firmware upgrade
 }
 
 # ── Fan speed / vacuum mode lists ─────────────────────────────────────────────
