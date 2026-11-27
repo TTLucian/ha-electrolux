@@ -1122,6 +1122,9 @@ class TestRvcMaintenanceCounters:
             catalog_entry=entry,
         )
         entity.hass = mock_coordinator.hass
+        return entity
+
+
 class TestValueMappingStringKeys:
     """Catalog mappings keyed by strings must also match int values (PUREi9 robotStatus)."""
 
@@ -1218,6 +1221,7 @@ class TestBatteryStatusSensor:
     def test_remaining_life_invalid_value_is_none(self, mock_coordinator, value):
         entity = self._sensor(mock_coordinator, "filterRemaining", {"filter_sqm": value})
         assert entity.native_value is None
+
     @pytest.mark.parametrize(
         ("value", "expected"),
         [(1, 0), (2, 20), (3, 40), (4, 60), (5, 80), (6, 100), ("5", 80)],
