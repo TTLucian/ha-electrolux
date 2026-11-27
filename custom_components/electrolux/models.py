@@ -91,7 +91,11 @@ class ApplianceState(TypedDict, total=False):
 # SPX_AO4TK1. Program count is not usable - GT3_PS1_Ca advertises the capability
 # with zero microwave programs, and GT3_CMW advertises it with every microwave
 # program disabled.
-CAPABILITY_REQUIRED_CATALOG_KEYS: frozenset[str] = frozenset({"targetMicrowavePower"})
+#
+# ``FanSpeed`` is Fuji's command-key alias for reported ``Fanspeed``. Its
+# ``state_path`` would otherwise cause an unadvertised command entity to be
+# created on appliances that report ``Fanspeed`` but only advertise that key.
+CAPABILITY_REQUIRED_CATALOG_KEYS: frozenset[str] = frozenset({"targetMicrowavePower", "FanSpeed"})
 
 
 class ApplianceData:

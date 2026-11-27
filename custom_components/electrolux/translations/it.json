@@ -574,6 +574,12 @@
             }
         },
         "select": {
+            "adtankasel": {
+                "name": "Dosaggio automatico serbatoio A"
+            },
+            "adtankbsel": {
+                "name": "Dosaggio automatico serbatoio B"
+            },
             "drynessvalue": {
                 "name": "Livello di asciugatura"
             },
@@ -657,6 +663,15 @@
             }
         },
         "sensor": {
+            "fcpn_wmalert": {
+                "name": "Funzione avvisi lavatrice"
+            },
+            "fcpn_wmmaintenances": {
+                "name": "Funzione manutenzione lavatrice"
+            },
+            "pnwmanticreaseextension": {
+                "name": "Estensione antipiega"
+            },
             "starttime": {
                 "name": "Avvio ritardato"
             },
