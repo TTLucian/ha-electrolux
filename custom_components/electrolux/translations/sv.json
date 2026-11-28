@@ -582,6 +582,15 @@
             },
             "hoodfiltergreaseindication": {
                 "name": "Fettfilterindikering"
+            },
+            "rvcmode": {
+                "name": "Läge",
+                "state": {
+                    "quiet": "Tyst",
+                    "smart": "Smart",
+                    "power": "Power",
+                    "eco": "Eco"
+                }
             }
         },
         "sensor": {

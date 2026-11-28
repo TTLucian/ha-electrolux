@@ -23,7 +23,8 @@ start_zone_cleaning:
       description: >-
         List of zones to clean. Each entry needs zone_id (UUID from
         mapData/mapMatch/zones[].uuid) and optional power_mode
-        (1/Eco, 2/Standard, 3/Power — default 1).
+        (1/Quiet, 2/Smart, 3/Power — the former Eco/Standard also work;
+        default 1).
       required: true
       example:
         - zone_id: "9082f714-bdba-4f3a-892f-46b2ff2e07de"

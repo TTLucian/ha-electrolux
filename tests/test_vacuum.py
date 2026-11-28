@@ -157,7 +157,7 @@ class TestElectroluxVacuumPurei9:
     def test_fan_speed_list_uses_human_readable_labels(self):
         vacuum = _make_purei9_vacuum()
 
-        assert vacuum.fan_speed_list == ["Eco", "Standard", "Power"]
+        assert vacuum.fan_speed_list == ["Quiet", "Smart", "Power"]
 
     def test_fan_speed_list_respects_device_capability_range(self):
         """fan_speed_list only includes modes within the device's capability range."""
@@ -169,7 +169,7 @@ class TestElectroluxVacuumPurei9:
             else vacuum.get_appliance.data.capabilities.get(key)
         )
 
-        assert vacuum.fan_speed_list == ["Eco", "Standard"]
+        assert vacuum.fan_speed_list == ["Quiet", "Smart"]
 
     def test_battery_level_scales_purei9_levels_to_percentage(self):
         vacuum = _make_purei9_vacuum()
@@ -342,8 +342,8 @@ class TestElectroluxVacuumPurei9:
     def test_fan_speed_returns_mapped_label(self):
         """fan_speed property returns human-readable label for current powerMode."""
         vacuum = _make_purei9_vacuum()
-        # powerMode is 2 in the test fixture, which maps to "Standard"
-        assert vacuum.fan_speed == "Standard"
+        # powerMode is 2 in the test fixture, which maps to "Smart"
+        assert vacuum.fan_speed == "Smart"
 
     def test_supported_features_includes_all_expected_features(self):
         """Vacuum supports start, stop, pause, return_home, fan_speed."""
