@@ -598,7 +598,10 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
         The power_mode parameter accepts either the integer (1-3) or the
         human-readable label (Eco / Standard / Power).
         """
-        if not self.get_appliance.data.get_capability("CustomPlay"):
+        # The API reports CustomPlay flattened ("CustomPlay/persistentMapId",
+        # "CustomPlay/zones"), so a lookup of "CustomPlay" alone never matches.
+        data = self.get_appliance.data
+        if not (data.get_capability("CustomPlay") or data.get_capability("CustomPlay/zones")):
             raise HomeAssistantError("Zone cleaning is not supported on this device.")
 
         # Translate human-readable labels to the integer the API expects
@@ -613,7 +616,9 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                         z["zone_id"],
                     )
                 pm = _PUREI9_SPEED_TO_INT.get(pm, 1)
-            api_zones.append({"goZonesId": z["zone_id"], "powerMode": pm})
+            # "zoneId", as in CLEAN_AREA (async_clean_segments) and the
+            # Electrolux SDK; confirmed on a PUREi9.2.
+            api_zones.append({"zoneId": z["zone_id"], "powerMode": pm})
 
         command = {
             "CustomPlay": {
