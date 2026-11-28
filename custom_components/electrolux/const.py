@@ -14,6 +14,7 @@ BINARY_SENSOR = Platform.BINARY_SENSOR
 BUTTON = Platform.BUTTON
 CLIMATE = Platform.CLIMATE
 FAN = Platform.FAN
+IMAGE = Platform.IMAGE
 NUMBER = Platform.NUMBER
 SELECT = Platform.SELECT
 SENSOR = Platform.SENSOR
@@ -25,6 +26,7 @@ PLATFORMS = [
     BUTTON,
     CLIMATE,
     FAN,
+    IMAGE,
     NUMBER,
     SELECT,
     SENSOR,
