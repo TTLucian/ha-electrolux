@@ -255,7 +255,7 @@
                 "name": "Underhåll {index} inträffade"
             },
             "ecomode": {
-                "name": "Eko-läge"
+                "name": "Eco-läge"
             },
             "hmepn_acairfilterclean": {
                 "name": "Rengöring av luftfiltret krävs"
@@ -537,7 +537,7 @@
                 "name": "Målfuktighet"
             },
             "powermode": {
-                "name": "Strömläge"
+                "name": "Läge"
             },
             "targetmicrowavepower": {
                 "name": "Mål för mikrovågseffekt"
@@ -582,6 +582,9 @@
             },
             "hoodfiltergreaseindication": {
                 "name": "Fettfilterindikering"
+            },
+            "cleaningcommand": {
+                "name": "Städkommando"
             }
         },
         "sensor": {
@@ -1225,13 +1228,35 @@
                 "name": "Batteri"
             },
             "robotstatus": {
-                "name": "Robotstatus"
+                "name": "Robotstatus",
+                "state": {
+                    "cleaning": "Städar",
+                    "paused_cleaning": "Pausad",
+                    "spot_cleaning": "Punktstädning",
+                    "paused_spot_cleaning": "Punktstädning pausad",
+                    "returning": "Återvänder till laddarbasen",
+                    "paused_returning": "Återvändning pausad",
+                    "returning_for_pitstop": "Återvänder för att ladda",
+                    "paused_returning_for_pitstop": "Återvändning för laddning pausad",
+                    "charging": "Laddar",
+                    "sleeping": "Redo att städa",
+                    "error": "Fel",
+                    "pitstop": "Laddar för att fortsätta städa",
+                    "manual_steering": "Manuell styrning",
+                    "firmware_upgrade": "Uppgraderar programvaran"
+                }
             },
             "cleaningcommand": {
                 "name": "Rengöringskommando"
             },
             "dustbinstatus": {
-                "name": "Status för soptunna"
+                "name": "Dammbehållare",
+                "state": {
+                    "connected": "Isatt",
+                    "not_connected": "Ej isatt",
+                    "full": "Full",
+                    "empty": "Tömd"
+                }
             },
             "mainbrushsqm": {
                 "name": "Rullborste, städad yta"
@@ -1479,7 +1504,7 @@
                 "name": "Sabbatsläge"
             },
             "ecomode": {
-                "name": "Eko-läge"
+                "name": "Eco-läge"
             },
             "ui2lockmode": {
                 "name": "Ui 2lock-läge"
@@ -1665,7 +1690,7 @@
                 "name": "Uv-ljus"
             },
             "mute": {
-                "name": "Stum"
+                "name": "Tyst läge"
             },
             "hoodfiltercharcindication": {
                 "name": "Indikation för kolfilter"

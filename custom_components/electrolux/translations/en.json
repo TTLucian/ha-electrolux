@@ -660,6 +660,9 @@
       },
       "dwywdatatodryer_programuid": {
         "name": "Dwyw data to dryer program UID"
+      },
+      "cleaningcommand": {
+        "name": "Cleaning command"
       }
     },
     "sensor": {
@@ -1339,13 +1342,35 @@
         "name": "Battery"
       },
       "robotstatus": {
-        "name": "Robot status"
+        "name": "Robot status",
+        "state": {
+          "cleaning": "Cleaning",
+          "paused_cleaning": "Paused",
+          "spot_cleaning": "Spot cleaning",
+          "paused_spot_cleaning": "Spot cleaning paused",
+          "returning": "Returning to dock",
+          "paused_returning": "Return to dock paused",
+          "returning_for_pitstop": "Returning to recharge",
+          "paused_returning_for_pitstop": "Return to recharge paused",
+          "charging": "Charging",
+          "sleeping": "Ready to clean",
+          "error": "Error",
+          "pitstop": "Recharging to resume",
+          "manual_steering": "Manual steering",
+          "firmware_upgrade": "Updating software"
+        }
       },
       "cleaningcommand": {
         "name": "Cleaning command"
       },
       "dustbinstatus": {
-        "name": "Dustbin status"
+        "name": "Dustbin status",
+        "state": {
+          "connected": "Inserted",
+          "not_connected": "Not inserted",
+          "full": "Full",
+          "empty": "Emptied"
+        }
       },
       "mainbrushsqm": {
         "name": "Main brush usage"

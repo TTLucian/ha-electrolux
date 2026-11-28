@@ -104,6 +104,11 @@ class ElectroluxDevice:
     # Example: {"STOPRESET": ["RUNNING", "PAUSED"], "START": ["READY_TO_START"]}
     available_when_states: dict[str, list[str]] | None = None
 
+    # Translated enum states: maps the reported value (compared as a lowercase
+    # string) to a state key. The sensor then reports that key, lists the keys as
+    # its options and Home Assistant translates them (entity.sensor.<key>.state).
+    translated_states: dict[str, str] | None = None
+
 
 class ElectroluxTokenStore(TypedDict):
     """Serialized exposed entities storage storage collection."""

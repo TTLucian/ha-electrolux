@@ -106,6 +106,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if isinstance(lifetime, (int, float)) and not isinstance(lifetime, bool) and lifetime > 0:
             return self._remaining_life(value, float(lifetime))
 
+        # Translated enum states (RVC robotStatus / dustbinStatus)
+        if (states := self._translated_states) is not None:
+            if value is None or isinstance(value, bool):
+                return None
+            return states.get(str(value).lower())
+
         # RVC (#130): reduce the persistent-map zone list to a count
         if self.json_path == "mapData/mapMatch/zones":
             return len(value) if isinstance(value, list) and value else None
@@ -321,6 +327,18 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if used < 0:
             return None
         return max(0, round(100 - used / lifetime * 100))
+
+    @property
+    def _translated_states(self) -> dict[str, str] | None:
+        states = getattr(self.catalog_entry, "translated_states", None) if self.catalog_entry else None
+        return states if isinstance(states, dict) and states else None
+
+    @property
+    def options(self) -> list[str] | None:
+        """Return the state keys of a translated enum sensor."""
+        if (states := self._translated_states) is not None:
+            return list(dict.fromkeys(states.values()))
+        return None
 
     @property
     def state_class(self) -> SensorStateClass | None:
