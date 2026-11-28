@@ -1122,7 +1122,36 @@ class TestRvcMaintenanceCounters:
             catalog_entry=entry,
         )
         entity.hass = mock_coordinator.hass
+        entity.appliance_status = {
+            "applianceId": "test_appliance",
+            "properties": {"reported": reported, "desired": {}, "metadata": {}},
+        }
+        entity.reported_state = reported
         return entity
+
+    def test_usage_counter_reads_the_snake_case_key(self, mock_coordinator):
+        entity = self._sensor(mock_coordinator, "filterSqM", {"filter_sqm": 229.49999999999997})
+        assert entity.native_value == pytest.approx(229.5)
+
+    @pytest.mark.parametrize(
+        ("catalog_key", "reported", "expected"),
+        [
+            # values seen in the Electrolux app for a PUREi9.2 at 229.5 m²
+            ("sideBrushRemaining", {"side_brush_sqm": 229.49999999999997}, 77),
+            ("mainBrushRemaining", {"main_brush_sqm": 229.49999999999997}, 92),
+            ("filterRemaining", {"filter_sqm": 229.49999999999997}, 77),
+            ("filterRemaining", {"filter_sqm": 0}, 100),
+            ("filterRemaining", {"filter_sqm": 1500}, 0),
+            ("mainBrushRemaining", {"main_brush_sqm": 2072.14}, 31),  # rounded, not floored
+        ],
+    )
+    def test_remaining_life_in_percent(self, mock_coordinator, catalog_key, reported, expected):
+        assert self._sensor(mock_coordinator, catalog_key, reported).native_value == expected
+
+    @pytest.mark.parametrize("value", [None, True, "n/a", -1])
+    def test_remaining_life_invalid_value_is_none(self, mock_coordinator, value):
+        entity = self._sensor(mock_coordinator, "filterRemaining", {"filter_sqm": value})
+        assert entity.native_value is None
 
 
 class TestValueMappingStringKeys:
@@ -1197,30 +1226,6 @@ class TestBatteryStatusSensor:
         }
         entity.reported_state = reported
         return entity
-
-    def test_usage_counter_reads_the_snake_case_key(self, mock_coordinator):
-        entity = self._sensor(mock_coordinator, "filterSqM", {"filter_sqm": 229.49999999999997})
-        assert entity.native_value == pytest.approx(229.5)
-
-    @pytest.mark.parametrize(
-        ("catalog_key", "reported", "expected"),
-        [
-            # values seen in the Electrolux app for a PUREi9.2 at 229.5 m²
-            ("sideBrushRemaining", {"side_brush_sqm": 229.49999999999997}, 77),
-            ("mainBrushRemaining", {"main_brush_sqm": 229.49999999999997}, 92),
-            ("filterRemaining", {"filter_sqm": 229.49999999999997}, 77),
-            ("filterRemaining", {"filter_sqm": 0}, 100),
-            ("filterRemaining", {"filter_sqm": 1500}, 0),
-            ("mainBrushRemaining", {"main_brush_sqm": 2072.14}, 31),  # rounded, not floored
-        ],
-    )
-    def test_remaining_life_in_percent(self, mock_coordinator, catalog_key, reported, expected):
-        assert self._sensor(mock_coordinator, catalog_key, reported).native_value == expected
-
-    @pytest.mark.parametrize("value", [None, True, "n/a", -1])
-    def test_remaining_life_invalid_value_is_none(self, mock_coordinator, value):
-        entity = self._sensor(mock_coordinator, "filterRemaining", {"filter_sqm": value})
-        assert entity.native_value is None
 
     @pytest.mark.parametrize(
         ("value", "expected"),
