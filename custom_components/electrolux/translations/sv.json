@@ -1259,13 +1259,13 @@
                 }
             },
             "mainbrushsqm": {
-                "name": "Användning av huvudborsten"
+                "name": "Rullborste, städad yta"
             },
             "sidebrushsqm": {
-                "name": "Användning av sidoborste"
+                "name": "Sidoborste, städad yta"
             },
             "filtersqm": {
-                "name": "Filteranvändning"
+                "name": "Partikelfilter, städad yta"
             },
             "state": {
                 "name": "Rengöringstillstånd"
@@ -1461,6 +1461,15 @@
             },
             "hobcoil": {
                 "name": "Spole"
+            },
+            "mainbrushremaining": {
+                "name": "Rullborste"
+            },
+            "sidebrushremaining": {
+                "name": "Sidoborste"
+            },
+            "filterremaining": {
+                "name": "Partikelfilter"
             }
         },
         "switch": {

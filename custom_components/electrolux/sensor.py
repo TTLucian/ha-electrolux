@@ -96,6 +96,16 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
         if isinstance(value, str):
             value = sanitize_nul_string(value)
 
+        # RVC: PUREi9 reports batteryStatus as a step (1-6), not a percentage.
+        # Scale it to 0-100 % the same way the vacuum entity's battery_level does.
+        if self.entity_attr == "batteryStatus":
+            return self._battery_percentage(value)
+
+        # RVC: wear counters (m² since the part was replaced) as remaining life in %
+        lifetime = getattr(self.catalog_entry, "lifetime_sqm", None) if self.catalog_entry else None
+        if isinstance(lifetime, (int, float)) and not isinstance(lifetime, bool) and lifetime > 0:
+            return self._remaining_life(value, float(lifetime))
+
         # Translated enum states (RVC robotStatus / dustbinStatus)
         if (states := self._translated_states) is not None:
             if value is None or isinstance(value, bool):
@@ -136,6 +146,12 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
                 "OVERLOAD",
             ]:
                 return None
+
+        # autoLocalTimeOffset reports the int32 minimum (-2147483648) when the
+        # appliance has no automatic local time offset: hide it instead of
+        # showing a -68 year offset.
+        if self.entity_attr.split("/")[-1] == "autoLocalTimeOffset" and value == -2147483648:
+            return None
 
         # Special handling for timeToEnd sensors: return seconds for countdown display
         if self.entity_attr == "timeToEnd" or self.entity_attr.endswith("TimeToEnd"):
@@ -249,6 +265,9 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             _LOGGER.debug("Mapping %s: %s to %s", self.json_path, value, mapping)
             if value in mapping:
                 value = mapping.get(value, value)
+            elif not isinstance(value, bool) and str(value) in mapping:
+                # PUREi9 reports robotStatus as an int while the catalog keys are strings
+                value = mapping[str(value)]
 
         if isinstance(value, str):
             # Normalization fix for issue #55: Convert spaced variations like "End Of Cycle"
@@ -271,6 +290,43 @@ class ElectroluxSensor(ElectroluxEntity, SensorEntity):
             value = str(value)
 
         return value
+
+    def _battery_percentage(self, value: Any) -> int | None:
+        """Convert a ranged batteryStatus value to a 0-100 percentage."""
+        if value is None or isinstance(value, bool):
+            return None
+        try:
+            battery_value = float(value)
+        except TypeError, ValueError:
+            return None
+
+        try:
+            battery_min = float(self.capability["min"])
+            battery_max = float(self.capability["max"])
+        except KeyError, TypeError, ValueError:
+            return round(battery_value)
+
+        # Already a percentage (e.g. 700 series), or a value outside the declared
+        # step range: report it unchanged rather than clamping it to 100 %.
+        if battery_max <= battery_min or (battery_max == 100 and battery_min in (0, 1)) or battery_value > battery_max:
+            return round(battery_value)
+
+        battery_value = max(battery_min, battery_value)
+        percentage = (battery_value - battery_min) / (battery_max - battery_min) * 100
+        return round(max(0.0, min(100.0, percentage)))
+
+    @staticmethod
+    def _remaining_life(value: Any, lifetime: float) -> int | None:
+        """Return the remaining life in % for a wear counter in m² (rounded, as wellbeing does)."""
+        if value is None or isinstance(value, bool):
+            return None
+        try:
+            used = float(value)
+        except TypeError, ValueError:
+            return None
+        if used < 0:
+            return None
+        return max(0, round(100 - used / lifetime * 100))
 
     @property
     def _translated_states(self) -> dict[str, str] | None:

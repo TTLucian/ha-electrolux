@@ -574,6 +574,12 @@
       }
     },
     "select": {
+      "adtankasel": {
+        "name": "Automatic dosing tank A"
+      },
+      "adtankbsel": {
+        "name": "Automatic dosing tank B"
+      },
       "drynessvalue": {
         "name": "Dryness level"
       },
@@ -660,6 +666,15 @@
       }
     },
     "sensor": {
+      "fcpn_wmalert": {
+        "name": "Washer alert feature"
+      },
+      "fcpn_wmmaintenances": {
+        "name": "Washer maintenance feature"
+      },
+      "pnwmanticreaseextension": {
+        "name": "Anti-crease extension"
+      },
       "starttime": {
         "name": "Delayed start"
       },
@@ -1572,6 +1587,15 @@
       },
       "adtankbsoftstandarddose": {
         "name": "Tank b softener standard dose"
+      },
+      "mainbrushremaining": {
+        "name": "Brush roll"
+      },
+      "sidebrushremaining": {
+        "name": "Side brush"
+      },
+      "filterremaining": {
+        "name": "Particle filter"
       }
     },
     "switch": {

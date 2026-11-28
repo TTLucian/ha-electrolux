@@ -131,6 +131,11 @@ class ElectroluxEntity(CoordinatorEntity):
 
     appliance_status: ApplianceState | dict[str, Any] | None
 
+    @property
+    def _name_translation_key(self) -> str | None:
+        """Return translation key for entity name resolution."""
+        return super()._name_translation_key
+
     def __init__(
         self,
         coordinator: ElectroluxCoordinator,

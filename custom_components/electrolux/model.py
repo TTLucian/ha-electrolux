@@ -70,6 +70,10 @@ class ElectroluxDevice:
     # display both and the button can be converted to a switch
     state_mapping: str | None = None
 
+    # wear counters reported as m² cleaned since the part was replaced: when set,
+    # the sensor shows the remaining life in % of this rated life (as the app does)
+    lifetime_sqm: float | None = None
+
     # enable the entity by default but can be disabled in the catalog
     # some entities are not useful for most users and clog the logbook
     entity_registry_enabled_default: bool = True
