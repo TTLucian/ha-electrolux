@@ -616,7 +616,9 @@ class ElectroluxVacuum(ElectroluxEntity, StateVacuumEntity):
                         z["zone_id"],
                     )
                 pm = _PUREI9_SPEED_TO_INT.get(pm, 1)
-            api_zones.append({"goZonesId": z["zone_id"], "powerMode": pm})
+            # "zoneId", as in CLEAN_AREA (async_clean_segments) and the
+            # Electrolux SDK; confirmed on a PUREi9.2.
+            api_zones.append({"zoneId": z["zone_id"], "powerMode": pm})
 
         command = {
             "CustomPlay": {

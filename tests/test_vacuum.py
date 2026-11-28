@@ -928,11 +928,11 @@ class TestElectroluxVacuumZoneCleaning:
                 "persistentMapId": "afb13c1b-b557-4a11-84a6-5bfaef90304e",
                 "zones": [
                     {
-                        "goZonesId": "9082f714-bdba-4f3a-892f-46b2ff2e07de",
+                        "zoneId": "9082f714-bdba-4f3a-892f-46b2ff2e07de",
                         "powerMode": 1,
                     },
                     {
-                        "goZonesId": "5cda7995-d3db-4f5d-bd53-b51099e0674c",
+                        "zoneId": "5cda7995-d3db-4f5d-bd53-b51099e0674c",
                         "powerMode": 2,
                     },
                 ],
