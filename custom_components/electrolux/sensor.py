@@ -10,6 +10,7 @@ from homeassistant.const import UnitOfTemperature, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .cleaning_session import create_last_cleaning_sensors
 from .const import SENSOR, TIME_INVALID_SENTINEL
 from .entity import ElectroluxEntity
 from .util import get_capability, sanitize_nul_string, time_seconds_to_minutes
@@ -55,6 +56,8 @@ async def async_setup_entry(
                         )
                         continue
                 filtered.append(entity)
+            if appliance.appliance_type == "PUREi9":
+                filtered.extend(create_last_cleaning_sensors(coordinator, entry, appliance))
             _LOGGER.debug(
                 "Electrolux add %d SENSOR entities to registry for appliance %s",
                 len(filtered),

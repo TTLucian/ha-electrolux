@@ -1565,6 +1565,21 @@
       },
       "filterremaining": {
         "name": "Particle filter"
+      },
+      "lastcleaningstart": {
+        "name": "Last cleaning start"
+      },
+      "lastcleaningend": {
+        "name": "Last cleaning end"
+      },
+      "lastcleaningduration": {
+        "name": "Last cleaning duration"
+      },
+      "lastcleaningarea": {
+        "name": "Last cleaning area"
+      },
+      "lastcleaningrecharges": {
+        "name": "Last cleaning recharges"
       }
     },
     "switch": {
